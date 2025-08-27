@@ -1,262 +1,294 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
+import prisma from "@/lib/prisma";
+import { getSiteUrl } from "@/lib/url-builder";
+import HeaderInline from "../parts/HeaderInline";
 import HeroGallery from "../parts/HeroGallery";
 import ArticleBody from "../parts/ArticleBody";
 import StickyInsightsPanel from "../parts/StickyInsightsPanel";
+import Container from "../parts/Container";
 import CommentsSection from "../parts/CommentsSection";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
 
+type Article = {
+  id: string;
+  title: string;
+  subtitle?: string | null;
+  summary?: string | null;
+  content: string | null;
+  featured_image: string | null;
+  published_at: Date | null;
+  updated_at?: Date | null;
+  readMinutes?: number | null;
+  views?: number;
+  images?: { url: string; alt?: string | null; width?: number | null; height?: number | null }[];
+  author?: { id: string; name: string | null; email?: string | null; avatar?: string | null; role?: string | null } | null;
+  article_author?: { 
+    id: string; 
+    full_name: string | null; 
+    slug: string | null; 
+    title?: string | null; 
+    avatar_url?: string | null;
+    specializations?: any;
+    bio?: string | null;
+  } | null;
+  categories?: { id: string; name: string; slug: string; color?: string | null; icon?: string | null } | null;
+};
+
+type Insights = {
+  views: number;
+  readsCompleted: number;
+  avgReadTimeSec: number;
+  interactions: { likes: number; comments: number; shares: number };
+  ai: {
+    shortSummary: string;
+    sentiment: "إيجابي" | "سلبي" | "محايد";
+    topic: string;
+    readerFitScore: number;
+    recommendations: { id: string; title: string; url: string }[];
+  };
+};
+
 async function getArticle(slug: string) {
-  try {
-    const article = await prisma.articles.findFirst({
-      where: {
-        OR: [
-          { slug },
-          { id: slug }
-        ],
-        status: "published"
-      }
-    });
-    
-    if (!article) return null;
-    
-    // جلب الوسائط (إن وجدت)
-    let media: any[] = [];
-    try {
-      // محاولة جلب من جدول NewsArticleAssets إن وجد
-      const assets = await prisma.newsArticleAssets.findMany({
-        where: {
-          articleId: article.id
-        },
-        orderBy: { createdAt: "asc" }
-      });
-      
-      media = assets.map(asset => ({
-        id: asset.id,
-        file_path: asset.imageUrl,
-        alt_text: asset.altText,
-        is_featured: asset.type === 'HERO'
-      }));
-    } catch (e) {
-      console.log("No media found for article");
-    }
-    
-    // جلب معلومات الكاتب
-    let author = null;
-    if (article.author_id) {
-      author = await prisma.users.findUnique({
-        where: { id: article.author_id },
-        select: {
-          id: true,
-          name: true,
-          avatar: true,
-          role: true
-        }
-      });
-    }
-    
-    // تحديث عداد المشاهدات
-    await prisma.articles.update({
-      where: { id: article.id },
-      data: { views: { increment: 1 } }
-    });
-    
-    return {
-      ...article,
-      media,
-      users: author
-    };
-  } catch (error) {
-    console.error("Error fetching article:", error);
-    return null;
+  const article = await prisma.articles.findFirst({
+    where: { OR: [{ slug }, { id: slug }], status: "published" },
+    include: {
+      author: { select: { id: true, name: true, email: true, avatar: true, role: true } },
+      article_author: { 
+        select: { 
+          id: true, 
+          full_name: true, 
+          slug: true, 
+          title: true, 
+          avatar_url: true,
+          specializations: true,
+          bio: true
+        } 
+      },
+      categories: { select: { id: true, name: true, slug: true, color: true, icon: true } },
+    },
+  });
+
+  if (!article) return null;
+
+  const images: Article["images"] = [];
+  if (article.featured_image) {
+    images.push({ url: article.featured_image, alt: article.title || undefined, width: 1600, height: 900 });
   }
+
+  const mapped: Article = {
+    id: article.id,
+    title: article.title || "",
+    subtitle: (article as any)?.metadata?.subtitle || null,
+    summary: (article as any).summary || (article as any).excerpt || null,
+    content: article.content || null,
+    featured_image: article.featured_image,
+    published_at: article.published_at,
+    updated_at: article.updated_at,
+    readMinutes: (article as any).reading_time || null,
+    views: article.views || 0,
+    images,
+    author: article.author,
+    article_author: (article as any).article_author,
+    categories: article.categories,
+  };
+
+  return mapped;
 }
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: { slug: string } 
-}) {
-  const article = await getArticle(params.slug);
-  
+async function getInsights(articleId: string): Promise<Insights> {
+  return {
+    views: 0,
+    readsCompleted: 0,
+    avgReadTimeSec: Math.max(60, 60 * 3),
+    interactions: { likes: 0, comments: 0, shares: 0 },
+    ai: {
+      shortSummary: "ملخص تجريبي قصير سيتم توليده لاحقاً من خدمة الذكاء الاصطناعي.",
+      sentiment: "محايد",
+      topic: "أخبار عامة",
+      readerFitScore: 60,
+      recommendations: [],
+    },
+  };
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await getArticle(decodeURIComponent(slug));
+  const SITE_URL = getSiteUrl();
+
   if (!article) {
-    return {
-      title: "المقال غير موجود",
-      description: "عذراً، المقال الذي تبحث عنه غير موجود"
-    };
+    return { title: "خبر تجريبي غير موجود" };
   }
+
+  const image = article.featured_image ? (article.featured_image.startsWith("http") ? article.featured_image : `${SITE_URL}${article.featured_image}`) : `${SITE_URL}/images/sabq-logo-social.svg`;
 
   return {
     title: article.title,
-    description: article.summary || article.excerpt || article.seo_description,
-    openGraph: {
-      title: article.title,
-      description: article.summary || article.excerpt || article.seo_description,
-      images: article.featured_image ? [{
-        url: article.featured_image,
-        width: 1200,
-        height: 675,
-        alt: article.title
-      }] : []
-    }
+    description: article.summary || undefined,
+    openGraph: { title: article.title, description: article.summary || undefined, images: [image], type: "article" },
+    twitter: { card: "summary_large_image", title: article.title, description: article.summary || undefined, images: [image] },
+    alternates: { canonical: `${SITE_URL}/experiment/news/${slug}/lite` },
   };
 }
 
-export default async function LiteArticlePage({
-  params
-}: {
-  params: { slug: string };
-}) {
-  const article = await getArticle(params.slug);
-  
-  if (!article) {
-    notFound();
-  }
+export default async function LiteNewsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article = await getArticle(decodeURIComponent(slug));
+  if (!article) return notFound();
 
-  // استخراج الصور
-  const featuredImage = article.media?.find(m => m.is_featured) || article.media?.[0] || 
-    (article.featured_image ? { file_path: article.featured_image, alt_text: article.title } : null);
-  const galleryImages = article.media?.filter(m => !m.is_featured) || [];
+  const insights = await getInsights(article.id);
+  const contentHtml = article.content || "";
 
-  // إعداد البيانات للمكونات
-  const contentHtml = article.content;
-  const hiddenImageUrls: string[] = [];
-  
-  // معالج الوسائط
-  const processedMedia: any[] = article.media || [];
-  if (article.featured_image && !processedMedia.length) {
-    processedMedia.push({
-      id: 'featured',
-      file_path: article.featured_image,
-      type: 'image',
-      caption: article.featured_image_caption || '',
-      alt_text: article.featured_image_alt || article.title,
-      is_featured: true,
-      display_order: 0
-    });
-  }
-
-  // إعداد البيانات للـ StickyInsightsPanel
-  const insights = {
-    views: article.views || 0,
-    readsCompleted: Math.floor((article.views || 0) * 0.7), // تقدير 70% أكملوا القراءة
-    avgReadTimeSec: (article.reading_time || Math.ceil((article.content?.split(' ').length || 0) / 200)) * 60,
-    interactions: {
-      likes: article.likes || 0,
-      comments: 0, // سيتم تحديثه لاحقاً
-      shares: article.shares || 0
-    },
-    ai: {
-      shortSummary: article.summary || article.excerpt || "ملخص المقال غير متوفر",
-      sentiment: "محايد" as const,
-      topic: article.category_id || "عام",
-      readerFitScore: 85,
-      recommendations: []
+  // استخراج روابط الصور من محتوى المقال
+  const extractImageUrls = (html: string): string[] => {
+    try {
+      const matches = [...html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)];
+      const urls = matches.map((m) => m[1]).filter(Boolean);
+      return Array.from(new Set(urls));
+    } catch {
+      return [];
     }
   };
 
+  const contentImageUrls = extractImageUrls(contentHtml);
+  const heroImageUrls = (contentImageUrls.length > 0)
+    ? contentImageUrls
+    : (article.images || []).map((img) => img.url);
+
+  const heroImages: Article["images"] = heroImageUrls.map((url) => ({ url, alt: article.title || undefined, width: 1600, height: 900 }));
+  const hiddenImageUrls = heroImageUrls;
+
   return (
-    <div className="max-w-6xl mx-auto">
-      <article>
-        {/* 1. الصورة البارزة */}
-        {processedMedia.length > 0 && (
-          <div className="mb-8">
-            <HeroGallery images={processedMedia.map(m => ({
-              url: m.file_path,
-              alt: m.alt_text || article.title,
-              caption: m.caption
-            }))} />
-          </div>
-        )}
+    <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
+      <HeaderInline article={article} />
+      <div className="border-b border-neutral-200/80 dark:border-neutral-800/60" />
+      
+      <main>
+        <Container className="py-6 lg:py-10">
+          {/* 1. الصورة البارزة */}
+          {heroImages.length > 0 && (
+            <div className="mb-8">
+              <HeroGallery images={heroImages} />
+            </div>
+          )}
 
-        <div className="px-4">
           {/* 2. العنوان الكبير */}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-            {article.title}
-          </h1>
-
+          <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-3">{article.title}</h1>
+          
           {/* 3. العنوان الصغير */}
-          {article.excerpt && (
-            <h2 className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-400 mb-6">
-              {article.excerpt}
-            </h2>
+          {article.subtitle && (
+            <p className="text-[15px] md:text-base text-neutral-600 dark:text-neutral-300 leading-relaxed mb-3 line-clamp-2">
+              {article.subtitle}
+            </p>
           )}
 
           {/* 4. بيانات النشر */}
-          <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-2">
-            <time dateTime={(article.published_at || article.created_at).toISOString()}>
-              {new Date(article.published_at || article.created_at).toLocaleDateString("ar-SA", {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </time>
-            <span>•</span>
-            <span>{article.views} مشاهدة</span>
+          <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400 mb-4">
+            {article.published_at && (
+              <div className="flex items-center gap-1">
+                <span>📅</span>
+                <span>{new Intl.DateTimeFormat('ar-SA', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }).format(new Date(article.published_at))}</span>
+              </div>
+            )}
+            {article.published_at && (
+              <div className="flex items-center gap-1">
+                <span>🕐</span>
+                <span>{new Intl.DateTimeFormat('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                }).format(new Date(article.published_at))}</span>
+              </div>
+            )}
+            {article.readMinutes && (
+              <div className="flex items-center gap-1">
+                <span>📖</span>
+                <span>{article.readMinutes} دقيقة قراءة</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1">
+              <span>👁️</span>
+              <span>{(article.views || 0).toLocaleString("en-US")} مشاهدة</span>
+            </div>
           </div>
 
           {/* 5. المراسل */}
-          {article.users && (
-            <div className="flex items-center gap-3 mb-6">
-              {article.users.avatar && (
-                <img
-                  src={article.users.avatar}
-                  alt={article.users.name || "الكاتب"}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              )}
+          {(article.article_author || article.author) && (
+            <div className="flex items-center gap-4 my-6">
+              <div className="relative w-14 h-14 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
+                {article.article_author?.avatar_url || article.author?.avatar ? (
+                  <img 
+                    src={article.article_author?.avatar_url || article.author?.avatar || ""} 
+                    alt={article.article_author?.full_name || article.author?.name || "المراسل"} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-neutral-500 dark:text-neutral-400 text-xl font-semibold">
+                    {(article.article_author?.full_name || article.author?.name || "م").charAt(0)}
+                  </div>
+                )}
+              </div>
               <div>
-                <div className="font-medium">{article.users.name}</div>
-                <div className="text-sm text-neutral-500">{article.users.role}</div>
+                <h3 className="font-semibold text-base text-neutral-900 dark:text-neutral-100">
+                  {article.article_author?.full_name || article.author?.name || "المراسل"}
+                </h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  {article.article_author?.title || article.author?.role || "مراسل صحفي"}
+                </p>
               </div>
             </div>
           )}
 
           {/* 6. خط فاصل */}
-          <hr className="border-neutral-200 dark:border-neutral-800 my-8" />
+          <hr className="border-t border-neutral-200 dark:border-neutral-800 mb-6" />
 
-          {/* 7. الموجز الذكي */}
-          {(article.summary || article.excerpt) && (
+          {/* 7. الموجز الذكي - نفس الستايل من النسخة الكاملة */}
+          {article.summary && (
             <div className="mb-8">
               <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
                 <span>📋</span>
                 <span>الموجز الذكي</span>
               </h3>
               <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-                {article.summary || article.excerpt}
+                {article.summary}
               </p>
             </div>
           )}
 
           {/* 8. نص المحتوى */}
-          <ArticleBody 
-            html={contentHtml} 
-            article={article} 
-            hiddenImageUrls={hiddenImageUrls}
-          />
+          <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
 
           {/* 9. بقية الصور (ألبوم) - إذا كان هناك أكثر من صورة */}
-          {processedMedia.length > 1 && (
+          {contentImageUrls.length > 1 && (
             <div className="mt-12">
               <h3 className="text-xl font-bold mb-4">ألبوم الصور</h3>
-              <HeroGallery images={processedMedia.slice(1).map(m => ({
-                url: m.file_path,
-                alt: m.alt_text || article.title,
-                caption: m.caption
+              <HeroGallery images={contentImageUrls.slice(1).map(url => ({
+                url,
+                alt: article.title || undefined,
+                width: 1600,
+                height: 900
               }))} />
             </div>
           )}
 
-          {/* 10. تحليلات AI */}
-          <StickyInsightsPanel insights={insights} article={article} />
+          {/* 10. تحليلات AI + نظرة سريعة + أزرار التفاعل */}
+          <div className="mt-8">
+            <StickyInsightsPanel insights={insights} article={article} />
+          </div>
 
           {/* 11. نظام التعليقات */}
-          <CommentsSection articleId={article.id} articleSlug={params.slug} />
-        </div>
-      </article>
+          <div className="mt-12">
+            <CommentsSection articleId={article.id} articleSlug={params.slug} />
+          </div>
+        </Container>
+      </main>
     </div>
   );
 }
