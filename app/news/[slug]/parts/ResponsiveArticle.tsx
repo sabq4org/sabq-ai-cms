@@ -1,6 +1,5 @@
 import HeroGallery from "./HeroGallery";
 import Container from "./Container";
-import CenteredRow from "./CenteredRow";
 import ArticleBody from "./ArticleBody";
 import FloatingReadButton from "./FloatingReadButton";
 import StickyInsightsPanel from "./StickyInsightsPanel";
@@ -46,21 +45,20 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
         <Container>
           <div className="grid lg:grid-cols-12 gap-8">
             <section id="article-start" className="lg:col-span-8">
-              <CenteredRow>
-                {/* العنوان الرئيسي */}
-                <h1 className="text-2xl md:text-4xl font-bold mb-4">
-                  {article.title}
-                </h1>
+              {/* العنوان الرئيسي */}
+              <h1 className="text-2xl md:text-4xl font-bold mb-4">
+                {article.title}
+              </h1>
 
-                {/* العنوان الفرعي */}
-                {article.subtitle && (
-                  <h2 className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 mb-6">
-                    {article.subtitle}
-                  </h2>
-                )}
+              {/* العنوان الفرعي */}
+              {article.subtitle && (
+                <h2 className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 mb-6">
+                  {article.subtitle}
+                </h2>
+              )}
 
-                {/* معلومات النشر */}
-                <div className="flex flex-wrap gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
+              {/* معلومات النشر */}
+              <div className="flex flex-wrap gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
                   {article.published_at && (
                     <div className="flex items-center gap-1">
                       <span>📅</span>
@@ -142,7 +140,6 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                     </p>
                   </div>
                 )}
-              </CenteredRow>
 
               <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
 
