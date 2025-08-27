@@ -60,59 +60,51 @@ export async function generatePersonalizedRecommendations({
   limit?: number;
 }): Promise<RecommendedArticle[]> {
   try {
-    // 1. جلب سلوك المستخدم (إذا لم يتم تمريره)
-    const behavior = userBehavior || (await getUserBehaviorData(userId));
-
-    // 2. جلب المقالات المرشحة من مصادر متعددة
-    const [
-      behaviorBasedArticles,
-      categoryBasedArticles,
-      trendingArticles,
-      semanticSimilarArticles,
-      mixedContentArticles,
-    ] = await Promise.all([
-      getBehaviorBasedRecommendations(behavior, currentArticleId),
-      getCategoryBasedRecommendations(currentCategory, currentArticleId),
-      getTrendingRecommendations(currentTags),
-      getSemanticSimilarArticles(currentArticleId, currentTags),
-      getSmartMixedContent(behavior, currentArticleId), // كوكتيل ذكي جديد
+    // 1. استراتيجية تحميل مبسطة وسريعة
+    console.log('🚀 توليد توصيات سريع...');
+    
+    // بدلاً من 5 استدعاءات متوازية، استدعاءان فقط
+    const [categoryArticles, recentArticles] = await Promise.all([
+      // استدعاء أساسي للتصنيف
+      currentCategory ? getCategoryBasedRecommendations(currentCategory, currentArticleId) : Promise.resolve([]),
+      // استدعاء للمقالات الحديثة الجيدة
+      fetchRecentQualityArticles(currentArticleId, limit * 2),
     ]);
 
-    // 3. دمج وتسجيل النتائج
+    // 2. دمج النتائج بذكاء
     const allRecommendations = [
-      ...behaviorBasedArticles,
-      ...categoryBasedArticles,
-      ...trendingArticles,
-      ...semanticSimilarArticles,
-      ...mixedContentArticles,
+      ...categoryArticles,
+      ...recentArticles,
     ];
 
-    // 4. إزالة التكرار وترتيب حسب الصلة
-    const uniqueRecommendations = removeDuplicatesAndScore(
-      allRecommendations,
-      behavior,
-      currentArticleId
-    );
+    // 3. إزالة التكرار البسيط
+    const seen = new Set([currentArticleId]);
+    const uniqueRecommendations = allRecommendations.filter(article => {
+      if (seen.has(article.id)) {
+        return false;
+      }
+      seen.add(article.id);
+      return true;
+    });
 
-    // 5. ضمان التنوع في أنواع المحتوى
-    const diversifiedRecommendations = ensureContentDiversity(
-      uniqueRecommendations,
-      limit
-    );
-
-    // 6. إرجاع أفضل التوصيات
-    return diversifiedRecommendations
+    // 4. ترتيب بسيط وإرجاع النتائج
+    const finalRecommendations = uniqueRecommendations
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, limit);
+
+    console.log(`✅ تم توليد ${finalRecommendations.length} توصية سريعة`);
+    return finalRecommendations;
+    
   } catch (error) {
     console.error("❌ خطأ في توليد التوصيات الذكية:", error);
 
-    // فولباك: توصيات أساسية
-    return await getFallbackRecommendations(
-      currentCategory,
-      currentArticleId,
-      limit
-    );
+    // فولباك سريع جداً: مقالات عشوائية
+    try {
+      const quickFallback = await fetchRecentQualityArticles(currentArticleId, limit);
+      return quickFallback.slice(0, limit);
+    } catch {
+      return []; // في أسوأ الحالات، لا نعرض شيء
+    }
   }
 }
 

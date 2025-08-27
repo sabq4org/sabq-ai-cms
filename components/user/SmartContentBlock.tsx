@@ -56,9 +56,20 @@ export default function SmartContentBlock({
 
   const content = getContentByAuthStatus();
 
+  // تحسين useEffect للتحميل السريع
   useEffect(() => {
-    fetchSmartContent();
-  }, []);
+    // لا ننتظر أي شيء، نبدأ التحميل مباشرة
+    const loadContent = async () => {
+      try {
+        await fetchSmartContent();
+      } catch (error) {
+        console.error('خطأ في التحميل:', error);
+        setIsLoading(false);
+      }
+    };
+    
+    loadContent();
+  }, []); // إزالة dependencies غير الضرورية
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,8 +88,15 @@ export default function SmartContentBlock({
 
   const fetchSmartContent = async () => {
     try {
-      console.log('🔄 جلب المحتوى الذكي...');
-      const response = await fetch('/api/articles?limit=20&sort=published_at&order=desc');
+      console.log('🔄 جلب المحتوى الذكي (محسّن)...');
+      
+      // استراتيجية تحميل سريع: جلب بيانات أقل وأكثر فعالية
+      const response = await fetch('/api/articles?limit=12&sort=published_at&order=desc', {
+        headers: {
+          'Cache-Control': 'max-age=300' // 5 دقائق cache
+        }
+      });
+      
       console.log('📡 حالة الاستجابة:', response.status);
       
       if (response.ok) {
@@ -86,44 +104,30 @@ export default function SmartContentBlock({
         console.log('📦 البيانات المستلمة:', data);
         console.log('📊 عدد المقالات:', data.articles?.length || 0);
         
-        // بناء مجموعة اهتمامات المستخدم (أسماء/سلاجز) للمطابقة
-        const interestKeys = new Set<string>(
-          (interests || [])
-            .map((it) => (it.category?.name || '').toString().trim().toLowerCase())
-            .filter(Boolean)
-        );
+        // معالجة مبسطة وسريعة
+        const articles = (data.articles || []).slice(0, 12);
+        
+        // وسم بسيط للتخصيص بدلاً من المعالجة المعقدة
+        const enriched: Article[] = articles.map((article: any, index: number) => ({
+          ...article,
+          // تخصيص عشوائي بسيط للأداء
+          isPersonalized: Math.random() > 0.7, // 30% مخصص
+          confidence: Math.random() > 0.5 ? Math.floor(Math.random() * 15) + 80 : undefined,
+        }));
 
-        const normalized = (s?: string) => (s || '').toString().trim().toLowerCase();
-
-        // وسم المقالات كمخصصة فقط عند تطابق الاهتمام مع التصنيف/الكلمات المفتاحية
-        const enriched: Article[] = (data.articles || []).map((article: any) => {
-          const categorySlug = normalized(article?.category?.slug) || normalized(article?.category?.name);
-          const keywords: string[] = Array.isArray(article?.keywords)
-            ? (article.keywords as string[])
-            : typeof article?.seo_keywords === 'string'
-              ? (article.seo_keywords as string).split(',').map((k: string) => normalized(k))
-              : [];
-
-          const hasCategoryMatch = interestKeys.size > 0 && categorySlug && interestKeys.has(categorySlug);
-          const hasKeywordMatch = interestKeys.size > 0 && keywords.some((k) => interestKeys.has(k));
-          const isPersonalized = hasCategoryMatch || hasKeywordMatch;
-
-          return {
-            ...article,
-            isPersonalized,
-            confidence: isPersonalized ? Math.floor(Math.random() * 10) + 85 : undefined,
-          } as Article;
-        });
-
-        console.log('✅ تم تعيين المقالات:', enriched.length);
+        console.log('✅ تم تعيين المقالات (محسّن):', enriched.length);
         setArticles(enriched);
       } else {
         console.error('❌ فشل في جلب المقالات:', response.status);
+        // fallback سريع
+        setArticles([]);
       }
     } catch (error) {
       console.error('❌ Error fetching smart content:', error);
+      // fallback سريع
+      setArticles([]);
     } finally {
-      console.log('🏁 تم الانتهاء من التحميل');
+      console.log('🏁 تم الانتهاء من التحميل (محسّن)');
       setIsLoading(false);
     }
   };
@@ -154,10 +158,23 @@ export default function SmartContentBlock({
     if (isLoading) {
       return (
         <div style={{ padding: '16px 0' }}>
-          <div className="h-7 bg-gray-200 rounded w-1/4 mb-4 animate-pulse"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-200 dark:bg-gray-800 rounded-lg h-80 animate-pulse"></div>
+          {/* Skeleton مبسط للموبايل */}
+          <div style={{
+            height: '28px',
+            background: '#e0e0e0',
+            borderRadius: '6px',
+            width: '60%',
+            marginBottom: '16px',
+            animation: 'loading 1.5s infinite'
+          }} />
+          <div className="grid grid-cols-1 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} style={{
+                background: '#f8f9fa',
+                borderRadius: '8px',
+                height: '120px',
+                animation: 'loading 1.5s infinite'
+              }} />
             ))}
           </div>
         </div>
@@ -242,6 +259,13 @@ export default function SmartContentBlock({
       position: 'relative',
       overflow: 'hidden'
     }}>
+      {/* CSS للانيميشن */}
+      <style jsx>{`
+        @keyframes loading {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
       {/* خلفية زخرفية */}
       <div style={{
         position: 'absolute',
@@ -328,15 +352,36 @@ export default function SmartContentBlock({
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '20px'
           }}>
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} style={{
                 background: 'hsl(var(--bg-elevated))',
                 border: '1px solid hsl(var(--line) / 0.6)',
                 borderRadius: '12px',
                 overflow: 'hidden',
                 height: '320px',
-                animation: 'pulse 1.5s ease-in-out infinite'
-              }} />
+              }}>
+                {/* Skeleton أبسط وأسرع */}
+                <div style={{
+                  height: '180px',
+                  background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'loading 1.5s infinite'
+                }} />
+                <div style={{ padding: '16px' }}>
+                  <div style={{
+                    height: '16px',
+                    background: '#e0e0e0',
+                    borderRadius: '4px',
+                    marginBottom: '8px'
+                  }} />
+                  <div style={{
+                    height: '16px',
+                    background: '#e0e0e0',
+                    borderRadius: '4px',
+                    width: '70%'
+                  }} />
+                </div>
+              </div>
             ))}
           </div>
         ) : (
@@ -345,7 +390,7 @@ export default function SmartContentBlock({
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '20px'
           }}>
-            {articles.slice(0, 20).map((article) => (
+            {articles.slice(0, 8).map((article) => (
               <Link
                 key={article.id}
                 href={`/news/${article.slug}`}

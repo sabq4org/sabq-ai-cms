@@ -603,14 +603,8 @@ function NewspaperHomePage({
       fetchSmartRecommendations();
     }
 
-    // تحديث التوصيات كل 30 ثانية لضمان ظهور المحتوى الجديد
-    const interval = setInterval(() => {
-      if (articles.length > 0) {
-        fetchSmartRecommendations();
-      }
-    }, 30000); // كل 30 ثانية
-
-    return () => clearInterval(interval);
+    // لا نحتاج تحديث مستمر كل 30 ثانية - يسبب بطء
+    // التحديث سيحدث عند تغيير المقالات أو المستخدم
   }, [articles, user]);
 
   // =============================
