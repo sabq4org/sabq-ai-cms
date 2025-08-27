@@ -97,7 +97,10 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
   );
 
   return (
-    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+    <div className="rounded-2xl border p-4 shadow-sm" style={{
+      borderColor: 'var(--theme-border, rgb(229 231 235))',
+      background: 'var(--theme-bg-secondary, rgb(255 255 255))',
+    }}>
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-4">
         <div className="mb-2">
@@ -105,8 +108,8 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
             <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </span>
         </div>
-        <h3 className="font-bold text-neutral-900 dark:text-neutral-100">مخصص لك بذكاء</h3>
-        <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+        <h3 className="font-bold" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>مخصص لك بذكاء</h3>
+        <p className="text-xs mt-1" style={{ color: 'var(--theme-primary, rgb(99 102 241))' }}>
           محتوى مختار بناءً على اهتماماتك
         </p>
       </div>
