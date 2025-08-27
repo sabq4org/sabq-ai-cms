@@ -142,20 +142,13 @@ export async function GET(request: NextRequest) {
           id: c.article_id,
           title: articleMap.get(c.article_id)?.title || "",
         },
-        author: (() => {
-          const displayName = c.metadata?.displayName || c.metadata?.guestName;
-          if (displayName) {
-            return { name: displayName, avatar: undefined };
-          }
-          if (c.user_id) {
-            return {
+        author: c.user_id
+          ? {
               id: c.user_id,
               name: userMap.get(c.user_id)?.name || "مستخدم",
               avatar: userMap.get(c.user_id)?.avatar || undefined,
-            };
-          }
-          return { name: "زائر", avatar: undefined };
-        })(),
+            }
+          : { name: "مستخدم" },
       }));
 
       return NextResponse.json(
@@ -232,16 +225,9 @@ export async function GET(request: NextRequest) {
         content: comment.content,
         status: comment.status,
         createdAt: comment.created_at,
-        user: (() => {
-          const displayName = comment.metadata?.displayName || comment.metadata?.guestName;
-          if (displayName && !comment.user_id) {
-            return { name: displayName, avatar: null };
-          }
-          if (comment.user_id) {
-            return { id: comment.user_id, name: u?.name || "مستخدم", avatar: u?.avatar || null };
-          }
-          return { name: "زائر", avatar: null };
-        })(),
+        user: comment.user_id
+          ? { id: comment.user_id, name: u?.name || "مستخدم", avatar: u?.avatar || null }
+          : { name: "مستخدم", avatar: null },
         replies: [],
         reportsCount: 0,
         metadata: comment.metadata,
@@ -499,11 +485,18 @@ export async function POST(request: NextRequest) {
     console.log("Comment status:", commentStatus, "User role:", userRole);
 
     // إنشاء التعليق
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "يجب تسجيل الدخول لإضافة تعليق" },
+        { status: 401 }
+      );
+    }
+
     const comment = await prisma.comments.create({
       data: {
         id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         article_id: articleId,
-        user_id: user?.id || null,
+        user_id: user.id,
         parent_id: parentId,
         content: processedContent,
         status: commentStatus,
@@ -511,7 +504,7 @@ export async function POST(request: NextRequest) {
         created_at: new Date(),
         updated_at: new Date(),
         metadata: {
-          guestName: !user ? body.guestName : null,
+          guestName: null,
           requiresModeration,
           ipAddress,
           userAgent,
