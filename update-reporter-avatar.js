@@ -1,16 +1,16 @@
-// تحديث صورة المراسل علي الحازمي
+// تحديث صورة المراسل عبدالله البرقاوي
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
 async function updateReporterAvatar() {
   try {
-    console.log("🔍 البحث عن مراسل علي الحازمي...");
+    console.log("🔍 البحث عن المراسل: عبدالله البرقاوي...");
 
     // البحث عن المراسل
     const reporter = await prisma.reporters.findFirst({
       where: {
-        full_name: "علي الحازمي",
+        full_name: "عبدالله البرقاوي",
       },
     });
 
@@ -28,7 +28,7 @@ async function updateReporterAvatar() {
       },
       data: {
         avatar_url:
-          "https://res.cloudinary.com/dybhezmvb/image/upload/v1754038138/sabq-cms/avatars/1754038138013_untitleddesign.jpg_gpcb50.jpg",
+          process.env.BARQAWI_AVATAR_URL || "https://res.cloudinary.com/demo/image/upload/sample.jpg",
       },
     });
 
