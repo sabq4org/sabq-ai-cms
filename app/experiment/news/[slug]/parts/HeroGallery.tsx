@@ -66,7 +66,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
 
   return (
     <div className="relative w-full py-4 px-4 md:px-6">
-      <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden bg-neutral-200 dark:bg-neutral-800">
+      <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px]">
           {/* هيرو - 50% بالضبط */}
           <div className="relative md:h-full group cursor-zoom-in" onClick={() => openAt(0)}>
