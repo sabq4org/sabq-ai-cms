@@ -5,7 +5,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
-import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
+// Switch to dynamic import to reduce main bundle for desktop users
+import dynamic from 'next/dynamic';
+const OldStyleNewsBlockLazy = dynamic(() => import('@/components/old-style/OldStyleNewsBlock'), {
+  ssr: false,
+  loading: () => <div style={{ padding: '16px 0' }} />
+});
+
+// Reuse a single date formatter instance to avoid recreating Intl on each render
+const AR_DATE = new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
 
 interface Article {
   id: string;
@@ -128,13 +136,11 @@ export default function SmartContentBlock({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    };
-    return date.toLocaleDateString('ar-SA', options);
+    try {
+      return AR_DATE.format(new Date(dateString));
+    } catch {
+      return '';
+    }
   };
 
   const formatViews = (views?: number) => {
@@ -271,7 +277,7 @@ export default function SmartContentBlock({
             {content.description}
           </p>
         </div>
-        <OldStyleNewsBlock
+        <OldStyleNewsBlockLazy
           // تمرير is_custom الحقيقي فقط للمقالات المخصصة
           articles={oldStyleArticles as unknown as any[]}
           title={content.title}
