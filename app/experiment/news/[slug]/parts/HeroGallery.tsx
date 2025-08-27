@@ -67,7 +67,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
   return (
     <div className="relative w-full py-2 px-4 md:px-6">
       <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+        <div className="grid grid-cols-1 md:grid-cols-2">
           {/* هيرو - 50% بالضبط */}
           <div className="relative aspect-[4/3] md:aspect-[3/2] group cursor-zoom-in" onClick={() => openAt(0)}>
             <Image 
@@ -80,7 +80,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
             />
           </div>
           {/* 4 مصغرات - 50% بالضبط */}
-          <div className="grid grid-cols-2 grid-rows-2 gap-0">
+          <div className="grid grid-cols-2 grid-rows-2">
             {thumbs.map((t, i) => {
               const positions = ['center 25%', 'center center', 'center 35%', 'center center'];
               return (
