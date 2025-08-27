@@ -21,7 +21,7 @@ const MediaStepEnhanced = memo(({ formData, setFormData, darkMode }: MediaStepEn
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragActive, setDragActive] = useState(false);
 
-  // معالج رفع الصور
+  // معالج رفع الصور (يدعم عدة ملفات)
   const handleImageUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
@@ -29,39 +29,38 @@ const MediaStepEnhanced = memo(({ formData, setFormData, darkMode }: MediaStepEn
     setUploadProgress(0);
 
     try {
-      const formDataUpload = new FormData();
-      const file = files[0];
-      formDataUpload.append('file', file);
+      const fileArray = Array.from(files);
+      const total = fileArray.length;
+      let uploaded = 0;
 
-      // محاكاة تقدم الرفع
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
-      }, 200);
+      for (const file of fileArray) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', file);
 
-      const response = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formDataUpload
-      });
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formDataUpload
+        });
 
-      clearInterval(progressInterval);
-      setUploadProgress(100);
+        if (response.ok) {
+          const data = await response.json();
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        // إذا لم تكن هناك صورة بارزة، اجعلها الصورة المرفوعة
-        if (!formData.featuredImage) {
-          setFormData((prev: any) => ({
-            ...prev,
-            featuredImage: data.url
-          }));
-        } else {
-          // أضفها إلى الألبوم
-          setFormData((prev: any) => ({
-            ...prev,
-            gallery: [...prev.gallery, { url: data.url, id: Date.now().toString() }]
-          }));
+          // إذا لا توجد صورة بارزة بعد، اجعل أول صورة كصورة بارزة والبقية للألبوم
+          if (!formData.featuredImage && uploaded === 0) {
+            setFormData((prev: any) => ({
+              ...prev,
+              featuredImage: data.url
+            }));
+          } else {
+            setFormData((prev: any) => ({
+              ...prev,
+              gallery: [...prev.gallery, { url: data.url, id: `${Date.now()}_${uploaded}` }]
+            }));
+          }
         }
+
+        uploaded += 1;
+        setUploadProgress(Math.round((uploaded / total) * 100));
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -258,6 +257,7 @@ const MediaStepEnhanced = memo(({ formData, setFormData, darkMode }: MediaStepEn
               type="file"
               id="gallery-upload"
               accept="image/*"
+              multiple
               onChange={(e) => handleImageUpload(e.target.files)}
               className="hidden"
               disabled={uploading}
@@ -267,7 +267,7 @@ const MediaStepEnhanced = memo(({ formData, setFormData, darkMode }: MediaStepEn
               className="cursor-pointer text-center p-4"
             >
               <Plus className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <span className="text-sm text-gray-500">إضافة صورة</span>
+              <span className="text-sm text-gray-500">إضافة صور</span>
             </label>
           </div>
         </div>
