@@ -254,10 +254,23 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
           {/* 6. خط فاصل */}
           <hr className="border-t border-neutral-200 dark:border-neutral-800 mb-6" />
 
-          {/* 7. نص المحتوى */}
+          {/* 7. الموجز الذكي */}
+          {article.summary && (
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm mb-6">
+              <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
+                <span className="text-purple-600 dark:text-purple-400">✨</span>
+                <h3 className="font-semibold">الموجز الذكي</h3>
+              </div>
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-6">
+                {article.summary}
+              </p>
+            </div>
+          )}
+
+          {/* 8. نص المحتوى */}
           <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
 
-          {/* 8. بقية الصور (ألبوم) - إذا كان هناك أكثر من صورة */}
+          {/* 9. بقية الصور (ألبوم) - إذا كان هناك أكثر من صورة */}
           {contentImageUrls.length > 1 && (
             <div className="mt-12">
               <h3 className="text-xl font-bold mb-4">ألبوم الصور</h3>
@@ -270,12 +283,12 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
             </div>
           )}
 
-          {/* 9. تحليلات AI (يحتوي على الموجز الذكي) */}
+          {/* 10. تحليلات AI */}
           <div className="mt-8">
             <StickyInsightsPanel insights={insights} article={article} />
           </div>
 
-          {/* 10. نظام التعليقات */}
+          {/* 11. نظام التعليقات */}
           <div className="mt-12">
             <CommentsSection articleId={article.id} articleSlug={params.slug} />
           </div>
