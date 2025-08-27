@@ -66,7 +66,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
   };
 
   return (
-    <div className="lg:sticky lg:top-6 space-y-4">
+    <div className="space-y-4 lg:sticky lg:top-24">
       {/* الموجز الذكي */}
       {article.summary && (
         <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">

@@ -150,7 +150,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
       <HeroGallery images={images} />
       <main>
           <Container className="py-6 lg:py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-6 gap-x-6 md:gap-x-12 lg:gap-x-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           <section className="lg:col-span-8" id="article-start">
             <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-3">{article.title}</h1>
             
