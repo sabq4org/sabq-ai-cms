@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/url-builder";
-import HeaderInline from "./parts/HeaderInline";
 import HeroGallery from "./parts/HeroGallery";
 import ArticleBody from "./parts/ArticleBody";
 import StickyInsightsPanel from "./parts/StickyInsightsPanel";
@@ -169,8 +168,6 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
 
   return (
     <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
-      <HeaderInline article={article} />
-      <div className="border-b border-neutral-200/80 dark:border-neutral-800/60" />
       <HeroGallery images={heroImages} />
       <main>
           <Container className="py-6 lg:py-10">
