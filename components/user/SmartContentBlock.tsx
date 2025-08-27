@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
@@ -49,16 +49,22 @@ export default function SmartContentBlock({
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
-  // تحديد النصوص الموحدة للجميع
-  const getContentByAuthStatus = () => {
-    return {
-      title: "أخبار تفهمك أولاً",
-      subtitle: "🎯 مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك",
-      description: "تتابع أهم ما يهمك من أخبار ومقالات مختارة خصيصاً بناءً على تفضيلاتك"
-    };
-  };
+  // تحديد النصوص الموحدة للجميع (memoized)
+  const content = useMemo(() => ({
+    title: "أخبار تفهمك أولاً",
+    subtitle: "🎯 مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك",
+    description: "تتابع أهم ما يهمك من أخبار ومقالات مختارة خصيصاً بناءً على تفضيلاتك"
+  }), []);
 
-  const content = getContentByAuthStatus();
+  // تحويل بيانات المقالات للطراز القديم (memoized)
+  const oldStyleArticles = useMemo(() => (
+    (articles as any[]).map((a: any) => ({
+      ...a,
+      is_custom: a.isPersonalized === true,
+      published_at: a.published_at || a.publishedAt || a.created_at || a.createdAt,
+      reading_time: a.readTime || a.reading_time,
+    }))
+  ), [articles]);
 
   // تحسين useEffect للتحميل السريع
   useEffect(() => {
@@ -443,10 +449,10 @@ export default function SmartContentBlock({
                           alt={article.title}
                           fill
                           style={{ objectFit: 'cover' }}
-                          priority={idx < 2}
-                          loading={idx < 2 ? 'eager' : 'lazy'}
+                          priority={idx === 0}
+                          loading={idx === 0 ? 'eager' : 'lazy'}
                           decoding="async"
-                          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
+                          sizes="(min-width: 1536px) 20vw, (min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         />
                       ) : (
                         <div style={{
