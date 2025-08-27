@@ -153,6 +153,11 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           <section className="lg:col-span-8" id="article-start">
             <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-3">{article.title}</h1>
+            {article.summary && (
+              <p className="text-[15px] md:text-base text-neutral-600 dark:text-neutral-300 leading-relaxed mb-3 line-clamp-2">
+                {article.summary}
+              </p>
+            )}
             
             {/* معلومات المقال تحت العنوان مباشرة */}
             <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400 mb-4">
