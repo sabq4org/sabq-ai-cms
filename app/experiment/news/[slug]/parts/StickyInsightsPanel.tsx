@@ -1,6 +1,14 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import { BarChart, Bell, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const PersonalizedForYou = dynamic(() => import("./PersonalizedForYou"), {
+  ssr: false,
+  loading: () => (
+    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm animate-pulse h-64" />
+  ),
+});
 
 type Insights = {
   views: number;
@@ -16,7 +24,7 @@ type Insights = {
   };
 };
 
-export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null } }) {
+export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; categories?: { name: string } | null; tags?: string[] } }) {
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
   const [expanded, setExpanded] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -151,6 +159,13 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           <span className="px-2 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300">ملاءمة {insights.ai.readerFitScore}%</span>
         </div>
       </div>
+      
+      {/* مخصص لك بذكاء */}
+      <PersonalizedForYou 
+        articleId={article.id}
+        categoryName={article.categories?.name}
+        tags={article.tags}
+      />
     </div>
   );
 }
