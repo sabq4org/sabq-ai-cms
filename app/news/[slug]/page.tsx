@@ -76,10 +76,16 @@ async function getArticle(slug: string) {
 
   if (!article) return null;
 
-  // جلب الصور من NewsArticleAssets
-  const media = await prisma.newsArticleAssets.findMany({
-    where: { article_id: article.id },
-    orderBy: { order: "asc" },
+  // جلب الصور من MediaAssets عبر NewsArticleAssets
+  const articleWithMedia = await prisma.articles.findUnique({
+    where: { id: article.id },
+    include: {
+      NewsArticleAssets: {
+        include: {
+          media_assets: true
+        }
+      }
+    }
   });
 
   const images: Article["images"] = [];
@@ -89,17 +95,20 @@ async function getArticle(slug: string) {
     images.push({ url: article.featured_image, alt: article.title || undefined, width: 1600, height: 900 });
   }
   
-  // إضافة باقي الصور من NewsArticleAssets
-  media.forEach((asset) => {
-    if (asset.asset_url && !images.some(img => img.url === asset.asset_url)) {
-      images.push({ 
-        url: asset.asset_url, 
-        alt: asset.caption || article.title || undefined,
-        width: asset.width || 1600,
-        height: asset.height || 900
-      });
-    }
-  });
+  // إضافة باقي الصور من MediaAssets
+  if (articleWithMedia?.NewsArticleAssets) {
+    articleWithMedia.NewsArticleAssets.forEach((relation) => {
+      const asset = relation.media_assets;
+      if (asset.cloudinaryUrl && !images.some(img => img.url === asset.cloudinaryUrl)) {
+        images.push({ 
+          url: asset.cloudinaryUrl, 
+          alt: article.title || undefined,
+          width: asset.width || 1600,
+          height: asset.height || 900
+        });
+      }
+    });
+  }
 
   // إذا لم نجد صور إضافية، نستخرجها من المحتوى HTML
   if (images.length <= 1 && article.content) {
