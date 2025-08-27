@@ -169,9 +169,14 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
       <main>
         <Container className="py-6 lg:py-10">
           {/* 1. الصورة البارزة */}
-          {heroImages.length > 0 && (
+          {article.featured_image && (
             <div className="mb-8">
-              <HeroGallery images={heroImages} />
+              <HeroGallery images={[{ 
+                url: article.featured_image, 
+                alt: article.title || undefined, 
+                width: 1600, 
+                height: 900 
+              }]} />
             </div>
           )}
 
@@ -249,23 +254,10 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
           {/* 6. خط فاصل */}
           <hr className="border-t border-neutral-200 dark:border-neutral-800 mb-6" />
 
-          {/* 7. الموجز الذكي - نفس الستايل من النسخة الكاملة */}
-          {article.summary && (
-            <div className="mb-8">
-              <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-                <span>📋</span>
-                <span>الموجز الذكي</span>
-              </h3>
-              <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-                {article.summary}
-              </p>
-            </div>
-          )}
-
-          {/* 8. نص المحتوى */}
+          {/* 7. نص المحتوى */}
           <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
 
-          {/* 9. بقية الصور (ألبوم) - إذا كان هناك أكثر من صورة */}
+          {/* 8. بقية الصور (ألبوم) - إذا كان هناك أكثر من صورة */}
           {contentImageUrls.length > 1 && (
             <div className="mt-12">
               <h3 className="text-xl font-bold mb-4">ألبوم الصور</h3>
@@ -278,12 +270,12 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
             </div>
           )}
 
-          {/* 10. تحليلات AI + نظرة سريعة + أزرار التفاعل */}
+          {/* 9. تحليلات AI + نظرة سريعة + أزرار التفاعل + الموجز الذكي */}
           <div className="mt-8">
             <StickyInsightsPanel insights={insights} article={article} />
           </div>
 
-          {/* 11. نظام التعليقات */}
+          {/* 10. نظام التعليقات */}
           <div className="mt-12">
             <CommentsSection articleId={article.id} articleSlug={params.slug} />
           </div>
