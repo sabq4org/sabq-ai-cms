@@ -33,7 +33,7 @@ export default function CommentForm({ articleId, articleSlug }: CommentFormProps
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          article_id: articleId,
+          articleId: articleId,
           content: comment.trim(),
           article_slug: articleSlug,
         }),
