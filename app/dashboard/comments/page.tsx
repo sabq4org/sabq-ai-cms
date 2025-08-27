@@ -134,8 +134,8 @@ export default function CommentsManagementPage() {
   };
   const handleStatusChange = async (commentId: string, newStatus: string, reason?: string) => {
     try {
-      const response = await fetch(`/api/admin/comments/${commentId}/status`, {
-        method: 'PUT',
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus, reason })
       });
