@@ -106,6 +106,21 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* DNS prefetch to speed up first connections */}
+        <meta httpEquiv="x-dns-prefetch-control" content="on" />
+        <link rel="dns-prefetch" href="https://cdn.sabq.org" />
+        <link rel="dns-prefetch" href="https://sabq-prod.imgix.net" />
+        <link rel="dns-prefetch" href="https://sabq-cms-content.s3.amazonaws.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://ui-avatars.com" />
+        <link rel="dns-prefetch" href="https://d2kdkzp4dtcikk.cloudfront.net" />
+        {/* Preconnect to the most common image CDNs for faster LCP */}
+        <link rel="preconnect" href="https://cdn.sabq.org" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://sabq-prod.imgix.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" crossOrigin="anonymous" />
+        {/* Preload the first article image on the home page */}
+        <link rel="preload" href="/api/articles?limit=1&sort=published_at&order=desc" as="fetch" crossOrigin="anonymous" fetchPriority="high" />
         {/* إصلاحات إنتاج عامة وCSS */}
         <script src="/production-error-fixes.js" defer></script>
         <script src="/fix-cors-auth.js" defer></script>

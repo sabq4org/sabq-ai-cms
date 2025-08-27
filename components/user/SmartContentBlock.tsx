@@ -108,21 +108,51 @@ export default function SmartContentBlock({
 
   const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
-      // استراتيجية تحميل سريع: جلب بيانات أقل وأكثر فعالية
-      const response = await fetch('/api/articles?limit=20&sort=published_at&order=desc', {
-        headers: {
-          'Cache-Control': 'max-age=300' // 5 دقائق cache
-        },
-        signal
+      // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت موجودة
+      const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc';
+      
+      // محاولة استخدام Cache API إذا كانت متوفرة بالمتصفح
+      let cachedResponse: any;
+      try {
+        if ('caches' in window) {
+          const cache = await window.caches.open('smart-content-cache');
+          cachedResponse = await cache.match(cacheKey);
+        }
+      } catch (cacheError) {
+        // تجاهل أخطاء الكاش وإكمال الجلب بشكل عادي
+      }
+      
+      // استخدام الاستجابة من الكاش إن وجدت أو إجراء طلب جديد
+      const response = cachedResponse || await fetch(cacheKey, { 
+        signal,
+        // تلميح للمتصفح بأننا جربنا الكاش بالفعل
+        cache: 'force-cache' 
       });
       
       if (response.ok) {
+        // تخزين الاستجابة في الكاش للاستخدام المستقبلي
         const data = await response.json();
+        try {
+          if ('caches' in window) {
+            const cache = await window.caches.open('smart-content-cache');
+            const clonedResponse = new Response(JSON.stringify(data), {
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'max-age=300'
+              }
+            });
+            cache.put(cacheKey, clonedResponse);
+          }
+        } catch (cacheError) {
+          // تجاهل أخطاء الكاش
+        }
+
         const articles = (data.articles || []).slice(0, 20);
         const enriched: Article[] = articles.map((article: any) => ({
           ...article,
-          isPersonalized: Math.random() > 0.7,
-          confidence: Math.random() > 0.5 ? Math.floor(Math.random() * 15) + 80 : undefined,
+          // استخدام القيم الحقيقية إن وجدت بدلاً من التوليد العشوائي
+          isPersonalized: (article.isPersonalized ?? article.metadata?.isPersonalized) ?? false,
+          confidence: article.confidence ?? article.metadata?.confidence,
         }));
         setArticles(enriched);
       } else {
@@ -147,16 +177,6 @@ export default function SmartContentBlock({
     } catch {
       return '';
     }
-  };
-
-  const formatViews = (views?: number) => {
-    if (!views) return '0';
-    if (views >= 1000000) {
-      return `${(views / 1000000).toFixed(1)}M`;
-    } else if (views >= 1000) {
-      return `${(views / 1000).toFixed(1)}K`;
-    }
-    return views.toString();
   };
 
   // عرض هيكل عظمي خفيف أثناء تحديد حالة العرض (موبايل/ديسكتوب) لتقليل CLS
@@ -201,6 +221,9 @@ export default function SmartContentBlock({
     if (isLoading) {
       return (
         <div style={{ padding: '16px 0' }}>
+          <style jsx>{`
+            @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+          `}</style>
           {/* Skeleton مبسط للموبايل */}
           <div style={{
             height: '28px',
@@ -223,13 +246,6 @@ export default function SmartContentBlock({
         </div>
       );
     }
-    // تمرير is_custom فقط للعناصر المخصصة فعلاً
-    const oldStyleArticles = (articles as any[]).map((a: any) => ({
-      ...a,
-      is_custom: a.isPersonalized === true,
-      published_at: a.published_at || a.publishedAt || a.created_at || a.createdAt,
-      reading_time: a.readTime || a.reading_time,
-    }));
 
     return (
       <div style={{ padding: '16px 0', marginTop: '28px' }}>
@@ -455,9 +471,10 @@ export default function SmartContentBlock({
                           fill
                           style={{ objectFit: 'cover' }}
                           priority={idx === 0}
-                          loading={idx === 0 ? 'eager' : 'lazy'}
-                          decoding="async"
-                          sizes="(min-width: 1536px) 20vw, (min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          loading={idx === 0 ? 'eager' : 'lazy'} 
+                          fetchPriority={idx < 3 ? 'high' : 'low'}
+                          decoding={idx < 5 ? 'sync' : 'async'}
+                          sizes="(min-width: 1920px) 300px, (min-width: 1536px) 320px, (min-width: 1280px) 280px, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                         />
                       ) : (
                         <div style={{
