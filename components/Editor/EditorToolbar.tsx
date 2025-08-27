@@ -3,6 +3,7 @@
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Editor } from "@tiptap/react";
 import { useRef, useState } from "react";
+import { uploadImageWithFallback } from "@/lib/safe-upload";
 
 import {
   AlignCenter,
@@ -23,6 +24,7 @@ import {
   ListOrdered,
   Quote,
   Images,
+  Loader2,
   Redo,
   Sparkles,
   Table,
@@ -106,16 +108,10 @@ export default function EditorToolbar({
     try {
       setAlbumUploading(true);
       for (const file of Array.from(files)) {
-        const fd = new FormData();
-        fd.append("file", file);
-        const resp = await fetch("/api/admin/media/upload", { method: "POST", body: fd });
-        if (resp.ok) {
-          const result = await resp.json();
-          const url = result?.asset?.cloudinaryUrl || result?.asset?.url || result?.url;
-          if (url) {
-            editor.chain().focus().setImage({ src: url }).run();
-          }
-        }
+        // استخدام رافع آمن مع fallback لتجنب مشاكل Content-Type
+        const result: any = await uploadImageWithFallback(file, 'gallery');
+        const url = result?.cloudinaryUrl || result?.url || result?.asset?.cloudinaryUrl;
+        if (url) editor.chain().focus().setImage({ src: url }).run();
       }
     } finally {
       setAlbumUploading(false);
