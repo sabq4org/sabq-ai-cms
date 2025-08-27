@@ -1,17 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-const MobileContent = dynamic(() => import("./MobileContent"), {
-  ssr: false,
-  loading: () => <div className="min-h-screen bg-[#f8f8f7] dark:bg-neutral-950" />
-});
-
-const DesktopContent = dynamic(() => import("./DesktopContent"), {
-  ssr: false,
-  loading: () => <div className="min-h-screen bg-[#f8f8f7] dark:bg-neutral-950" />
-});
+import MobileContent from "./MobileContent";
+import DesktopContent from "./DesktopContent";
 
 interface DeviceAwareContentProps {
   article: any;

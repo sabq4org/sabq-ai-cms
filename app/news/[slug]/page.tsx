@@ -2,11 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/url-builder";
-import dynamic from "next/dynamic";
-
-const DeviceAwareContent = dynamic(() => import("./parts/DeviceAwareContent"), {
-  ssr: false
-});
+import DeviceAwareContent from "./parts/DeviceAwareContent";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
