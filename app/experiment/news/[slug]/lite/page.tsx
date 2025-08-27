@@ -1,8 +1,14 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { Metadata } from "next";
+import HeroMedia from "../parts/HeroMedia";
+import HeroContent from "../parts/HeroContent";
+import ArticleStats from "../parts/ArticleStats";
+import ArticleBody from "../parts/ArticleBody";
+import HeroGallery from "../parts/HeroGallery";
+import InsightsBoxes from "../parts/InsightsBoxes";
+import SocialInteractionButtons from "../parts/SocialInteractionButtons";
 import CommentsSection from "../parts/CommentsSection";
-import { formatDistanceToNow } from "date-fns";
-import { ar } from "date-fns/locale";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -119,66 +125,55 @@ export default async function LiteArticlePage({
     (article.featured_image ? { file_path: article.featured_image, alt_text: article.title } : null);
   const galleryImages = article.media?.filter(m => !m.is_featured) || [];
 
+  // إعداد البيانات للمكونات
+  const contentHtml = article.content;
+  const hiddenImageUrls: string[] = [];
+  
+  // معالج الوسائط
+  const processedMedia: any[] = article.media || [];
+  if (article.featured_image && !processedMedia.length) {
+    processedMedia.push({
+      id: 'featured',
+      file_path: article.featured_image,
+      type: 'image',
+      caption: article.featured_image_caption || '',
+      alt_text: article.featured_image_alt || article.title,
+      is_featured: true,
+      display_order: 0
+    });
+  }
+
+  // إعداد البيانات الوهمية للـ insights (يمكن استبدالها بالبيانات الحقيقية)
+  const insights = {
+    readingTime: article.reading_time || Math.ceil((article.content?.split(' ').length || 0) / 200),
+    wordCount: article.content?.split(' ').length || 0,
+    category: article.category_id || "عام",
+    publishDate: article.published_at || article.created_at
+  };
+
   return (
-    <article className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <article className="space-y-8">
         {/* 1. الصورة البارزة */}
-        {featuredImage && (
-          <div className="mb-8">
-            <img
-              src={featuredImage.file_path}
-              alt={featuredImage.alt_text || article.title}
-              className="w-full h-auto rounded-xl"
-            />
-          </div>
+        {processedMedia.length > 0 && (
+          <HeroMedia 
+            media={processedMedia}
+            title={article.title}
+          />
         )}
 
         {/* 2. العنوان الكبير */}
-        <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
-          {article.title}
-        </h1>
-
         {/* 3. العنوان الصغير */}
-        {article.excerpt && (
-          <h2 className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-400 mb-6">
-            {article.excerpt}
-          </h2>
-        )}
-
         {/* 4. بيانات النشر */}
-        <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 mb-2">
-          <time dateTime={article.created_at.toISOString()}>
-            {formatDistanceToNow(new Date(article.created_at), {
-              addSuffix: true,
-              locale: ar
-            })}
-          </time>
-          <span>•</span>
-          <span>{article.views} مشاهدة</span>
-        </div>
-
         {/* 5. المراسل */}
-        {article.users && (
-          <div className="flex items-center gap-3 mb-6">
-            {article.users.avatar && (
-              <img
-                src={article.users.avatar}
-                alt={article.users.name || "الكاتب"}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            )}
-            <div>
-              <div className="font-medium">{article.users.name}</div>
-              <div className="text-sm text-neutral-500">{article.users.role}</div>
-            </div>
-          </div>
-        )}
+        <HeroContent article={article} />
 
         {/* 6. خط فاصل */}
-        <hr className="border-neutral-200 dark:border-neutral-800 mb-8" />
+        <hr className="border-neutral-200 dark:border-neutral-800" />
 
-        {/* 7. الموجز الذكي */}
+        {/* 7. الموجز الذكي - استخدام InsightsBoxes */}
         {(article.summary || article.excerpt) && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
             <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
               <span>📋</span>
               <span>الموجز الذكي</span>
@@ -190,92 +185,34 @@ export default async function LiteArticlePage({
         )}
 
         {/* 8. نص المحتوى */}
-        <div 
-          className="prose prose-lg dark:prose-invert max-w-none mb-12"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+        <ArticleBody 
+          html={contentHtml} 
+          article={article} 
+          hiddenImageUrls={hiddenImageUrls}
         />
 
         {/* 9. بقية الصور (ألبوم) */}
-        {galleryImages.length > 0 && (
-          <div className="mb-12">
-            <h3 className="text-xl font-bold mb-4">ألبوم الصور</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {galleryImages.map((image, index) => (
-                <img
-                  key={image.id}
-                  src={image.file_path}
-                  alt={image.alt_text || `صورة ${index + 1}`}
-                  className="w-full h-auto rounded-lg"
-                />
-              ))}
-            </div>
-          </div>
+        {processedMedia.filter(m => !m.is_featured).length > 0 && (
+          <HeroGallery media={processedMedia} />
         )}
 
-        {/* 10. تحليلات AI */}
-        {article.ai_analysis && (
-          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-              <span>🤖</span>
-              <span>تحليلات AI</span>
-            </h3>
-            <div className="space-y-4">
-              {Object.entries(article.ai_analysis as any).map(([key, value]) => (
-                <div key={key}>
-                  <h4 className="font-medium mb-1">{key}:</h4>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {JSON.stringify(value, null, 2)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* 10. تحليلات AI - استخدام InsightsBoxes */}
+        <InsightsBoxes insights={insights} />
 
-        {/* 11. نظرة سريعة */}
-        <div className="bg-neutral-100 dark:bg-neutral-900 rounded-xl p-6 mb-8">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>👁️</span>
-            <span>نظرة سريعة</span>
-          </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-neutral-500">القسم:</span>
-              <span className="font-medium mr-2">{article.category_id || "عام"}</span>
-            </div>
-            <div>
-              <span className="text-neutral-500">الكلمات:</span>
-              <span className="font-medium mr-2">{article.content?.split(' ').length || 0}</span>
-            </div>
-            <div>
-              <span className="text-neutral-500">وقت القراءة:</span>
-              <span className="font-medium mr-2">{article.reading_time || Math.ceil((article.content?.split(' ').length || 0) / 200)} دقائق</span>
-            </div>
-            <div>
-              <span className="text-neutral-500">المشاهدات:</span>
-              <span className="font-medium mr-2">{article.views}</span>
-            </div>
-          </div>
-        </div>
+        {/* 11. نظرة سريعة - استخدام ArticleStats */}
+        <ArticleStats article={article} />
 
         {/* 12. أزرار التفاعل */}
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-            <span>👍</span>
-            <span>أعجبني</span>
-          </button>
-          <button className="flex items-center gap-2 px-6 py-3 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors">
-            <span>📤</span>
-            <span>مشاركة</span>
-          </button>
-          <button className="flex items-center gap-2 px-6 py-3 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors">
-            <span>🔖</span>
-            <span>حفظ</span>
-          </button>
-        </div>
+        <SocialInteractionButtons 
+          articleId={article.id}
+          initialLikes={article.likes || 0}
+          initialShares={article.shares || 0}
+          initialSaves={article.saves || 0}
+        />
 
         {/* 13. نظام التعليقات */}
         <CommentsSection articleId={article.id} articleSlug={params.slug} />
-    </article>
+      </article>
+    </div>
   );
 }
