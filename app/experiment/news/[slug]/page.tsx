@@ -292,7 +292,11 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
             
             {/* أسئلة ذكية حول الخبر */}
-            <SmartQuestions articleId={article.id} articleTitle={article.title} />
+            <SmartQuestions 
+              articleId={article.id} 
+              articleTitle={article.title}
+              author={article.article_author || article.author}
+            />
             
             {/* قسم التعليقات */}
             <CommentsSection articleId={article.id} articleSlug={params.slug} />

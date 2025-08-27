@@ -286,7 +286,11 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
           </div>
 
           {/* 11. أسئلة ذكية حول الخبر */}
-          <SmartQuestions articleId={article.id} articleTitle={article.title} />
+          <SmartQuestions 
+            articleId={article.id} 
+            articleTitle={article.title}
+            author={article.article_author || article.author}
+          />
 
           {/* 12. نظام التعليقات */}
           <div className="mt-12">

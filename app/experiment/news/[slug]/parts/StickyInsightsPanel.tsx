@@ -113,6 +113,15 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
         </div>
       )}
       
+      {/* إجراءات */}
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
+        <div className="grid grid-cols-3 gap-2">
+          <ActionBtn icon={<Bell className="w-4 h-4" />} label="تنبيه" />
+          <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
+          <ActionBtn icon={<Share2 className="w-4 h-4" />} label="مشاركة" />
+        </div>
+      </div>
+      
       {/* نظرة سريعة */}
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
@@ -142,24 +151,15 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           <span className="px-2 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300">ملاءمة {insights.ai.readerFitScore}%</span>
         </div>
       </div>
-
-      {/* إجراءات */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 shadow-sm">
-        <div className="grid grid-cols-3 gap-2">
-          <ActionBtn icon={<Bell className="w-4 h-4" />} label="تنبيه" />
-          <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
-          <ActionBtn icon={<Share2 className="w-4 h-4" />} label="مشاركة" />
-        </div>
-      </div>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-800 p-3">
+    <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 p-3">
       <div className="text-[11px] text-neutral-500 dark:text-neutral-400">{label}</div>
-      <div className="text-sm font-semibold mt-1">{value}</div>
+      <div className="text-sm font-semibold mt-1 text-neutral-900 dark:text-neutral-100">{value}</div>
     </div>
   );
 }
