@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
-import { BarChart, Bell, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2 } from "lucide-react";
+import { BarChart, Bell, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2, Tag } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const PersonalizedForYou = dynamic(() => import("./PersonalizedForYou"), {
@@ -135,6 +135,34 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           <ActionBtn icon={<Share2 className="w-4 h-4" />} label="مشاركة" />
         </div>
       </div>
+      
+      {/* الكلمات المفتاحية */}
+      {article.tags && article.tags.length > 0 && (
+        <div className="rounded-2xl border p-4 shadow-sm" style={{
+          borderColor: 'var(--theme-border, rgb(229 231 235))',
+          background: 'var(--theme-bg-secondary, rgb(255 255 255))',
+        }}>
+          <div className="flex items-center gap-2 mb-3" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>
+            <Tag className="w-5 h-5" style={{ color: 'var(--theme-primary, rgb(99 102 241))' }} />
+            <h3 className="font-semibold">الكلمات المفتاحية</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {article.tags.map((tag: any, index: number) => (
+              <span
+                key={index}
+                className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
+                style={{
+                  background: 'var(--theme-primary-lighter, rgb(219 234 254))',
+                  color: 'var(--theme-primary-dark, rgb(55 48 163))',
+                  border: '1px solid var(--theme-primary-light, rgb(147 197 253))',
+                }}
+              >
+                #{tag.name || tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       
       {/* نظرة سريعة */}
       <div className="rounded-2xl border p-4 shadow-sm" style={{

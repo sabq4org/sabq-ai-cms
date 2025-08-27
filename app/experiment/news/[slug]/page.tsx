@@ -36,6 +36,7 @@ type Article = {
     bio?: string | null;
   } | null;
   categories?: { id: string; name: string; slug: string; color?: string | null; icon?: string | null } | null;
+  tags?: { id: string; name: string; slug: string }[];
 };
 
 type Insights = {
@@ -69,6 +70,13 @@ async function getArticle(slug: string) {
         } 
       },
       categories: { select: { id: true, name: true, slug: true, color: true, icon: true } },
+      article_tags: {
+        include: {
+          tags: {
+            select: { id: true, name: true, slug: true }
+          }
+        }
+      },
     },
   });
 
@@ -94,6 +102,7 @@ async function getArticle(slug: string) {
     author: article.author,
     article_author: (article as any).article_author,
     categories: article.categories,
+    tags: (article as any).article_tags?.map((at: any) => at.tags) || [],
   };
 
   return mapped;
