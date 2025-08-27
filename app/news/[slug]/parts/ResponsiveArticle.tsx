@@ -125,8 +125,8 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   </div>
                 )}
 
-                {/* خط فاصل للموبايل */}
-                <hr className="block md:hidden border-neutral-200 dark:border-neutral-800 mb-6" />
+                {/* خط فاصل */}
+                <hr className="border-neutral-200 dark:border-neutral-800 my-6" />
 
                 {/* الموجز الذكي للموبايل */}
                 {article.summary && (
