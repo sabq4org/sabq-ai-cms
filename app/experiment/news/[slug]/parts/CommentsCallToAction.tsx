@@ -4,9 +4,15 @@ import { useState, useEffect } from "react";
 
 interface CommentsCallToActionProps {
   articleId: string;
+  onToggleComments: () => void;
+  isExpanded: boolean;
 }
 
-export default function CommentsCallToAction({ articleId }: CommentsCallToActionProps) {
+export default function CommentsCallToAction({ 
+  articleId, 
+  onToggleComments,
+  isExpanded 
+}: CommentsCallToActionProps) {
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -16,12 +22,11 @@ export default function CommentsCallToAction({ articleId }: CommentsCallToAction
 
   const fetchCommentCount = async () => {
     try {
-      const response = await fetch(`/api/comments?articleId=${articleId}`);
+      // نجلب العدد فقط بدون التعليقات نفسها
+      const response = await fetch(`/api/comments/count?articleId=${articleId}`);
       if (response.ok) {
         const data = await response.json();
-        // عد التعليقات المنشورة فقط
-        const approvedComments = data.comments?.filter((comment: any) => comment.status === 'approved') || [];
-        setCommentCount(approvedComments.length);
+        setCommentCount(data.count || 0);
       }
     } catch (error) {
       console.error("Error fetching comment count:", error);
@@ -54,19 +59,30 @@ export default function CommentsCallToAction({ articleId }: CommentsCallToAction
   };
 
   return (
-    <div className="text-lg text-neutral-800 dark:text-neutral-200 hover:scale-[1.02] transition-transform duration-200 cursor-pointer">
-      <span className="inline-flex items-center gap-2">
-        <span className="text-2xl animate-pulse">💬</span>
-        <span>
+    <div 
+      onClick={onToggleComments}
+      className="text-lg text-neutral-800 dark:text-neutral-200 hover:scale-[1.02] transition-all duration-200 cursor-pointer select-none"
+    >
+      <div className="inline-flex items-center gap-3">
+        <span className={`text-2xl transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
+          {isExpanded ? '👁️' : '💬'}
+        </span>
+        <span className="flex items-center gap-2">
           {commentCount > 0 ? (
             <>
-              يوجد <strong className="font-bold text-xl mx-1 text-emerald-600 dark:text-emerald-400">{commentCount}</strong> تعليق على هذا الخبر — شارك رأيك الآن!
+              <span>
+                يوجد <strong className="font-bold text-xl mx-1 text-emerald-600 dark:text-emerald-400">{commentCount}</strong> تعليق
+              </span>
+              <span className="text-neutral-600 dark:text-neutral-400">—</span>
+              <span className="text-blue-600 dark:text-blue-400 hover:underline">
+                {isExpanded ? 'إخفاء التعليقات' : 'اضغط لعرضها'}
+              </span>
             </>
           ) : (
-            getCallToActionText()
+            <span>{getCallToActionText()}</span>
           )}
         </span>
-      </span>
+      </div>
     </div>
   );
 }

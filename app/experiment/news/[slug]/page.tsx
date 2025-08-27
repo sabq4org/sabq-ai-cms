@@ -8,9 +8,7 @@ import ArticleBody from "./parts/ArticleBody";
 import StickyInsightsPanel from "./parts/StickyInsightsPanel";
 import FloatingReadButton from "./parts/FloatingReadButton";
 import Container from "./parts/Container";
-import CommentForm from "./parts/CommentForm";
-import CommentsList from "./parts/CommentsList";
-import CommentsCallToAction from "./parts/CommentsCallToAction";
+import CommentsSection from "./parts/CommentsSection";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -294,24 +292,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
             
             {/* قسم التعليقات */}
-            <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
-              {/* بلوك دعوة للتفاعل */}
-              <div className="mb-8 p-4 bg-[#f8f8f7] dark:bg-neutral-900/50 rounded-xl text-center">
-                <CommentsCallToAction articleId={article.id} />
-              </div>
-              
-              {/* عرض التعليقات الموجودة أولاً */}
-              <CommentsList articleId={article.id} />
-              
-              {/* فورم إضافة تعليق جديد */}
-              <div className="mt-8">
-                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <span>✍️</span>
-                  <span>أضف تعليقك</span>
-                </h3>
-                <CommentForm articleId={article.id} articleSlug={params.slug} />
-              </div>
-            </div>
+            <CommentsSection articleId={article.id} articleSlug={params.slug} />
           </section>
           <aside className="lg:col-span-4">
             <StickyInsightsPanel insights={insights} article={article} />

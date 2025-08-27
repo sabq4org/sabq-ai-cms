@@ -238,6 +238,7 @@ export async function GET(request: NextRequest) {
       {
         success: true,
         comments: formattedComments,
+        totalCount: total,
         pagination: {
           total,
           page,
