@@ -8,6 +8,8 @@ import ArticleBody from "./parts/ArticleBody";
 import StickyInsightsPanel from "./parts/StickyInsightsPanel";
 import FloatingReadButton from "./parts/FloatingReadButton";
 import Container from "./parts/Container";
+import CommentForm from "./parts/CommentForm";
+import CommentsList from "./parts/CommentsList";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -296,21 +298,8 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
                 <span>✍️</span>
                 <span>أضف تعليقك</span>
               </h3>
-              <form className="space-y-4">
-                <textarea
-                  placeholder="اكتب تعليقك هنا..."
-                  className="w-full min-h-[120px] p-4 border border-neutral-200 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-300 dark:focus:ring-neutral-600 focus:border-neutral-300 dark:focus:border-neutral-600 resize-none transition-colors"
-                  rows={4}
-                />
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="px-5 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 font-medium rounded-lg transition-all duration-200 text-sm"
-                  >
-                    نشر التعليق
-                  </button>
-                </div>
-              </form>
+              <CommentForm articleId={article.id} articleSlug={params.slug} />
+              <CommentsList articleId={article.id} />
             </div>
           </section>
           <aside className="lg:col-span-4">
