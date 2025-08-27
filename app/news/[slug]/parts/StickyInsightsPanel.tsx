@@ -82,12 +82,9 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
     <div className="space-y-4 lg:sticky lg:top-24">
       {/* الموجز الذكي */}
       {article.summary && (
-        <div className="rounded-2xl border p-4 shadow-sm" style={{
-          borderColor: 'var(--theme-border, rgb(229 231 235))',
-          background: 'var(--theme-bg-secondary, rgb(255 255 255))',
-        }}>
-          <div className="flex items-center gap-2 mb-3" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>
-            <Sparkles className="w-5 h-5" style={{ color: 'var(--theme-primary, rgb(99 102 241))' }} />
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
+            <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h3 className="font-semibold">الموجز الذكي</h3>
             {/* زر الاستماع للموجز - مستوحى من الصفحة القديمة */}
             <button
@@ -130,10 +127,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       )}
       
       {/* إجراءات */}
-      <div className="rounded-2xl border p-4 shadow-sm" style={{
-        borderColor: 'var(--theme-border, rgb(229 231 235))',
-        background: 'var(--theme-bg-secondary, rgb(255 255 255))',
-      }}>
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
         <div className="grid grid-cols-3 gap-2">
           <ActionBtn icon={<Bell className="w-4 h-4" />} label="تنبيه" />
           <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
@@ -143,12 +137,9 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       
       {/* الكلمات المفتاحية */}
       {article.tags && article.tags.length > 0 && (
-        <div className="rounded-2xl border p-4 shadow-sm" style={{
-          borderColor: 'var(--theme-border, rgb(229 231 235))',
-          background: 'var(--theme-bg-secondary, rgb(255 255 255))',
-        }}>
-          <div className="flex items-center gap-2 mb-3" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>
-            <Tag className="w-5 h-5" style={{ color: 'var(--theme-primary, rgb(99 102 241))' }} />
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
+            <Tag className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h3 className="font-semibold">الكلمات المفتاحية</h3>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -170,12 +161,9 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       )}
       
       {/* نظرة سريعة */}
-      <div className="rounded-2xl border p-4 shadow-sm" style={{
-        borderColor: 'var(--theme-border, rgb(229 231 235))',
-        background: 'var(--theme-bg-secondary, rgb(255 255 255))',
-      }}>
-        <div className="flex items-center gap-2 mb-3" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>
-          <BarChart className="w-5 h-5" style={{ color: 'var(--theme-primary, rgb(99 102 241))' }} />
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
+          <BarChart className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
           <h3 className="font-semibold">نظرة سريعة</h3>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
@@ -187,12 +175,9 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
 
       {/* تحليلات الذكاء الاصطناعي */}
-      <div className="rounded-2xl border p-4 shadow-sm" style={{
-        borderColor: 'var(--theme-border, rgb(229 231 235))',
-        background: 'var(--theme-bg-secondary, rgb(255 255 255))',
-      }}>
-        <div className="flex items-center gap-2 mb-3" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>
-          <Sparkles className="w-5 h-5" style={{ color: 'var(--theme-primary, rgb(99 102 241))' }} />
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
+          <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
           <h3 className="font-semibold">تحليلات AI</h3>
         </div>
         <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-6">
@@ -217,12 +202,9 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border p-3" style={{
-      borderColor: 'var(--theme-border-light, rgb(229 231 235))',
-      background: 'var(--theme-bg-tertiary, rgb(249 250 251))',
-    }}>
-      <div className="text-[11px]" style={{ color: 'var(--theme-text-secondary, rgb(107 114 128))' }}>{label}</div>
-      <div className="text-sm font-semibold mt-1" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>{value}</div>
+    <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-3">
+      <div className="text-[11px] text-neutral-500 dark:text-neutral-400">{label}</div>
+      <div className="text-sm font-semibold mt-1 text-neutral-900 dark:text-neutral-100">{value}</div>
     </div>
   );
 }
@@ -230,20 +212,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 function ActionBtn({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <button 
-      className="inline-flex items-center justify-center gap-1 rounded-xl border px-3 py-2 text-sm transition-all hover:scale-105"
-      style={{
-        borderColor: 'var(--theme-border, rgb(229 231 235))',
-        background: 'var(--theme-bg-tertiary, rgb(249 250 251))',
-        color: 'var(--theme-text, rgb(17 24 39))',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'var(--theme-primary-lighter, rgb(219 234 254))';
-        e.currentTarget.style.borderColor = 'var(--theme-primary-light, rgb(147 197 253))';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'var(--theme-bg-tertiary, rgb(249 250 251))';
-        e.currentTarget.style.borderColor = 'var(--theme-border, rgb(229 231 235))';
-      }}
+      className="inline-flex items-center justify-center gap-1 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm transition-all hover:scale-105 text-neutral-900 dark:text-neutral-100 hover:bg-blue-50 dark:hover:bg-blue-900/20"
     >
       {icon}
       <span>{label}</span>
