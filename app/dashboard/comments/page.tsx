@@ -108,7 +108,7 @@ export default function CommentsManagementPage() {
       }
       console.log('Fetching comments with URL:', url);
       console.log('Current filter:', filter);
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         console.log('Received comments:', data.comments?.length || 0);
@@ -123,7 +123,7 @@ export default function CommentsManagementPage() {
   };
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/comments/stats');
+      const response = await fetch('/api/comments/stats', { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setStats(data);
@@ -137,6 +137,7 @@ export default function CommentsManagementPage() {
       const response = await fetch(`/api/comments/${commentId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ status: newStatus, reason })
       });
       const data = await response.json();
@@ -154,7 +155,8 @@ export default function CommentsManagementPage() {
     if (!confirm('هل أنت متأكد من حذف هذا التعليق؟')) return;
     try {
       const response = await fetch(`/api/comments/${commentId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       });
       if (response.ok) {
         fetchComments();

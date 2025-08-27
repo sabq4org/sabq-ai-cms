@@ -92,8 +92,10 @@ export async function getCurrentUser(): Promise<User | null> {
     console.log('[getCurrentUser] Available cookies:', 
       Array.from(cookieStore.getAll()).map(c => c.name).join(', '));
     
-    // دعم أكثر من اسم للكوكيز الخاصة بالتوكن، مع مسار احتياطي لقراءة كوكيز "user"
+    // دعم أسماء الكوكيز الموحدة والجديدة أولاً، ثم الأسماء القديمة
     const tokenCookie =
+      cookieStore.get("__Host-sabq-access-token") ||
+      cookieStore.get("sabq-access-token") ||
       cookieStore.get("sabq_at") ||
       cookieStore.get("auth-token") ||
       cookieStore.get("access_token") ||
@@ -110,8 +112,8 @@ export async function getCurrentUser(): Promise<User | null> {
 
     // إن لم نجد توكن صالح
     if (!payload) {
-      // تفعيل fallback مؤقتاً لحل مشكلة المصادقة
-      const allowUserCookieFallback = true; // (process.env.ALLOW_USER_COOKIE_FALLBACK || '').toLowerCase() === 'true';
+      // إلغاء fallback على كوكي "user" لمنع خلط الجلسات بين المستخدمين
+      const allowUserCookieFallback = false;
       console.log('[getCurrentUser] No valid token, user cookie fallback allowed:', allowUserCookieFallback);
       if (!allowUserCookieFallback) {
         console.log('[getCurrentUser] Returning null - no token and fallback disabled');

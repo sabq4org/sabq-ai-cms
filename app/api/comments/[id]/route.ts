@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/app/lib/auth";
+import { requireAuthFromRequest } from "@/app/lib/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
@@ -37,8 +37,8 @@ export async function PATCH(
       );
     }
 
-    // التحقق من الصلاحيات
-    const user = await getCurrentUser();
+    // التحقق من الصلاحيات باستخدام كوكيز الطلب مباشرة
+    const user = (await requireAuthFromRequest(request).catch(() => null)) as any;
     console.log('[PATCH Comments] getCurrentUser result:', user?.email || 'null');
     
     if (!user) {
