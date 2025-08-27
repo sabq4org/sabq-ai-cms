@@ -1,6 +1,6 @@
 "use client";
-import { useMemo } from "react";
-import { BarChart, Bell, Bookmark, Share2, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
+import { BarChart, Bell, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 
 type Insights = {
   views: number;
@@ -18,6 +18,7 @@ type Insights = {
 
 export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null } }) {
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <div className="lg:sticky lg:top-6 space-y-4">
@@ -28,9 +29,17 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
             <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             <h3 className="font-semibold">الموجز الذكي</h3>
           </div>
-          <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-6">
-            {article.summary}
-          </p>
+          <p id="smart-summary" className={"text-sm text-neutral-700 dark:text-neutral-300 leading-6 " + (expanded ? "" : "line-clamp-3")}>{article.summary}</p>
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-controls="smart-summary"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-2 inline-flex items-center gap-1 text-[12px] text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            <span>{expanded ? "إظهار أقل" : "إظهار المزيد"}</span>
+          </button>
         </div>
       )}
       {/* نظرة سريعة */}
