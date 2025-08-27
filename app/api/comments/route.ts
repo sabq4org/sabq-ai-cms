@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const articleId = searchParams.get("article_id");
+    const articleId = searchParams.get("articleId") || searchParams.get("article_id");
     const status = searchParams.get("status") || "approved";
     const q = (searchParams.get("q") || "").trim();
     const page = parseInt(searchParams.get("page") || "1");
@@ -170,6 +170,14 @@ export async function GET(request: NextRequest) {
           },
         },
         { headers: noStoreHeaders }
+      );
+    }
+
+    // التحقق من وجود articleId
+    if (!articleId) {
+      return NextResponse.json(
+        { success: false, error: "معرف المقال مطلوب" },
+        { status: 400 }
       );
     }
 
