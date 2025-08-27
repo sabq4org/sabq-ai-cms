@@ -291,7 +291,15 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
 
           {/* 10. تحليلات AI */}
           <div className="mt-8">
-            <StickyInsightsPanel insights={insights} article={article} />
+            <StickyInsightsPanel insights={insights} article={{
+              id: article.id,
+              summary: article.summary,
+              categories: article.categories,
+              tags: article.tags,
+              likes: article.likes || 0,
+              shares: article.shares || 0,
+              saves: article.saves || 0,
+            }} />
           </div>
 
           {/* 11. أسئلة ذكية حول الخبر */}

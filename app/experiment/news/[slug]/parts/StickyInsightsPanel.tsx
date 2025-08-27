@@ -24,8 +24,13 @@ type Insights = {
   };
 };
 
-export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; categories?: { name: string } | null; tags?: string[] } }) {
+export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; categories?: { name: string } | null; tags?: any[]; likes?: number; shares?: number; saves?: number } }) {
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
+  
+  // تسجيل للتحقق من البيانات
+  if (typeof window !== 'undefined') {
+    console.log('StickyInsightsPanel - article.tags:', article.tags);
+  }
   const [expanded, setExpanded] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
