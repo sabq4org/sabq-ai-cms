@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
             {
               resource_type: "auto",
               folder: `uploads/${type}`,
-              format: "auto",
-              quality: "auto:good"
+              // ملاحظة: عدم تمرير معلمات التحويل هنا (format/quality)
+              // لتجنّب خطأ Cloudinary: "Invalid extension in transformation: auto"
             },
             (error, result) => {
               if (error) reject(error);
