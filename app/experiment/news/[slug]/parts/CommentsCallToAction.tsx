@@ -64,8 +64,8 @@ export default function CommentsCallToAction({
       className="text-lg text-neutral-800 dark:text-neutral-200 hover:scale-[1.02] transition-all duration-200 cursor-pointer select-none"
     >
       <div className="inline-flex items-center gap-3">
-        <span className={`text-2xl transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
-          {isExpanded ? '👁️' : '💬'}
+        <span className={`text-2xl transition-transform duration-300`}>
+          {isExpanded ? '💬' : '💬'}
         </span>
         <span className="flex items-center gap-2">
           {commentCount > 0 ? (
@@ -75,7 +75,7 @@ export default function CommentsCallToAction({
               </span>
               <span className="text-neutral-600 dark:text-neutral-400">—</span>
               <span className="text-blue-600 dark:text-blue-400 hover:underline">
-                {isExpanded ? 'إخفاء التعليقات' : 'اضغط لعرضها'}
+                {isExpanded ? 'إخفاء التعليقات ▲' : 'اضغط لعرضها ▼'}
               </span>
             </>
           ) : (

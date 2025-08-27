@@ -31,7 +31,7 @@ interface CommentsSectionProps {
 }
 
 export default function CommentsSection({ articleId, articleSlug }: CommentsSectionProps) {
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(false); // الإبقاء على التحميل الكسول
 
   const toggleComments = () => {
     setShowComments(!showComments);
