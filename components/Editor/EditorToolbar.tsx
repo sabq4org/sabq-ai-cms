@@ -2,7 +2,7 @@
 
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Editor } from "@tiptap/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   AlignCenter,
@@ -22,6 +22,7 @@ import {
   List,
   ListOrdered,
   Quote,
+  Images,
   Redo,
   Sparkles,
   Table,
@@ -51,6 +52,8 @@ export default function EditorToolbar({
   const [showImageUploadDialog, setShowImageUploadDialog] = useState(false);
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const albumInputRef = useRef<HTMLInputElement | null>(null);
+  const [albumUploading, setAlbumUploading] = useState(false);
 
   const buttonClass = `p-2 rounded transition-colors ${
     darkMode
@@ -94,6 +97,30 @@ export default function EditorToolbar({
       editor.chain().focus().setYoutubeVideo({ src: url }).run();
     }
     setShowYoutubeDialog(false);
+  };
+
+  // رفع ألبوم صور متعدد وإدراجه داخل المحرر
+  const onAlbumFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    try {
+      setAlbumUploading(true);
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", file);
+        const resp = await fetch("/api/admin/media/upload", { method: "POST", body: fd });
+        if (resp.ok) {
+          const result = await resp.json();
+          const url = result?.asset?.cloudinaryUrl || result?.asset?.url || result?.url;
+          if (url) {
+            editor.chain().focus().setImage({ src: url }).run();
+          }
+        }
+      }
+    } finally {
+      setAlbumUploading(false);
+      if (albumInputRef.current) albumInputRef.current.value = "";
+    }
   };
 
   // دالة لإضافة رابط
@@ -347,6 +374,23 @@ export default function EditorToolbar({
             </div>
           )}
         </div>
+        {/* زر ألبوم الصور (رفع متعدد) */}
+        <input
+          ref={albumInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={onAlbumFilesSelected}
+          className="hidden"
+        />
+        <button
+          onClick={() => albumInputRef.current?.click()}
+          className={`${buttonClass} ${albumUploading ? 'opacity-60' : ''}`}
+          title="ألبوم الصور (رفع مجموعة صور)"
+          disabled={albumUploading}
+        >
+          <Images className="w-4 h-4" />
+        </button>
         <button
           onClick={addYoutube}
           className={buttonClass}
