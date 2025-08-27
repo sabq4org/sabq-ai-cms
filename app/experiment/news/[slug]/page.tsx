@@ -297,13 +297,21 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
                 <span>أضف تعليقك</span>
               </h3>
               <div className="bg-white dark:bg-neutral-900 border border-[#f0f0ef] dark:border-neutral-800 rounded-2xl p-6">
-                <p className="text-neutral-600 dark:text-neutral-400 text-center">
-                  للمشاركة، يرجى{' '}
-                  <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-                    تسجيل الدخول
-                  </a>
-                  .
-                </p>
+                <form className="space-y-4">
+                  <textarea
+                    placeholder="اكتب تعليقك هنا..."
+                    className="w-full min-h-[120px] p-4 border border-neutral-200 dark:border-neutral-700 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    rows={4}
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                    >
+                      نشر التعليق
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </section>
