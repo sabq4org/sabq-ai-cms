@@ -60,6 +60,8 @@ export default function EnhancedEditor({
   const [insertedImages, setInsertedImages] = useState<MediaAsset[]>([]);
   const [cursorPosition, setCursorPosition] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const albumInputRef = useRef<HTMLInputElement>(null);
+  const [albumUploading, setAlbumUploading] = useState(false);
   const { toast } = useToast();
 
   // حفظ موضع المؤشر
@@ -215,6 +217,35 @@ export default function EnhancedEditor({
     setShowMediaPicker(false);
   }, [insertMultipleImages]);
 
+  // رفع ألبوم مباشرة من الجهاز عبر input متعدد الملفات (بدون فتح مودال)
+  const onAlbumFilesSelected = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setAlbumUploading(true);
+    try {
+      const uploadedAssets: MediaAsset[] = [] as any;
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const resp = await fetch("/api/admin/media/upload", { method: "POST", body: formData });
+        if (resp.ok) {
+          const result = await resp.json();
+          if (result?.asset) uploadedAssets.push(result.asset);
+        }
+      }
+      if (uploadedAssets.length > 0) {
+        insertMultipleImages(uploadedAssets);
+        toast({ title: "تم رفع الألبوم", description: `تم رفع ${uploadedAssets.length} صورة.` });
+      }
+    } catch (err) {
+      console.error("Album upload error", err);
+      toast({ title: "خطأ في الرفع", description: "تعذر رفع بعض الصور", variant: "destructive" });
+    } finally {
+      setAlbumUploading(false);
+      if (albumInputRef.current) albumInputRef.current.value = "";
+    }
+  }, [insertMultipleImages, toast]);
+
   return (
     <div className={cn(
       "relative border rounded-lg overflow-hidden bg-white dark:bg-gray-950",
@@ -318,6 +349,27 @@ export default function EnhancedEditor({
                   )}
                 </Button>
               )}
+
+              {/* زر ألبوم الصور - اختيار عدة صور دفعة واحدة */}
+              <input
+                ref={albumInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={onAlbumFilesSelected}
+                className="hidden"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => albumInputRef.current?.click()}
+                title="ألبوم الصور (رفع مجموعة صور)"
+                className="gap-2"
+                disabled={albumUploading}
+              >
+                <Images className="w-4 h-4" />
+                ألبوم
+              </Button>
             </div>
           </div>
 
