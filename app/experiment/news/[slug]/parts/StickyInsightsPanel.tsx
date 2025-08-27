@@ -1,6 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
-import { BarChart, Bell, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { BarChart, Bell, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2 } from "lucide-react";
 
 type Insights = {
   views: number;
@@ -19,6 +19,51 @@ type Insights = {
 export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null } }) {
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
   const [expanded, setExpanded] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const loadOrToggleAudio = async () => {
+    // إذا كان لدينا رابط بالفعل، بدّل التشغيل/الإيقاف
+    if (audioUrl && audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        try {
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch (e) {
+          console.error("تعذر تشغيل الصوت:", e);
+        }
+      }
+      return;
+    }
+
+    // وإلا: ولّد الصوت من API الملخّص القديم
+    try {
+      setIsAudioLoading(true);
+      const res = await fetch(`/api/voice-summary?articleId=${article.id}`);
+      const data = await res.json();
+      if (data?.audioUrl) {
+        setAudioUrl(data.audioUrl);
+        // شغّل فورًا بعد التعيين
+        setTimeout(async () => {
+          if (audioRef.current) {
+            try {
+              await audioRef.current.play();
+              setIsPlaying(true);
+            } catch (e) {
+              console.error("تعذر تشغيل الصوت بعد التحميل:", e);
+            }
+          }
+        }, 50);
+      }
+    } finally {
+      setIsAudioLoading(false);
+    }
+  };
 
   return (
     <div className="lg:sticky lg:top-6 space-y-4">
@@ -28,6 +73,24 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
             <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             <h3 className="font-semibold">الموجز الذكي</h3>
+            {/* زر الاستماع للموجز - مستوحى من الصفحة القديمة */}
+            <button
+              type="button"
+              onClick={loadOrToggleAudio}
+              className="ml-auto inline-flex items-center gap-1 rounded-full border border-neutral-200 dark:border-neutral-700 px-2.5 py-1 text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              title={isPlaying ? "إيقاف الاستماع" : "استمع للموجز"}
+            >
+              {isAudioLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : audioUrl ? (
+                <Play className="w-4 h-4" />
+              ) : (
+                <Headphones className="w-4 h-4" />
+              )}
+              <span>{isPlaying ? "إيقاف" : audioUrl ? "تشغيل" : "استمع"}</span>
+            </button>
           </div>
           <p id="smart-summary" className={"text-sm text-neutral-700 dark:text-neutral-300 leading-6 " + (expanded ? "" : "line-clamp-3")}>{article.summary}</p>
           <button
@@ -40,6 +103,13 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             <span>{expanded ? "إظهار أقل" : "إظهار المزيد"}</span>
           </button>
+          {/* عنصر الصوت المخفي */}
+          <audio
+            ref={audioRef}
+            src={audioUrl || undefined}
+            onEnded={() => setIsPlaying(false)}
+            className="hidden"
+          />
         </div>
       )}
       {/* نظرة سريعة */}
