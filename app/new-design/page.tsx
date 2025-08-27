@@ -359,11 +359,11 @@ const ModernArticleCard: React.FC<{
             <div style={{ display: 'flex', gap: 'var(--space-lg)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
                 <EyeIcon style={{ width: '16px', height: '16px', color: 'var(--text-secondary)' }} />
-                <span className="text-caption">{article.views.toLocaleString('ar')}</span>
+                <span className="text-caption">{article.views.toLocaleString('en-US')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
                 <HeartIcon style={{ width: '16px', height: '16px', color: 'var(--text-secondary)' }} />
-                <span className="text-caption">{article.likes.toLocaleString('ar')}</span>
+                <span className="text-caption">{article.likes.toLocaleString('en-US')}</span>
               </div>
             </div>
 

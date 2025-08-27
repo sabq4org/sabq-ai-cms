@@ -92,7 +92,7 @@ export function formatNumber(
       }
     );
   } else {
-    formattedNumber = numValue.toLocaleString("ar-SA", {
+    formattedNumber = numValue.toLocaleString("en-US", {
       useGrouping: useThousandSeparator,
       minimumFractionDigits,
       maximumFractionDigits,

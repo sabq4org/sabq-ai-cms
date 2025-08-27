@@ -5,6 +5,7 @@ import FloatingReadButton from "./FloatingReadButton";
 import StickyInsightsPanel from "./StickyInsightsPanel";
 import CommentsSection from "./CommentsSection";
 import SmartQuestions from "./SmartQuestions";
+import { Calendar, Clock, BookOpen, Eye } from "lucide-react";
 import { useMemo } from "react";
 
 interface ResponsiveArticleProps {
@@ -61,7 +62,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
               <div className="flex flex-wrap gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
                   {article.published_at && (
                     <div className="flex items-center gap-1">
-                      <span>📅</span>
+                      <Calendar className="w-4 h-4" />
                       <span>{new Intl.DateTimeFormat('ar-SA', {
                         year: 'numeric',
                         month: 'long',
@@ -72,7 +73,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   {/* إخفاء الوقت على الموبايل */}
                   {article.published_at && (
                     <div className="hidden sm:flex items-center gap-1">
-                      <span>🕐</span>
+                      <Clock className="w-4 h-4" />
                       <span>{new Intl.DateTimeFormat('en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -82,12 +83,12 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   )}
                   {article.readMinutes && (
                     <div className="flex items-center gap-1">
-                      <span>📖</span>
+                      <BookOpen className="w-4 h-4" />
                       <span>{article.readMinutes} دقيقة قراءة</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1">
-                    <span>👁️</span>
+                    <Eye className="w-4 h-4" />
                     <span>{(article.views || 0).toLocaleString("en-US")} مشاهدة</span>
                   </div>
                 </div>

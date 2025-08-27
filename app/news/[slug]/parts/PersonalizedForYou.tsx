@@ -66,7 +66,7 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
       <div className="flex flex-col items-center text-center">
         <Brain className="w-8 h-8 text-purple-600 dark:text-purple-400 animate-pulse mb-2" />
         <p className="text-sm text-neutral-500">🧠 يحلل الذكاء الاصطناعي اهتماماتك...</p>
@@ -85,7 +85,7 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
   );
 
   return (
-    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-4">
         <div className="mb-2">
@@ -105,7 +105,7 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
           <Link
             key={article.id}
             href={getArticleLink(article)}
-            className="block p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all hover:shadow-md group"
+            className="block p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all group"
           >
             <h4 className="text-sm font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 line-clamp-2 mb-2">
               {article.title}
@@ -115,7 +115,7 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
                 {article.views && (
                   <span className="flex items-center gap-1">
                     <Eye className="w-3 h-3" />
-                    {article.views.toLocaleString("ar-SA")}
+                    {article.views.toLocaleString("en-US")}
                   </span>
                 )}
                 {article.readingTime && (

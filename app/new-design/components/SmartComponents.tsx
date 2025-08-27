@@ -468,7 +468,7 @@ export const InteractiveAnalytics: React.FC = () => {
         }}>
           <UserIcon style={{ width: '32px', height: '32px', color: 'var(--primary-blue)', margin: '0 auto var(--space-sm)' }} />
           <div className="heading-card" style={{ color: 'var(--primary-blue)' }}>
-            {stats.readers?.toLocaleString('ar')}
+            {stats.readers?.toLocaleString('en-US')}
           </div>
           <div className="text-secondary">قارئ نشط</div>
         </div>

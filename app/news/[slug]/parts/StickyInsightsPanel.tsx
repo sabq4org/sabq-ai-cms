@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 const PersonalizedForYou = dynamic(() => import("./PersonalizedForYou"), {
   ssr: false,
   loading: () => (
-    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm animate-pulse h-64" />
+    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 animate-pulse h-64" />
   ),
 });
 
@@ -82,7 +82,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
     <div className="space-y-4 lg:sticky lg:top-24">
       {/* الموجز الذكي */}
       {article.summary && (
-        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
           <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
             <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h3 className="font-semibold">الموجز الذكي</h3>
@@ -127,7 +127,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       )}
       
       {/* إجراءات */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
         <div className="grid grid-cols-3 gap-2">
           <ActionBtn icon={<Heart className="w-4 h-4" />} label="إعجاب" />
           <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
@@ -137,7 +137,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       
       {/* الكلمات المفتاحية */}
       {article.tags && article.tags.length > 0 && (
-        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
           <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
             <Tag className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h3 className="font-semibold">الكلمات المفتاحية</h3>
@@ -161,21 +161,21 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       )}
       
       {/* نظرة سريعة */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
         <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
           <BarChart className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
           <h3 className="font-semibold">نظرة سريعة</h3>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <Stat label="المشاهدات" value={insights.views.toLocaleString("ar-SA")} />
-          <Stat label="إكمال القراءة" value={insights.readsCompleted.toLocaleString("ar-SA")} />
+          <Stat label="المشاهدات" value={insights.views.toLocaleString("en-US")} />
+          <Stat label="إكمال القراءة" value={insights.readsCompleted.toLocaleString("en-US")} />
           <Stat label="متوسط الوقت" value={`${avgMinutes} د`} />
           <Stat label="التفاعل" value={`${insights.interactions.shares + insights.interactions.comments + insights.interactions.likes}`} />
         </div>
       </div>
 
       {/* تحليلات الذكاء الاصطناعي */}
-      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
         <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
           <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
           <h3 className="font-semibold">تحليلات AI</h3>
