@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
-import { BarChart, Bell, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2, Tag } from "lucide-react";
+import { BarChart, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2, Tag, Heart } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const PersonalizedForYou = dynamic(() => import("./PersonalizedForYou"), {
@@ -129,7 +129,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       {/* إجراءات */}
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
         <div className="grid grid-cols-3 gap-2">
-          <ActionBtn icon={<Bell className="w-4 h-4" />} label="تنبيه" />
+          <ActionBtn icon={<Heart className="w-4 h-4" />} label="إعجاب" />
           <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
           <ActionBtn icon={<Share2 className="w-4 h-4" />} label="مشاركة" />
         </div>

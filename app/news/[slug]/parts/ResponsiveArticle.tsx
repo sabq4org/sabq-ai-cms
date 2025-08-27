@@ -28,7 +28,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
   const albumImages = article.images?.filter((img: any) => img.url !== article.featured_image) || [];
 
   return (
-    <div className="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
+    <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
       {/* عرض الصور حسب حجم الشاشة */}
       <div className="pt-4 lg:pt-6 mb-4 lg:mb-6">
         {/* للشاشات الكبيرة: جميع الصور */}
