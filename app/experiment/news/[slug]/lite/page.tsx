@@ -188,7 +188,7 @@ export default async function LiteArticlePage({
 
           {/* 7. الموجز الذكي */}
           {(article.summary || article.excerpt) && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8">
+            <div className="mb-8">
               <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
                 <span>📋</span>
                 <span>الموجز الذكي</span>
@@ -221,49 +221,7 @@ export default async function LiteArticlePage({
           {/* 10. تحليلات AI */}
           <StickyInsightsPanel insights={insights} article={article} />
 
-          {/* 11. نظرة سريعة */}
-          <div className="bg-neutral-100 dark:bg-neutral-900 rounded-xl p-6 my-8">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <span>👁️</span>
-              <span>نظرة سريعة</span>
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-neutral-500">القسم:</span>
-                <span className="font-medium mr-2">{article.category_id || "عام"}</span>
-              </div>
-              <div>
-                <span className="text-neutral-500">الكلمات:</span>
-                <span className="font-medium mr-2">{article.content?.split(' ').length || 0}</span>
-              </div>
-              <div>
-                <span className="text-neutral-500">وقت القراءة:</span>
-                <span className="font-medium mr-2">{Math.round(insights.avgReadTimeSec / 60)} دقائق</span>
-              </div>
-              <div>
-                <span className="text-neutral-500">المشاهدات:</span>
-                <span className="font-medium mr-2">{article.views}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 12. أزرار التفاعل */}
-          <div className="flex items-center justify-center gap-4 my-12">
-            <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-              <span>👍</span>
-              <span>أعجبني ({article.likes || 0})</span>
-            </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors">
-              <span>📤</span>
-              <span>مشاركة ({article.shares || 0})</span>
-            </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors">
-              <span>🔖</span>
-              <span>حفظ ({article.saves || 0})</span>
-            </button>
-          </div>
-
-          {/* 13. نظام التعليقات */}
+          {/* 11. نظام التعليقات */}
           <CommentsSection articleId={article.id} articleSlug={params.slug} />
         </div>
       </article>
