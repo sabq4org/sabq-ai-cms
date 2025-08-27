@@ -76,7 +76,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                 alt={hero?.alt || imgs[0].alt || "صورة"} 
                 fill 
                 sizes="(max-width: 768px) 100vw, 600px" 
-                className="object-cover scale-110" 
+                className="object-cover scale-[1.15]" 
               />
             </div>
           </div>
@@ -89,7 +89,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                     alt={t.alt || "صورة"} 
                     fill 
                     sizes="(max-width: 768px) 50vw, 300px" 
-                    className="object-cover scale-110"
+                    className="object-cover scale-[1.15]"
                   />
                   {showMore && i === 3 && (
                     <div 
