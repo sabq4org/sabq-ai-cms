@@ -20,11 +20,38 @@ export default function ArticleBody({ html, article, hiddenImageUrls = [] }: Pro
     let c = html || "";
     if (hiddenImageUrls && hiddenImageUrls.length > 0) {
       const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      hiddenImageUrls.forEach((url) => {
-        const src = escapeRegExp(url);
-        const imgTagRegex = new RegExp(`<img[^>]+src=[\"']?${src}[\"']?[^>]*>`, "gi");
-        c = c.replace(imgTagRegex, "");
-      });
+
+      const removeOnce = (str: string, re: RegExp): string => {
+        let replaced = false;
+        return str.replace(re, (m) => {
+          if (replaced) return m;
+          replaced = true;
+          return "";
+        });
+      };
+
+      // لا نحتاج أكثر من أول 10 صور للهيرو
+      for (let i = 0; i < Math.min(hiddenImageUrls.length, 10); i++) {
+        const url = hiddenImageUrls[i];
+        if (!url) continue;
+
+        try {
+          if (url.startsWith("data:")) {
+            // إزالة أول صورة data:image فقط لتجنب regex ضخم
+            const dataRe = /<img[^>]+src=["']data:[^"']+["'][^>]*>/i;
+            c = removeOnce(c, dataRe);
+          } else {
+            // مطابقة بجزء قصير من نهاية الرابط لمنع تضخّم RegExp
+            const clean = url.split("?")[0].split("#")[0];
+            const tail = clean.slice(-80); // مقطع قصير كافٍ للتمييز
+            const key = escapeRegExp(tail);
+            const re = new RegExp(`<img[^>]+src=["'][^"']*${key}[^"']*["'][^>]*>`, "i");
+            c = removeOnce(c, re);
+          }
+        } catch {
+          // فشل إنشاء regex (نادرًا) – نتجاهل بدون كسر الصفحة
+        }
+      }
     }
     return c;
   }, [html, hiddenImageUrls]);
