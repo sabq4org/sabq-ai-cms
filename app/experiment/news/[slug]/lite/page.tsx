@@ -7,6 +7,7 @@ import ArticleBody from "../parts/ArticleBody";
 import StickyInsightsPanel from "../parts/StickyInsightsPanel";
 import Container from "../parts/Container";
 import CommentsSection from "../parts/CommentsSection";
+import SmartQuestions from "../parts/SmartQuestions";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -290,7 +291,10 @@ export default async function LiteNewsPage({ params }: { params: Promise<{ slug:
             }} />
           </div>
 
-          {/* 11. نظام التعليقات */}
+          {/* 11. أسئلة ذكية حول الخبر */}
+          <SmartQuestions articleId={article.id} articleTitle={article.title} />
+
+          {/* 12. نظام التعليقات */}
           <div className="mt-12">
             <CommentsSection articleId={article.id} articleSlug={params.slug} />
           </div>

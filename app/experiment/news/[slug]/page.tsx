@@ -8,6 +8,7 @@ import StickyInsightsPanel from "./parts/StickyInsightsPanel";
 import FloatingReadButton from "./parts/FloatingReadButton";
 import Container from "./parts/Container";
 import CommentsSection from "./parts/CommentsSection";
+import SmartQuestions from "./parts/SmartQuestions";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -289,6 +290,9 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             </div>
 
             <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
+            
+            {/* أسئلة ذكية حول الخبر */}
+            <SmartQuestions articleId={article.id} articleTitle={article.title} />
             
             {/* قسم التعليقات */}
             <CommentsSection articleId={article.id} articleSlug={params.slug} />
