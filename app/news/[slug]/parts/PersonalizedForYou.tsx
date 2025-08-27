@@ -28,62 +28,50 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // محاكاة جلب التوصيات - يمكن استبدالها بـ API حقيقي
     const fetchRecommendations = async () => {
       setLoading(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // توصيات تجريبية
+        const params = new URLSearchParams({
+          articleId,
+          ...(categoryName && { categoryName }),
+          ...(tags.length > 0 && { tags: tags.join(",") })
+        });
+
+        const response = await fetch(`/api/ai-recommendations?${params}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch recommendations");
+        }
+
+        const data = await response.json();
+        setRecommendations(data.recommendations || []);
+      } catch (error) {
+        console.error("Error fetching AI recommendations:", error);
+        // fallback إلى توصيات تجريبية في حالة الخطأ
         setRecommendations([
           {
-            id: "1",
-            title: "تحليل: كيف ستؤثر القرارات الاقتصادية الجديدة على المواطنين",
-            slug: "economic-analysis-2024",
-            views: 15420,
-            readingTime: 5,
-            confidence: 92,
-            reason: "مقال تحليلي مرتبط",
-            category: "اقتصاد"
-          },
-          {
-            id: "2",
-            title: "رأي: الحلول المبتكرة لتحديات القطاع الخاص",
-            slug: "private-sector-solutions",
-            views: 8930,
-            readingTime: 3,
-            confidence: 87,
-            reason: "رأي في نفس الموضوع",
-            category: "آراء"
-          },
-          {
-            id: "3",
-            title: "تقرير خاص: إنجازات رؤية 2030 في عامها السابع",
-            slug: "vision-2030-report",
-            views: 25100,
-            readingTime: 7,
-            confidence: 95,
-            reason: "محتوى مميز",
-            category: "تقارير"
+            id: "fallback-1",
+            title: "لم نتمكن من جلب التوصيات الذكية حالياً",
+            slug: "#",
+            confidence: 0,
+            reason: "خطأ في النظام"
           }
         ]);
-      } catch (error) {
-        console.error("Error fetching recommendations:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecommendations();
-  }, [articleId]);
+  }, [articleId, categoryName, tags]);
 
   if (loading) {
     return (
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
-        <div className="flex flex-col items-center text-center">
-          <Brain className="w-8 h-8 text-purple-600 dark:text-purple-400 animate-pulse mb-2" />
-          <p className="text-sm text-neutral-500">جاري تحليل اهتماماتك...</p>
-        </div>
+      <div className="flex flex-col items-center text-center">
+        <Brain className="w-8 h-8 text-purple-600 dark:text-purple-400 animate-pulse mb-2" />
+        <p className="text-sm text-neutral-500">🧠 يحلل الذكاء الاصطناعي اهتماماتك...</p>
+        <p className="text-xs text-neutral-400 mt-1">جاري فحص المحتوى المشابه</p>
+      </div>
       </div>
     );
   }
@@ -97,10 +85,7 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
   );
 
   return (
-    <div className="rounded-2xl border p-4 shadow-sm" style={{
-      borderColor: 'var(--theme-border, rgb(229 231 235))',
-      background: 'var(--theme-bg-secondary, rgb(255 255 255))',
-    }}>
+    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 shadow-sm">
       {/* Header */}
       <div className="flex flex-col items-center text-center mb-4">
         <div className="mb-2">
@@ -108,9 +93,9 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
             <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </span>
         </div>
-        <h3 className="font-bold" style={{ color: 'var(--theme-text, rgb(17 24 39))' }}>مخصص لك بذكاء</h3>
-        <p className="text-xs mt-1" style={{ color: 'var(--theme-primary, rgb(99 102 241))' }}>
-          محتوى مختار بناءً على اهتماماتك
+        <h3 className="font-bold text-neutral-900 dark:text-neutral-100">🤖 مخصص لك بذكاء</h3>
+        <p className="text-xs mt-1 text-indigo-600 dark:text-indigo-400">
+          محتوى مختار بواسطة الذكاء الاصطناعي
         </p>
       </div>
 
@@ -199,7 +184,7 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
       {/* Footer */}
       <div className="text-center pt-3 mt-3 border-t border-neutral-200 dark:border-neutral-700">
         <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
-          🎯 يتحسن كلما تفاعلت أكثر • يُحدث كل 12 ساعة
+          🤖 مُدعم بالذكاء الاصطناعي • يتحسن مع التفاعل • يُحدث كل 6 ساعات
         </p>
       </div>
     </div>
