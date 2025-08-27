@@ -67,7 +67,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
   return (
     <div className="relative w-full py-4 px-4 md:px-6">
       <div className="mx-auto max-w-[1200px]">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[1px] rounded-2xl overflow-hidden bg-gray-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 rounded-2xl overflow-hidden">
           {/* هيرو - 50% بالضبط */}
           <div className="relative md:h-full group cursor-zoom-in" onClick={() => openAt(0)}>
             <div className="relative w-full h-full min-h-[300px] md:min-h-[400px] overflow-hidden">
@@ -76,12 +76,12 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                 alt={hero?.alt || imgs[0].alt || "صورة"} 
                 fill 
                 sizes="(max-width: 768px) 100vw, 600px" 
-                className="object-cover" 
+                className="object-cover scale-110" 
               />
             </div>
           </div>
           {/* 4 مصغرات - 50% بالضبط */}
-          <div className="grid grid-cols-2 grid-rows-2 gap-[1px] min-h-[300px] md:min-h-[400px]">
+          <div className="grid grid-cols-2 grid-rows-2 gap-0 min-h-[300px] md:min-h-[400px]">
             {thumbs.map((t, i) => (
                 <div key={i} className="relative group cursor-zoom-in overflow-hidden" onClick={() => openAt(i + 1)}>
                   <Image 
@@ -89,7 +89,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                     alt={t.alt || "صورة"} 
                     fill 
                     sizes="(max-width: 768px) 50vw, 300px" 
-                    className="object-cover"
+                    className="object-cover scale-110"
                   />
                   {showMore && i === 3 && (
                     <div 
