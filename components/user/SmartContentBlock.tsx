@@ -308,7 +308,12 @@ export default function SmartContentBlock({
           0% { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
-        .smart-card { transition: transform 0.25s ease; will-change: transform; }
+        .smart-card { 
+          transition: transform 0.25s ease; 
+          will-change: transform; 
+          content-visibility: auto; /* لا ترسم العناصر خارج الشاشة حتى تظهر */
+          contain-intrinsic-size: 320px; /* حجم تقريبي لمنع القفزات عند الظهور */
+        }
         .smart-card:hover { transform: translateY(-4px); }
         /* CSS-only hover for CTA button to avoid JS handlers */
         .smart-cta { transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease; }
