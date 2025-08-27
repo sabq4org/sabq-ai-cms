@@ -19,24 +19,33 @@ async function getArticle(slug: string) {
         ],
         is_active: true,
         visibility: "published"
-      },
-      include: {
-        media: {
-          where: { is_active: true },
-          orderBy: { display_order: "asc" }
-        },
-        users: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-            role: true
-          }
-        }
       }
     });
     
     if (!article) return null;
+    
+    // جلب الوسائط
+    const media = await prisma.article_media.findMany({
+      where: {
+        article_id: article.id,
+        is_active: true
+      },
+      orderBy: { display_order: "asc" }
+    });
+    
+    // جلب معلومات الكاتب
+    let author = null;
+    if (article.author_id) {
+      author = await prisma.users.findUnique({
+        where: { id: article.author_id },
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+          role: true
+        }
+      });
+    }
     
     // تحديث عداد المشاهدات
     await prisma.articles.update({
@@ -44,11 +53,45 @@ async function getArticle(slug: string) {
       data: { views: { increment: 1 } }
     });
     
-    return article;
+    return {
+      ...article,
+      media,
+      users: author
+    };
   } catch (error) {
     console.error("Error fetching article:", error);
     return null;
   }
+}
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { slug: string } 
+}) {
+  const article = await getArticle(params.slug);
+  
+  if (!article) {
+    return {
+      title: "المقال غير موجود",
+      description: "عذراً، المقال الذي تبحث عنه غير موجود"
+    };
+  }
+
+  return {
+    title: article.title,
+    description: article.summary || article.subtitle,
+    openGraph: {
+      title: article.title,
+      description: article.summary || article.subtitle,
+      images: article.media?.[0]?.file_path ? [{
+        url: article.media[0].file_path,
+        width: 1200,
+        height: 675,
+        alt: article.title
+      }] : []
+    }
+  };
 }
 
 export default async function LiteArticlePage({
@@ -132,14 +175,14 @@ export default async function LiteArticlePage({
         <hr className="border-neutral-200 dark:border-neutral-800 mb-8" />
 
         {/* 7. الموجز الذكي */}
-        {article.summary && (
+        {(article.summary || article.ai_summary) && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-8">
             <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
               <span>📋</span>
               <span>الموجز الذكي</span>
             </h3>
             <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              {article.summary}
+              {article.summary || article.ai_summary}
             </p>
           </div>
         )}
