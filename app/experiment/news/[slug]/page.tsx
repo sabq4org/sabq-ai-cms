@@ -168,7 +168,9 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
 
   return (
     <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
-      <HeroGallery images={heroImages} />
+      <div className="pt-4">
+        <HeroGallery images={heroImages} />
+      </div>
       <main>
           <Container className="py-6 lg:py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
@@ -292,7 +294,13 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
             <CommentsSection articleId={article.id} articleSlug={params.slug} />
           </section>
           <aside className="lg:col-span-4">
-            <StickyInsightsPanel insights={insights} article={article} />
+            <StickyInsightsPanel insights={insights} article={{
+              id: article.id,
+              summary: article.summary,
+              likes: (article as any).likes || 0,
+              shares: (article as any).shares || 0,
+              saves: (article as any).saves || 0
+            }} />
           </aside>
           </div>
           </Container>

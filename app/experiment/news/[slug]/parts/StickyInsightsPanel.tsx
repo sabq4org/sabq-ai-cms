@@ -16,7 +16,7 @@ type Insights = {
   };
 };
 
-export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null } }) {
+export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; likes?: number; shares?: number; saves?: number } }) {
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
   const [expanded, setExpanded] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -112,6 +112,25 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           />
         </div>
       )}
+      
+      {/* أزرار التفاعل */}
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
+        <div className="flex items-center justify-center gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm">
+            <span>👍</span>
+            <span>أعجبني ({article.likes || 0})</span>
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors text-sm">
+            <span>📤</span>
+            <span>مشاركة ({article.shares || 0})</span>
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-lg transition-colors text-sm">
+            <span>🔖</span>
+            <span>حفظ ({article.saves || 0})</span>
+          </button>
+        </div>
+      </div>
+      
       {/* نظرة سريعة */}
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3 text-neutral-700 dark:text-neutral-200">
