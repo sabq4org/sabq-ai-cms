@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/url-builder";
-import DeviceAwareContent from "./parts/DeviceAwareContent";
+import ResponsiveArticle from "./parts/ResponsiveArticle";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -147,7 +147,7 @@ export default async function ExperimentalNewsPage({ params }: { params: Promise
   const insights = await getInsights(article.id);
 
   return (
-    <DeviceAwareContent 
+    <ResponsiveArticle 
       article={article}
       insights={insights}
       slug={slug}
