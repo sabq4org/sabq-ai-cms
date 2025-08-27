@@ -25,7 +25,7 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1200px"
             priority
-            className="object-cover object-center transition-transform duration-500 will-change-transform hover:scale-[1.02]"
+            className="object-cover object-center"
           />
           {hasMore && (
             <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 bg-black/50 text-white text-xs md:text-sm px-3 py-1.5 rounded-full">عرض كل الصور</div>
@@ -66,7 +66,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
 
   return (
     <div className="relative w-full py-2 px-4 md:px-6">
-      <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden shadow-xl">
+      <div className="mx-auto max-w-[1200px] rounded-2xl overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
           {/* هيرو - 50% بالضبط */}
           <div className="relative aspect-[4/3] md:aspect-[3/2] group cursor-zoom-in" onClick={() => openAt(0)}>
@@ -75,10 +75,9 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
               alt={hero?.alt || imgs[0].alt || "صورة"} 
               fill 
               sizes="(max-width: 768px) 100vw, 600px" 
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]" 
+              className="object-cover" 
               style={{ objectPosition: 'center 30%' }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           {/* 4 مصغرات - 50% بالضبط */}
           <div className="grid grid-cols-2 grid-rows-2 gap-0">
@@ -91,10 +90,9 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                     alt={t.alt || "صورة"} 
                     fill 
                     sizes="(max-width: 768px) 50vw, 300px" 
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.05]" 
+                    className="object-cover" 
                     style={{ objectPosition: positions[i] }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   {showMore && i === 3 && (
                     <div 
                       onClick={(e) => { e.stopPropagation(); setIsOpen(true); }} 
