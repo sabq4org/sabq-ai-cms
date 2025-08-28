@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 import LiteStatsBar from "@/components/mobile/LiteStatsBar";
 
 // تفعيل/تعطيل بلوك "مقترب" من الواجهة بسهولة
-const SHOW_MUQTARAB = false;
+const SHOW_MUQTARAB = true;
 
 // استيراد بلوك مقترب بشكل ديناميكي مع تحسين التحميل
 const MuqtarabBlock = dynamic(
