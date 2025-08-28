@@ -1,31 +1,22 @@
 "use client";
 
-import { Moon, Sun, Menu, X, Home, Newspaper, Folder, Target, Brain, User } from "lucide-react";
+import { Moon, Sun, Menu, X, Home, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import "@/styles/light-layout.css";
 
 interface LightLayoutProps {
   children: React.ReactNode;
 }
 
-interface NavigationItem {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-const navigationItems: NavigationItem[] = [
-  { label: "الرئيسية", href: "/", icon: Home },
-  { label: "الأخبار", href: "/news", icon: Newspaper },
-  { label: "الأقسام", href: "/categories", icon: Folder },
-  { label: "مقترب", href: "/muqtarab", icon: Target },
-  { label: "عمق", href: "/insights/deep", icon: Brain },
+// قائمة مبسطة
+const navigationItems = [
+  { label: "الرئيسية", href: "/" },
+  { label: "آخر الأخبار", href: "/news" },
+  { label: "الأقسام", href: "/categories" },
 ];
 
 export default function LightLayout({ children }: LightLayoutProps) {
@@ -138,27 +129,17 @@ export default function LightLayout({ children }: LightLayoutProps) {
         </div>
       </header>
 
-      {/* Side Menu Overlay */}
-      <AnimatePresence>
-        {isSideMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSideMenuOpen(false)}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
-            />
+      {/* Side Menu - مبسط بدون animations */}
+      {isSideMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsSideMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          />
 
-            {/* Side Menu */}
-            <motion.aside
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 20 }}
-              className="fixed right-0 top-0 z-50 h-full w-72 bg-white dark:bg-gray-900 shadow-xl"
-            >
+          {/* Side Menu */}
+          <aside className="fixed right-0 top-0 z-50 h-full w-64 bg-white dark:bg-gray-900 shadow-xl">
               {/* Menu Header */}
               <div 
                 className="flex h-16 items-center justify-between px-4 border-b"
@@ -182,26 +163,18 @@ export default function LightLayout({ children }: LightLayoutProps) {
 
               {/* Navigation Items */}
               <nav className="p-4">
-                <ul className="space-y-2">
-                  {navigationItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          onClick={() => setIsSideMenuOpen(false)}
-                          className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 hover:scale-[1.02]"
-                          
-                        >
-                          <Icon 
-                            className="h-5 w-5"
-                            style={{ color: 'var(--theme-primary, #3B82F6)' }}
-                          />
-                          <span className="font-medium">{item.label}</span>
-                        </Link>
-                      </li>
-                    );
-                  })}
+                <ul className="space-y-1">
+                  {navigationItems.map((item) => (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsSideMenuOpen(false)}
+                        className="block rounded px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </nav>
 
@@ -228,10 +201,9 @@ export default function LightLayout({ children }: LightLayoutProps) {
                   </div>
                 </div>
               )}
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+          </aside>
+        </>
+      )}
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
