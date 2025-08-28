@@ -1,0 +1,136 @@
+/* Soft Read More Button Styles - Dynamic Theme Colors with Darker Background */
+
+.soft-read-more-btn {
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.10) !important;
+  color: var(--theme-primary, #3B82F6) !important;
+  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 1px 3px rgba(var(--theme-primary-rgb, 59 130 246), 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.soft-read-more-btn:hover {
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.18) !important;
+  color: var(--theme-primary, #2563EB) !important;
+  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.30) !important;
+  box-shadow: 0 2px 6px rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
+}
+
+.group\/btn .inline-flex.items-center,
+.group button.inline-flex.items-center,
+.group a.inline-flex.items-center,
+div.group\/btn.inline-flex.items-center {
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.10) !important;
+  color: var(--theme-primary, #3B82F6) !important;
+  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 1px 3px rgba(var(--theme-primary-rgb, 59 130 246), 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.group\/btn .inline-flex.items-center:hover,
+.group button.inline-flex.items-center:hover,
+.group a.inline-flex.items-center:hover,
+div.group\/btn.inline-flex.items-center:hover {
+  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.18) !important;
+  color: var(--theme-primary, #2563EB) !important;
+  border-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.30) !important;
+  box-shadow: 0 2px 6px rgba(var(--theme-primary-rgb, 59 130 246), 0.20) !important;
+}
+
+div[class*="bg-gradient"] .soft-read-more-btn,
+div[class*="from-blue"] .soft-read-more-btn {
+  background: hsl(var(--accent) / 0.12) !important;
+  color: hsl(var(--accent) / 0.8) !important;
+}
+
+@media (max-width: 768px) {
+  .soft-read-more-btn,
+  .group\/btn .inline-flex.items-center,
+  div.group\/btn.inline-flex.items-center {
+    padding: 4px 12px !important;
+    font-size: 11px !important;
+  }
+}
+
+.featured-news-card .mb-2 + h3,
+.featured-news-card .mb-3 + h2,
+.featured-news-card .mb-3 + h3,
+.group .mb-2 + h3,
+.group .mb-3 + h2,
+.group .mb-3 + h3,
+div:has(.bg-red-600) + h2,
+div:has(.bg-red-600) + h3,
+div:has([class*="badge"]) + h2,
+div:has([class*="badge"]) + h3 {
+  margin-top: 12px !important;
+}
+
+.group .flex.items-center.gap-2 + h2,
+.group .flex.items-center.gap-2 + h3,
+.group .flex.items-center.gap-2.mb-3 + h2,
+.group .flex.items-center.gap-2.mb-3 + h3 { margin-top: 12px !important; }
+
+@media (max-width: 768px) {
+  .featured-news-card .mb-2 + h3,
+  .featured-news-card .mb-3 + h2,
+  .featured-news-card .mb-3 + h3,
+  .group .mb-2 + h3,
+  .group .mb-3 + h2,
+  .group .mb-3 + h3,
+  .group .flex.items-center.gap-2 + h2,
+  .group .flex.items-center.gap-2 + h3,
+  .group .flex.items-center.gap-2.mb-3 + h2,
+  .group .flex.items-center.gap-2.mb-3 + h3 { margin-top: 8px !important; }
+}
+
+.featured-news-card .category-label + .article-title,
+.featured-news-card .text-xs + h3,
+.featured-news-card .text-xs + .text-lg,
+.featured-news-card .text-xs + .font-bold,
+.group .text-xs.font-medium + .text-lg,
+.group .text-xs.font-medium + h2,
+.group .text-xs.font-medium + h3,
+[class*="featured"] .text-xs + h2,
+[class*="featured"] .text-xs + h3,
+[class*="featured"] .text-xs + .text-lg,
+.category-pill + h3,
+.category-pill + h2,
+.category-pill + .text-lg,
+.bg-red-600 + h2,
+.bg-red-600 + h3,
+[class*="category"] + h2,
+[class*="category"] + h3,
+[class*="category"] + .text-lg { margin-top: 8px !important; }
+
+@media (min-width: 768px) {
+  .featured-news-card .category-label + .article-title,
+  .featured-news-card .text-xs + h3,
+  .featured-news-card .text-xs + .text-lg,
+  .featured-news-card .text-xs + .font-bold,
+  .group .text-xs.font-medium + .text-lg,
+  .group .text-xs.font-medium + h2,
+  .group .text-xs.font-medium + h3,
+  [class*="featured"] .text-xs + h2,
+  [class*="featured"] .text-xs + h3,
+  [class*="featured"] .text-xs + .text-lg,
+  .category-pill + h3,
+  .category-pill + h2,
+  .category-pill + .text-lg,
+  .bg-red-600 + h2,
+  .bg-red-600 + h3,
+  [class*="category"] + h2,
+  [class*="category"] + h3,
+  [class*="category"] + .text-lg { margin-top: 12px !important; }
+}
+
+.featured-news-carousel .group .text-xs + *,
+.featured-news-block .group .text-xs + *,
+.featured-news-enhanced .group .text-xs + * { margin-top: 8px !important; }
+@media (min-width: 768px) {
+  .featured-news-carousel .group .text-xs + *,
+  .featured-news-block .group .text-xs + *,
+  .featured-news-enhanced .group .text-xs + * { margin-top: 12px !important; }
+}
+
+

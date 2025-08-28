@@ -10,15 +10,10 @@ import "./globals.css";
 import "@/styles/unified-font-system.css";
 import "@/styles/force-arabic-font.css";
 import "@/app/old-style-demo/old-style.css";
-import "@/styles/color-softening.css";
-import "@/styles/notification-fixes.css";
-import "@/styles/notification-modern-ui.css";
-import "@/styles/notification-light-header.css";
 import "@/styles/lite-stats-bar-sticky.css";
 import "@/styles/recent-news-badge.css";
 import "@/styles/dark-mode-overlay-fix.css";
-import "@/styles/remove-featured-image-effects.css";
-import "@/styles/soft-read-more-button.css";
+// نقل CSS غير الحرج إلى public والتحميل غير الحاجب عبر preload+onload
 import "@/styles/article-light-theme-fixes.css";
 // تحميل غير حاجب لوضع القراءة (يُحقن عبر preload+onload أدناه)
 
@@ -128,6 +123,19 @@ export default async function RootLayout({
         {/* CSS غير حرج: وضع القراءة - preload ثم onload للتحويل إلى stylesheet مع noscript */}
         <link rel="preload" href="/styles/enhanced-reading-mode.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
         <noscript><link rel="stylesheet" href="/styles/enhanced-reading-mode.css" /></noscript>
+        {/* CSS غير حرج إضافي */}
+        <link rel="preload" href="/styles/color-softening.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
+        <noscript><link rel="stylesheet" href="/styles/color-softening.css" /></noscript>
+        <link rel="preload" href="/styles/notification-fixes.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
+        <noscript><link rel="stylesheet" href="/styles/notification-fixes.css" /></noscript>
+        <link rel="preload" href="/styles/notification-modern-ui.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
+        <noscript><link rel="stylesheet" href="/styles/notification-modern-ui.css" /></noscript>
+        <link rel="preload" href="/styles/notification-light-header.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
+        <noscript><link rel="stylesheet" href="/styles/notification-light-header.css" /></noscript>
+        <link rel="preload" href="/styles/remove-featured-image-effects.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
+        <noscript><link rel="stylesheet" href="/styles/remove-featured-image-effects.css" /></noscript>
+        <link rel="preload" href="/styles/soft-read-more-button.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
+        <noscript><link rel="stylesheet" href="/styles/soft-read-more-button.css" /></noscript>
         {/* تمرير بيانات المستخدم إلى العميل */}
         {initialUser && (
           <script

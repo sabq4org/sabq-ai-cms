@@ -1,0 +1,37 @@
+/* إزالة التأثيرات والظلال من الصورة المميزة */
+
+.article-featured-image-wrapper img,
+.article-featured-image-wrapper .rounded-xl,
+.article-featured-image-wrapper .shadow-2xl { box-shadow: none !important; -webkit-box-shadow: none !important; -moz-box-shadow: none !important; }
+
+.article-featured-image-wrapper:hover img,
+.article-featured-image-wrapper img:hover { box-shadow: none !important; transform: none !important; transition: none !important; }
+
+.article-featured-image-wrapper *,
+.article-featured-image-wrapper > div,
+.article-featured-image-wrapper figure,
+.article-featured-image-wrapper span { box-shadow: none !important; filter: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+
+.dark .article-featured-image-wrapper img,
+.dark .article-featured-image-wrapper .rounded-xl,
+.dark .article-featured-image-wrapper .shadow-2xl { box-shadow: none !important; -webkit-box-shadow: none !important; -moz-box-shadow: none !important; }
+
+.dark .article-featured-image-wrapper:hover img,
+.dark .article-featured-image-wrapper img:hover { box-shadow: none !important; transform: none !important; }
+
+.article-featured-image-wrapper img[loading],
+.article-featured-image-wrapper span > img { box-shadow: none !important; border: none !important; }
+
+.article-featured-image-wrapper::before,
+.article-featured-image-wrapper::after,
+.article-featured-image-wrapper img::before,
+.article-featured-image-wrapper img::after { display: none !important; content: none !important; background: none !important; box-shadow: none !important; }
+
+.article-featured-image-wrapper { border-radius: 0.75rem; overflow: hidden; }
+.article-featured-image-wrapper img { border-radius: 0.75rem; }
+
+@media (min-width: 640px) {
+  .article-featured-image-wrapper img { box-shadow: none !important; transition: none !important; }
+}
+
+
