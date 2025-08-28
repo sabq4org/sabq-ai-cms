@@ -119,8 +119,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://cdn.sabq.org" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://sabq-prod.imgix.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" crossOrigin="anonymous" />
-        {/* Preload the first article image on the home page */}
-        <link rel="preload" href="/api/articles?limit=1&sort=published_at&order=desc" as="fetch" crossOrigin="anonymous" fetchPriority="high" />
+        {/* ملاحظة: إزالة preload لطلبات API لتفادي تزاحم الشبكة على المحمول وتحسين FCP */}
         {/* إصلاحات إنتاج عامة وCSS */}
         <script src="/production-error-fixes.js" defer></script>
         <script src="/fix-cors-auth.js" defer></script>
