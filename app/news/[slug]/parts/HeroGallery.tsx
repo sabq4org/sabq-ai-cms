@@ -91,7 +91,8 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                 src={transformCloudinary(hero?.url || imgs[0].url, 1200)} 
                 alt={hero?.alt || imgs[0].alt || "صورة"} 
                 fill 
-                sizes="(max-width: 768px) 100vw, 600px" 
+                sizes="(max-width: 768px) 100vw, 50vw" 
+                priority 
                 fetchPriority="high"
                 decoding="async"
                 className="object-cover" 
