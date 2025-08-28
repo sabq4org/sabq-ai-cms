@@ -74,14 +74,18 @@ export default function CloudImage({
         fallbackType,
       });
     } catch (error) {
-      console.error("خطأ في معالجة رابط الصورة:", error);
+      if (process.env.NODE_ENV !== "production") {
+        console.error("خطأ في معالجة رابط الصورة:", error);
+      }
       // إرجاع الصورة الافتراضية عند حدوث خطأ
       return "/images/placeholder-featured.jpg";
     }
   }, [src, hasError, width, height, quality, fallbackType]);
 
   const handleError = () => {
-    console.log(`❌ فشل تحميل الصورة: ${src} - التبديل إلى fallback`);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`❌ فشل تحميل الصورة: ${src} - التبديل إلى fallback`);
+    }
     
     // تجربة الصورة الافتراضية مباشرة
     setHasError(true);
@@ -89,14 +93,16 @@ export default function CloudImage({
     onError?.();
 
     // إضافة سجل تشخيصي مفصل
-    console.log(`🔍 تشخيص الصورة:
-      - المصدر الأصلي: ${src}
-      - نوع البديل: ${fallbackType}
-      - العرض: ${width}
-      - الارتفاع: ${height}
-      - URL المعالج: ${imageUrl}
-      - hasError: ${hasError}
-    `);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`🔍 تشخيص الصورة:
+        - المصدر الأصلي: ${src}
+        - نوع البديل: ${fallbackType}
+        - العرض: ${width}
+        - الارتفاع: ${height}
+        - URL المعالج: ${imageUrl}
+        - hasError: ${hasError}
+      `);
+    }
   };
 
   const handleLoad = () => {
@@ -122,6 +128,7 @@ export default function CloudImage({
           quality={quality}
           priority={priority}
           unoptimized={unoptimized}
+          loading={priority ? "eager" : "lazy"}
           className={`${className} object-cover object-center ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
@@ -154,7 +161,8 @@ export default function CloudImage({
         height={validHeight}
         quality={quality}
         priority={priority}
-        unoptimized={true}
+        unoptimized={unoptimized}
+        loading={priority ? "eager" : "lazy"}
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }

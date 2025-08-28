@@ -137,9 +137,17 @@ const AdBanner: React.FC<AdBannerProps> = ({ placement, className = "" }) => {
     return null;
   };
 
-  // عدم عرض شيء في حالة التحميل أو عدم وجود إعلان أو إخفاؤه
+  // حجز مساحة لتفادي CLS حتى أثناء التحميل
+  const reserved = (
+    <div className={`${getContainerClass()} ${className}`}>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 text-center">إعلان</div>
+      <div className={`relative w-full ${getAspectClass()} overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700`} />
+    </div>
+  );
+
+  // أثناء التحميل أو عدم وجود إعلان أو إخفاؤه، نُعيد الحجز فقط لمنع CLS
   if (loading || !ad || !isVisible) {
-    return null;
+    return reserved;
   }
 
   // تحديد أنماط CSS حسب الموضع

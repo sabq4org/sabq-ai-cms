@@ -75,8 +75,8 @@ const FeaturedNewsCard = memo(
                 alt={article.title}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="100vw"
-                priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 75vw, 50vw"
+                priority={false}
               />
 
               {/* تدرج للنص */}
