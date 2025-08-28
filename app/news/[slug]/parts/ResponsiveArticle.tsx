@@ -1,3 +1,4 @@
+"use client";
 import HeroGallery from "./HeroGallery";
 import Container from "./Container";
 import ArticleBody from "./ArticleBody";
