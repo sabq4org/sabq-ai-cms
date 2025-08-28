@@ -156,6 +156,28 @@ export default async function RootLayout({
         )}
       </head>
       <body className={`${ibmPlexArabic.className} font-arabic antialiased`} suppressHydrationWarning>
+        {/* مراقبة المهام الطويلة لتشخيص انفجار الخيط الرئيسي في البيئات غير الإنتاجية */}
+        {process.env.NODE_ENV !== 'production' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                try{
+                  if ('PerformanceObserver' in window) {
+                    const po = new PerformanceObserver((list) => {
+                      for (const entry of list.getEntries()) {
+                        if (entry.duration > 50) {
+                          console.warn('[LongTask]', Math.round(entry.duration)+'ms', 'start:', Math.round(entry.startTime));
+                        }
+                      }
+                    });
+                    // @ts-ignore
+                    po.observe({entryTypes:['longtask']});
+                  }
+                }catch(e){}
+              `
+            }}
+          />
+        )}
         <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#f8f8f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

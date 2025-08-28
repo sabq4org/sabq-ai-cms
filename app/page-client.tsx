@@ -594,30 +594,30 @@ function NewspaperHomePage({
   }, [initialFeaturedArticles]);
 
   useEffect(() => {
-    const fetchSmartRecommendations = async () => {
+    const fetchSmartRecommendations = () => {
       try {
-        // نحتاج مقال واحد على الأقل كمرجع
         if (articles.length === 0) return;
-
         const currentArticle = articles[0];
-        const recommendations = await generatePersonalizedRecommendations({
-          currentArticleId: currentArticle.id,
-          userId: user?.id || "anonymous",
-          currentCategory:
-            currentArticle.categories?.name || currentArticle.category,
-          currentTags: currentArticle.tags || [],
-          limit: 10,
-        });
-
-        setSmartRecommendations(recommendations.slice(0, 10)); // نحتاج 10 توصيات للتوزيع المتوازن
+        const run = async () => {
+          const recommendations = await generatePersonalizedRecommendations({
+            currentArticleId: currentArticle.id,
+            userId: user?.id || "anonymous",
+            currentCategory:
+              currentArticle.categories?.name || currentArticle.category,
+            currentTags: currentArticle.tags || [],
+            limit: 10,
+          });
+          setSmartRecommendations(recommendations.slice(0, 10));
+        };
+        // جدولة عند الخمول لتخفيف TBT على المحمول
+        const schedule = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 200));
+        schedule(run);
       } catch (error) {
         console.error("خطأ في جلب التوصيات الذكية:", error);
       }
     };
 
-    if (articles.length > 0) {
-      fetchSmartRecommendations();
-    }
+    if (articles.length > 0) fetchSmartRecommendations();
 
     // لا نحتاج تحديث مستمر كل 30 ثانية - يسبب بطء
     // التحديث سيحدث عند تغيير المقالات أو المستخدم
