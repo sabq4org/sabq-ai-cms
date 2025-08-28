@@ -120,6 +120,18 @@ export default async function RootLayout({
         <script src="/fix-cors-auth.js" defer></script>
         {/* Web Vitals RUM - لا يؤثر على التصميم */}
         <script src="/rum-web-vitals.js" defer></script>
+        {/* تسجيل Service Worker للصور فقط - لا يؤثر على الواجهة */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function(){});
+                });
+              }
+            `
+          }}
+        />
         {/* تأجيل تحميل CSS غير الحرج إلى أوقات الخمول لتحسين FCP/LCP على المحمول */}
         <script
           dangerouslySetInnerHTML={{
