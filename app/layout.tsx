@@ -20,7 +20,7 @@ import "@/styles/dark-mode-overlay-fix.css";
 import "@/styles/remove-featured-image-effects.css";
 import "@/styles/soft-read-more-button.css";
 import "@/styles/article-light-theme-fixes.css";
-import "@/styles/enhanced-reading-mode.css";
+// تحميل غير حاجب لوضع القراءة (يُحقن عبر preload+onload أدناه)
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],
@@ -125,6 +125,9 @@ export default async function RootLayout({
         <script src="/fix-cors-auth.js" defer></script>
         {/* Web Vitals RUM - لا يؤثر على التصميم */}
         <script src="/rum-web-vitals.js" defer></script>
+        {/* CSS غير حرج: وضع القراءة - preload ثم onload للتحويل إلى stylesheet مع noscript */}
+        <link rel="preload" href="/styles/enhanced-reading-mode.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
+        <noscript><link rel="stylesheet" href="/styles/enhanced-reading-mode.css" /></noscript>
         {/* تمرير بيانات المستخدم إلى العميل */}
         {initialUser && (
           <script
