@@ -8,6 +8,9 @@ import { useEffect, useMemo, Suspense, useState } from "react";
 import dynamic from "next/dynamic";
 import LiteStatsBar from "@/components/mobile/LiteStatsBar";
 
+// تفعيل/تعطيل بلوك "مقترب" من الواجهة بسهولة
+const SHOW_MUQTARAB = false;
+
 // استيراد بلوك مقترب بشكل ديناميكي مع تحسين التحميل
 const MuqtarabBlock = dynamic(
   () => import("@/components/home/EnhancedMuqtarabBlock"),
@@ -133,19 +136,21 @@ export default function Page() {
           <DeepAnalysisBlock maxItems={3} className="mt-10" />
         </Suspense>
         
-        <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
-          <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
-            <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
-              <MuqtarabBlock
-                limit={8}
-                showPagination={false}
-                showFilters={false}
-                viewMode="grid"
-                className="mt-12 mx-auto"
-              />
-            </div>
-          </Suspense>
-        </div>
+        {SHOW_MUQTARAB ? (
+          <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
+            <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
+              <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
+                <MuqtarabBlock
+                  limit={8}
+                  showPagination={false}
+                  showFilters={false}
+                  viewMode="grid"
+                  className="mt-12 mx-auto"
+                />
+              </div>
+            </Suspense>
+          </div>
+        ) : null}
       </div>
     </>
   ), []);
@@ -196,23 +201,25 @@ export default function Page() {
         )}
       </Suspense>
       
-      <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
-        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
-          <div className="w-full max-w-6xl mx-auto px-4">
-            {isIdle ? (
-              <MuqtarabBlock
-                limit={8}
-                showPagination={false}
-                showFilters={false}
-                viewMode="grid"
-                className="mt-12 mx-auto"
-              />
-            ) : (
-              <div className="h-96 animate-pulse bg-gray-200 rounded" />
-            )}
-          </div>
-        </Suspense>
-      </div>
+      {SHOW_MUQTARAB ? (
+        <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
+          <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
+            <div className="w-full max-w-6xl mx-auto px-4">
+              {isIdle ? (
+                <MuqtarabBlock
+                  limit={8}
+                  showPagination={false}
+                  showFilters={false}
+                  viewMode="grid"
+                  className="mt-12 mx-auto"
+                />
+              ) : (
+                <div className="h-96 animate-pulse bg-gray-200 rounded" />
+              )}
+            </div>
+          </Suspense>
+        </div>
+      ) : null}
     </div>
   ), []);
 
