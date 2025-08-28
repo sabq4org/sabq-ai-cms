@@ -18,6 +18,10 @@ type Props = {
 export default function ArticleBody({ html, article, hiddenImageUrls = [] }: Props) {
   const content = useMemo(() => {
     let c = html || "";
+    // إزالة أي سكربتات مضمنة في المحتوى لحماية الأداء
+    try {
+      c = c.replace(/<script[\s\S]*?<\/script>/gi, "");
+    } catch {}
     if (hiddenImageUrls && hiddenImageUrls.length > 0) {
       const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
