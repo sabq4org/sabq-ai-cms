@@ -511,12 +511,15 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
         }
       });
 
-      if (auth.success) {
+      if (auth && auth.success) {
         setIsConnected(true);
         console.log('✅ تم الاتصال بنظام الإشعارات');
       } else {
         setIsConnected(false);
-        console.error('❌ فشل في الاتصال بنظام الإشعارات:', auth.error);
+        // صامت في الإنتاج لتجنب إزعاج المستخدمين برسائل التوكن
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('❌ فشل في الاتصال بنظام الإشعارات:', auth && auth.error);
+        }
       }
 
     } catch (error) {

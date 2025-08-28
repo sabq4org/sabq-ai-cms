@@ -118,8 +118,7 @@ export default async function RootLayout({
         {/* إصلاحات إنتاج عامة وCSS */}
         <script src="/production-error-fixes.js" defer></script>
         <script src="/fix-cors-auth.js" defer></script>
-        {/* Web Vitals RUM - لا يؤثر على التصميم */}
-        <script src="/rum-web-vitals.js" defer></script>
+        {/* Web Vitals RUM معطل في الإنتاج لتوافق CSP */}
         {/* تسجيل Service Worker للصور فقط - لا يؤثر على الواجهة */}
         <script
           dangerouslySetInnerHTML={{
