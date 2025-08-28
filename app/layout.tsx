@@ -18,8 +18,8 @@ import "@/styles/article-light-theme-fixes.css";
 // تحميل غير حاجب لوضع القراءة (يُحقن عبر preload+onload أدناه)
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic", "latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  subsets: ["arabic"],
+  weight: ["400", "700"],
   variable: "--font-ibm-plex-arabic",
   display: "swap",
   preload: true,
