@@ -77,7 +77,6 @@ const LoadingScreen = () => (
 
 export default function Page() {
   const { isMobile, mounted } = useDeviceType();
-  const [isIdle, setIsIdle] = useState(false);
 
   useEffect(() => {
     // تحسين فحص CSS
@@ -90,11 +89,7 @@ export default function Page() {
     }
   }, [mounted]);
 
-  // جدولة تحميل الكتل الثقيلة بعد خمول المتصفح لتقليل LCP/TTI
-  useEffect(() => {
-    const schedule: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 600));
-    schedule(() => setIsIdle(true));
-  }, []);
+
 
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
@@ -167,57 +162,30 @@ export default function Page() {
       <Suspense fallback={<div className="h-[360px] bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
         <OldFeaturedHero />
       </Suspense>
-      <Suspense
-        fallback={
-          <div className="max-w-6xl mx-auto px-4 mt-10">
-            <div className="h-24 animate-pulse bg-gray-200 rounded" />
-          </div>
-        }
-      >
-        <div className="max-w-6xl mx-auto px-4 mt-16">
-          {isIdle ? (
-            <SmartInsightsWidget />
-          ) : (
-            <div className="h-24 animate-pulse bg-gray-200 rounded" />
-          )}
-        </div>
-      </Suspense>
+      {/* المؤشرات الذكية */}
+      <div className="max-w-6xl mx-auto px-4 mt-16">
+        <SmartInsightsWidget />
+      </div>
       
-      <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <div className="max-w-6xl mx-auto px-4">
-          {isIdle ? (
-            <SmartContentBlock />
-          ) : (
-            <div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />
-          )}
-        </div>
-      </Suspense>
+      {/* المحتوى الذكي */}
+      <div className="max-w-6xl mx-auto px-4">
+        <SmartContentBlock />
+      </div>
       
-      <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
-        {isIdle ? (
-          <DeepAnalysisBlock maxItems={3} className="mt-12" />
-        ) : (
-          <div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />
-        )}
-      </Suspense>
+      {/* التحليل العميق */}
+      <DeepAnalysisBlock maxItems={3} className="mt-12" />
       
       {SHOW_MUQTARAB ? (
         <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
-          <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
-            <div className="w-full max-w-6xl mx-auto px-4">
-              {isIdle ? (
-                <MuqtarabBlock
-                  limit={8}
-                  showPagination={false}
-                  showFilters={false}
-                  viewMode="grid"
-                  className="mt-12 mx-auto"
-                />
-              ) : (
-                <div className="h-96 animate-pulse bg-gray-200 rounded" />
-              )}
-            </div>
-          </Suspense>
+          <div className="w-full max-w-6xl mx-auto px-4">
+            <MuqtarabBlock
+              limit={8}
+              showPagination={false}
+              showFilters={false}
+              viewMode="grid"
+              className="mt-12 mx-auto"
+            />
+          </div>
         </div>
       ) : null}
     </div>
