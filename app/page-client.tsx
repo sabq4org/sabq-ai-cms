@@ -189,6 +189,8 @@ function NewspaperHomePage({
   const { darkMode } = useDarkModeContext();
   // حالة الجهاز - نبدأ بقيمة undefined لتجنب مشاكل hydration
   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
+  // حالة الخمول لجدولة المكوّنات غير الحرجة
+  const [isIdle, setIsIdle] = useState(false);
   const isLoggedIn = !!user;
 
   // فحص نوع الجهاز
@@ -217,6 +219,16 @@ function NewspaperHomePage({
 
   // استخدم false كقيمة افتراضية فقط عند العرض
   const isMobileView = isMobile ?? false;
+
+  // تحديد وقت الخمول لعرض المكونات الثقيلة لاحقاً
+  useEffect(() => {
+    try {
+      const schedule: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 300));
+      schedule(() => setIsIdle(true));
+    } catch {
+      setTimeout(() => setIsIdle(true), 300);
+    }
+  }, []);
 
   // =============================
   // المتغيرات المساعدة لمنع الأخطاء أثناء التشغيل (قابلة للتحديث مستقبلاً)
@@ -806,7 +818,11 @@ function NewspaperHomePage({
               >
                 {/* استبدال محتوى التصنيفات بـ AI Insights */}
                 <div className="relative -m-4 sm:-m-6 lg:-m-8">
-                  <SmartInsightsWidget variant={isMobileView ? 'compact' : 'default'} />
+                  {isIdle ? (
+                    <SmartInsightsWidget variant={isMobileView ? 'compact' : 'default'} />
+                  ) : (
+                    <div className="w-full h-48 sm:h-56 lg:h-64 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+                  )}
                 </div>
               </div>
             </div>
@@ -1518,7 +1534,11 @@ function NewspaperHomePage({
           <>
             {/* بلوك الكلمات المفتاحية للموبايل */}
             <div className="mobile-word-cloud-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-6">
-              <HomeWordCloud maxKeywords={15} />
+              {isIdle ? (
+                <HomeWordCloud maxKeywords={15} />
+              ) : (
+                <div className="w-full h-32 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+              )}
             </div>
             
             {/* بلوك مقترب للموبايل */}
@@ -1568,7 +1588,11 @@ function NewspaperHomePage({
         {/* الكلمات المفتاحية للديسكتوب */}
         {!isMobileView && (
           <div className="desktop-word-cloud-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8">
-            <HomeWordCloud maxKeywords={15} />
+            {isIdle ? (
+              <HomeWordCloud maxKeywords={15} />
+            ) : (
+              <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+            )}
           </div>
         )}
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
@@ -1595,11 +1619,15 @@ function NewspaperHomePage({
 
           {/* بلوك المحتوى - خلفية ممتدة بالكامل */}
           <div className="relative z-10 w-full">
-            <DeepAnalysisBlock
-              maxItems={3}
-              showTitle={false}
-              insights={initialDeepAnalyses as any}
-            />
+            {isIdle ? (
+              <DeepAnalysisBlock
+                maxItems={3}
+                showTitle={false}
+                insights={initialDeepAnalyses as any}
+              />
+            ) : (
+              <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+            )}
           </div>
         </section>
         {/* 9. قادة الرأي (Opinion Leaders) 👥 */}
@@ -1608,11 +1636,19 @@ function NewspaperHomePage({
         </main>
         {/* 10. الرحلة المعرفية (Knowledge Journey) 🎓 */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <SmartSlot position="below_personalized" />
+          {isIdle ? (
+            <SmartSlot position="below_personalized" />
+          ) : (
+            <div className="w-full h-20 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+          )}
         </div>
         {/* Smart Blocks إضافية */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SmartSlot position="above_footer" />
+          {isIdle ? (
+            <SmartSlot position="above_footer" />
+          ) : (
+            <div className="w-full h-16 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+          )}
         </div>
         {/* Smart content - فوق الـ footer */}
       </div>
