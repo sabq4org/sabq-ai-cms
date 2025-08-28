@@ -4,7 +4,7 @@ import { useDeviceType } from "@/hooks/useDeviceType";
 import UserWelcomeBlock from "@/components/user/UserWelcomeBlock";
 import WelcomeMetaStrip from "@/components/user/WelcomeMetaStrip";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useState } from "react";
 import dynamic from "next/dynamic";
 import LiteStatsBar from "@/components/mobile/LiteStatsBar";
 
@@ -74,6 +74,7 @@ const LoadingScreen = () => (
 
 export default function Page() {
   const { isMobile, mounted } = useDeviceType();
+  const [isIdle, setIsIdle] = useState(false);
 
   useEffect(() => {
     // تحسين فحص CSS
@@ -85,6 +86,12 @@ export default function Page() {
       }
     }
   }, [mounted]);
+
+  // جدولة تحميل الكتل الثقيلة بعد خمول المتصفح لتقليل LCP/TTI
+  useEffect(() => {
+    const schedule: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 600));
+    schedule(() => setIsIdle(true));
+  }, []);
 
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
@@ -152,7 +159,7 @@ export default function Page() {
         </Suspense>
       </div>
       {/* الأخبار المميزة من النسخة القديمة - النسخة الكاملة فقط */}
-      <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
+      <Suspense fallback={<div className="h-[360px] bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
         <OldFeaturedHero />
       </Suspense>
       <Suspense
@@ -163,30 +170,46 @@ export default function Page() {
         }
       >
         <div className="max-w-6xl mx-auto px-4 mt-16">
-          <SmartInsightsWidget />
+          {isIdle ? (
+            <SmartInsightsWidget />
+          ) : (
+            <div className="h-24 animate-pulse bg-gray-200 rounded" />
+          )}
         </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <div className="max-w-6xl mx-auto px-4">
-          <SmartContentBlock />
+          {isIdle ? (
+            <SmartContentBlock />
+          ) : (
+            <div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />
+          )}
         </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <DeepAnalysisBlock maxItems={3} className="mt-12" />
+        {isIdle ? (
+          <DeepAnalysisBlock maxItems={3} className="mt-12" />
+        ) : (
+          <div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />
+        )}
       </Suspense>
       
       <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
           <div className="w-full max-w-6xl mx-auto px-4">
-            <MuqtarabBlock
-              limit={8}
-              showPagination={false}
-              showFilters={false}
-              viewMode="grid"
-              className="mt-12 mx-auto"
-            />
+            {isIdle ? (
+              <MuqtarabBlock
+                limit={8}
+                showPagination={false}
+                showFilters={false}
+                viewMode="grid"
+                className="mt-12 mx-auto"
+              />
+            ) : (
+              <div className="h-96 animate-pulse bg-gray-200 rounded" />
+            )}
           </div>
         </Suspense>
       </div>
