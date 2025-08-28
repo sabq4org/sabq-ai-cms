@@ -25,6 +25,8 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1200px"
             priority
+            fetchPriority="high"
+            decoding="async"
             className="object-cover object-center"
           />
           {hasMore && (
@@ -76,6 +78,8 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                 alt={hero?.alt || imgs[0].alt || "صورة"} 
                 fill 
                 sizes="(max-width: 768px) 100vw, 600px" 
+                fetchPriority="high"
+                decoding="async"
                 className="object-cover" 
               />
             </div>
@@ -89,6 +93,8 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
                     alt={t.alt || "صورة"} 
                     fill 
                     sizes="(max-width: 768px) 50vw, 300px" 
+                    loading="lazy"
+                    decoding="async"
                     className="object-cover"
                   />
                   {showMore && i === 3 && (

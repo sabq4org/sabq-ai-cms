@@ -28,7 +28,8 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
   
   // تسجيل للتحقق من البيانات
-  if (typeof window !== 'undefined') {
+  // تعطيل سجلات المتصفح في الإنتاج
+  if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
     console.log('StickyInsightsPanel - article.tags:', article.tags);
   }
   const [expanded, setExpanded] = useState(false);
