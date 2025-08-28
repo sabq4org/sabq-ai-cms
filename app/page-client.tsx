@@ -14,12 +14,25 @@ const SmartInsightsWidget = dynamic(() => import("@/components/ai/SmartInsightsW
 });
 
 import PageWrapper from "@/components/PageWrapper";
-import { SmartSlot } from "@/components/home/SmartSlot";
+const SmartSlot = dynamic(() => import("@/components/home/SmartSlot").then(m => m.SmartSlot), {
+  ssr: false,
+  loading: () => <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-xl" />
+});
 
 import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
-import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
+const SmartContentNewsCard = dynamic(() => import("@/components/mobile/SmartContentNewsCard"), {
+  ssr: false,
+  loading: () => <div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-xl" />
+});
 
-import AdBanner from "@/components/ads/AdBanner";
+const AdBanner = dynamic(() => import("@/components/ads/AdBanner"), {
+  ssr: false,
+  loading: () => (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="relative w-full aspect-[16/9] sm:aspect-[20/6] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" />
+    </div>
+  )
+});
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
@@ -34,7 +47,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import SafeHydration from "@/components/SafeHydration";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Clock, User } from "lucide-react";
-import LiteStatsBar from "@/components/mobile/LiteStatsBar";
+const LiteStatsBar = dynamic(() => import("@/components/mobile/LiteStatsBar"), {
+  ssr: false,
+  loading: () => <div className="w-full h-8 bg-gray-100 dark:bg-gray-800" />
+});
 
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
