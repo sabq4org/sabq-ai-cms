@@ -18,15 +18,10 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
   const heroImages = useMemo(() => article.images || [], [article.images]);
   const contentHtml = article.content || "";
   const hiddenImageUrls = heroImages.map((img: any) => img.url);
-  // تأجيل تحميل المكونات الثقيلة حتى وقت الخمول لتقليل TBT
-  const [isIdle, setIsIdle] = useState(false);
+  // حالة بسيطة للتحقق من التركيب
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    try {
-      const schedule: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 300));
-      schedule(() => setIsIdle(true));
-    } catch {
-      setTimeout(() => setIsIdle(true), 300);
-    }
+    setMounted(true);
   }, []);
 
   const StickyInsightsPanel = useMemo(() => dynamic(() => import("./StickyInsightsPanel"), {
@@ -161,7 +156,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
 
               {/* البانل للموبايل - يظهر كامل */}
               <div className="block lg:hidden mt-8">
-                {isIdle ? (
+                {mounted && (
                   <StickyInsightsPanel insights={insights} article={{
                     id: article.id,
                     summary: article.summary,
@@ -171,21 +166,17 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                     shares: article.shares || 0,
                     saves: article.saves || 0,
                   }} />
-                ) : (
-                  <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 h-64 animate-pulse" />
                 )}
               </div>
               
               {/* أسئلة ذكية حول الخبر */}
-              {isIdle ? (
+              {mounted && (
                 <SmartQuestions 
                   articleId={article.id} 
                   articleTitle={article.title}
                   content={article.content || ""}
                   author={article.article_author || article.author}
                 />
-              ) : (
-                <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 h-40 animate-pulse" />
               )}
               
               {/* قسم التعليقات */}
@@ -194,7 +185,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
             
             {/* البانل الجانبي للشاشات الكبيرة */}
             <aside className="hidden lg:block lg:col-span-4">
-              {isIdle ? (
+              {mounted && (
                 <StickyInsightsPanel insights={insights} article={{
                   id: article.id,
                   summary: article.summary,
@@ -204,8 +195,6 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   shares: article.shares || 0,
                   saves: article.saves || 0,
                 }} />
-              ) : (
-                <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 h-96 animate-pulse" />
               )}
             </aside>
           </div>
