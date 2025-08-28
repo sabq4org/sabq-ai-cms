@@ -116,10 +116,11 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" crossOrigin="anonymous" />
         {/* ملاحظة: إزالة preload لطلبات API لتفادي تزاحم الشبكة على المحمول وتحسين FCP */}
         {/* إصلاحات إنتاج عامة وCSS */}
+        <script src="/css-error-handler.js"></script>
         <script src="/production-error-fixes.js" defer></script>
         <script src="/fix-cors-auth.js" defer></script>
-        {/* Web Vitals RUM - يعمل محلياً (بدون مصادر خارجية) */}
-        <script src="/rum-web-vitals.js" defer></script>
+        {/* Web Vitals RUM - نسخة محلية بالكامل */}
+        <script src="/web-vitals-local.js" defer></script>
         {/* تسجيل Service Worker للصور فقط - لا يؤثر على الواجهة */}
         <script
           dangerouslySetInnerHTML={{
@@ -190,16 +191,9 @@ export default async function RootLayout({
             }}
           />
         )}
-        <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#f8f8f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-3 text-gray-600">جاري التحميل...</p>
-          </div>
-        </div>}>
-          <ConditionalLayout initialUser={initialUser}>
-            {children}
-          </ConditionalLayout>
-        </Suspense>
+        <ConditionalLayout initialUser={initialUser}>
+          {children}
+        </ConditionalLayout>
         <ToastContainer />
         <SpeedInsights />
       </body>
