@@ -120,22 +120,32 @@ export default async function RootLayout({
         <script src="/fix-cors-auth.js" defer></script>
         {/* Web Vitals RUM - لا يؤثر على التصميم */}
         <script src="/rum-web-vitals.js" defer></script>
-        {/* CSS غير حرج: وضع القراءة - preload ثم onload للتحويل إلى stylesheet مع noscript */}
-        <link rel="preload" href="/styles/enhanced-reading-mode.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
-        <noscript><link rel="stylesheet" href="/styles/enhanced-reading-mode.css" /></noscript>
-        {/* CSS غير حرج إضافي */}
-        <link rel="preload" href="/styles/color-softening.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
-        <noscript><link rel="stylesheet" href="/styles/color-softening.css" /></noscript>
-        <link rel="preload" href="/styles/notification-fixes.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
-        <noscript><link rel="stylesheet" href="/styles/notification-fixes.css" /></noscript>
-        <link rel="preload" href="/styles/notification-modern-ui.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
-        <noscript><link rel="stylesheet" href="/styles/notification-modern-ui.css" /></noscript>
-        <link rel="preload" href="/styles/notification-light-header.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
-        <noscript><link rel="stylesheet" href="/styles/notification-light-header.css" /></noscript>
-        <link rel="preload" href="/styles/remove-featured-image-effects.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
-        <noscript><link rel="stylesheet" href="/styles/remove-featured-image-effects.css" /></noscript>
-        <link rel="preload" href="/styles/soft-read-more-button.css" as="style" onLoad={"this.onload=null;this.rel='stylesheet'"} />
-        <noscript><link rel="stylesheet" href="/styles/soft-read-more-button.css" /></noscript>
+        {/* تأجيل تحميل CSS غير الحرج إلى أوقات الخمول لتحسين FCP/LCP على المحمول */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var cssList = [
+                  '/styles/enhanced-reading-mode.css',
+                  '/styles/color-softening.css',
+                  '/styles/notification-fixes.css',
+                  '/styles/notification-modern-ui.css',
+                  '/styles/notification-light-header.css',
+                  '/styles/remove-featured-image-effects.css',
+                  '/styles/soft-read-more-button.css'
+                ];
+                function loadCSS(href){
+                  var l = document.createElement('link');
+                  l.rel='stylesheet'; l.href=href; l.media='print';
+                  l.onload=function(){ this.media='all'; };
+                  document.head.appendChild(l);
+                }
+                var schedule = window.requestIdleCallback || function(cb){ return setTimeout(cb, 200); };
+                schedule(function(){ cssList.forEach(loadCSS); });
+              })();
+            `,
+          }}
+        />
         {/* تمرير بيانات المستخدم إلى العميل */}
         {initialUser && (
           <script
