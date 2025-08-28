@@ -6,7 +6,7 @@ import FloatingReadButton from "./FloatingReadButton";
 import dynamic from "next/dynamic";
 import CommentsSection from "./CommentsSection";
 import { Calendar, Clock, BookOpen, Eye } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 interface ResponsiveArticleProps {
   article: any;
