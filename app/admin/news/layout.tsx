@@ -6,9 +6,13 @@ export default function NewsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <link rel="stylesheet" href="/manus-ui.css" />
+    <div style={{ 
+      maxWidth: '1200px', 
+      margin: '0 auto', 
+      padding: '16px',
+      width: '100%'
+    }}>
       {children}
-    </>
+    </div>
   );
 }
