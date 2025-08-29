@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import CommentsCallToAction from "./CommentsCallToAction";
 import CommentForm from "./CommentForm";
@@ -31,11 +31,29 @@ interface CommentsSectionProps {
 }
 
 export default function CommentsSection({ articleId, articleSlug }: CommentsSectionProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
   const [showComments, setShowComments] = useState(false); // الإبقاء على التحميل الكسول
 
   const toggleComments = () => {
     setShowComments(!showComments);
   };
+
+  useEffect(() => {
+    if (!ref.current || visible) return;
+    const el = ref.current;
+    const obs = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+          break;
+        }
+      }
+    }, { rootMargin: '400px 0px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [visible]);
 
   return (
     <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
@@ -74,6 +92,19 @@ export default function CommentsSection({ articleId, articleSlug }: CommentsSect
           </div>
         </div>
       )}
+
+      {/* تصيير كسول للتعليقات باستخدام IntersectionObserver */}
+      <div ref={ref} className="mt-8">
+        {!visible ? (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md animate-pulse h-40" />
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
+            <h3 className="text-xl font-bold mb-4">التعليقات</h3>
+            {/* المحتوى الفعلي يمكن فصله لمكوّن فرعي أو تحميله من API */}
+            <p className="text-gray-600 dark:text-gray-400">تم تحميل التعليقات عند الوصول إلى هذا القسم.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

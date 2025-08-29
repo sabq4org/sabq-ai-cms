@@ -6,33 +6,51 @@ export const runtime = 'nodejs';
 export const revalidate = 300; // 5 دقائق
 
 async function getInitialData() {
+  console.log('🚀 [NewsPage] Starting getInitialData');
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     
+    const categoriesUrl = `${baseUrl}/api/categories?is_active=true`;
+    const articlesUrl = `${baseUrl}/api/news/optimized?status=published&limit=20&page=1&sort=published_at&order=desc`;
+    
+    console.log(`🔗 [NewsPage] Fetching categories from: ${categoriesUrl}`);
+    console.log(`🔗 [NewsPage] Fetching articles from: ${articlesUrl}`);
+
     // جلب التصنيفات والمقالات بشكل متوازي
     const [categoriesRes, articlesRes] = await Promise.all([
-      fetch(`${baseUrl}/api/categories?is_active=true`, {
+      fetch(categoriesUrl, {
         cache: 'force-cache',
         next: { revalidate: 3600 } // ساعة واحدة للتصنيفات
       }),
-      fetch(`${baseUrl}/api/news/optimized?status=published&limit=20&page=1&sort=published_at&order=desc`, {
+      fetch(articlesUrl, {
         cache: 'force-cache',
         next: { revalidate: 300 } // 5 دقائق للأخبار
       })
     ]);
+
+    console.log(`📊 [NewsPage] Categories response status: ${categoriesRes.status}`);
+    console.log(`📊 [NewsPage] Articles response status: ${articlesRes.status}`);
 
     const [categoriesData, articlesData] = await Promise.all([
       categoriesRes.ok ? categoriesRes.json() : { categories: [] },
       articlesRes.ok ? articlesRes.json() : { articles: [] }
     ]);
 
+    const finalCategories = categoriesData.categories || categoriesData.data || [];
+    const finalArticles = articlesData.articles || articlesData.data || [];
+    const finalTotalCount = articlesData.total || finalArticles.length || 0;
+
+    console.log(`✅ [NewsPage] Fetched ${finalCategories.length} categories.`);
+    console.log(`✅ [NewsPage] Fetched ${finalArticles.length} articles.`);
+    console.log(`🔢 [NewsPage] Total articles count: ${finalTotalCount}`);
+
     return {
-      categories: categoriesData.categories || categoriesData.data || [],
-      articles: articlesData.articles || articlesData.data || [],
-      totalCount: articlesData.total || articlesData.articles?.length || 0
+      categories: finalCategories,
+      articles: finalArticles,
+      totalCount: finalTotalCount
     };
   } catch (error) {
-    console.error('Error fetching initial data:', error);
+    console.error('❌ [NewsPage] Error fetching initial data:', error);
     return {
       categories: [],
       articles: [],

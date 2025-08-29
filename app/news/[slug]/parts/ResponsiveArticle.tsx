@@ -1,10 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import HeroGallery from "./HeroGallery";
 import Container from "./Container";
 import ArticleBody from "./ArticleBody";
 import FloatingReadButton from "./FloatingReadButton";
 import dynamic from "next/dynamic";
-import CommentsSection from "./CommentsSection";
+// import CommentsSection from "./CommentsSection"; // استبدلناه بتحميل ديناميكي
 import { Calendar, Clock, BookOpen, Eye } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -13,6 +14,13 @@ interface ResponsiveArticleProps {
   insights: any;
   slug: string;
 }
+
+const LazyCommentsSection = dynamic(() => import("./CommentsSection"), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 shadow-md animate-pulse h-40 mt-8" />
+  )
+});
 
 export default function ResponsiveArticle({ article, insights, slug }: ResponsiveArticleProps) {
   const heroImages = useMemo(() => article.images || [], [article.images]);
@@ -180,7 +188,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
               )}
               
               {/* قسم التعليقات */}
-              <CommentsSection articleId={article.id} articleSlug={slug} />
+              <LazyCommentsSection articleId={article.id} articleSlug={slug} />
             </section>
             
             {/* البانل الجانبي للشاشات الكبيرة */}

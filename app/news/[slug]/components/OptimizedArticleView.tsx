@@ -9,6 +9,22 @@ interface OptimizedArticleViewProps {
   article: OptimizedArticle;
 }
 
+// مكوّن مساعد لتحويل روابط Cloudinary لتقليل الحجم تلقائياً
+function transformCloudinary(url: string, width: number): string {
+  try {
+    if (!url || typeof url !== 'string') return url;
+    if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
+    // لا نكرر التحويل إذا كان موجوداً
+    if (/\/upload\/(c_|w_|f_|q_|g_)/.test(url)) return url;
+    const parts = url.split('/upload/');
+    if (parts.length !== 2) return url;
+    const tx = `f_auto,q_auto,w_${width}`;
+    return `${parts[0]}/upload/${tx}/${parts[1]}`;
+  } catch {
+    return url;
+  }
+}
+
 // مكون تحسين الصور
 function OptimizedImage({ 
   src, 
@@ -26,6 +42,7 @@ function OptimizedImage({
   className?: string;
 }) {
   const [imageError, setImageError] = useState(false);
+  const optimizedSrc = useMemo(() => transformCloudinary(src, width), [src, width]);
   
   if (imageError) {
     return (
@@ -37,14 +54,14 @@ function OptimizedImage({
 
   return (
     <Image
-      src={src}
+      src={optimizedSrc}
       alt={alt}
       width={width}
       height={height}
       priority={priority}
       className={className}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-      quality={85}
+      quality={80}
       onError={() => setImageError(true)}
       placeholder="blur"
       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
@@ -108,12 +125,7 @@ function ArticleMetadata({ article }: { article: OptimizedArticle }) {
 
 // مكون محتوى المقال المحسن
 function ArticleContent({ content }: { content: string | null }) {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+  // إزالة شرط mounted لعرض المحتوى مباشرة
   const processedContent = useMemo(() => {
     if (!content) return '';
     
@@ -121,12 +133,12 @@ function ArticleContent({ content }: { content: string | null }) {
     let processed = content.replace(
       /<img([^>]*?)src="([^"]*?)"([^>]*?)>/g,
       (match, before, src, after) => {
-        // إضافة loading="lazy" للصور
-        if (!after.includes('loading=')) {
-          after += ' loading="lazy"';
-        }
-        // إضافة classes للتصميم المتجاوب
-        if (!after.includes('class=')) {
+        // إضافة loading="lazy" و decoding و fetchpriority
+        if (!/loading=/.test(after)) after += ' loading="lazy"';
+        if (!/decoding=/.test(after)) after += ' decoding="async"';
+        if (!/fetchpriority=/.test(after)) after += ' fetchpriority="low"';
+        // إضافة classes للتصميم المتجاوب إن لم توجد
+        if (!/class=/.test(after)) {
           after += ' class="w-full h-auto rounded-lg shadow-md my-4"';
         }
         return `<img${before}src="${src}"${after}>`;
@@ -137,12 +149,11 @@ function ArticleContent({ content }: { content: string | null }) {
     processed = processed.replace(
       /<a([^>]*?)href="([^"]*?)"([^>]*?)>/g,
       (match, before, href, after) => {
-        // إضافة target="_blank" للروابط الخارجية
-        if (href.startsWith('http') && !after.includes('target=')) {
+        // إضافة target للأروابط الخارجية
+        if (href.startsWith('http') && !/target=/.test(after)) {
           after += ' target="_blank" rel="noopener noreferrer"';
         }
-        // إضافة classes للتصميم
-        if (!after.includes('class=')) {
+        if (!/class=/.test(after)) {
           after += ' class="text-blue-600 dark:text-blue-400 hover:underline"';
         }
         return `<a${before}href="${href}"${after}>`;
@@ -152,7 +163,7 @@ function ArticleContent({ content }: { content: string | null }) {
     return processed;
   }, [content]);
 
-  if (!mounted || !processedContent) {
+  if (!processedContent) {
     return (
       <div className="prose prose-lg max-w-none dark:prose-invert">
         <div className="animate-pulse space-y-4">
