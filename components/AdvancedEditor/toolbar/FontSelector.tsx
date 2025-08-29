@@ -55,11 +55,8 @@ export function FontSelector({ editor }: FontSelectorProps) {
   ];
 
   const applyFontFamily = (fontFamily: string) => {
-    if (fontFamily === '') {
-      editor.chain().focus().unsetFontFamily().run();
-    } else {
-      editor.chain().focus().setFontFamily(fontFamily).run();
-    }
+    // تم تعطيل ميزة تغيير الخط مؤقتاً
+    console.log('Font family feature disabled:', fontFamily);
   };
 
   const applyFontSize = (fontSize: string) => {

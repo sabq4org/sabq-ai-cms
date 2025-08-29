@@ -5,12 +5,8 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import Superscript from '@tiptap/extension-superscript';
-import Subscript from '@tiptap/extension-subscript';
-import Highlight from '@tiptap/extension-highlight';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
-import FontFamily from '@tiptap/extension-font-family';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Table from '@tiptap/extension-table';
@@ -18,18 +14,12 @@ import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import Youtube from '@tiptap/extension-youtube';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { common, createLowlight } from 'lowlight';
 
 import { MainToolbar } from './toolbar/MainToolbar';
 import { AdvancedEditorProps, EditorState } from './types';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
 import toast from 'react-hot-toast';
-
-// إنشاء lowlight للـ syntax highlighting
-const lowlight = createLowlight(common);
-
 export function AdvancedEditor({
   initialContent = '',
   config = {},
@@ -51,29 +41,19 @@ export function AdvancedEditor({
   const [isFocused, setIsFocused] = useState(false);
   const debouncedContent = useDebounce(editorState.content, config.autoSaveInterval || 2000);
 
-  // إعداد المحرر مع جميع الإضافات
+  // إعداد المحرر مع الإضافات المتاحة
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({
-        codeBlock: false, // سنستخدم CodeBlockLowlight بدلاً منه
-      }),
+      StarterKit,
       Underline,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
         alignments: ['left', 'center', 'right', 'justify'],
         defaultAlignment: config.rtl ? 'right' : 'left',
       }),
-      Superscript,
-      Subscript,
-      Highlight.configure({
-        multicolor: true,
-      }),
       TextStyle,
       Color,
-      FontFamily.configure({
-        types: ['textStyle'],
-      }),
       Image.configure({
         inline: true,
         allowBase64: true,
@@ -99,10 +79,6 @@ export function AdvancedEditor({
         width: 640,
         height: 480,
         ccLanguage: 'ar',
-      }),
-      CodeBlockLowlight.configure({
-        lowlight,
-        defaultLanguage: 'javascript',
       }),
     ],
     content: initialContent,

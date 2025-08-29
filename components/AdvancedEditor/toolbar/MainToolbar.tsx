@@ -8,8 +8,6 @@ import {
   Underline, 
   Strikethrough,
   Code,
-  Subscript,
-  Superscript,
   AlignLeft,
   AlignCenter,
   AlignRight,
@@ -49,76 +47,58 @@ export function MainToolbar({ editor, className }: MainToolbarProps) {
 
   return (
     <div className={cn(
-      'flex flex-wrap items-center gap-1 p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800',
+      "flex flex-wrap items-center gap-1 p-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800",
       className
     )}>
-      {/* مجموعة التراجع والإعادة */}
+      {/* أدوات التراجع والإعادة */}
       <ToolbarButtonGroup>
         <ToolbarButton
           icon={<Undo className="h-4 w-4" />}
-          tooltip="تراجع (Ctrl+Z)"
           onClick={() => editor.chain().focus().undo().run()}
-          isDisabled={!editor.can().undo()}
+          disabled={!editor.can().undo()}
+          tooltip="تراجع (Ctrl+Z)"
         />
         <ToolbarButton
           icon={<Redo className="h-4 w-4" />}
-          tooltip="إعادة (Ctrl+Y)"
           onClick={() => editor.chain().focus().redo().run()}
-          isDisabled={!editor.can().redo()}
+          disabled={!editor.can().redo()}
+          tooltip="إعادة (Ctrl+Y)"
         />
       </ToolbarButtonGroup>
 
       <ToolbarSeparator />
 
-      {/* مجموعة التنسيق الأساسي */}
+      {/* أدوات التنسيق الأساسية */}
       <ToolbarButtonGroup>
         <ToolbarButton
           icon={<Bold className="h-4 w-4" />}
-          tooltip="غامق (Ctrl+B)"
           isActive={editor.isActive('bold')}
           onClick={() => editor.chain().focus().toggleBold().run()}
+          tooltip="عريض (Ctrl+B)"
         />
         <ToolbarButton
           icon={<Italic className="h-4 w-4" />}
-          tooltip="مائل (Ctrl+I)"
           isActive={editor.isActive('italic')}
           onClick={() => editor.chain().focus().toggleItalic().run()}
+          tooltip="مائل (Ctrl+I)"
         />
         <ToolbarButton
           icon={<Underline className="h-4 w-4" />}
-          tooltip="تحته خط (Ctrl+U)"
           isActive={editor.isActive('underline')}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
+          tooltip="تحته خط (Ctrl+U)"
         />
         <ToolbarButton
           icon={<Strikethrough className="h-4 w-4" />}
-          tooltip="يتوسطه خط"
           isActive={editor.isActive('strike')}
           onClick={() => editor.chain().focus().toggleStrike().run()}
+          tooltip="يتوسطه خط"
         />
         <ToolbarButton
           icon={<Code className="h-4 w-4" />}
-          tooltip="كود مضمن"
           isActive={editor.isActive('code')}
           onClick={() => editor.chain().focus().toggleCode().run()}
-        />
-      </ToolbarButtonGroup>
-
-      <ToolbarSeparator />
-
-      {/* مجموعة النص المرتفع والمنخفض */}
-      <ToolbarButtonGroup>
-        <ToolbarButton
-          icon={<Superscript className="h-4 w-4" />}
-          tooltip="نص مرتفع"
-          isActive={editor.isActive('superscript')}
-          onClick={() => editor.chain().focus().toggleSuperscript().run()}
-        />
-        <ToolbarButton
-          icon={<Subscript className="h-4 w-4" />}
-          tooltip="نص منخفض"
-          isActive={editor.isActive('subscript')}
-          onClick={() => editor.chain().focus().toggleSubscript().run()}
+          tooltip="كود"
         />
       </ToolbarButtonGroup>
 
@@ -158,202 +138,145 @@ export function MainToolbar({ editor, className }: MainToolbarProps) {
       <ToolbarButtonGroup>
         <ToolbarButton
           icon={<List className="h-4 w-4" />}
-          tooltip="قائمة نقطية"
           isActive={editor.isActive('bulletList')}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
+          tooltip="قائمة نقطية"
         />
         <ToolbarButton
           icon={<ListOrdered className="h-4 w-4" />}
-          tooltip="قائمة مرقمة"
           isActive={editor.isActive('orderedList')}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          tooltip="قائمة مرقمة"
+        />
+        <ToolbarButton
+          icon={<Quote className="h-4 w-4" />}
+          isActive={editor.isActive('blockquote')}
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          tooltip="اقتباس"
         />
       </ToolbarButtonGroup>
 
       <ToolbarSeparator />
 
-      {/* مجموعة الاقتباس والكود */}
+      {/* أدوات الألوان والخطوط */}
       <ToolbarButtonGroup>
-        <ToolbarDropdown
-          trigger={
-            <ToolbarButton
-              icon={<Quote className="h-4 w-4" />}
-              tooltip="اقتباس"
-              isActive={editor.isActive('blockquote')}
-              onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            />
-          }
-        >
-          <QuoteStylePicker editor={editor} />
-        </ToolbarDropdown>
-        
-        <ToolbarDropdown
-          trigger={
-            <ToolbarButton
-              icon={<Hash className="h-4 w-4" />}
-              tooltip="كتلة كود"
-              isActive={editor.isActive('codeBlock')}
-              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            />
-          }
-        >
-          <CodeLanguagePicker editor={editor} />
-        </ToolbarDropdown>
+        <ColorPicker editor={editor} />
+        <FontSelector editor={editor} />
       </ToolbarButtonGroup>
 
       <ToolbarSeparator />
 
-      {/* مجموعة الألوان والخطوط */}
-      <ToolbarButtonGroup>
-        <ToolbarDropdown
-          trigger={
-            <ToolbarButton
-              icon={<Palette className="h-4 w-4" />}
-              tooltip="الألوان"
-            />
-          }
-        >
-          <ColorPicker editor={editor} />
-        </ToolbarDropdown>
-        
-        <ToolbarDropdown
-          trigger={
-            <ToolbarButton
-              icon={<Type className="h-4 w-4" />}
-              tooltip="الخطوط"
-            />
-          }
-        >
-          <FontSelector editor={editor} />
-        </ToolbarDropdown>
-      </ToolbarButtonGroup>
-
-      <ToolbarSeparator />
-
-      {/* مجموعة الوسائط */}
+      {/* أدوات الوسائط */}
       <ToolbarButtonGroup>
         <ToolbarButton
           icon={<Image className="h-4 w-4" />}
-          tooltip="إدراج صورة"
           onClick={() => {
             const url = window.prompt('رابط الصورة:');
             if (url) {
               editor.chain().focus().setImage({ src: url }).run();
             }
           }}
+          tooltip="إدراج صورة"
         />
         <ToolbarButton
           icon={<Link className="h-4 w-4" />}
-          tooltip="إدراج رابط"
           isActive={editor.isActive('link')}
           onClick={() => {
-            const url = window.prompt('الرابط:');
-            if (url) {
-              editor.chain().focus().setLink({ href: url }).run();
+            const previousUrl = editor.getAttributes('link').href;
+            const url = window.prompt('رابط:', previousUrl);
+            
+            if (url === null) {
+              return;
             }
+            
+            if (url === '') {
+              editor.chain().focus().extendMarkRange('link').unsetLink().run();
+              return;
+            }
+            
+            editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
           }}
+          tooltip="إدراج رابط"
         />
         <ToolbarButton
           icon={<Youtube className="h-4 w-4" />}
-          tooltip="فيديو YouTube"
           onClick={() => {
             const url = window.prompt('رابط YouTube:');
             if (url) {
-              editor.chain().focus().setYoutubeVideo({ src: url }).run();
+              editor.commands.setYoutubeVideo({
+                src: url,
+                width: 640,
+                height: 480,
+              });
             }
           }}
-        />
-        <ToolbarButton
-          icon={<Table className="h-4 w-4" />}
-          tooltip="إدراج جدول"
-          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          tooltip="إدراج فيديو YouTube"
         />
       </ToolbarButtonGroup>
 
       <ToolbarSeparator />
 
-      {/* مجموعة الإضافات */}
+      {/* أدوات إضافية */}
       <ToolbarButtonGroup>
-        <ToolbarDropdown
-          trigger={
-            <ToolbarButton
-              icon={<Smile className="h-4 w-4" />}
-              tooltip="رموز تعبيرية"
-            />
-          }
-        >
-          <EmojiPicker editor={editor} />
-        </ToolbarDropdown>
+        <EmojiPicker editor={editor} />
+        <SocialMediaEmbed editor={editor} />
         
         <ToolbarDropdown
-          trigger={
-            <ToolbarButton
-              icon={<Share2 className="h-4 w-4" />}
-              tooltip="وسائل التواصل"
-            />
-          }
+          icon={<Table className="h-4 w-4" />}
+          tooltip="جدول"
         >
-          <SocialMediaEmbed editor={editor} />
+          <div className="p-2 space-y-1">
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+            >
+              إدراج جدول 3×3
+            </button>
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              onClick={() => editor.chain().focus().addColumnBefore().run()}
+            >
+              إضافة عمود قبل
+            </button>
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+            >
+              إضافة عمود بعد
+            </button>
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+            >
+              حذف عمود
+            </button>
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              onClick={() => editor.chain().focus().addRowBefore().run()}
+            >
+              إضافة صف قبل
+            </button>
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+            >
+              إضافة صف بعد
+            </button>
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              onClick={() => editor.chain().focus().deleteRow().run()}
+            >
+              حذف صف
+            </button>
+            <button
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-red-600"
+              onClick={() => editor.chain().focus().deleteTable().run()}
+            >
+              حذف الجدول
+            </button>
+          </div>
         </ToolbarDropdown>
       </ToolbarButtonGroup>
-    </div>
-  );
-}
-
-// مكونات مساعدة للقوائم المنسدلة
-function QuoteStylePicker({ editor }: { editor: Editor }) {
-  const quoteStyles = [
-    { id: 'default', name: 'اقتباس عادي', className: '' },
-    { id: 'highlighted', name: 'اقتباس مميز', className: 'quote-highlighted' },
-    { id: 'bordered', name: 'اقتباس بإطار', className: 'quote-bordered' },
-    { id: 'colored', name: 'اقتباس ملون', className: 'quote-colored' },
-  ];
-
-  return (
-    <div className="p-2">
-      <div className="text-sm font-medium mb-2">أنماط الاقتباس</div>
-      {quoteStyles.map((style) => (
-        <button
-          key={style.id}
-          className="block w-full text-right p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm"
-          onClick={() => {
-            editor.chain().focus().toggleBlockquote().run();
-            // إضافة الكلاس المخصص هنا
-          }}
-        >
-          {style.name}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function CodeLanguagePicker({ editor }: { editor: Editor }) {
-  const languages = [
-    { id: 'javascript', name: 'JavaScript' },
-    { id: 'typescript', name: 'TypeScript' },
-    { id: 'python', name: 'Python' },
-    { id: 'java', name: 'Java' },
-    { id: 'css', name: 'CSS' },
-    { id: 'html', name: 'HTML' },
-    { id: 'json', name: 'JSON' },
-    { id: 'sql', name: 'SQL' },
-  ];
-
-  return (
-    <div className="p-2">
-      <div className="text-sm font-medium mb-2">لغة البرمجة</div>
-      {languages.map((lang) => (
-        <button
-          key={lang.id}
-          className="block w-full text-right p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm"
-          onClick={() => {
-            editor.chain().focus().toggleCodeBlock({ language: lang.id }).run();
-          }}
-        >
-          {lang.name}
-        </button>
-      ))}
     </div>
   );
 }

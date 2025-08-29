@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Editor } from '@tiptap/react';
-import { Palette, Type, Highlighter } from 'lucide-react';
+import { Palette, Type } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ColorPickerProps {
@@ -39,11 +39,8 @@ export function ColorPicker({ editor }: ColorPickerProps) {
   };
 
   const applyBackgroundColor = (color: string) => {
-    if (color === 'transparent') {
-      editor.chain().focus().unsetHighlight().run();
-    } else {
-      editor.chain().focus().setHighlight({ color }).run();
-    }
+    // تم تعطيل ميزة تلوين الخلفية مؤقتاً
+    console.log('Background color feature disabled:', color);
   };
 
   return (
@@ -64,15 +61,15 @@ export function ColorPicker({ editor }: ColorPickerProps) {
         </button>
         <button
           className={cn(
-            'flex items-center gap-2 px-3 py-2 text-sm font-medium border-b-2 transition-colors',
+            'flex items-center gap-2 px-3 py-2 text-sm rounded transition-colors',
             activeTab === 'background' 
-              ? 'border-blue-500 text-blue-600 dark:text-blue-400' 
-              : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+              : 'hover:bg-gray-100 dark:hover:bg-gray-700'
           )}
           onClick={() => setActiveTab('background')}
         >
-          <Highlighter className="h-4 w-4" />
-          لون الخلفية
+          <Type className="h-4 w-4" />
+          خلفية
         </button>
       </div>
 
@@ -169,7 +166,8 @@ export function ColorPicker({ editor }: ColorPickerProps) {
               if (activeTab === 'text') {
                 editor.chain().focus().unsetColor().run();
               } else {
-                editor.chain().focus().unsetHighlight().run();
+                // تم تعطيل ميزة إزالة لون الخلفية مؤقتاً
+                console.log('Remove background color feature disabled');
               }
             }}
           >
