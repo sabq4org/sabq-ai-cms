@@ -44,9 +44,9 @@ const SmartInsightsWidget = dynamic(
   }
 );
 
-// استيراد بلوك الأخبار المميزة من النسخة القديمة لاستخدامه في النسخة الكاملة فقط
-const OldFeaturedHero = dynamic(
-  () => import("@/components/old/OldFeaturedHero"),
+// استيراد بلوك آخر الأخبار المحسّن
+const LatestNewsLoader = dynamic(
+  () => import("@/components/featured/LatestNewsLoader"),
   {
     ssr: false,
     loading: () => (
@@ -158,9 +158,9 @@ export default function Page() {
           <WelcomeMetaStrip />
         </Suspense>
       </div>
-      {/* الأخبار المميزة من النسخة القديمة - النسخة الكاملة فقط */}
+      {/* آخر الأخبار - النسخة الكاملة */}
       <Suspense fallback={<div className="h-[360px] bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
-        <OldFeaturedHero />
+        <LatestNewsLoader limit={8} />
       </Suspense>
       {/* المؤشرات الذكية */}
       <div className="max-w-6xl mx-auto px-4 mt-16">
