@@ -45,6 +45,7 @@ export default function SmartContentBlock({
   subtitle = "🎯 محتوى ذكي مخصص لاهتماماتك",
   description = "نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة"
 }: SmartContentBlockProps) {
+  console.log('🚀 SmartContentBlock: تم تحميل الكومبوننت');
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
@@ -108,6 +109,7 @@ export default function SmartContentBlock({
 
   const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
+      console.log('🔍 SmartContentBlock: بداية جلب البيانات...');
       // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت موجودة
       // إضافة فلتر لاستبعاد الأخبار المميزة والعاجلة
       const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc&exclude_featured=true';
@@ -149,12 +151,14 @@ export default function SmartContentBlock({
         }
 
         const articles = (data.articles || []).slice(0, 20);
+        console.log('✅ SmartContentBlock: تم جلب البيانات بنجاح:', articles.length, 'مقال');
         const enriched: Article[] = articles.map((article: any) => ({
           ...article,
           // استخدام القيم الحقيقية إن وجدت بدلاً من التوليد العشوائي
           isPersonalized: (article.isPersonalized ?? article.metadata?.isPersonalized) ?? false,
           confidence: article.confidence ?? article.metadata?.confidence,
         }));
+        console.log('🎯 SmartContentBlock: تم إعداد المقالات:', enriched.length);
         setArticles(enriched);
       } else {
         console.error('❌ فشل في جلب المقالات:', response.status);
@@ -167,6 +171,7 @@ export default function SmartContentBlock({
       // fallback سريع
       setArticles([]);
     } finally {
+      console.log('🏁 SmartContentBlock: انتهاء التحميل, isLoading =', false);
       setIsLoading(false);
     }
   };
