@@ -15,7 +15,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import Youtube from '@tiptap/extension-youtube';
 
-import { MainToolbar } from './toolbar/MainToolbar';
+import { CompactToolbar } from './toolbar/CompactToolbar';
 import { AdvancedEditorProps, EditorState } from './types';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -207,7 +207,7 @@ export function AdvancedEditor({
       style={style}
     >
       {/* شريط الأدوات */}
-      <MainToolbar editor={editor} />
+      <CompactToolbar editor={editor} />
 
       {/* منطقة التحرير */}
       <div className="relative">
