@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     const types = searchParams.get("types"); // دعم معامل types الجديد
     const article_type = searchParams.get("article_type"); // فلتر نوع المقال الجديد
+    const exclude_featured = searchParams.get("exclude_featured") === "true"; // استبعاد المميزة
     const exclude = searchParams.get("exclude"); // استبعاد مقال معين
 
     console.log(
@@ -63,6 +64,12 @@ export async function GET(request: NextRequest) {
 
     if (category_id && category_id !== "all") {
       where.category_id = category_id;
+    }
+
+    // استبعاد الأخبار المميزة والعاجلة إذا طُلب ذلك
+    if (exclude_featured) {
+      where.featured = false;
+      where.breaking = false;
     }
 
     // دعم فلتر article_type للفصل بين الأخبار والمقالات

@@ -109,7 +109,8 @@ export default function SmartContentBlock({
   const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
       // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت موجودة
-      const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc';
+      // إضافة فلتر لاستبعاد الأخبار المميزة والعاجلة
+      const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc&exclude_featured=true';
       
       // محاولة استخدام Cache API إذا كانت متوفرة بالمتصفح
       let cachedResponse: any;

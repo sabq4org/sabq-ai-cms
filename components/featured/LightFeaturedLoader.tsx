@@ -24,8 +24,10 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     let mounted = true;
     (async () => {
       try {
-        // استخدام API آخر الأخبار بدلاً من المميزة فقط
-        const endpoint = `/api/articles/latest?limit=${limit}&withCategories=true`;
+        const isProd = process.env.NODE_ENV === 'production';
+        const endpoint = isProd
+          ? `/api/articles/featured?limit=${limit}`
+          : `/api/articles/featured-json?limit=${limit}`;
         const res = await fetch(endpoint, { cache: "force-cache", next: { revalidate: 60 } });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
