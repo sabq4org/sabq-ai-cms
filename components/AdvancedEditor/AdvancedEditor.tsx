@@ -15,7 +15,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import Youtube from '@tiptap/extension-youtube';
 
-import { CompactToolbar } from './toolbar/CompactToolbar';
+import { FixedMainToolbar } from './toolbar/FixedMainToolbar';
 import { AdvancedEditorProps, EditorState } from './types';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -207,18 +207,28 @@ export function AdvancedEditor({
       style={style}
     >
       {/* شريط الأدوات */}
-      <CompactToolbar editor={editor} />
+      <FixedMainToolbar editor={editor} />
 
       {/* منطقة التحرير */}
-      <div className="relative">
+      <div className="relative flex-1 overflow-hidden">
         <EditorContent
           editor={editor}
           className={cn(
-            'prose prose-lg max-w-none dark:prose-invert p-4 min-h-[400px] focus:outline-none',
-            config.rtl && 'text-right',
+            'prose prose-lg max-w-none dark:prose-invert p-6 min-h-[500px] focus:outline-none',
+            'prose-headings:text-gray-900 dark:prose-headings:text-gray-100',
+            'prose-p:text-gray-700 dark:prose-p:text-gray-300',
+            'prose-strong:text-gray-900 dark:prose-strong:text-gray-100',
+            'prose-blockquote:border-r-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20',
+            'prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded',
+            config.rtl && 'text-right [&_*]:text-right',
             config.maxLength && editorState.characterCount > config.maxLength && 'border-red-500'
           )}
-          style={{ direction: config.rtl ? 'rtl' : 'ltr' }}
+          style={{ 
+            direction: config.rtl ? 'rtl' : 'ltr',
+            minHeight: '500px',
+            maxHeight: 'calc(100vh - 300px)',
+            overflowY: 'auto'
+          }}
         />
 
         {/* مؤشر الحفظ */}
