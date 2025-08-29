@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
 import { getServerUser } from "@/lib/getServerUser";
@@ -114,13 +115,17 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://cdn.sabq.org" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://sabq-prod.imgix.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" crossOrigin="anonymous" />
+        {/* إضافة preconnect لمزوّد صور Cloudinary والمجالات النشطة لتحسين LCP */}
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ui-avatars.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://d2kdkzp4dtcikk.cloudfront.net" crossOrigin="anonymous" />
         {/* ملاحظة: إزالة preload لطلبات API لتفادي تزاحم الشبكة على المحمول وتحسين FCP */}
         {/* إصلاحات إنتاج عامة وCSS */}
-        <script src="/css-error-handler.js"></script>
-        <script src="/production-error-fixes.js" defer></script>
-        <script src="/fix-cors-auth.js" defer></script>
+        <Script src="/css-error-handler.js" strategy="afterInteractive" />
+        <Script src="/production-error-fixes.js" strategy="afterInteractive" />
+        <Script src="/fix-cors-auth.js" strategy="afterInteractive" />
         {/* Web Vitals RUM - نسخة محلية بالكامل */}
-        <script src="/web-vitals-local.js" defer></script>
+        <Script src="/web-vitals-local.js" strategy="afterInteractive" />
         {/* تسجيل Service Worker للصور فقط - لا يؤثر على الواجهة */}
         <script
           dangerouslySetInnerHTML={{
