@@ -32,6 +32,8 @@ import { ToolbarButton, ToolbarButtonGroup, ToolbarSeparator, ToolbarDropdown } 
 import { ColorPicker } from './ColorPicker';
 import { FontSelector } from './FontSelector';
 import { EmojiPicker } from './EmojiPicker';
+import { ImageUpload } from './ImageUpload';
+import { GalleryUpload } from './GalleryUpload';
 import { SocialMediaEmbed } from './SocialMediaEmbed';
 import { cn } from '@/lib/utils';
 
@@ -168,16 +170,8 @@ export function MainToolbar({ editor, className }: MainToolbarProps) {
 
       {/* أدوات الوسائط */}
       <ToolbarButtonGroup>
-        <ToolbarButton
-          icon={<Image className="h-4 w-4" />}
-          onClick={() => {
-            const url = window.prompt('رابط الصورة:');
-            if (url) {
-              editor.chain().focus().setImage({ src: url }).run();
-            }
-          }}
-          tooltip="إدراج صورة"
-        />
+        <ImageUpload editor={editor} />
+        <GalleryUpload editor={editor} />
         <ToolbarButton
           icon={<Link className="h-4 w-4" />}
           isActive={editor.isActive('link')}
