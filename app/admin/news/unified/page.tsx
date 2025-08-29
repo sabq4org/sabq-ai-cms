@@ -26,9 +26,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 
-// تحميل المحرر بشكل ديناميكي
-const Editor = dynamic(() => import("@/components/Editor/Editor"), {
+// تحميل المحرر المتقدم بشكل ديناميكي
+const AdvancedEditor = dynamic(() => import("@/components/AdvancedEditor").then(mod => ({ default: mod.AdvancedEditor })), {
   ssr: false,
+  loading: () => (
+    <div className="w-full h-64 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+        <p className="text-sm text-gray-600 dark:text-gray-400">جاري تحميل المحرر المتقدم...</p>
+      </div>
+    </div>
+  )
 });
 
 interface Category {
@@ -227,14 +235,14 @@ export default function ManusNewsCreatePage() {
           : (formData.content ? "محتوى غير نصي" : "فارغ")
       });
 
-      // طرق متعددة للحصول على المحتوى
+      // طرق متعددة للحصول على المحتوى من المحرر المتقدم
       if (editorRef.current) {
-        if (editorRef.current.getHTML) {
-          contentText = editorRef.current.getHTML() || "";
-          console.log("✅ استخدام getHTML:", contentText.length);
-        } else if (editorRef.current.editor?.getHTML) {
+        if (editorRef.current.editor?.getHTML) {
           contentText = editorRef.current.editor.getHTML() || "";
           console.log("✅ استخدام editor.getHTML:", contentText.length);
+        } else if (editorRef.current.getHTML) {
+          contentText = editorRef.current.getHTML() || "";
+          console.log("✅ استخدام getHTML:", contentText.length);
         } else if (editorRef.current.editor?.getText) {
           contentText = editorRef.current.editor.getText() || "";
           console.log("✅ استخدام editor.getText:", contentText.length);
@@ -848,7 +856,10 @@ export default function ManusNewsCreatePage() {
       setSaving(true);
 
       let editorContent = "";
-      if (editorRef.current?.getHTML) {
+      // الحصول على المحتوى من المحرر المتقدم
+      if (editorRef.current?.editor?.getHTML) {
+        editorContent = editorRef.current.editor.getHTML() || "";
+      } else if (editorRef.current?.getHTML) {
         editorContent = editorRef.current.getHTML() || "";
       }
 
@@ -1403,11 +1414,18 @@ export default function ManusNewsCreatePage() {
                  background: 'hsl(var(--bg-card))',
                  border: '1px solid hsl(var(--line))'
                }}>
-                <Editor
+                <AdvancedEditor
                   ref={editorRef}
-                  content={formData.content}
-                  onChange={handleContentChange}
-                   placeholder="ابدأ بكتابة محتوى الخبر هنا... استخدم محرر النصوص الغني لتنسيق المحتوى"
+                  initialContent={formData.content}
+                  callbacks={{
+                    onChange: handleContentChange
+                  }}
+                  config={{
+                    rtl: true,
+                    autofocus: false,
+                    editable: true
+                  }}
+                  className="min-h-[400px]"
                 />
               </div>
                
