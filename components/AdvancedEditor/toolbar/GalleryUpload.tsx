@@ -165,12 +165,13 @@ export function GalleryUpload({ editor }: GalleryUploadProps) {
   if (!isOpen) {
     return (
       <button
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
         onClick={() => setIsOpen(true)}
-        title="إدراج ألبوم صور"
+        title="رفع عدة صور في ألبوم واحد"
       >
-        <Images className="w-4 h-4" />
-        ألبوم
+        <Images className="w-4 h-4 group-hover:text-blue-600 transition-colors" />
+        <span>ألبوم صور</span>
+        <span className="text-xs text-gray-500 group-hover:text-blue-500">متعدد</span>
       </button>
     );
   }

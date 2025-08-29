@@ -12,7 +12,7 @@ interface ImageUploadProps {
 
 export function ImageUpload({ editor }: ImageUploadProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'upload' | 'url'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'url'>('upload'); // التبويب الافتراضي هو رفع صورة
   const [isUploading, setIsUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
@@ -149,12 +149,13 @@ export function ImageUpload({ editor }: ImageUploadProps) {
   if (!isOpen) {
     return (
       <button
-        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
         onClick={() => setIsOpen(true)}
-        title="إدراج صورة"
+        title="رفع صورة من جهازك أو إدراج رابط"
       >
-        <Image className="w-4 h-4" />
-        صورة
+        <Image className="w-4 h-4 group-hover:text-blue-600 transition-colors" />
+        <span>صورة</span>
+        <Upload className="w-3 h-3 text-gray-400 group-hover:text-blue-600 transition-colors" />
       </button>
     );
   }
