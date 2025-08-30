@@ -69,19 +69,16 @@ export default async function OldStyleNewsServerMarkup({
   let articles: ArticleItem[] = [];
   try {
     const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 3000); // Increased timeout
-    
-    // إنشاء URL مطلق للعمل مع Server-Side
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-    
+    const t = setTimeout(() => controller.abort(), 5000);
+
+    // استخدم URL نسبي داخل نفس التطبيق لتفادي localhost في بيئة البناء
+    const fullUrl = url; // اتركه نسبياً
     const res = await fetch(fullUrl, { 
       next: { revalidate: revalidateSeconds }, 
       cache: 'force-cache', 
       signal: controller.signal 
     });
     clearTimeout(t);
-    console.log(`🔍 [OldStyleNews] Original URL: ${url}`);
     console.log(`🔍 [OldStyleNews] Full URL: ${fullUrl}`);
     console.log(`🔍 [OldStyleNews] Response Status: ${res.status}`);
     

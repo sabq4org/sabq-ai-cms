@@ -1,6 +1,7 @@
 // Use ISR with longer cache for better performance
 export const revalidate = 300; // 5 minutes
 export const fetchCache = 'force-cache';
+export const dynamic = 'force-static';
 
 import { Suspense } from 'react';
 import OldStyleNewsServerMarkup from '@/components/old-style/OldStyleNewsServerMarkup';

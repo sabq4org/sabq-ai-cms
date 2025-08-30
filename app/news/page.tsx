@@ -3,6 +3,7 @@ import { NewsPageContent } from './NewsPageContent';
 import { Newspaper } from 'lucide-react';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 export const revalidate = 300; // 5 دقائق
 
 async function getInitialData() {

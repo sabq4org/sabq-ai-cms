@@ -110,8 +110,8 @@ export default function SmartContentBlock({
   const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
       console.log('🔍 SmartContentBlock: بداية جلب البيانات...');
-      // جلب مباشر بدون استبعاد المميزة أو استخدام Cache API لتفادي التأخير
-      const url = `/api/articles?limit=20&sort=published_at&order=desc&status=published&_=${Date.now()}`;
+      // استخدام نفس API المحسن المستخدم في NewsPageContent
+      const url = `/api/news/optimized?limit=20&sort=created_at&order=desc&status=published&compact=true&_=${Date.now()}`;
 
       const response = await fetch(url, {
         signal,
@@ -123,6 +123,10 @@ export default function SmartContentBlock({
 
         const articles = (data.articles || []).slice(0, 20);
         console.log('✅ SmartContentBlock: تم جلب البيانات بنجاح:', articles.length, 'مقال');
+        if (articles.length > 0) {
+          console.log('📰 SmartContentBlock - أحدث خبر:', articles[0].title);
+          console.log('📅 SmartContentBlock - تاريخ النشر:', articles[0].published_at || articles[0].created_at);
+        }
         const enriched: Article[] = articles.map((article: any) => ({
           ...article,
           isPersonalized: (article.isPersonalized ?? article.metadata?.isPersonalized) ?? false,
