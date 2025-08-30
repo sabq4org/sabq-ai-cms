@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { ensureDbConnected, retryWithConnection, isPrismaNotConnectedError } from "@/lib/prisma";
 import { ensureUniqueSlug, resolveContentType } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
+import { toWesternDigits, parseNormalizedInt } from "@/lib/locale";
 export const runtime = "nodejs";
 
 // Cache في الذاكرة
@@ -24,6 +25,8 @@ export async function GET(request: NextRequest) {
         "X-Cache": "HIT",
         // كاش أقوى لتسريع الواجهة الكاملة
         "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=1800",
+        // فرض الأرقام الغربية للمستهلكين
+        "Content-Language": "en-US",
       },
     });
   }
@@ -38,11 +41,13 @@ export async function GET(request: NextRequest) {
       console.log("prisma.articles:", typeof prisma?.articles);
     }
 
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 200);
+    const page = parseNormalizedInt(searchParams.get("page") || "1");
+    const limit = Math.min(parseNormalizedInt(searchParams.get("limit") || "20"), 200);
     const status = searchParams.get("status") || "published";
-    const category_id = searchParams.get("category_id");
-    const search = searchParams.get("search");
+    const rawCategoryId = searchParams.get("category_id");
+    const category_id = rawCategoryId ? toWesternDigits(rawCategoryId) : null;
+    let search = searchParams.get("search");
+    search = search ? toWesternDigits(search) : null;
     const sort = searchParams.get("sort") || "published_at";
     const order = searchParams.get("order") || "desc";
     const skip = (page - 1) * limit;
@@ -168,7 +173,7 @@ export async function GET(request: NextRequest) {
           published_at: true,
           metadata: true,
           article_type: true,
-          content_type: true, // Ensure this field is always fetched
+          content_type: true,
           views: true,
           reading_time: true,
           summary: true,
@@ -181,9 +186,7 @@ export async function GET(request: NextRequest) {
           categories: {
             select: { id: true, name: true, slug: true, color: true },
           },
-          author: {
-            select: { id: true, name: true, avatar: true },
-          },
+          author: { select: { id: true, name: true } },
         },
       });
     });
@@ -260,6 +263,8 @@ export async function GET(request: NextRequest) {
         "X-Cache": "MISS",
         // نفس سياسة الكاش المُعجّلة
         "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=1800",
+        // فرض الأرقام الغربية للمستهلكين
+        "Content-Language": "en-US",
       },
     });
   } catch (error: any) {
@@ -291,13 +296,21 @@ export async function POST(request: NextRequest) {
   console.log("📡 Request url:", request.url);
 
   let data: any = {}; // تعريف data خارج try block
-    let authorId: string | null | undefined = null; // تعريف authorId خارج try block
-    let categoryId: string | null | undefined = null; // تعريف categoryId خارج try block
+  let authorId: string | null | undefined = null; // تعريف authorId خارج try block
+  let categoryId: string | null | undefined = null; // تعريف categoryId خارج try block
 
   try {
     // معالجة آمنة لتحليل JSON
     try {
       data = await request.json();
+      // تطبيع الأرقام لأي مدخلات نصية
+      if (typeof data.title === 'string') data.title = toWesternDigits(data.title);
+      if (typeof data.slug === 'string') data.slug = toWesternDigits(data.slug);
+      if (typeof data.category_id === 'string') data.category_id = toWesternDigits(data.category_id);
+      if (typeof data.author_id === 'string') data.author_id = toWesternDigits(data.author_id);
+      if (typeof data.article_author_id === 'string') data.article_author_id = toWesternDigits(data.article_author_id);
+      if (typeof data.published_at === 'string') data.published_at = new Date(data.published_at).toISOString();
+      if (typeof data.scheduled_for === 'string') data.scheduled_for = new Date(data.scheduled_for).toISOString();
       console.log(
         "Full request body for debugging:",
         JSON.stringify(data, null, 2)
@@ -762,7 +775,7 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({
               articleId: article.id,
               articleTitle: article.title,
-              articleCategory: article.categories?.name || 'news',
+              articleCategory: category?.name || 'news',
               isBreaking: true
             })
           }).catch((err) => console.warn('⚠️ فشل إرسال إشعار عاجل عبر send-smart:', err?.message));
@@ -851,8 +864,7 @@ export async function POST(request: NextRequest) {
         receivedData: {
           authorId,
           categoryId,
-          article_author_id: articleData?.article_author_id,
-          author_id: articleData?.author_id,
+          // article author fields omitted here to avoid scope issues in error logging
         },
       });
 
