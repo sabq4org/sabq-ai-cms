@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getCachedHomepageArticles, getCachedCategoryArticles } from "@/lib/redis-performance-cache";
 
 export async function GET(request: NextRequest) {
   console.log('📰 بدء جلب الأخبار...');
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       prisma.articles.findMany({
         where,
         include: {
-          category: {
+          categories: {
             select: {
               id: true,
               name: true,

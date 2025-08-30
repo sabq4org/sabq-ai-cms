@@ -96,13 +96,17 @@ export class ImageService {
       
       if (width) transformations.push(`w_${width}`);
       if (height) transformations.push(`h_${height}`);
-      if (quality) transformations.push(`q_${quality}`);
+      if (quality) transformations.push(`q_${quality === 80 ? 'auto:best' : quality}`);
       if (format) transformations.push(`f_${format}`);
       if (fit) transformations.push(`c_${fit}`);
       
-      // إضافة تحسينات إضافية
-      transformations.push('f_auto'); // تحديد الصيغة تلقائياً
-      transformations.push('q_auto'); // جودة تلقائية حسب الشبكة
+      // إضافة تحسينات إضافية للأداء العالي
+      transformations.push('f_auto'); // تحديد الصيغة تلقائياً (WebP/AVIF)
+      transformations.push('q_auto:best'); // جودة تلقائية محسنة حسب الشبكة
+      transformations.push('fl_progressive'); // تحميل تدريجي
+      transformations.push('fl_strip_profile'); // إزالة البيانات الوصفية
+      transformations.push('fl_immutable_cache'); // تخزين مؤقت محسن
+      transformations.push('dpr_auto'); // كثافة بكسل تلقائية
       
       const transformationString = transformations.join(',');
       

@@ -4,6 +4,7 @@ import { Newspaper } from 'lucide-react';
 
 export const runtime = 'nodejs';
 export const revalidate = 300; // 5 دقائق
+export const dynamic = 'force-dynamic'; // Allow dynamic rendering for news
 
 async function getInitialData() {
   console.log('🚀 [NewsPage] Starting getInitialData');
@@ -24,7 +25,7 @@ async function getInitialData() {
       }),
       fetch(articlesUrl, {
         cache: 'no-store', // عدم تخزين الأخبار لضمان الحصول على أحدث المحتوى
-        next: { revalidate: 0 } // تحديث فوري للأخبار
+        next: { revalidate: 300 } // تحديث كل 5 دقائق للأخبار
       })
     ]);
 
