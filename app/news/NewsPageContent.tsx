@@ -110,6 +110,22 @@ export function NewsPageContent({
         order: "desc",
       });
 
+      // تقليل الحقول المسترجعة
+      params.append("compact", "true");
+      params.append(
+        "fields",
+        [
+          "id",
+          "title",
+          "slug",
+          "featured_image",
+          "views",
+          "published_at",
+          "created_at",
+          "breaking",
+        ].join(",")
+      );
+
       if (selectedCategory) {
         params.append("category_id", selectedCategory.toString());
       }
