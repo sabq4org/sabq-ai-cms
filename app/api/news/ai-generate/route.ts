@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-// لا تنشئ OpenAI client على مستوى الملف
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
+import { getOpenAIClient, isOpenAIAvailable, OPENAI_ERROR_RESPONSE } from '@/lib/ai/openai-client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // التحقق من وجود مفتاح OpenAI
-    if (!process.env.OPENAI_API_KEY) {
+    if (!isOpenAIAvailable()) {
       console.log('⚠️ OPENAI_API_KEY غير موجود - استخدام الوضع التجريبي');
       
       // إرجاع نتائج تجريبية ذكية
@@ -36,9 +31,10 @@ export async function POST(request: NextRequest) {
     }
 
     // إنشاء OpenAI client فقط عند الحاجة
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const openai = getOpenAIClient();
+    if (!openai) {
+      throw new Error('OpenAI client not available');
+    }
 
     console.log('🤖 بدء توليد عناصر الخبر تلقائياً...');
 

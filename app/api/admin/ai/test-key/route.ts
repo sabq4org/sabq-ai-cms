@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
 
     // اختبار المفتاح بطلب بسيط
     try {
+      // إنشاء عميل مؤقت للاختبار - آمن في هذا السياق
       const openai = new OpenAI({
         apiKey: apiKey.trim()
       });

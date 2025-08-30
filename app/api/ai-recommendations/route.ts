@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { getOpenAIClient, isOpenAIAvailable, OPENAI_ERROR_RESPONSE } from "@/lib/ai/openai-client";
 
 interface RecommendedArticle {
   id: string;
@@ -127,8 +123,13 @@ export async function GET(request: NextRequest) {
     // استخدام AI لتحليل وترتيب التوصيات
     let aiAnalyzedRecommendations: RecommendedArticle[] = [];
 
-    if (process.env.OPENAI_API_KEY) {
+    if (isOpenAIAvailable()) {
       try {
+        const openai = getOpenAIClient();
+        if (!openai) {
+          throw new Error("OpenAI client not available");
+        }
+
         const currentTitle = currentArticle.title || "";
         const currentContent = (currentArticle.content || "").substring(0, 1000);
         const currentCategory = currentArticle.categories?.name || "";
@@ -261,17 +262,17 @@ ${index + 1}. المعرف: ${article.id}
       });
     }
 
-    const averageConfidence = Math.round(
-      aiAnalyzedRecommendations.reduce((acc, article) => acc + article.confidence, 0) / 
-      Math.max(1, aiAnalyzedRecommendations.length)
-    );
+      const averageConfidence = Math.round(
+        aiAnalyzedRecommendations.reduce((acc, article) => acc + article.confidence, 0) / 
+        Math.max(1, aiAnalyzedRecommendations.length)
+      );
 
-    return NextResponse.json({
-      recommendations: aiAnalyzedRecommendations,
-      averageConfidence,
-      totalArticles: similarArticles.length,
-      method: process.env.OPENAI_API_KEY ? "ai-powered" : "rule-based"
-    });
+      return NextResponse.json({
+        recommendations: aiAnalyzedRecommendations,
+        averageConfidence,
+        totalArticles: similarArticles.length,
+        method: isOpenAIAvailable() ? "ai-powered" : "rule-based"
+      });
 
   } catch (error) {
     console.error("Error generating recommendations:", error);

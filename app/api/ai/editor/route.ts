@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
 import { aiEditorRateLimit } from '@/lib/ai-rate-limiter';
+import { getOpenAIClient, isOpenAIAvailable, OPENAI_ERROR_RESPONSE } from '@/lib/ai/openai-client';
 
 
 
@@ -9,34 +9,6 @@ import { aiEditorRateLimit } from '@/lib/ai-rate-limiter';
 
 
 
-
-// لا ننشئ OpenAI client مباشرة، بل نؤجله حتى وقت الاستخدام
-let openai: OpenAI | null = null;
-
-function getOpenAIClient(): OpenAI | null {
-  if (!openai) {
-    const apiKey = process.env.OPENAI_AI_EDITOR_KEY || process.env.OPENAI_API_KEY;
-    
-    // تحقق محسن من صحة المفتاح
-    if (apiKey && 
-        apiKey !== 'sk-...' && 
-        apiKey !== 'sk-your-openai-api-key' && 
-        apiKey.length > 20 && 
-        apiKey.startsWith('sk-')) {
-      try {
-        openai = new OpenAI({ apiKey });
-        console.log('✅ تم تهيئة عميل OpenAI بنجاح');
-      } catch (error) {
-        console.error('❌ فشل في تهيئة عميل OpenAI:', error);
-        return null;
-      }
-    } else {
-      console.warn('⚠️ مفتاح OpenAI غير صحيح أو مفقود');
-      return null;
-    }
-  }
-  return openai;
-}
 
 // أنواع الخدمات المتاحة
 type EditorService = 

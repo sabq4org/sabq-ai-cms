@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 import prisma from "@/lib/prisma";
-
-// استخدام مفتاح OpenAI من متغيرات البيئة
-const API_KEY = process.env.OPENAI_API_KEY || "";
-
-// تحقق محسن من صحة المفتاح
-const isValidKey = API_KEY && 
-                  API_KEY !== 'sk-your-openai-api-key' && 
-                  API_KEY.startsWith('sk-') && 
-                  API_KEY.length > 40;
-
-// ملاحظة: لو عندك طبقة خدمة، انقل المنطق هناك واستدعِها من هنا.
-const openai = isValidKey ? new OpenAI({ apiKey: API_KEY }) : null;
-const hasOpenAI = !!openai;
+import { getOpenAIClient, isOpenAIAvailable, OPENAI_ERROR_RESPONSE } from '@/lib/ai/openai-client';
 
 // قائمة بسيطة لتصفية الأفعال الممنوعة من keywords احتياطياً
 const FORBIDDEN_VERBS = [
@@ -229,7 +216,7 @@ export async function POST(req: NextRequest) {
       title_hint: title_hint?.substring(0, 50), 
       content_length: raw_content?.length,
       category,
-      has_openai: hasOpenAI 
+      has_openai: isOpenAIAvailable() 
     });
 
     if (!raw_content || (typeof raw_content === 'string' && raw_content.trim().length < 30)) {
@@ -308,8 +295,13 @@ ${aiPrompt}
 
     try {
       // التحقق من وجود OpenAI client صحيح
-      if (!openai) {
+      if (!isOpenAIAvailable()) {
         console.warn("⚠️ مفتاح OpenAI غير صحيح، استخدام التوليد البسيط");
+        throw new Error("OpenAI client غير متاح");
+      }
+
+      const openai = getOpenAIClient();
+      if (!openai) {
         throw new Error("OpenAI client غير متاح");
       }
 
@@ -375,7 +367,7 @@ ${aiPrompt}
         count: uniqueDrafts.length,
         variants: uniqueDrafts,
         source: "openai",
-        using_key: hasOpenAI ? "✓" : "✗",
+        using_key: isOpenAIAvailable() ? "✓" : "✗",
         model: "gpt-4",
         time: new Date().toISOString()
       });

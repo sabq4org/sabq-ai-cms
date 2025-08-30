@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-
-
-
-
-
-
-
-
 export async function POST(request: NextRequest) {
   try {
     const { apiKey } = await request.json();
@@ -20,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // إنشاء عميل OpenAI مؤقت للاختبار
+    // إنشاء عميل OpenAI مؤقت للاختبار - آمن في هذا السياق
     const openai = new OpenAI({
       apiKey: apiKey.trim(),
     });

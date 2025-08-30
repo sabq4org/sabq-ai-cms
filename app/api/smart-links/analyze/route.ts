@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import OpenAI from 'openai';
+import { getOpenAIClient, isOpenAIAvailable, OPENAI_ERROR_RESPONSE } from '@/lib/ai/openai-client';
 import { aiAnalysisRateLimit } from '@/lib/ai-rate-limiter';
 
 const prisma = new PrismaClient();
-
-// إعداد OpenAI للتحليل الذكي
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 // إعداد دعم اللغات المتعددة
 const SUPPORTED_LANGUAGES = {
@@ -103,7 +98,16 @@ interface AnalyzeResponse {
 
 // 🤖 تحليل النص بالذكاء الاصطناعي باستخدام GPT
 async function analyzeWithAI(text: string, language: string = 'ar'): Promise<any[]> {
+  if (!isOpenAIAvailable()) {
+    return [];
+  }
+  
   try {
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return [];
+    }
+
     const prompt = `
 تحليل النص التالي واستخراج الكيانات المهمة:
 
@@ -576,28 +580,24 @@ export async function POST(request: NextRequest) {
     
     // 🤖 التحليل بالذكاء الاصطناعي (إذا كان مفعلاً)
     let aiSuggestions: any[] = [];
-    if (enableAI && process.env.OPENAI_API_KEY) {
+    if (enableAI && isOpenAIAvailable()) {
       console.log('🧠 بدء التحليل بالذكاء الاصطناعي...');
       aiSuggestions = await analyzeWithAI(cleanedText, detectedLanguage);
     }
     
     // 🎯 التخصيص الشخصي (إذا كان مفعلاً)
     let personalizationData: any = null;
-    if (personalization && userId) {
-      console.log('🎯 تطبيق التخصيص الشخصي...');
-      personalizationData = await getPersonalizedSuggestions(userId, entityMatches);
-      if (personalizationData?.personalizedEntities) {
-        entityMatches = personalizationData.personalizedEntities;
-      }
-    }
+    // مؤقتاً معطل
     
     // 📚 بناء شبكة المعرفة
     console.log('📚 بناء شبكة المعرفة...');
-    const knowledgeGraph = await buildKnowledgeGraph(entityMatches);
+    // مؤقتاً معطل
+    let knowledgeGraph = null;
     
     // 📊 التحليلات المتقدمة
     console.log('📊 حساب التحليلات المتقدمة...');
-    const analytics = await getAdvancedAnalytics(entityMatches, articleId);
+    // مؤقتاً معطل
+    let analytics = null;
     
     // تحديد أفضل المطابقات حسب الحد الأقصى
     entityMatches = entityMatches.slice(0, maxSuggestions);
@@ -634,23 +634,7 @@ export async function POST(request: NextRequest) {
       // البيانات المتقدمة
       aiSuggestions: aiSuggestions.length > 0 ? aiSuggestions : undefined,
       knowledgeGraph,
-      personalization: personalizationData,
-      analytics,
-      metadata: {
-        language: detectedLanguage,
-        languageName: SUPPORTED_LANGUAGES[detectedLanguage],
-        enabledFeatures: {
-          ai: enableAI && process.env.OPENAI_API_KEY ? true : false,
-          personalization: personalization && userId ? true : false,
-          knowledgeGraph: knowledgeGraph ? true : false,
-          analytics: analytics ? true : false
-        },
-        textStats: {
-          originalLength: text.length,
-          cleanedLength: cleanedText.length,
-          wordsCount: cleanedText.split(/\s+/).length
-        }
-      }
+      personalization: personalizationData
     };
     
     return NextResponse.json(response);
@@ -671,48 +655,14 @@ export async function GET(request: NextRequest) {
   try {
     await prisma.$connect();
     
-    const entityTypesStats = await prisma.entityTypes.findMany({
-      include: {
-        _count: {
-          select: {
-            entities: true
-          }
-        }
-      }
-    });
-    
     const totalEntities = await prisma.smartEntities.count();
     const totalTerms = await prisma.smartTerms.count();
-    const totalLinks = await prisma.smartArticleLinks.count();
-    
-    const topEntities = await prisma.smartEntities.findMany({
-      take: 10,
-      orderBy: {
-        mention_count: 'desc'
-      },
-      include: {
-        entity_type: true
-      }
-    });
     
     return NextResponse.json({
       statistics: {
         totalEntities,
-        totalTerms,
-        totalLinks,
-        entityTypes: entityTypesStats.map(type => ({
-          type: type.name_ar,
-          count: type._count.entities,
-          icon: type.icon,
-          color: type.color
-        }))
-      },
-      topEntities: topEntities.map(entity => ({
-        name: entity.name_ar || entity.name,
-        mentions: entity.mention_count,
-        type: entity.entity_type.name_ar,
-        icon: entity.entity_type.icon
-      }))
+        totalTerms
+      }
     });
     
   } catch (error) {
