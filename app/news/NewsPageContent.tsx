@@ -91,8 +91,10 @@ export function NewsPageContent({
 
   const ITEMS_PER_PAGE = 20;
 
-  // Fetch more articles
-  const fetchArticles = useCallback(async (reset = false) => {
+  // Fetch articles helper with optional override to prevent stale closures
+  const fetchArticles = useCallback(async (options?: { reset?: boolean; pageOverride?: number }) => {
+    const reset = options?.reset === true;
+    const effectivePage = typeof options?.pageOverride === 'number' ? options!.pageOverride : (reset ? 1 : page);
     try {
       if (reset) {
         setLoading(true);
@@ -101,14 +103,15 @@ export function NewsPageContent({
         setIsLoadingMore(true);
       }
 
-      const currentPage = reset ? 1 : page;
       const params = new URLSearchParams({
         status: "published",
         limit: ITEMS_PER_PAGE.toString(),
-        page: currentPage.toString(),
+        page: effectivePage.toString(),
         sort: sortBy === "views" ? "views" : "published_at",
         order: "desc",
       });
+      // اكسر الكاش عند الجلب الأول لضمان ظهور الأخبار الجديدة
+      if (reset || effectivePage === 1) params.append("_", Date.now().toString());
 
       // تقليل الحقول المسترجعة
       params.append("compact", "true");
@@ -137,10 +140,18 @@ export function NewsPageContent({
       if (!response.ok) throw new Error("Failed to fetch articles");
 
       const data = await response.json();
-      const newArticles = data.articles || data.data || [];
+      const newArticles: Article[] = data.articles || data.data || [];
 
       if (reset) {
         setArticles(newArticles);
+        // تحديث الإحصائيات بالعدد الإجمالي من الـ API إن توفر
+        if (typeof data.total === "number") {
+          setStats(prev => ({
+            ...prev,
+            totalArticles: data.total,
+            totalViews: newArticles.reduce((sum: number, a: Article) => sum + (a.views || a.views_count || 0), 0)
+          }));
+        }
       } else {
         setArticles(prev => [...prev, ...newArticles]);
       }
@@ -174,19 +185,26 @@ export function NewsPageContent({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // إعادة جلب الصفحة الأولى مباشرة بعد التحميل لضمان ظهور الأخبار الجديدة فوراً
+  useEffect(() => {
+    fetchArticles({ reset: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // إعادة جلب المقالات عند تغيير التصنيف أو الترتيب
   useEffect(() => {
     if (selectedCategory !== null || sortBy !== "newest") {
-      fetchArticles(true);
+      fetchArticles({ reset: true });
     }
-  }, [selectedCategory, sortBy]);
+  }, [selectedCategory, sortBy, fetchArticles]);
 
   const loadMore = useCallback(() => {
     if (!loading && !isLoadingMore && hasMore) {
-      setPage(prev => prev + 1);
-      fetchArticles(false);
+      const next = page + 1;
+      setPage(next);
+      fetchArticles({ reset: false, pageOverride: next });
     }
-  }, [loading, isLoadingMore, hasMore, fetchArticles]);
+  }, [loading, isLoadingMore, hasMore, page, fetchArticles]);
 
   const getCategoryName = useMemo(() => 
     (categoryId: number) => {
