@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
     const compact = searchParams.get('compact') === 'true';
     const fieldsParam = searchParams.get('fields');
     const fields = fieldsParam ? new Set(fieldsParam.split(',').map((s) => s.trim())) : null;
+    const excludeFeatured = searchParams.get('exclude_featured') === 'true';
+    const excludeBreaking = searchParams.get('exclude_breaking') === 'true';
 
     // بناء شروط البحث
     const where: any = { status };
@@ -27,6 +29,8 @@ export async function GET(req: NextRequest) {
       const catIdNum = Number(categoryId);
       where.category_id = Number.isNaN(catIdNum) ? categoryId : catIdNum;
     }
+    if (excludeFeatured) where.featured = false;
+    if (excludeBreaking) where.breaking = false;
 
     // الحقول المسموح بها للترتيب لحماية الاستعلام
     const allowedSortFields = new Set([

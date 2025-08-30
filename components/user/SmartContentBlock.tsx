@@ -110,51 +110,21 @@ export default function SmartContentBlock({
   const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
       console.log('🔍 SmartContentBlock: بداية جلب البيانات...');
-      // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت موجودة
-      // إضافة فلتر لاستبعاد الأخبار المميزة والعاجلة
-      const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc&exclude_featured=true';
-      
-      // محاولة استخدام Cache API إذا كانت متوفرة بالمتصفح
-      let cachedResponse: any;
-      try {
-        if ('caches' in window) {
-          const cache = await window.caches.open('smart-content-cache');
-          cachedResponse = await cache.match(cacheKey);
-        }
-      } catch (cacheError) {
-        // تجاهل أخطاء الكاش وإكمال الجلب بشكل عادي
-      }
-      
-      // استخدام الاستجابة من الكاش إن وجدت أو إجراء طلب جديد
-      const response = cachedResponse || await fetch(cacheKey, { 
+      // جلب مباشر بدون استبعاد المميزة أو استخدام Cache API لتفادي التأخير
+      const url = `/api/articles?limit=20&sort=published_at&order=desc&status=published&_=${Date.now()}`;
+
+      const response = await fetch(url, {
         signal,
-        // تلميح للمتصفح بأننا جربنا الكاش بالفعل
-        cache: 'force-cache' 
+        cache: 'no-store'
       });
       
       if (response.ok) {
-        // تخزين الاستجابة في الكاش للاستخدام المستقبلي
         const data = await response.json();
-        try {
-          if ('caches' in window) {
-            const cache = await window.caches.open('smart-content-cache');
-            const clonedResponse = new Response(JSON.stringify(data), {
-              headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=300'
-              }
-            });
-            cache.put(cacheKey, clonedResponse);
-          }
-        } catch (cacheError) {
-          // تجاهل أخطاء الكاش
-        }
 
         const articles = (data.articles || []).slice(0, 20);
         console.log('✅ SmartContentBlock: تم جلب البيانات بنجاح:', articles.length, 'مقال');
         const enriched: Article[] = articles.map((article: any) => ({
           ...article,
-          // استخدام القيم الحقيقية إن وجدت بدلاً من التوليد العشوائي
           isPersonalized: (article.isPersonalized ?? article.metadata?.isPersonalized) ?? false,
           confidence: article.confidence ?? article.metadata?.confidence,
         }));
@@ -162,13 +132,11 @@ export default function SmartContentBlock({
         setArticles(enriched);
       } else {
         console.error('❌ فشل في جلب المقالات:', response.status);
-        // fallback سريع
         setArticles([]);
       }
     } catch (error: any) {
       if (error?.name === 'AbortError') return;
       console.error('❌ Error fetching smart content:', error);
-      // fallback سريع
       setArticles([]);
     } finally {
       console.log('🏁 SmartContentBlock: انتهاء التحميل, isLoading =', false);
