@@ -11,12 +11,32 @@ const nextConfig = {
   // Note: api config moved to individual route handlers
 
   experimental: {
-    // تبسيط الإعدادات التجريبية
+    // تحسينات الأداء المتقدمة
     webpackBuildWorker: true,
+    
+    // تحسين imports للمكتبات الكبيرة
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      '@headlessui/react',
+      'framer-motion',
+      'react-hot-toast'
+    ],
+    
+    // تحسين Cache للصفحات
     staleTimes: {
       dynamic: 30,
       static: 180,
     },
+    
+    // تحسين CSS
+    optimizeCss: true,
+    
+    // تحسين Server Components
+    serverComponentsExternalPackages: [
+      'prisma',
+      '@prisma/client'
+    ]
   },
 
   // Turbopack configuration (stable in Next.js 15)
@@ -30,18 +50,18 @@ const nextConfig = {
   },
 
   images: {
-    formats: ["image/webp", "image/avif"], // إضافة avif للأداء الأفضل
-    minimumCacheTTL: 300, // cache لمدة 5 دقائق
-    deviceSizes: [640, 750, 1080, 1920], // تقليل الأحجام
-    imageSizes: [16, 32, 64, 128, 256], // تبسيط الأحجام
+    formats: ["image/avif", "image/webp"], // أولوية للـ AVIF ثم WebP
+    minimumCacheTTL: 86400, // 24 ساعة بدلاً من 5 دقائق
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920], // أحجام محسنة
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // أحجام responsive
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // تقليل التايم أوت
     loader: "default",
     loaderFile: undefined,
-    // تفعيل تحسين الصور لتحسين الأداء
     unoptimized: false,
+    // إضافة domains للأداء الأفضل
+    domains: ["res.cloudinary.com", "images.unsplash.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -127,18 +147,29 @@ const nextConfig = {
     // لا نحتاج إزالة console.log في بيئة التطوير
   },
 
-  // Headers للتحكم في التخزين المؤقت
+  // Headers محسنة للأداء والتخزين المؤقت
   async headers() {
     return [
+      // API Routes - cache قصير مع revalidation
       {
-        source: "/api/:path*",
+        source: "/api/news/:path*",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=300, s-maxage=600, stale-while-revalidate=1800",
+            value: "public, s-maxage=60, max-age=30, stale-while-revalidate=120",
           },
         ],
       },
+      {
+        source: "/api/articles/:path*", 
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=300, max-age=60, stale-while-revalidate=600",
+          },
+        ],
+      },
+      // Static Assets - cache طويل
       {
         source: "/images/:path*",
         headers: [
@@ -184,25 +215,47 @@ const nextConfig = {
           },
         ],
       },
+      // Pages - cache ديناميكي حسب البيئة
       {
         source: "/:path*",
         headers: [
           {
             key: "Cache-Control",
             value: process.env.NODE_ENV === 'development' 
-              ? "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
-              : "public, max-age=0, must-revalidate",
+              ? "no-store, no-cache, must-revalidate"
+              : "public, s-maxage=60, max-age=30, stale-while-revalidate=120",
           },
           {
             key: "Content-Security-Policy",
             value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://va.vercel-scripts.com https://vercel.live wss:; frame-src 'self' https://vercel.live;",
           },
+          // إضافة headers للأداء
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on"
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains"
+          },
+          {
+            key: "X-Frame-Options",
+            value: "DENY"
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff"
+          },
+          {
+            key: "Referrer-Policy",
+            value: "origin-when-cross-origin"
+          }
         ],
       },
     ];
   },
 
-  // تحسين Webpack للأداء - مبسط للتطوير
+  // تحسين Webpack للأداء العالي
   webpack: (config, { dev, isServer }) => {
     // إضافة استثناءات للمكتبات المشاكسة
     config.resolve.fallback = {
@@ -212,29 +265,51 @@ const nextConfig = {
       tls: false,
     };
 
-    // تحسين bundle size للإنتاج فقط
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: "all",
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: "vendor",
-            chunks: "all",
+    // تحسينات للإنتاج
+    if (!dev) {
+      // تحسين Bundle Splitting
+      if (!isServer) {
+        config.optimization.splitChunks = {
+          chunks: "all",
+          cacheGroups: {
+            // React vendor chunk منفصل
+            react: {
+              name: "react-vendor",
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              chunks: "all",
+              priority: 30,
+            },
+            // UI Libraries chunk
+            ui: {
+              name: "ui-vendor", 
+              test: /[\\/]node_modules[\\/](@radix-ui|@headlessui|lucide-react)[\\/]/,
+              chunks: "all",
+              priority: 25,
+            },
+            // Other vendor libraries
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: "vendor",
+              chunks: "all",
+              priority: 20,
+            },
+            // Common code chunk
+            common: {
+              minChunks: 2,
+              priority: 10,
+              reuseExistingChunk: true,
+            },
           },
-          common: {
-            minChunks: 2,
-            priority: -10,
-            reuseExistingChunk: true,
-          },
-        },
+        };
+      }
+      
+      // تحسين Performance Budget
+      config.performance = {
+        maxAssetSize: 250000, // 250KB
+        maxEntrypointSize: 250000,
+        hints: "warning"
       };
     }
-
-    // إزالة devtool customization لتجنب التحذيرات
-    // if (dev) {
-    //   config.devtool = "eval-cheap-module-source-map";
-    // }
 
     return config;
   },
