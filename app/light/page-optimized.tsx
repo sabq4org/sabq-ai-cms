@@ -70,8 +70,8 @@ function NewsCard({ article }: { article: any }) {
 async function FeaturedNews() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/articles/featured?limit=3`, {
-      next: { revalidate: 300 }, // 5 دقائق
-      cache: 'force-cache'
+      next: { revalidate: 60 }, // 1 دقيقة للأخبار المميزة (يمكن أن تكون أبطأ قليلاً)
+      cache: 'no-store' // عدم تخزين لضمان الحصول على أحدث المحتوى
     });
     
     if (!res.ok) return null;
@@ -103,8 +103,8 @@ async function FeaturedNews() {
 async function LatestNews() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/light/news?limit=9`, {
-      next: { revalidate: 60 }, // دقيقة واحدة
-      cache: 'force-cache'
+      next: { revalidate: 0 }, // تحديث فوري للأخبار
+      cache: 'no-store' // عدم تخزين الأخبار لضمان الحصول على أحدث المحتوى
     });
     
     if (!res.ok) return null;

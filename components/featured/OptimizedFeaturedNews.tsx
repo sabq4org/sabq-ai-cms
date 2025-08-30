@@ -58,7 +58,8 @@ function useFeaturedNews(limit: number) {
 
         // تحميل البيانات من الـ API
         const response = await fetch(`/api/articles/featured?limit=${limit}`, {
-          next: { revalidate: 300 } // cache لمدة 5 دقائق
+          cache: 'no-store', // عدم تخزين لضمان الحصول على أحدث المحتوى
+          next: { revalidate: 0 } // تحديث فوري
         });
         
         if (!response.ok) {

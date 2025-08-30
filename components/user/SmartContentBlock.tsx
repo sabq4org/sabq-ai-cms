@@ -111,8 +111,8 @@ export default function SmartContentBlock({
     try {
       console.log('🔍 SmartContentBlock: بداية جلب البيانات...');
       // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت موجودة
-      // إضافة فلتر لاستبعاد الأخبار المميزة والعاجلة
-      const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc&exclude_featured=true';
+      // جلب الأخبار العامة مع إمكانية تضمين الأخبار المميزة
+      const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc';
       
       // محاولة استخدام Cache API إذا كانت متوفرة بالمتصفح
       let cachedResponse: any;
