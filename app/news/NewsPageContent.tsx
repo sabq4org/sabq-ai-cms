@@ -156,7 +156,13 @@ export function NewsPageContent({
         setArticles(prev => [...prev, ...newArticles]);
       }
 
-      setHasMore(newArticles.length === ITEMS_PER_PAGE);
+      // استخدم الإجمالي من الـ API لتحديد وجود المزيد بدقة
+      const totalFromApi = typeof data.total === 'number' ? data.total : undefined;
+      if (totalFromApi !== undefined) {
+        setHasMore(effectivePage * ITEMS_PER_PAGE < totalFromApi);
+      } else {
+        setHasMore(newArticles.length === ITEMS_PER_PAGE);
+      }
     } catch (error) {
       console.error("Error fetching articles:", error);
       setError("فشل في تحميل المقالات");
