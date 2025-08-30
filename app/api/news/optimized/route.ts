@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
     const orderParam = (searchParams.get('order') || 'desc').toLowerCase();
     const order: 'asc' | 'desc' = orderParam === 'asc' ? 'asc' : 'desc';
     const status = searchParams.get('status') || 'published';
+    const compact = searchParams.get('compact') === 'true';
+    const fieldsParam = searchParams.get('fields');
+    const fields = fieldsParam ? new Set(fieldsParam.split(',').map((s) => s.trim())) : null;
 
     // بناء شروط البحث
     const where: any = { status };
@@ -69,12 +72,45 @@ export async function GET(req: NextRequest) {
     ]);
 
     // تنسيق البيانات
-    const formattedArticles = (articles as any[]).map((article) => ({
-      ...article,
-      category_name: article?.categories?.name ?? null,
-      author_name: article?.author?.name ?? null,
-      views_count: article?.views ?? 0,
-    }));
+    let formattedArticles: any[];
+    if (compact) {
+      // استجابة مضغوطة: حقول أساسية فقط مع كائنات مبسطة للفئات والكاتب
+      formattedArticles = (articles as any[]).map((a) => {
+        const base: any = {
+          id: a.id,
+          title: a.title,
+          slug: a.slug,
+          featured_image: a.featured_image,
+          views: a.views ?? 0,
+          published_at: a.published_at,
+          created_at: a.created_at,
+          breaking: a.breaking ?? false,
+          category: a?.categories
+            ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color }
+            : null,
+          author: a?.author ? { id: a.author.id, name: a.author.name } : null,
+        };
+        if (fields && fields.size > 0) {
+          const picked: any = {};
+          for (const f of fields) {
+            // دعم الوصول المتداخل البسيط category.name/author.name لاحقاً إذا لزم
+            if (f in base) picked[f] = base[f];
+            else if (f === 'category' && base.category) picked['category'] = base.category;
+            else if (f === 'author' && base.author) picked['author'] = base.author;
+          }
+          return picked;
+        }
+        return base;
+      });
+    } else {
+      // استجابة متوافقة مع السابق
+      formattedArticles = (articles as any[]).map((article) => ({
+        ...article,
+        category_name: article?.categories?.name ?? null,
+        author_name: article?.author?.name ?? null,
+        views_count: article?.views ?? 0,
+      }));
+    }
 
     // إرسال الاستجابة مع headers التخزين المؤقت
     return NextResponse.json(
