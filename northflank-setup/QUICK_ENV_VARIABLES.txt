@@ -1,0 +1,24 @@
+# ===================================
+# النسخة السريعة - المتغيرات الأساسية فقط
+# انسخ هذا النص كما هو في Northflank
+# ===================================
+
+DATABASE_URL="${{addons.sabq-database.POSTGRES_URI_INTERNAL}}"
+DIRECT_URL="${{addons.sabq-database.POSTGRES_URI_INTERNAL}}"
+NEXTAUTH_SECRET="KIl0A88GLpvIfhVxeEJzqJ0ZIiFz8KdhNtUKTWV2OjQ="
+NEXTAUTH_URL="https://sabq.me"
+NODE_ENV="production"
+PORT="3000"
+HOSTNAME="0.0.0.0"
+
+# ===================================
+# إذا لم تعمل المتغيرات الديناميكية، استخدم:
+# ===================================
+
+DATABASE_URL="postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7"
+DIRECT_URL="postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7"
+NEXTAUTH_SECRET="KIl0A88GLpvIfhVxeEJzqJ0ZIiFz8KdhNtUKTWV2OjQ="
+NEXTAUTH_URL="https://sabq.me"
+NODE_ENV="production"
+PORT="3000"
+HOSTNAME="0.0.0.0"

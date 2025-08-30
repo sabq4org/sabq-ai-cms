@@ -1,0 +1,70 @@
+# Multi-stage build للحصول على أفضل أداء وحجم أصغر
+FROM node:18-alpine AS base
+
+# تثبيت المتطلبات الأساسية
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# نسخ ملفات التبعيات فقط للاستفادة من Docker cache
+COPY package.json package-lock.json ./
+
+# مرحلة التطوير
+FROM base AS deps
+RUN npm ci
+
+# مرحلة البناء
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# إعداد متغيرات البيئة للبناء
+ARG DATABASE_URL
+ARG DIRECT_URL
+ENV DATABASE_URL=$DATABASE_URL
+ENV DIRECT_URL=$DIRECT_URL
+
+# توليد Prisma Client
+RUN npx prisma generate
+
+# بناء التطبيق
+RUN npm run build
+
+# مرحلة الإنتاج
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# إضافة مستخدم غير root
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# نسخ الملفات المطلوبة فقط
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# نسخ سكريبتات مخصصة إن وجدت
+COPY --from=builder /app/scripts ./scripts 2>/dev/null || true
+
+# تغيير الملكية
+RUN chown -R nextjs:nodejs /app
+
+USER nextjs
+
+# المنفذ الافتراضي
+EXPOSE 3000
+
+# متغيرات البيئة للإنتاج
+ENV NODE_ENV production
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
+
+# تشغيل التطبيق
+CMD ["node", "server.js"]

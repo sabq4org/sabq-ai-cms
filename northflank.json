@@ -1,0 +1,131 @@
+{
+  "spec": {
+    "kind": "Workflow",
+    "apiVersion": "v1",
+    "name": "sabq-ai-cms",
+    "description": "Sabq AI CMS - منصة الأخبار الذكية",
+    "project": {
+      "spec": {
+        "name": "sabq-ai",
+        "region": "europe-west",
+        "description": "مشروع سبق الذكية"
+      }
+    },
+    "spec": {
+      "type": "sequential",
+      "steps": [
+        {
+          "kind": "Addon",
+          "spec": {
+            "tlsEnabled": true,
+            "billing": {
+              "deploymentPlan": "nf-compute-20"
+            },
+            "typeVersion": {
+              "type": "postgresql",
+              "version": "latest"
+            },
+            "name": "sabq-database",
+            "connectionDetails": {}
+          }
+        },
+        {
+          "kind": "BuildService", 
+          "spec": {
+            "name": "sabq-build",
+            "billing": {
+              "deploymentPlan": "nf-compute-50"
+            },
+            "vcsData": {
+              "projectUrl": "https://github.com/alialhazmi/sabq-ai-cms",
+              "projectType": "github",
+              "accountLogin": "alialhazmi",
+              "projectBranch": "main"
+            },
+            "buildSettings": {
+              "dockerfile": {
+                "buildEngine": "kaniko",
+                "useCache": true,
+                "dockerFilePath": "/Dockerfile.northflank",
+                "dockerWorkDir": "/"
+              }
+            },
+            "buildArguments": {
+              "DATABASE_URL": "${addons.sabq-database.DATABASE_URL}",
+              "DIRECT_URL": "${addons.sabq-database.DATABASE_URL}"
+            }
+          }
+        },
+        {
+          "kind": "CombinedService",
+          "spec": {
+            "name": "sabq-app",
+            "billing": {
+              "deploymentPlan": "nf-compute-50"
+            },
+            "deployment": {
+              "instances": 2,
+              "storage": {
+                "ephemeralStorage": {
+                  "storageSize": 1024
+                }
+              },
+              "docker": {
+                "configType": "buildpack"
+              },
+              "buildpack": {
+                "builder": "${refs.sabq-build.id}",
+                "buildId": "${refs.sabq-build.lastBuild}"
+              }
+            },
+            "ports": [
+              {
+                "name": "web",
+                "internalPort": 3000,
+                "protocol": "HTTP",
+                "public": true,
+                "domains": [
+                  {
+                    "domain": "sabq.me",
+                    "certificate": "redirect"
+                  }
+                ]
+              }
+            ],
+            "env": {
+              "NODE_ENV": {
+                "value": "production"
+              },
+              "DATABASE_URL": {
+                "value": "${addons.sabq-database.DATABASE_URL}"
+              },
+              "DIRECT_URL": {
+                "value": "${addons.sabq-database.DATABASE_URL}"
+              },
+              "NEXTAUTH_URL": {
+                "value": "https://sabq.me"
+              }
+            },
+            "runtimeEnvironment": {},
+            "healthChecks": [
+              {
+                "type": "httpGet",
+                "path": "/api/health",
+                "port": 3000,
+                "initialDelaySeconds": 30,
+                "periodSeconds": 10,
+                "timeoutSeconds": 5,
+                "successThreshold": 1,
+                "failureThreshold": 3
+              }
+            ],
+            "resources": {
+              "cpu": 1000,
+              "memory": 2048
+            }
+          }
+        }
+      ]
+    }
+  }
+}

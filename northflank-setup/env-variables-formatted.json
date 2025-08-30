@@ -1,0 +1,66 @@
+{
+  "comment": "متغيرات البيئة لـ Northflank - مشروع سبق الذكية",
+  "variables": {
+    "core_database": {
+      "DATABASE_URL": "${{addons.sabq-database.POSTGRES_URI_INTERNAL}}",
+      "DIRECT_URL": "${{addons.sabq-database.POSTGRES_URI_INTERNAL}}",
+      "_alternative_if_dynamic_fails": {
+        "DATABASE_URL": "postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7",
+        "DIRECT_URL": "postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7"
+      }
+    },
+    "authentication": {
+      "NEXTAUTH_SECRET": "KIl0A88GLpvIfhVxeEJzqJ0ZIiFz8KdhNtUKTWV2OjQ=",
+      "NEXTAUTH_URL": "https://sabq.me"
+    },
+    "environment": {
+      "NODE_ENV": "production",
+      "PORT": "3000",
+      "HOSTNAME": "0.0.0.0"
+    },
+    "optional_services": {
+      "aws": {
+        "AWS_ACCESS_KEY_ID": "",
+        "AWS_SECRET_ACCESS_KEY": "",
+        "AWS_REGION": "us-east-1",
+        "AWS_S3_BUCKET_NAME": "sabq-cms-content"
+      },
+      "cloudinary": {
+        "CLOUDINARY_CLOUD_NAME": "",
+        "CLOUDINARY_API_KEY": "",
+        "CLOUDINARY_API_SECRET": "",
+        "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME": ""
+      },
+      "email": {
+        "EMAIL_SERVER_HOST": "smtp.gmail.com",
+        "EMAIL_SERVER_PORT": "587",
+        "EMAIL_SERVER_USER": "",
+        "EMAIL_SERVER_PASSWORD": "",
+        "EMAIL_FROM": "Sabq AI <noreply@sabq.me>"
+      },
+      "ai": {
+        "OPENAI_API_KEY": "",
+        "ELEVENLABS_API_KEY": ""
+      },
+      "analytics": {
+        "NEXT_PUBLIC_GA_ID": "",
+        "GOOGLE_ANALYTICS_ID": ""
+      },
+      "security": {
+        "API_SECRET_KEY": "rBrBr5y7WS67EpUDfeAPsxMzwd92AMnxK1jpG1FcTlQ=",
+        "RATE_LIMIT_ENABLED": "true",
+        "RATE_LIMIT_WINDOW_MS": "900000",
+        "RATE_LIMIT_MAX_REQUESTS": "100"
+      }
+    }
+  },
+  "database_connection_info": {
+    "internal_uri": "postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7",
+    "host": "primary.sabq--7mcgps947hwt.addon.code.run",
+    "port": 5432,
+    "database": "_f730d16e1ad7",
+    "username": "_63675d59e8b3f9b1",
+    "password": "_0128ce8b926fef059a8992b4b8a048",
+    "ssl_mode": "require"
+  }
+}

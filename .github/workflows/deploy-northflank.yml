@@ -1,0 +1,138 @@
+name: Deploy to Northflank
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch:
+
+env:
+  NORTHFLANK_API_TOKEN: ${{ secrets.NORTHFLANK_API_TOKEN }}
+  PROJECT_ID: ${{ secrets.NORTHFLANK_PROJECT_ID }}
+  SERVICE_ID: ${{ secrets.NORTHFLANK_SERVICE_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test -- --passWithNoTests
+      env:
+        CI: true
+
+    - name: Build application
+      run: npm run build
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+
+    - name: Install Northflank CLI
+      run: |
+        curl -sSL https://get.northflank.com/cli.sh | sh
+        echo "$HOME/.northflank/bin" >> $GITHUB_PATH
+
+    - name: Authenticate with Northflank
+      run: |
+        northflank login --api-token "$NORTHFLANK_API_TOKEN"
+
+    - name: Trigger deployment
+      run: |
+        # Trigger a new build and deployment
+        northflank build service \
+          --project "$PROJECT_ID" \
+          --service "$SERVICE_ID" \
+          --branch "${GITHUB_REF#refs/heads/}" \
+          --commit "$GITHUB_SHA"
+
+    - name: Wait for deployment
+      run: |
+        echo "⏳ Waiting for deployment to complete..."
+        sleep 30
+        
+        # Check deployment status
+        northflank get service \
+          --project "$PROJECT_ID" \
+          --service "$SERVICE_ID" \
+          --output json | jq '.deployment.status'
+
+    - name: Run health check
+      run: |
+        echo "🏥 Running health check..."
+        max_attempts=10
+        attempt=1
+        
+        while [ $attempt -le $max_attempts ]; do
+          echo "Attempt $attempt of $max_attempts"
+          
+          if curl -f https://sabq.me/api/health; then
+            echo "✅ Health check passed!"
+            exit 0
+          fi
+          
+          echo "⏳ Waiting 30 seconds before retry..."
+          sleep 30
+          attempt=$((attempt + 1))
+        done
+        
+        echo "❌ Health check failed after $max_attempts attempts"
+        exit 1
+
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Deployment to Northflank ${{ job.status }}
+          Branch: ${{ github.ref }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  post-deployment:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Run database migrations
+      run: |
+        echo "🔄 Running database migrations..."
+        DATABASE_URL="${{ secrets.DATABASE_URL }}" npx prisma migrate deploy
+
+    - name: Clear cache
+      run: |
+        echo "🧹 Clearing application cache..."
+        curl -X POST https://sabq.me/api/cache/clear \
+          -H "Authorization: Bearer ${{ secrets.API_SECRET_KEY }}"
+
+    - name: Warm up application
+      run: |
+        echo "🔥 Warming up application..."
+        urls=(
+          "https://sabq.me"
+          "https://sabq.me/api/health"
+          "https://sabq.me/news"
+          "https://sabq.me/api/articles/recent"
+        )
+        
+        for url in "${urls[@]}"; do
+          echo "Warming up: $url"
+          curl -s -o /dev/null -w "%{http_code}" "$url" || true
+        done
