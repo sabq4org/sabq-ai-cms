@@ -71,9 +71,11 @@ export default function OptimizedImage({
       // تحسينات الأداء الإلزامية
       transformations.push('c_fill');
       transformations.push('f_auto'); // تحويل تلقائي إلى WebP/AVIF
-      transformations.push(`q_${quality || 'auto'}`); // ضغط ذكي
+      transformations.push(`q_${quality === 80 ? 'auto:best' : quality}`); // ضغط ذكي محسن
       transformations.push('fl_progressive'); // تحميل تدريجي
       transformations.push('dpr_auto'); // كثافة البكسل التلقائية
+      transformations.push('fl_strip_profile'); // إزالة البيانات الوصفية لتقليل الحجم
+      transformations.push('fl_immutable_cache'); // تخزين مؤقت محسن
       
       const transformString = transformations.join(',');
       return `${parts[0]}/upload/${transformString}/${parts[1]}`;

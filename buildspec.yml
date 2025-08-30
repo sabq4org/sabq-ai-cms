@@ -1,0 +1,55 @@
+version: 0.2
+
+env:
+  variables:
+    NODE_ENV: production
+    NEXT_TELEMETRY_DISABLED: 1
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "🔄 Installing dependencies..."
+      - npm ci --legacy-peer-deps
+      - echo "📦 Dependencies installed successfully"
+
+  pre_build:
+    commands:
+      - echo "🔄 Cleaning old Prisma..."
+      - rm -rf node_modules/.prisma
+      - rm -rf node_modules/@prisma/client
+      - echo "🔄 Generating Prisma Client..."
+      - npx prisma generate --force
+      - echo "🔍 Checking Prisma Engine..."
+      - ls -la node_modules/.prisma/client/ || true
+      - echo "🔍 Environment check..."
+      - 'echo "NODE_ENV: $NODE_ENV"'
+      - 'if [ -z "$DATABASE_URL" ]; then echo "DATABASE_URL: NOT SET ❌"; else echo "DATABASE_URL: SET ✅"; fi'
+      - echo "✅ Pre-build completed"
+
+  build:
+    commands:
+      - echo "🏗️ Building application..."
+      - NODE_OPTIONS="--max-old-space-size=4096" npm run build
+      - echo "📊 Build size analysis..."
+      - du -sh .next || true
+      - echo "✅ Build completed successfully"
+
+  post_build:
+    commands:
+      - echo "🧹 Post-build cleanup..."
+      - echo "📄 Generating build info..."
+      - 'echo "Build completed at: $(date)" > .next/build-info.txt'
+      - echo "✅ Post-build completed"
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: .next
+
+cache:
+  paths:
+    - node_modules/**/*
+    - .next/cache/**/*
+    - lib/generated/**/*

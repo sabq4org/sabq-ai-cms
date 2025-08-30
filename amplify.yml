@@ -3,29 +3,30 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "🔄 تثبيت الحزم..."
+        - echo "Starting preBuild phase..."
         - npm ci --legacy-peer-deps
-        - echo "🔄 تنظيف Prisma القديم..."
+        - echo "Cleaning old Prisma..."
         - rm -rf node_modules/.prisma
         - rm -rf node_modules/@prisma/client
-        - echo "🔄 توليد Prisma Client مع Binary Targets الصحيحة..."
+        - echo "Generating Prisma Client..."
         - npx prisma generate --force
-        - echo "🔍 فحص Prisma Engine..."
+        - echo "Checking Prisma Engine..."
         - ls -la node_modules/.prisma/client/
-        - echo "🔍 فحص اتصال قاعدة البيانات..."
-        - node -e "console.log('Database URL exists:', !!process.env.DATABASE_URL)"
-        - echo "✅ انتهاء preBuild"
+        - echo "Checking database connection..."
+        - 'node -e "console.log(\"Database URL exists:\", !!process.env.DATABASE_URL)"'
+        - echo "PreBuild completed successfully"
     build:
       commands:
-        - echo "🔍 فحص متغيرات البيئة..."
-        - echo "NODE_ENV: $NODE_ENV"
-        - echo "NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
-        - echo "DATABASE_URL is set: $(if [ -z "$DATABASE_URL" ]; then echo 'NO ❌'; else echo 'YES ✅'; fi)"
-        - echo "🏗️ بناء التطبيق..."
+        - echo "Starting build phase..."
+        - 'echo "NODE_ENV: $NODE_ENV"'
+        - 'echo "NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"'
+        - echo "Checking DATABASE_URL..."
+        - 'if [ -z "$DATABASE_URL" ]; then echo "DATABASE_URL NOT SET"; else echo "DATABASE_URL IS SET"; fi'
+        - echo "Building application..."
         - NODE_OPTIONS="--max-old-space-size=4096" npm run build
-        - echo "📊 حجم البناء..."
+        - echo "Checking build size..."
         - du -sh .next
-        - echo "✅ انتهاء البناء"
+        - echo "Build completed successfully"
   artifacts:
     baseDirectory: .next
     files:

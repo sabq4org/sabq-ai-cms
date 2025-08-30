@@ -14,14 +14,20 @@ const nextConfig = {
     // تحسينات الأداء المتقدمة
     webpackBuildWorker: true,
     
-    // تحسين imports للمكتبات الكبيرة
+    // تحسين imports للمكتبات الكبيرة - الأولوية العليا
     optimizePackageImports: [
       'lucide-react',
       '@radix-ui/react-icons',
       '@headlessui/react',
       'framer-motion',
-      'react-hot-toast'
+      'react-hot-toast',
+      '@tanstack/react-query',
+      'date-fns'
     ],
+    
+    // تحسين Bundle Size
+    bundlePagesRouterDependencies: true,
+    optimizeCss: true,
     
     // تحسين Cache للصفحات
     staleTimes: {

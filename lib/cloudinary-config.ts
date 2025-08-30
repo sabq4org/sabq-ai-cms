@@ -109,16 +109,27 @@ export const checkImageExists = async (url: string): Promise<boolean> => {
 export const getUploadOptions = (type: string = 'general') => {
   const baseOptions = {
     resource_type: 'image' as const,
-    quality: 'auto', // ضغط تلقائي ذكي
+    quality: 'auto:best', // ضغط تلقائي ذكي محسن للأداء
     fetch_format: 'auto', // تحويل تلقائي إلى WebP/AVIF
-    flags: ['progressive', 'immutable_cache'], // تحميل تدريجي وتخزين ثابت
+    flags: [
+      'progressive', 
+      'immutable_cache', 
+      'keep_iptc',
+      'strip_profile',
+      'force_strip'
+    ], // تحميل تدريجي وتخزين ثابت مع إزالة البيانات الوصفية
     tags: ['sabq-cms'],
-    // إضافة responsive breakpoints
+    // إضافة responsive breakpoints محسنة
     responsive_breakpoints: [
-      { max_width: 1920, max_images: 5 },
-      { max_width: 1200, max_images: 3 },
-      { max_width: 800, max_images: 2 }
-    ]
+      { max_width: 1920, max_images: 4, bytes_step: 20000, min_width: 400 },
+      { max_width: 1200, max_images: 3, bytes_step: 15000, min_width: 300 },
+      { max_width: 800, max_images: 2, bytes_step: 10000, min_width: 200 }
+    ],
+    // ضغط إضافي للأداء
+    secure: true,
+    unique_filename: false,
+    use_filename: true,
+    overwrite: true
   };
 
   switch (type) {
@@ -127,9 +138,11 @@ export const getUploadOptions = (type: string = 'general') => {
         ...baseOptions,
         folder: 'sabq-cms/featured',
         transformation: [
-          { width: 1200, height: 630, crop: 'fill', quality: 'auto:good' },
+          { width: 1200, height: 630, crop: 'fill', quality: 'auto:best', gravity: 'auto:subject' },
           { if: 'w_gt_1200', width: 1200, crop: 'scale' },
-          { format: 'auto' } // تحويل تلقائي للصيغة الأمثل
+          { format: 'auto' }, // تحويل تلقائي للصيغة الأمثل
+          { effect: 'sharpen:80' }, // تحسين حدة الصورة
+          { flags: 'progressive' }
         ]
       };
     
@@ -138,9 +151,11 @@ export const getUploadOptions = (type: string = 'general') => {
         ...baseOptions,
         folder: 'sabq-cms/avatars',
         transformation: [
-          { width: 400, height: 400, crop: 'fill', gravity: 'face', quality: 'auto:best' },
+          { width: 400, height: 400, crop: 'fill', gravity: 'face:center', quality: 'auto:best' },
           { radius: 'max' },
-          { format: 'auto' }
+          { format: 'auto' },
+          { effect: 'sharpen:60' },
+          { flags: 'progressive' }
         ]
       };
     
@@ -149,8 +164,10 @@ export const getUploadOptions = (type: string = 'general') => {
         ...baseOptions,
         folder: 'sabq-cms/gallery',
         transformation: [
-          { width: 1000, quality: 'auto:good', crop: 'scale' },
-          { format: 'auto' }
+          { width: 1000, quality: 'auto:good', crop: 'scale', gravity: 'auto:subject' },
+          { format: 'auto' },
+          { effect: 'auto_contrast' },
+          { flags: 'progressive' }
         ]
       };
     
