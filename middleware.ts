@@ -5,32 +5,74 @@ import type { NextRequest } from 'next/server';
 const CANONICAL_HOST = process.env.CANONICAL_HOST || 'www.sabq.io';
 const PRODUCTION_DOMAINS = ['sabq.io', 'www.sabq.io'];
 
+// Advanced cache configurations
+const CACHE_POLICIES = {
+  static: 'public, max-age=31536000, immutable',
+  html: 'public, max-age=60, s-maxage=300, stale-while-revalidate=3600',
+  api: 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800',
+  images: 'public, max-age=2592000, s-maxage=2592000',
+  fonts: 'public, max-age=31536000, immutable',
+  json: 'public, max-age=600, s-maxage=1800'
+};
+
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const hostname = req.headers.get('host') || '';
+  const userAgent = req.headers.get('user-agent') || '';
+  const startTime = Date.now();
   
   // تخطي في بيئة التطوير
   if (process.env.NODE_ENV !== 'production') {
     const response = NextResponse.next();
-    // Add caching headers for development
-    if (url.pathname.startsWith('/api/')) {
-      response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
-    }
+    response.headers.set('Cache-Control', CACHE_POLICIES.html);
+    response.headers.set('X-Environment', 'development');
     return response;
   }
   
-  // تخطي طلبات API و static files
+  // Handle static assets with optimal caching
+  const staticExtensions = /\.(ico|png|jpg|jpeg|svg|gif|webp|avif|js|css|woff|woff2|ttf|eot|pdf|txt|xml|json)$/i;
+  if (url.pathname.match(staticExtensions)) {
+    const response = NextResponse.next();
+    
+    // Different cache policies for different asset types
+    if (url.pathname.match(/\.(js|css)$/)) {
+      response.headers.set('Cache-Control', CACHE_POLICIES.static);
+    } else if (url.pathname.match(/\.(woff|woff2|ttf|eot)$/)) {
+      response.headers.set('Cache-Control', CACHE_POLICIES.fonts);
+    } else if (url.pathname.match(/\.(png|jpg|jpeg|svg|gif|webp|avif)$/)) {
+      response.headers.set('Cache-Control', CACHE_POLICIES.images);
+    } else if (url.pathname.match(/\.(json|xml)$/)) {
+      response.headers.set('Cache-Control', CACHE_POLICIES.json);
+    }
+    
+    // Add performance headers
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    
+    return response;
+  }
+  
+  // Handle API routes with optimized caching
+  if (url.pathname.startsWith('/api/')) {
+    const response = NextResponse.next();
+    response.headers.set('Cache-Control', CACHE_POLICIES.api);
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Robots-Tag', 'noindex');
+    
+    // Add timing information
+    const processingTime = Date.now() - startTime;
+    response.headers.set('Server-Timing', `middleware;dur=${processingTime}`);
+    
+    return response;
+  }
+  
+  // Skip Next.js internal routes
   if (
-    url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/_next/') ||
-    url.pathname.startsWith('/static/') ||
-    url.pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|js|css|woff|woff2|ttf|eot)$/i)
+    url.pathname.startsWith('/static/')
   ) {
     const response = NextResponse.next();
-    // Add stronger caching for API routes
-    if (url.pathname.startsWith('/api/')) {
-      response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800');
-    }
+    response.headers.set('Cache-Control', CACHE_POLICIES.static);
     return response;
   }
   
@@ -62,7 +104,29 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
   
-  return NextResponse.next();
+  // Handle main content with optimized headers
+  const response = NextResponse.next();
+  
+  // Add security headers
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Add performance headers for HTML pages
+  response.headers.set('Cache-Control', CACHE_POLICIES.html);
+  
+  // Add timing information
+  const processingTime = Date.now() - startTime;
+  response.headers.set('Server-Timing', `middleware;dur=${processingTime}`);
+  
+  // Add resource hints for critical resources
+  response.headers.set('Link', 
+    '</fonts/font.woff2>; rel=preload; as=font; type=font/woff2; crossorigin, ' +
+    '</api/articles/recent>; rel=prefetch'
+  );
+  
+  return response;
 }
 
 export const config = {

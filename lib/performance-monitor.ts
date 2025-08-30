@@ -6,7 +6,8 @@ interface PerformanceMetric {
   duration: number;
   timestamp: number;
   metadata?: Record<string, any>;
-  category: "api" | "component" | "database" | "cache" | "render";
+  category: "api" | "component" | "database" | "cache" | "render" | "bundle" | "network";
+  severity: "low" | "medium" | "high" | "critical";
 }
 
 interface AlertConfig {
@@ -14,10 +15,95 @@ interface AlertConfig {
   callback?: (metric: PerformanceMetric) => void;
 }
 
+interface PerformanceBudget {
+  category: string;
+  budget: number; // في milliseconds أو bytes
+  currentValue: number;
+  exceeded: boolean;
+}
+
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
   private alerts: Map<string, AlertConfig> = new Map();
   private maxMetrics = 1000; // أقصى عدد للمقاييس المحفوظة
+  private budgets: Map<string, number> = new Map();
+  private resourceTimings: PerformanceResourceTiming[] = [];
+
+  constructor() {
+    this.initializeBudgets();
+    this.initializeResourceMonitoring();
+  }
+
+  // تهيئة ميزانيات الأداء
+  private initializeBudgets() {
+    this.budgets.set("api", 2000); // 2 seconds for API calls
+    this.budgets.set("database", 1000); // 1 second for DB queries
+    this.budgets.set("component", 100); // 100ms for component renders
+    this.budgets.set("bundle", 250000); // 250KB for bundle size
+    this.budgets.set("network", 1500); // 1.5 seconds for network requests
+  }
+
+  // تهيئة مراقبة الموارد
+  private initializeResourceMonitoring() {
+    if (typeof window !== "undefined") {
+      // Monitor resource loading
+      window.addEventListener("load", () => {
+        this.captureResourceTimings();
+      });
+    }
+  }
+
+  // التقاط timing الموارد
+  private captureResourceTimings() {
+    if (typeof window !== "undefined" && "performance" in window) {
+      const resources = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
+      this.resourceTimings = resources;
+      
+      // Analyze resource performance
+      this.analyzeResourcePerformance(resources);
+    }
+  }
+
+  // تحليل أداء الموارد
+  private analyzeResourcePerformance(resources: PerformanceResourceTiming[]) {
+    resources.forEach(resource => {
+      const duration = resource.responseEnd - resource.requestStart;
+      const category = this.getResourceCategory(resource.name);
+      
+      this.recordMetric({
+        name: `Resource: ${resource.name.split('/').pop()}`,
+        duration,
+        timestamp: Date.now(),
+        category: "network",
+        severity: this.getSeverity(duration, "network"),
+        metadata: {
+          type: category,
+          transferSize: resource.transferSize || 0,
+          url: resource.name
+        }
+      });
+    });
+  }
+
+  // الحصول على فئة المورد
+  private getResourceCategory(url: string): string {
+    if (url.match(/\.(js)$/)) return "script";
+    if (url.match(/\.(css)$/)) return "stylesheet";
+    if (url.match(/\.(png|jpg|jpeg|gif|webp|avif|svg)$/)) return "image";
+    if (url.match(/\.(woff|woff2|ttf|eot)$/)) return "font";
+    if (url.includes("/api/")) return "api";
+    return "other";
+  }
+
+  // تحديد شدة المشكلة بناءً على الوقت
+  private getSeverity(duration: number, category: string): "low" | "medium" | "high" | "critical" {
+    const budget = this.budgets.get(category) || 1000;
+    
+    if (duration > budget * 2) return "critical";
+    if (duration > budget * 1.5) return "high";
+    if (duration > budget) return "medium";
+    return "low";
+  }
 
   // بدء قياس الأداء
   startMeasure(
@@ -38,6 +124,7 @@ class PerformanceMonitor {
           timestamp: Date.now(),
           metadata,
           category,
+          severity: this.getSeverity(duration, category),
         };
 
         this.recordMetric(metric);
@@ -92,12 +179,14 @@ class PerformanceMonitor {
 
   // الحصول على emoji للفئة
   private getEmojiForCategory(category: PerformanceMetric["category"]): string {
-    const emojis = {
+    const emojis: Record<string, string> = {
       api: "🌐",
       component: "⚛️",
       database: "🗄️",
       cache: "⚡",
       render: "🎨",
+      bundle: "📦",
+      network: "🌍",
     };
     return emojis[category] || "📊";
   }
@@ -175,10 +264,113 @@ class PerformanceMonitor {
   }
 
   // تصدير البيانات
+  // تحليل ميزانيات الأداء
+  public getBudgetAnalysis(): PerformanceBudget[] {
+    const categories = this.groupByCategory(this.metrics);
+    
+    return Array.from(this.budgets.entries()).map(([category, budget]) => {
+      const categoryMetrics = categories[category] || [];
+      const averageDuration = categoryMetrics.length > 0 
+        ? this.average(categoryMetrics.map(m => m.duration))
+        : 0;
+      
+      return {
+        category,
+        budget,
+        currentValue: averageDuration,
+        exceeded: averageDuration > budget
+      };
+    });
+  }
+
+  // إنشاء تقرير تحسين الأداء
+  public generateOptimizationReport(): string {
+    const budgets = this.getBudgetAnalysis();
+    const exceededBudgets = budgets.filter(b => b.exceeded);
+    
+    const report = [
+      '🚀 Performance Optimization Report',
+      '===================================',
+      '',
+      `📊 Total Metrics: ${this.metrics.length}`,
+      `⚠️  Budget Violations: ${exceededBudgets.length}`,
+      '',
+      '💰 Budget Analysis:',
+      '==================='
+    ];
+
+    budgets.forEach(budget => {
+      const status = budget.exceeded ? '❌' : '✅';
+      const percentage = ((budget.currentValue / budget.budget) * 100).toFixed(1);
+      report.push(
+        `${status} ${budget.category.toUpperCase()}: ${budget.currentValue.toFixed(2)}ms / ${budget.budget}ms (${percentage}%)`
+      );
+    });
+
+    if (exceededBudgets.length > 0) {
+      report.push('', '🔧 Optimization Recommendations:', '===============================');
+      
+      exceededBudgets.forEach(budget => {
+        const recommendations = this.getOptimizationRecommendations(budget.category);
+        report.push(`\n${budget.category.toUpperCase()}:`);
+        recommendations.forEach(rec => report.push(`  • ${rec}`));
+      });
+    }
+
+    return report.join('\n');
+  }
+
+  // الحصول على توصيات التحسين
+  private getOptimizationRecommendations(category: string): string[] {
+    const recommendations: Record<string, string[]> = {
+      api: [
+        'Implement response caching with Redis',
+        'Use API route caching with stale-while-revalidate',
+        'Optimize database queries with proper indexing',
+        'Consider API response compression'
+      ],
+      database: [
+        'Add database indexes for frequently queried fields',
+        'Implement connection pooling',
+        'Use read replicas for read-heavy operations',
+        'Consider query result caching'
+      ],
+      component: [
+        'Use React.memo for expensive components',
+        'Implement proper dependency arrays in useEffect',
+        'Consider component lazy loading',
+        'Optimize re-renders with useMemo and useCallback'
+      ],
+      render: [
+        'Optimize images with next/image and Cloudinary',
+        'Implement proper font loading strategies',
+        'Use CSS-in-JS optimization',
+        'Consider server-side rendering for critical content'
+      ],
+      bundle: [
+        'Enable webpack bundle splitting',
+        'Implement dynamic imports for code splitting',
+        'Use tree shaking to eliminate dead code',
+        'Consider micro-frontends for large applications'
+      ],
+      network: [
+        'Enable HTTP/2 server push for critical resources',
+        'Implement resource preloading and prefetching',
+        'Use CDN for static assets',
+        'Optimize payload sizes with compression'
+      ]
+    };
+
+      return recommendations[category] || ['Review and optimize this category'];
+  }
+
+  // تصدير البيانات
   export() {
     return {
       metrics: this.metrics,
       alerts: Array.from(this.alerts.entries()),
+      budgets: Array.from(this.budgets.entries()),
+      budgetAnalysis: this.getBudgetAnalysis(),
       timestamp: new Date().toISOString(),
     };
   }
@@ -199,6 +391,7 @@ class PerformanceMonitor {
             duration: entry.startTime,
             timestamp: Date.now(),
             category: "render",
+            severity: this.getSeverity(entry.startTime, "render"),
           });
         }
       }
@@ -216,6 +409,7 @@ class PerformanceMonitor {
         duration: lastEntry.startTime,
         timestamp: Date.now(),
         category: "render",
+        severity: this.getSeverity(lastEntry.startTime, "render"),
       });
     });
 
@@ -225,8 +419,9 @@ class PerformanceMonitor {
     let clsValue = 0;
     const clsObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!entry.hadRecentInput) {
-          clsValue += entry.value;
+        const layoutShiftEntry = entry as any; // Type assertion for layout shift entries
+        if (!layoutShiftEntry.hadRecentInput) {
+          clsValue += layoutShiftEntry.value;
         }
       }
 
@@ -235,6 +430,7 @@ class PerformanceMonitor {
         duration: clsValue * 1000, // تحويل إلى ملي ثانية للتوافق
         timestamp: Date.now(),
         category: "render",
+        severity: clsValue > 0.25 ? "critical" : clsValue > 0.1 ? "high" : "low",
       });
     });
 
