@@ -30,13 +30,7 @@ const nextConfig = {
     },
     
     // تحسين CSS
-    optimizeCss: true,
-    
-    // تحسين Server Components
-    serverComponentsExternalPackages: [
-      'prisma',
-      '@prisma/client'
-    ]
+    optimizeCss: true
   },
 
   // Turbopack configuration (stable in Next.js 15)
@@ -322,8 +316,7 @@ const nextConfig = {
   
   // تعطيل source maps في التطوير لتقليل طلبات 404
   devIndicators: {
-    buildActivityPosition: 'bottom-right',
-    appIsrStatus: false,
+    position: 'bottom-right',
   },
 
   // زيادة timeout للصفحات الثقيلة

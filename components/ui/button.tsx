@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import React from 'react';
 import { cva } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
