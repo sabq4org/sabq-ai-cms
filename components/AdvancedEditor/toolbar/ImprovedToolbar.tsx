@@ -78,11 +78,11 @@ export function ImprovedToolbar({ editor }: ImprovedToolbarProps) {
 
   const applyFont = (font: string) => {
     if (font === 'inherit') {
-      // إزالة نمط الخط
-      editor.chain().focus().unsetFontFamily().run();
+      // إزالة نمط الخط - استخدام unsetMark بدلاً من unsetFontFamily
+      editor.chain().focus().unsetMark('textStyle').run();
     } else {
-      // تطبيق الخط الجديد
-      editor.chain().focus().setFontFamily(font).run();
+      // تطبيق الخط الجديد - استخدام setMark مع TextStyle
+      editor.chain().focus().setMark('textStyle', { fontFamily: font }).run();
     }
     setShowFontPicker(false);
   };
@@ -191,7 +191,7 @@ export function ImprovedToolbar({ editor }: ImprovedToolbarProps) {
   };
 
   const insertSocialEmbed = (platform: string) => {
-    let url = '';
+    let url: string | null = '';
     let embedCode = '';
     
     switch (platform) {
@@ -227,7 +227,7 @@ export function ImprovedToolbar({ editor }: ImprovedToolbarProps) {
         break;
     }
     
-    if (embedCode) {
+    if (embedCode && url) {
       editor.chain().focus().insertContent(embedCode).run();
     }
     setShowSocialPicker(false);
@@ -487,30 +487,60 @@ export function ImprovedToolbar({ editor }: ImprovedToolbarProps) {
         </div>
 
         {/* الوسائط */}
-        <div className="flex items-center gap-1 border-r border-gray-300 dark:border-gray-600 pr-3 mr-3">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className={cn(
-              "p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors",
-              isUploading && "opacity-50 cursor-not-allowed"
-            )}
-            title="رفع صورة من الجهاز"
-          >
-            {isUploading ? (
-              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Upload className="w-4 h-4" />
-            )}
-          </button>
+        <div className="flex items-center gap-2 border-r border-gray-300 dark:border-gray-600 pr-3 mr-3">
+          {/* زر رفع الصورة المحسن */}
+          <div className="relative group">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className={cn(
+                "flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200",
+                "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300",
+                "hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:shadow-sm",
+                "border border-blue-200 dark:border-blue-800",
+                isUploading && "opacity-50 cursor-not-allowed"
+              )}
+              title="رفع صورة من جهازك (PNG, JPG, WEBP)"
+            >
+              {isUploading ? (
+                <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Upload className="w-3 h-3" />
+              )}
+              <span className="hidden sm:inline">رفع صورة</span>
+            </button>
+            
+            {/* tooltip محسن */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap">
+              📤 رفع صورة من جهازك
+              <br />
+              <span className="text-gray-300">يدعم: PNG, JPG, WEBP حتى 5MB</span>
+            </div>
+          </div>
           
-          <button
-            onClick={insertImageUrl}
-            className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            title="إدراج صورة من رابط"
-          >
-            <Image className="w-4 h-4" />
-          </button>
+          {/* زر رابط الصورة المحسن */}
+          <div className="relative group">
+            <button
+              onClick={insertImageUrl}
+              className={cn(
+                "flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200",
+                "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
+                "hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-sm",
+                "border border-gray-200 dark:border-gray-700"
+              )}
+              title="إدراج صورة من رابط خارجي"
+            >
+              <Image className="w-3 h-3" />
+              <span className="hidden sm:inline">رابط صورة</span>
+            </button>
+            
+            {/* tooltip محسن */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap">
+              🔗 إدراج صورة من رابط
+              <br />
+              <span className="text-gray-300">أدخل رابط الصورة مباشرة</span>
+            </div>
+          </div>
           
           <button
             onClick={insertLink}
