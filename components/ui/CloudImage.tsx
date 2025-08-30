@@ -19,6 +19,7 @@ interface CloudImageProps {
   quality?: number;
   onError?: () => void;
   unoptimized?: boolean;
+  fetchPriority?: "high" | "low";
 }
 
 export default function CloudImage({
@@ -34,6 +35,7 @@ export default function CloudImage({
   quality = 80,
   onError,
   unoptimized = false,
+  fetchPriority,
 }: CloudImageProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -129,6 +131,7 @@ export default function CloudImage({
           priority={priority}
           unoptimized={unoptimized}
           loading={priority ? "eager" : "lazy"}
+          fetchPriority={fetchPriority}
           className={`${className} object-cover object-center ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
@@ -166,6 +169,7 @@ export default function CloudImage({
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }
+        fetchPriority={fetchPriority}
         className={`object-cover object-center rounded-xl w-full h-full ${
           isLoading ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}

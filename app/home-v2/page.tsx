@@ -172,6 +172,7 @@ export default async function HomeV2() {
                   fill
                   className="object-cover"
                   priority
+                  fetchPriority="high"
                   fallbackType="article"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
