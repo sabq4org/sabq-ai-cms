@@ -32,9 +32,18 @@ export async function GET(req: NextRequest) {
     const allowedSortFields = new Set([
       'published_at', 'created_at', 'views', 'breaking', 'title'
     ]);
-    const orderBy = allowedSortFields.has(String(sort))
-      ? { [String(sort)]: order }
-      : { published_at: 'desc' as const };
+
+    // ترتيب ثابت لتجنب تكرار/فقد عناصر بين الصفحات
+    const orderBy: any[] = [];
+    if (allowedSortFields.has(String(sort))) {
+      orderBy.push({ [String(sort)]: order });
+    } else {
+      orderBy.push({ published_at: 'desc' as const });
+    }
+    // أربِط بترتيب ثانوي لتثبيت النتائج
+    if (String(sort) !== 'published_at') orderBy.push({ published_at: 'desc' as const });
+    orderBy.push({ created_at: 'desc' as const });
+    orderBy.push({ id: 'desc' as const });
 
     // جلب البيانات مع تحسينات الأداء
     const [articles, total] = await Promise.all([

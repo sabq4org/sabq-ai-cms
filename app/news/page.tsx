@@ -23,8 +23,8 @@ async function getInitialData() {
         next: { revalidate: 3600 } // ساعة واحدة للتصنيفات
       }),
       fetch(articlesUrl, {
-        cache: 'force-cache',
-        next: { revalidate: 300 } // 5 دقائق للأخبار
+        // كان force-cache، نستخدم no-store لعرض أحدث الأخبار فوراً
+        cache: 'no-store'
       })
     ]);
 
