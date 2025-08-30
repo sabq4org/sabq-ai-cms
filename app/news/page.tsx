@@ -8,10 +8,9 @@ export const revalidate = 300; // 5 دقائق
 async function getInitialData() {
   console.log('🚀 [NewsPage] Starting getInitialData');
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    
-    const categoriesUrl = `${baseUrl}/api/categories?is_active=true`;
-    const articlesUrl = `${baseUrl}/api/news/optimized?status=published&limit=20&page=1&sort=published_at&order=desc&compact=true&fields=id,title,slug,featured_image,views,published_at,created_at,breaking`;
+    // استخدم مسارات نسبية ليقوم Next بالسحب على نفس الهوست/الدومين
+    const categoriesUrl = `/api/categories?is_active=true`;
+    const articlesUrl = `/api/news/optimized?status=published&limit=20&page=1&sort=published_at&order=desc&compact=true&fields=id,title,slug,featured_image,views,published_at,created_at,breaking`;
     
     console.log(`🔗 [NewsPage] Fetching categories from: ${categoriesUrl}`);
     console.log(`🔗 [NewsPage] Fetching articles from: ${articlesUrl}`);
@@ -23,7 +22,6 @@ async function getInitialData() {
         next: { revalidate: 3600 } // ساعة واحدة للتصنيفات
       }),
       fetch(articlesUrl, {
-        // كان force-cache، نستخدم no-store لعرض أحدث الأخبار فوراً
         cache: 'no-store'
       })
     ]);
