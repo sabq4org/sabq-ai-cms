@@ -79,7 +79,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=5 \
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Start the application using Next standalone server
-ENV PORT=3000
 CMD ["node", "server.js"]
 
 # ===== Development Stage =====
