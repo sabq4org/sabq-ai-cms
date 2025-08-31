@@ -29,7 +29,7 @@ import UserDropdown from "./UserDropdown";
 // import MobileUserDropdown from "./mobile/UserDropdown"; // مؤقتاً معطل
 // import UserMenuDrawer from "./mobile/UserMenuDrawer"; // مؤقتاً معطل
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
-import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
+
 import AuthStateDebugger from '@/components/debug/AuthStateDebugger';
 
 
@@ -203,7 +203,7 @@ export default function Header() {
               </Link>
 
               {/* منتقي الألوان المتوسع */}
-              <CompactThemeSwitcher />
+
 
               {/* زر الوضع الليلي */}
               <button

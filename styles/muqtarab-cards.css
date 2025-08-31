@@ -63,9 +63,9 @@ html:has([data-muqtarab="true"]) body {
 
 /* تطبيق ألوان الثيم على الليبلات */
 .muqtarab-card-container div[style*="backgroundColor"][class*="rounded-full"] {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.1) !important;
-  color: var(--theme-primary) !important;
-  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: #3b82f6 !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
 }
 
 /* تعطيل أي إعادة تنسيق لخطوط الفصل حتى لا تختلف عن بطاقة الأخبار */
@@ -134,7 +134,7 @@ html:has([data-muqtarab="true"]) body {
 
 /* إضافة لون الثيم للعناوين عند hover */
 .muqtarab-card-container a:hover h3 {
-  color: var(--theme-primary) !important;
+  color: var(#3b82f6) !important;
   transition: color 0.3s ease;
 }
 
@@ -200,9 +200,9 @@ html:has([data-muqtarab="true"]) body {
 [data-page="muqtarab"] .card:hover,
 [data-muqtarab="true"] .card:hover {
   /* اللون المختار من نظام الألوان المتغيرة */
-  background-color: hsl(var(--accent) / 0.06) !important;
+  background-color: rgba(59, 130, 246, 0.06) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(var(--theme-primary-rgb, 59 130 246), 0.15);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
 }
 
 /* تأثيرات على عناصر البطاقات */
@@ -223,29 +223,26 @@ html:has([data-muqtarab="true"]) body {
 
 .muqtarab-themed-card:hover {
   /* fallback للأزرق الافتراضي ثم اللون المختار من الهيدر */
-  background: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
-  background: hsl(var(--accent) / 0.06) !important;
-  background-color: hsl(var(--accent) / 0.06) !important;
+  background: rgba(59, 130, 246, 0.05) !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  background: rgba(59, 130, 246, 0.06) !important;
+  background-color: rgba(59, 130, 246, 0.06) !important;
   transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(var(--theme-primary-rgb, 59 130 246), 0.12);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.12);
 }
 
 /* نسخة الصفحة الرئيسية (داخل .muqtarab-card-container) */
 .muqtarab-card-container .card { transition: all 0.3s ease; }
 .muqtarab-card-container .card:hover {
   /* fallback ثم اللون المختار */
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.05) !important;
-  background-color: hsl(var(--accent) / 0.06) !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  background-color: rgba(59, 130, 246, 0.06) !important;
 }
 
 /* عند اختيار "بلا لون" عُد للخلفية البيضاء بدون تلوين */
-html[data-theme="none"] .muqtarab-card-container .card:hover,
-html:not([data-theme]) .muqtarab-card-container .card:hover,
-html[data-theme="none"] [data-page="muqtarab"] .card:hover,
-html:not([data-theme]) [data-page="muqtarab"] .card:hover,
-html[data-theme="none"] .muqtarab-themed-card:hover,
-html:not([data-theme]) .muqtarab-themed-card:hover {
+.muqtarab-card-container .card:hover,
+[data-page="muqtarab"] .card:hover,
+.muqtarab-themed-card:hover {
   background: #ffffff !important;
   background-color: #ffffff !important;
 }
@@ -273,8 +270,8 @@ html:not([data-theme]) .muqtarab-themed-card:hover {
 [data-page="muqtarab"] .btn:hover,
 [data-page="muqtarab"] button:hover,
 [data-page="muqtarab"] Button:hover {
-  background-color: var(--theme-primary, #3B82F6) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
+  background-color: var(#3B82F6 !important;
+  border-color: var(#3B82F6 !important;
   color: white !important;
 }
 
@@ -283,8 +280,8 @@ html:not([data-theme]) .muqtarab-themed-card:hover {
 [data-muqtarab="true"] .card button,
 [data-page="muqtarab"] .card Button,
 [data-muqtarab="true"] .card Button {
-  background-color: var(--theme-primary, #3B82F6) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
+  background-color: var(#3B82F6 !important;
+  border-color: var(#3B82F6 !important;
   color: white !important;
 }
 
@@ -292,14 +289,14 @@ html:not([data-theme]) .muqtarab-themed-card:hover {
 [data-muqtarab="true"] .card button:hover,
 [data-page="muqtarab"] .card Button:hover,
 [data-muqtarab="true"] .card Button:hover {
-  background-color: var(--theme-secondary, #2563EB) !important;
-  border-color: var(--theme-secondary, #2563EB) !important;
+  background-color: #2563EB !important;
+  border-color: #2563EB !important;
 }
 
 /* تأثيرات البحث */
 [data-page="muqtarab"] .search-input:focus {
-  border-color: var(--theme-primary, hsl(212 90% 50%)) !important;
-  box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 59 130 246), 0.1) !important;
+  border-color: var(#3b82f6, hsl(212 90% 50%)) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
 /* تأثيرات الإحصائيات والأيقونات */
@@ -310,34 +307,34 @@ html:not([data-theme]) .muqtarab-themed-card:hover {
 
 [data-page="muqtarab"] .stats-icon:hover,
 [data-page="muqtarab"] .header-icon:hover {
-  color: var(--theme-primary, hsl(212 90% 50%)) !important;
+  color: var(#3b82f6, hsl(212 90% 50%)) !important;
 }
 
 /* تحسين شريط الإحصائيات */
 [data-page="muqtarab"] [class*="backdrop-blur"] {
-  border: 1px solid rgba(var(--theme-primary-rgb, 59 130 246), 0.2) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
 }
 
 /* تأثيرات الهيدر والأيقونة الرئيسية */
 [data-page="muqtarab"] .header-main-icon,
 .themed-gradient-bg {
-  background: linear-gradient(135deg, var(--theme-primary, #3B82F6), var(--theme-secondary, #2563EB)) !important;
+  background: linear-gradient(135deg, var(#3B82F6, #2563EB) !important;
   transition: all 0.3s ease;
 }
 
 [data-page="muqtarab"] .header-main-icon:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
 }
 
 /* تأثيرات على العناوين والخطوط الزرقاء */
 [data-page="muqtarab"] .section-accent-line {
-  background-color: var(--theme-primary, hsl(212 90% 50%)) !important;
+  background-color: var(#3b82f6, hsl(212 90% 50%)) !important;
   transition: all 0.3s ease;
 }
 
 [data-page="muqtarab"] .section-accent-line:hover {
-  background-color: var(--theme-secondary, hsl(212 90% 45%)) !important;
+  background-color: #2563EB, hsl(212 90% 45%)) !important;
 }
 
 .dark .muqtarab-card-container .bg-gray-800\/30,
@@ -491,7 +488,7 @@ main,
 /* تأثيرات الأيقونات والإحصائيات بنظام الألوان المتغيرة */
 [data-page="muqtarab"] .stats-icon,
 [data-muqtarab="true"] .stats-icon {
-  color: var(--theme-primary, #3B82F6) !important;
+  color: var(#3B82F6 !important;
   transition: color 0.3s ease;
 }
 
@@ -502,14 +499,14 @@ main,
 
 [data-page="muqtarab"] .stats-container:hover,
 [data-muqtarab="true"] .stats-container:hover {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.03) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
+  background-color: rgba(59, 130, 246, 0.03) !important;
+  border-color: var(#3B82F6 !important;
 }
 
 /* أيقونات الزوايا */
 [data-page="muqtarab"] .text-green-600,
 [data-muqtarab="true"] .text-green-600 {
-  color: var(--theme-primary, #3B82F6) !important;
+  color: var(#3B82F6 !important;
 }
 
 /* ========== تطبيق نفس النظام على صفحة عمق ========== */
@@ -517,13 +514,13 @@ main,
 /* تأثيرات الإحصائيات والأيقونات لصفحة عمق */
 [data-page="deep"] .stats-icon,
 [data-page="deep"] .header-icon {
-  color: var(--theme-primary, #3B82F6) !important;
+  color: var(#3B82F6 !important;
   transition: color 0.3s ease;
 }
 
 [data-page="deep"] .stats-icon:hover,
 [data-page="deep"] .header-icon:hover {
-  color: var(--theme-primary, hsl(212 90% 50%)) !important;
+  color: var(#3b82f6, hsl(212 90% 50%)) !important;
 }
 
 /* تحسين شريط الإحصائيات لصفحة عمق */
@@ -534,20 +531,20 @@ main,
 }
 
 [data-page="deep"] .stats-container:hover {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.03) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
+  background-color: rgba(59, 130, 246, 0.03) !important;
+  border-color: var(#3B82F6 !important;
 }
 
 /* تأثيرات الهيدر والأيقونة الرئيسية لصفحة عمق */
 [data-page="deep"] .header-main-icon,
 [data-page="deep"] .themed-gradient-bg {
-  background: linear-gradient(135deg, var(--theme-primary, #8b5cf6), var(--theme-secondary, #7c3aed)) !important;
+  background: linear-gradient(135deg, var(#3b82f6, #8b5cf6), #2563EB, #7c3aed)) !important;
   transition: all 0.3s ease;
 }
 
 [data-page="deep"] .header-main-icon:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
 }
 
 /* إزالة أي خلفيات بيضاء من صفحة عمق */
@@ -576,7 +573,7 @@ main,
 
 [data-page="muqtarab"] .text-purple-600,
 [data-muqtarab="true"] .text-purple-600 {
-  color: var(--theme-primary, #3B82F6) !important;
+  color: var(#3B82F6 !important;
 }
 
 /* ========== تطبيق نفس النظام على صفحة الأقسام ========== */
@@ -586,7 +583,7 @@ main,
 [data-page="categories"] .header-icon,
 [data-categories="true"] .stats-icon,
 [data-categories="true"] .header-icon {
-  color: var(--theme-primary, #3B82F6) !important;
+  color: var(#3B82F6 !important;
   transition: color 0.3s ease;
 }
 
@@ -594,7 +591,7 @@ main,
 [data-page="categories"] .header-icon:hover,
 [data-categories="true"] .stats-icon:hover,
 [data-categories="true"] .header-icon:hover {
-  color: var(--theme-primary, hsl(212 90% 50%)) !important;
+  color: var(#3b82f6, hsl(212 90% 50%)) !important;
 }
 
 /* تحسين شريط الإحصائيات لصفحة الأقسام */
@@ -607,8 +604,8 @@ main,
 
 [data-page="categories"] .stats-container:hover,
 [data-categories="true"] .stats-container:hover {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.03) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
+  background-color: rgba(59, 130, 246, 0.03) !important;
+  border-color: var(#3B82F6 !important;
 }
 
 /* تأثيرات الهيدر والأيقونة الرئيسية لصفحة الأقسام */
@@ -616,14 +613,14 @@ main,
 [data-page="categories"] .themed-gradient-bg,
 [data-categories="true"] .header-main-icon,
 [data-categories="true"] .themed-gradient-bg {
-  background: linear-gradient(135deg, var(--theme-primary, #6366f1), var(--theme-secondary, #4f46e5)) !important;
+  background: linear-gradient(135deg, var(#3b82f6, #6366f1), #2563EB, #4f46e5)) !important;
   transition: all 0.3s ease;
 }
 
 [data-page="categories"] .header-main-icon:hover,
 [data-categories="true"] .header-main-icon:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
 }
 
 /* إزالة أي خلفيات بيضاء من صفحة الأقسام */
@@ -657,7 +654,7 @@ main,
 [data-page="news"] .header-icon,
 [data-news="true"] .stats-icon,
 [data-news="true"] .header-icon {
-  color: var(--theme-primary, #3B82F6) !important;
+  color: var(#3B82F6 !important;
   transition: color 0.3s ease;
 }
 
@@ -665,7 +662,7 @@ main,
 [data-page="news"] .header-icon:hover,
 [data-news="true"] .stats-icon:hover,
 [data-news="true"] .header-icon:hover {
-  color: var(--theme-primary, hsl(212 90% 50%)) !important;
+  color: var(#3b82f6, hsl(212 90% 50%)) !important;
 }
 
 /* تحسين شريط الإحصائيات لصفحة الأخبار */
@@ -678,8 +675,8 @@ main,
 
 [data-page="news"] .stats-container:hover,
 [data-news="true"] .stats-container:hover {
-  background-color: rgba(var(--theme-primary-rgb, 59 130 246), 0.03) !important;
-  border-color: var(--theme-primary, #3B82F6) !important;
+  background-color: rgba(59, 130, 246, 0.03) !important;
+  border-color: var(#3B82F6 !important;
 }
 
 /* تأثيرات الهيدر والأيقونة الرئيسية لصفحة الأخبار */
@@ -687,14 +684,14 @@ main,
 [data-page="news"] .themed-gradient-bg,
 [data-news="true"] .header-main-icon,
 [data-news="true"] .themed-gradient-bg {
-  background: linear-gradient(135deg, var(--theme-primary, #3b82f6), var(--theme-secondary, #2563eb)) !important;
+  background: linear-gradient(135deg, var(#3b82f6, #3b82f6), #2563EB, #2563eb)) !important;
   transition: all 0.3s ease;
 }
 
 [data-page="news"] .header-main-icon:hover,
 [data-news="true"] .header-main-icon:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(var(--theme-primary-rgb, 59 130 246), 0.3);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
 }
 
 /* إزالة أي خلفيات بيضاء من صفحة الأخبار */

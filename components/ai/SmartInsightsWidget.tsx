@@ -31,7 +31,7 @@ interface SmartInsightsWidgetProps {
 export default function SmartInsightsWidget({ variant = 'default', className = '' }: SmartInsightsWidgetProps) {
   const { darkMode } = useDarkModeContext();
   const [insights, setInsights] = useState<ArticleInsight[]>([]);
-  const [accentActive, setAccentActive] = useState<boolean>(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -74,26 +74,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return () => clearInterval(interval);
   }, []);
 
-  // تحديد تفعيل اللون من localStorage: theme-color (غير موجود أو 'default' = بلا لون)
-  useEffect(() => {
-    try {
-      const compute = () => {
-        const saved = localStorage.getItem('theme-color');
-        setAccentActive(Boolean(saved) && saved !== 'default');
-      };
-      compute();
-      const onStorage = (e: StorageEvent) => {
-        if (e.key === 'theme-color') compute();
-      };
-      const onThemeChange = () => compute();
-      window.addEventListener('storage', onStorage);
-      window.addEventListener('theme-color-change', onThemeChange as any);
-      return () => {
-        window.removeEventListener('storage', onStorage);
-        window.removeEventListener('theme-color-change', onThemeChange as any);
-      };
-    } catch {}
-  }, []);
+
 
   // دوران تلقائي للمؤشرات - معطل مؤقتاً لمنع الوميض
   // useEffect(() => {
@@ -186,8 +167,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`} aria-busy="true" aria-live="polite">
         <div
-          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col transition-colors hover:border-[hsl(var(--accent))]`}
-          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col transition-colors hover:border-blue-400`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : ('#ffffff') }}
         >
           <div className="animate-pulse space-y-4 flex-1">
             <div className="space-y-2">
@@ -230,8 +211,8 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     return (
       <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
         <div
-          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center transition-colors hover:border-[hsl(var(--accent))]`}
-          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
+          className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col items-center justify-center text-center transition-colors hover:border-blue-400`}
+          style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : ('#ffffff') }}
         >
           <div className="space-y-4">
             <div className={`${isCompact ? 'text-4xl' : 'text-5xl'} animate-bounce`}>🤖</div>
@@ -269,7 +250,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
       <div
         className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} transition-all duration-300 h-full flex flex-col hover:border-[hsl(var(--accent))]`}
-        style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
+        style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : ('#ffffff') }}
       >
       {/* خط جانبي ملون ديناميكي */}
       <div className={`absolute top-0 right-0 w-1 h-full ${config.accent.replace('border-l-', 'bg-')} transition-colors duration-500`}></div>
@@ -333,7 +314,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
               
               <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                 {/* Mini Chart */}
-                <div style={{ color: "hsl(var(--accent))" }}>{generateMiniChart(currentInsight.trendingScore)}</div>
+                <div style={{ color: "#3b82f6" }}>{generateMiniChart(currentInsight.trendingScore)}</div>
                 
                 {/* المقياس الرئيسي */}
                 <div className="flex items-center gap-1.5">
@@ -429,7 +410,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
         
         <Link 
           href="/ai-insights" 
-          className={`text-xs transition-colors font-medium ${accentActive ? 'text-[hsl(var(--accent))] hover:text-[hsl(var(--accent-hover))]' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
+          className="text-xs transition-colors font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
         >
           عرض الكل ←
         </Link>
