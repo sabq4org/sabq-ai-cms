@@ -5,15 +5,17 @@ frontend:
       commands:
         - echo "Starting preBuild phase..."
         - npm ci --legacy-peer-deps
-        - echo "Cleaning old Prisma..."
+        - echo "Cleaning old Prisma cache..."
         - rm -rf node_modules/.prisma
         - rm -rf node_modules/@prisma/client
         - echo "Generating Prisma Client..."
         - npx prisma generate --force
         - echo "Checking Prisma Engine..."
         - ls -la node_modules/.prisma/client/
-        - echo "Checking database connection..."
-        - 'node -e "console.log(\"Database URL exists:\", !!process.env.DATABASE_URL)"'
+        - echo "Verifying database connection..."
+        - 'node -r dotenv/config -e "console.log(\"Database URL exists:\", !!process.env.DATABASE_URL)"'
+        - echo "Testing database connectivity..."
+        - 'node -r dotenv/config scripts/check-database.js || echo "Database check failed but continuing..."'
         - echo "PreBuild completed successfully"
     build:
       commands:
