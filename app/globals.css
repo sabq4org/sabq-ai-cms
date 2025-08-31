@@ -545,3 +545,303 @@ html.dark .dashboard * {
 html.dark [class*="bg-"]:not([class*="bg-blue"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-yellow"]):not([class*="bg-purple"]):not([class*="bg-pink"]):not([class*="bg-indigo"]):not([class*="bg-orange"]) {
   background-color: var(--bg-elevated, #1e293b) !important;
 }
+
+/* تصميم النسخة الخفيفة المعتمد - Old Style News Block */
+
+.old-style-news-block {
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+/* رأس القسم */
+.old-style-news-header {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.old-style-news-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  padding-right: 12px;
+  position: relative;
+}
+
+.old-style-news-title::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: #3b82f6;
+  border-radius: 2px;
+}
+
+/* شبكة الأخبار */
+.old-style-news-grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* بطاقة الخبر - تصميم بسيط بدون إطارات */
+.old-style-news-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  box-shadow: none;
+}
+
+.old-style-news-card:hover {
+  transform: translateY(-2px);
+}
+
+/* حاوي الصورة الصغيرة */
+.old-style-news-image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #f3f4f6;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.old-style-news-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border-radius: 8px;
+}
+
+.old-style-news-card:hover .old-style-news-image {
+  transform: scale(1.05);
+}
+
+/* محتوى البطاقة - بدون padding */
+.old-style-news-content {
+  padding: 0;
+}
+
+/* الشريط العلوي: ليبل جديد + التاريخ الميلادي */
+.old-style-news-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.old-style-news-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ليبل "جديد" الأخضر مع شعلة النار */
+.old-style-news-new-badge,
+.recent-news-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #10b981 !important;
+  color: white !important;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* شارة عاجل - أحمر */
+.old-style-news-breaking-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dc2626;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 800;
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+
+/* شارة مخصص - أزرق */
+.old-style-news-custom-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #7c3aed;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* التاريخ الميلادي */
+.old-style-news-date-inline {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* عنوان المقال */
+.old-style-news-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.old-style-news-card:hover .old-style-news-card-title {
+  color: #3b82f6;
+}
+
+/* الشريط السفلي: المشاهدات فقط */
+.old-style-news-bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.old-style-news-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.old-style-icon {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.5;
+}
+
+/* الحالة الفارغة */
+.old-style-empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: #9ca3af;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+/* التجاوب مع الأجهزة المختلفة */
+@media (max-width: 1024px) {
+  .old-style-news-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .old-style-news-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+  
+  .old-style-news-title {
+    font-size: 20px;
+  }
+  
+  .old-style-news-card {
+    display: block;
+  }
+  
+  .old-style-news-image-container {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 12px;
+  }
+  
+  .old-style-news-content {
+    padding: 0;
+  }
+  
+  .old-style-news-card-title {
+    font-size: 15px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    margin-bottom: 8px;
+  }
+  
+  .old-style-news-bottom-bar {
+    margin-top: 8px;
+    gap: 12px;
+  }
+  
+  .old-style-news-breaking-badge,
+  .old-style-news-custom-badge,
+  .recent-news-badge,
+  .old-style-news-new-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+
+/* الوضع الليلي */
+.dark .old-style-news-card {
+  background: transparent;
+  border: none;
+  color: #f9fafb;
+}
+
+.dark .old-style-news-card:hover {
+  transform: translateY(-2px);
+}
+
+.dark .old-style-news-title {
+  color: #f9fafb;
+}
+
+.dark .old-style-news-card-title {
+  color: #f9fafb;
+}
+
+.dark .old-style-news-card:hover .old-style-news-card-title {
+  color: #60a5fa;
+}
+
+.dark .old-style-news-date-inline,
+.dark .old-style-news-meta-item {
+  color: #9ca3af;
+}
+
+.dark .old-style-empty-state {
+  background: #111827;
+  border-color: #374151;
+  color: #9ca3af;
+}
+
+/* تأثيرات النبضة للأخبار العاجلة */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
