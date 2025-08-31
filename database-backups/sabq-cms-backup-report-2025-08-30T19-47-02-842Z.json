@@ -1,0 +1,591 @@
+{
+  "backup_date": "2025-08-30T19:48:03.782Z",
+  "source_database": {
+    "url": "postgresql://postgres:****@db.uopckyrdhlvsxnvcobbw.supabase.co:5432/postgres",
+    "name": "postgres",
+    "user": "postgres",
+    "version": "PostgreSQL 17.4 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 13.2.0, 64-bit"
+  },
+  "backup_files": {
+    "sql": "/Users/alialhazmi/sabq-ai-cms/database-backups/sabq-cms-backup-2025-08-30T19-47-02-842Z.sql",
+    "report": "/Users/alialhazmi/sabq-ai-cms/database-backups/sabq-cms-backup-report-2025-08-30T19-47-02-842Z.json"
+  },
+  "statistics": {
+    "total_tables": 114,
+    "total_records": 2298,
+    "tables_with_data": 52,
+    "empty_tables": 62
+  },
+  "table_details": [
+    {
+      "name": "AdvancedAnalytics",
+      "records": 0,
+      "columns": "10"
+    },
+    {
+      "name": "EmailJob",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "EmailLog",
+      "records": 0,
+      "columns": "12"
+    },
+    {
+      "name": "EmailProviderConfig",
+      "records": 0,
+      "columns": "13"
+    },
+    {
+      "name": "EmailTemplate",
+      "records": 0,
+      "columns": "8"
+    },
+    {
+      "name": "Entity",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "Event",
+      "records": 83,
+      "columns": 10
+    },
+    {
+      "name": "ExternalContent",
+      "records": 0,
+      "columns": "14"
+    },
+    {
+      "name": "ExternalDataSources",
+      "records": 0,
+      "columns": "12"
+    },
+    {
+      "name": "LoyaltySettings",
+      "records": 10,
+      "columns": 8
+    },
+    {
+      "name": "LoyaltyTransactions",
+      "records": 29,
+      "columns": 10
+    },
+    {
+      "name": "MLModels",
+      "records": 0,
+      "columns": "15"
+    },
+    {
+      "name": "MLPredictions",
+      "records": 0,
+      "columns": "9"
+    },
+    {
+      "name": "MLTrainingJobs",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "MembershipLevels",
+      "records": 4,
+      "columns": 8
+    },
+    {
+      "name": "PerformanceMetrics",
+      "records": 0,
+      "columns": "8"
+    },
+    {
+      "name": "Prediction",
+      "records": 0,
+      "columns": "8"
+    },
+    {
+      "name": "RecommendationModels",
+      "records": 0,
+      "columns": "9"
+    },
+    {
+      "name": "RefreshToken",
+      "records": 686,
+      "columns": 8
+    },
+    {
+      "name": "SearchQueries",
+      "records": 0,
+      "columns": "13"
+    },
+    {
+      "name": "SentimentAnalysis",
+      "records": 0,
+      "columns": "14"
+    },
+    {
+      "name": "SmartNotifications",
+      "records": 85,
+      "columns": 17
+    },
+    {
+      "name": "Story",
+      "records": 16,
+      "columns": 10
+    },
+    {
+      "name": "StoryEntity",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "StorySubscription",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "Subscriber",
+      "records": 0,
+      "columns": "8"
+    },
+    {
+      "name": "SystemSettings",
+      "records": 0,
+      "columns": "13"
+    },
+    {
+      "name": "UserBadges",
+      "records": 1,
+      "columns": 6
+    },
+    {
+      "name": "UserDailyActivities",
+      "records": 13,
+      "columns": 9
+    },
+    {
+      "name": "UserDetailedPreferences",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "UserInteractions",
+      "records": 11,
+      "columns": 11
+    },
+    {
+      "name": "UserRecommendations",
+      "records": 0,
+      "columns": "10"
+    },
+    {
+      "name": "UserSessions",
+      "records": 425,
+      "columns": 11
+    },
+    {
+      "name": "UserSettings",
+      "records": 0,
+      "columns": "7"
+    },
+    {
+      "name": "_MuqtarabArticleAssets",
+      "records": 0,
+      "columns": "2"
+    },
+    {
+      "name": "_NewsArticleAssets",
+      "records": 1,
+      "columns": 2
+    },
+    {
+      "name": "account_lockouts",
+      "records": 1,
+      "columns": 6
+    },
+    {
+      "name": "activity_logs",
+      "records": 126,
+      "columns": 11
+    },
+    {
+      "name": "ad_analytics",
+      "records": 0,
+      "columns": "12"
+    },
+    {
+      "name": "ads",
+      "records": 0,
+      "columns": "16"
+    },
+    {
+      "name": "ai_poll_votes",
+      "records": 0,
+      "columns": "10"
+    },
+    {
+      "name": "analytics_data",
+      "records": 0,
+      "columns": "7"
+    },
+    {
+      "name": "article_authors",
+      "records": 10,
+      "columns": 19
+    },
+    {
+      "name": "article_keywords",
+      "records": 0,
+      "columns": "4"
+    },
+    {
+      "name": "article_quotes",
+      "records": 0,
+      "columns": "7"
+    },
+    {
+      "name": "article_tags",
+      "records": 35,
+      "columns": 3
+    },
+    {
+      "name": "articles",
+      "records": 154,
+      "columns": 36
+    },
+    {
+      "name": "audio_episodes",
+      "records": 0,
+      "columns": "17"
+    },
+    {
+      "name": "audio_newsletters",
+      "records": 8,
+      "columns": 15
+    },
+    {
+      "name": "audio_programs",
+      "records": 0,
+      "columns": "16"
+    },
+    {
+      "name": "audio_scheduled_jobs",
+      "records": 0,
+      "columns": "10"
+    },
+    {
+      "name": "author_analytics",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "categories",
+      "records": 10,
+      "columns": 13
+    },
+    {
+      "name": "comments",
+      "records": 45,
+      "columns": 10
+    },
+    {
+      "name": "daily_doses",
+      "records": 5,
+      "columns": 21
+    },
+    {
+      "name": "deep_analyses",
+      "records": 4,
+      "columns": 13
+    },
+    {
+      "name": "dose_contents",
+      "records": 17,
+      "columns": 11
+    },
+    {
+      "name": "email_verification_codes",
+      "records": 5,
+      "columns": 7
+    },
+    {
+      "name": "entity_links",
+      "records": 4,
+      "columns": 9
+    },
+    {
+      "name": "failed_login_attempts",
+      "records": 3,
+      "columns": 6
+    },
+    {
+      "name": "forum_badges",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "forum_categories",
+      "records": 9,
+      "columns": 11
+    },
+    {
+      "name": "forum_follows",
+      "records": 0,
+      "columns": "5"
+    },
+    {
+      "name": "forum_notifications",
+      "records": 0,
+      "columns": "8"
+    },
+    {
+      "name": "forum_replies",
+      "records": 3,
+      "columns": 11
+    },
+    {
+      "name": "forum_reports",
+      "records": 0,
+      "columns": "10"
+    },
+    {
+      "name": "forum_reputation",
+      "records": 7,
+      "columns": 8
+    },
+    {
+      "name": "forum_topics",
+      "records": 5,
+      "columns": 14
+    },
+    {
+      "name": "forum_user_badges",
+      "records": 0,
+      "columns": "4"
+    },
+    {
+      "name": "forum_votes",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "home_blocks_config",
+      "records": 0,
+      "columns": "9"
+    },
+    {
+      "name": "interactions",
+      "records": 39,
+      "columns": 5
+    },
+    {
+      "name": "keywords",
+      "records": 3,
+      "columns": 5
+    },
+    {
+      "name": "link_analytics",
+      "records": 0,
+      "columns": "14"
+    },
+    {
+      "name": "loyalty_points",
+      "records": 27,
+      "columns": 8
+    },
+    {
+      "name": "media_assets",
+      "records": 24,
+      "columns": 17
+    },
+    {
+      "name": "media_folders",
+      "records": 0,
+      "columns": "8"
+    },
+    {
+      "name": "messages",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "muqtarab_analytics",
+      "records": 0,
+      "columns": "25"
+    },
+    {
+      "name": "muqtarab_articles",
+      "records": 5,
+      "columns": 27
+    },
+    {
+      "name": "muqtarab_comments",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "muqtarab_corners",
+      "records": 5,
+      "columns": 15
+    },
+    {
+      "name": "muqtarab_followers",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "muqtarab_interactions",
+      "records": 0,
+      "columns": "8"
+    },
+    {
+      "name": "opinion_articles",
+      "records": 3,
+      "columns": 20
+    },
+    {
+      "name": "opinion_authors",
+      "records": 0,
+      "columns": "15"
+    },
+    {
+      "name": "password_reset_tokens",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "reporters",
+      "records": 6,
+      "columns": 32
+    },
+    {
+      "name": "roles",
+      "records": 8,
+      "columns": 9
+    },
+    {
+      "name": "site_settings",
+      "records": 8,
+      "columns": 5
+    },
+    {
+      "name": "smart_article_links",
+      "records": 0,
+      "columns": "19"
+    },
+    {
+      "name": "smart_blocks",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "smart_dose_feedback",
+      "records": 0,
+      "columns": "12"
+    },
+    {
+      "name": "smart_dose_templates",
+      "records": 0,
+      "columns": "11"
+    },
+    {
+      "name": "smart_entities",
+      "records": 8,
+      "columns": 27
+    },
+    {
+      "name": "smart_entity_types",
+      "records": 8,
+      "columns": 9
+    },
+    {
+      "name": "smart_terms",
+      "records": 4,
+      "columns": 15
+    },
+    {
+      "name": "tag_analytics",
+      "records": 105,
+      "columns": 11
+    },
+    {
+      "name": "tags",
+      "records": 15,
+      "columns": 18
+    },
+    {
+      "name": "team_members",
+      "records": 10,
+      "columns": 13
+    },
+    {
+      "name": "template_previews",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "templates",
+      "records": 0,
+      "columns": "13"
+    },
+    {
+      "name": "timeline_events",
+      "records": 31,
+      "columns": 16
+    },
+    {
+      "name": "two_factor_auth",
+      "records": 1,
+      "columns": 9
+    },
+    {
+      "name": "two_factor_temp",
+      "records": 0,
+      "columns": "5"
+    },
+    {
+      "name": "ui_settings",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "user_insights",
+      "records": 0,
+      "columns": "17"
+    },
+    {
+      "name": "user_interests",
+      "records": 38,
+      "columns": 6
+    },
+    {
+      "name": "user_preferences",
+      "records": 5,
+      "columns": 6
+    },
+    {
+      "name": "user_reading_sessions",
+      "records": 101,
+      "columns": 11
+    },
+    {
+      "name": "user_roles",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "user_similar_readers",
+      "records": 0,
+      "columns": "6"
+    },
+    {
+      "name": "users",
+      "records": 29,
+      "columns": 27
+    },
+    {
+      "name": "was_news",
+      "records": 0,
+      "columns": "17"
+    }
+  ]
+}

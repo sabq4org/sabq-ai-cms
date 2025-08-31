@@ -1,118 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    console.log('🔍 اختبار اتصال قاعدة البيانات...');
-
-    // اختبار الاتصال الأساسي
-    await prisma.$connect();
-    console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
-
-    // اختبار عدد المستخدمين
-    const usersCount = await prisma.users.count();
-    console.log(`👥 عدد المستخدمين: ${usersCount}`);
-
-    // اختبار عدد المقالات
-    const articlesCount = await prisma.articles.count();
-    console.log(`📚 عدد المقالات: ${articlesCount}`);
-
-    // اختبار عدد التفاعلات
-    const interactionsCount = await prisma.interactions.count();
-    console.log(`💬 عدد التفاعلات: ${interactionsCount}`);
-
-    // اختبار نقاط الولاء
-    const loyaltyPointsCount = await prisma.loyalty_points.count();
-    console.log(`🏆 عدد نقاط الولاء: ${loyaltyPointsCount}`);
-
-    // جلب عينة من التفاعلات الحديثة
-    const recentInteractions = await prisma.interactions.findMany({
-      take: 5,
-      orderBy: { created_at: 'desc' },
-      select: {
-        id: true,
-        user_id: true,
-        article_id: true,
-        type: true,
-        created_at: true
-      }
-    });
-
-    console.log(`📊 آخر ${recentInteractions.length} تفاعلات:`, recentInteractions);
-
-    // جلب عينة من المستخدمين
-    const sampleUsers = await prisma.users.findMany({
-      take: 3,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        created_at: true
-      }
-    });
-
-    console.log(`👤 عينة من المستخدمين:`, sampleUsers);
-
-    // جلب عينة من المقالات
-    const sampleArticles = await prisma.articles.findMany({
-      take: 3,
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        likes: true,
-        saves: true,
-        views: true
-      }
-    });
-
-    console.log(`📖 عينة من المقالات:`, sampleArticles);
-
-    const result = {
-      success: true,
-      message: 'اتصال قاعدة البيانات يعمل بنجاح',
-      database_status: 'connected',
-      tables: {
-        users: usersCount,
-        articles: articlesCount,
-        interactions: interactionsCount,
-        loyalty_points: loyaltyPointsCount
-      },
-      samples: {
-        recent_interactions: recentInteractions,
-        users: sampleUsers,
-        articles: sampleArticles
-      },
-      timestamp: new Date().toISOString()
-    };
-
-    return NextResponse.json(result);
-
-  } catch (error: any) {
-    console.error('❌ خطأ في اختبار قاعدة البيانات:', error);
-
-    const errorResult = {
-      success: false,
-      message: 'فشل في الاتصال بقاعدة البيانات',
-      error: error.message,
-      error_code: error.code,
-      database_status: 'failed',
-      timestamp: new Date().toISOString(),
-      details: {
-        name: error.name,
-        stack: error.stack?.split('\n').slice(0, 5) // أول 5 أسطر من stack trace
-      }
-    };
-
-    return NextResponse.json(errorResult, { status: 500 });
-
-  } finally {
-    // التأكد من إغلاق الاتصال
+    // اختبار بسيط للاتصال
+    const result = await prisma.$queryRaw`SELECT NOW() as current_time, version() as pg_version`;
+    
+    // عد الجداول الموجودة
+    const tableCount = await prisma.$queryRaw`
+      SELECT COUNT(*) as count 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+    `;
+    
+    // عد المقالات المنشورة
+    let articlesCount = 0;
     try {
-      // Removed: $disconnect() - causes connection issues
-      console.log('🔌 تم قطع الاتصال بقاعدة البيانات');
-    } catch (disconnectError) {
-      console.error('⚠️ خطأ في قطع الاتصال:', disconnectError);
+      articlesCount = await prisma.articles.count({
+        where: { status: 'published' }
+      });
+    } catch (e) {
+      console.log('جدول المقالات غير موجود بعد');
     }
+    
+    return NextResponse.json({
+      success: true,
+      message: 'اتصال قاعدة البيانات ناجح',
+      data: {
+        database: result[0],
+        tables: tableCount[0],
+        publishedArticles: articlesCount
+      },
+      env: {
+        NODE_ENV: process.env.NODE_ENV,
+        PORT: process.env.PORT || '3000',
+        DATABASE_URL: process.env.DATABASE_URL ? 'متصل' : 'مفقود',
+        REDIS_URL: process.env.REDIS_URL ? 'متصل' : 'غير مطلوب',
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'موجود' : 'مفقود'
+      }
+    });
+  } catch (error: any) {
+    console.error('فشل اختبار قاعدة البيانات:', error);
+    
+    return NextResponse.json({
+      success: false,
+      message: 'فشل اتصال قاعدة البيانات',
+      error: error.message,
+      code: error.code,
+      env: {
+        NODE_ENV: process.env.NODE_ENV,
+        PORT: process.env.PORT || '3000',
+        DATABASE_URL: process.env.DATABASE_URL ? 'موجود لكن فشل الاتصال' : 'مفقود'
+      }
+    }, { status: 500 });
   }
-} 
+}

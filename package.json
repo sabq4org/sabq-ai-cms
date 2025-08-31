@@ -7,13 +7,13 @@
     "npm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node -r dotenv/config ./node_modules/.bin/next dev",
     "prebuild": "node scripts/ensure-prisma-generation.js",
     "build": "next build",
     "build:clean": "node scripts/clear-cache.js && npm run build",
     "build:production": "node scripts/production-build-fix.js && prisma generate && next build",
     "build:analyze": "ANALYZE=true npm run build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",

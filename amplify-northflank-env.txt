@@ -1,0 +1,22 @@
+# متغيرات البيئة الجديدة لـ AWS Amplify
+# تحديث قاعدة البيانات إلى Northflank
+
+DATABASE_URL=postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7
+DIRECT_URL=postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7
+
+# إعدادات NextAuth
+NEXTAUTH_SECRET=your-nextauth-secret-here
+NEXTAUTH_URL=https://your-amplify-domain.amplifyapp.com
+
+# إعدادات الموقع
+NEXT_PUBLIC_SITE_URL=https://your-amplify-domain.amplifyapp.com
+
+# إعدادات OpenAI (اختيارية)
+OPENAI_API_KEY=your-openai-key-here
+
+# إعدادات التحميل (اختيارية)
+UPLOADTHING_SECRET=
+UPLOADTHING_APP_ID=
+
+# إعدادات الإنتاج
+NODE_ENV=production

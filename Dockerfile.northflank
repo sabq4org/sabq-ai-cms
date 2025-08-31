@@ -1,70 +1,63 @@
-# Multi-stage build للحصول على أفضل أداء وحجم أصغر
 FROM node:18-alpine AS base
 
-# تثبيت المتطلبات الأساسية
+# Install dependencies only when needed
+FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# نسخ ملفات التبعيات فقط للاستفادة من Docker cache
-COPY package.json package-lock.json ./
+# Copy package files
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY prisma ./prisma/
 
-# مرحلة التطوير
-FROM base AS deps
-RUN npm ci
+# Install dependencies
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-# مرحلة البناء
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Rebuild the source code only when needed
 FROM base AS builder
+WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# إعداد متغيرات البيئة للبناء
-ARG DATABASE_URL
-ARG DIRECT_URL
-ENV DATABASE_URL=$DATABASE_URL
-ENV DIRECT_URL=$DIRECT_URL
-
-# توليد Prisma Client
-RUN npx prisma generate
-
-# بناء التطبيق
+# Build the application
+ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
-# مرحلة الإنتاج
-FROM node:18-alpine AS runner
+# Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
 
-# إضافة مستخدم غير root
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# نسخ الملفات المطلوبة فقط
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# نسخ سكريبتات مخصصة إن وجدت
-COPY --from=builder /app/scripts ./scripts 2>/dev/null || true
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
 
-# تغيير الملكية
-RUN chown -R nextjs:nodejs /app
+# Automatically leverage output traces to reduce image size
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-# المنفذ الافتراضي
-EXPOSE 3000
+# Northflank expects port 8080
+EXPOSE 8080
 
-# متغيرات البيئة للإنتاج
-ENV NODE_ENV production
-ENV PORT 3000
+# Set PORT environment variable
+ENV PORT 8080
 ENV HOSTNAME "0.0.0.0"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
-
-# تشغيل التطبيق
+# Start the server
 CMD ["node", "server.js"]

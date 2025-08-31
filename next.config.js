@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
-// FORCE REBUILD: 2025-08-15T21:02 - Emergency deployment
+// NORTHFLANK DEPLOYMENT: 2025-08-30 - Database migration to Northflank
 const nextConfig = {
+  // إعداد standalone output لـ Northflank
+  output: 'standalone',
+  
   // إضافة معرف فريد للملفات الثابتة
   generateBuildId: async () => {
     return "build-" + Date.now();

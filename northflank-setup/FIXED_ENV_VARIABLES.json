@@ -1,0 +1,18 @@
+{
+    "DATABASE_URL": "${{addons.sabq-database.POSTGRES_URI_INTERNAL}}",
+    "DIRECT_URL": "${{addons.sabq-database.POSTGRES_URI_INTERNAL}}",
+    "PORT": "8080",
+    "NODE_ENV": "production",
+    "NEXTAUTH_SECRET": "YOUR_NEXTAUTH_SECRET_HERE",
+    "JWT_SECRET": "YOUR_JWT_SECRET_HERE",
+    "CLOUDINARY_CLOUD_NAME": "YOUR_CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY": "YOUR_CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET": "YOUR_CLOUDINARY_API_SECRET",
+    "CLOUDINARY_URL": "cloudinary://YOUR_API_KEY:YOUR_API_SECRET@YOUR_CLOUD_NAME",
+    "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY",
+    "ELEVENLABS_API_KEY": "YOUR_ELEVENLABS_API_KEY",
+    "NEXT_PUBLIC_BASE_URL": "https://site--sabqai--7mcgps947hwt.code.run",
+    "NEXT_PUBLIC_SITE_URL": "https://site--sabqai--7mcgps947hwt.code.run",
+    "DISABLE_REDIS": "true",
+    "REDIS_ENABLED": "false"
+}

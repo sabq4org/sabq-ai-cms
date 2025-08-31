@@ -1,0 +1,17 @@
+# انسخ هذه المتغيرات إلى Amplify Console
+# AWS Amplify > App > Environment variables
+
+DATABASE_URL
+postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7
+
+DIRECT_URL  
+postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7
+
+NODE_ENV
+production
+
+NEXTAUTH_SECRET
+sabq-ai-cms-secret-key-2025
+
+NEXTAUTH_URL
+https://production-branch.dvdwfd4vy831i.amplifyapp.com
