@@ -1,6 +1,6 @@
-/* أنماط بطاقات مقترب - متوافقة مع نظام الثيمات */
+/* Muqtarab cards styles - Compatible with theme system */
 
-/* خلفية خاصة لصفحات مقترب - أعلى أولوية ممكنة */
+/* Special background for Muqtarab pages - Highest priority possible */
 html, html *, body, body * {
   transition: background-color 0.1s ease;
 }

@@ -1,4 +1,4 @@
-/* تنسيقات صفحة الأخبار */
+/* News page styles */
 
 .news-container {
   max-width: 1200px;
@@ -26,9 +26,9 @@
   opacity: 0.9;
 }
 
-/* .news-grid تم حذفه لعدم الحاجة إليه */
+/* .news-grid removed as not needed */
 
-/* تنسيقات البطاقات تم حذفها */
+/* Card styles removed */
 
 .loading-shimmer {
   background: linear-gradient(
@@ -71,7 +71,7 @@
   width: 100%;
 }
 
-/* الوضع المظلم */
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
   .news-container {
     background-color: #111827;
@@ -91,7 +91,7 @@
   }
 }
 
-/* الاستجابة للأجهزة الصغيرة */
+/* Responsive for small devices */
 @media (max-width: 768px) {
   .news-container {
     padding: 1rem;
@@ -104,8 +104,4 @@
   .news-title {
     font-size: 2rem;
   }
-  
-
-  
-
 }

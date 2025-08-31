@@ -8,15 +8,15 @@ import { ToastContainer } from "@/components/ui/toast";
 import { getServerUser } from "@/lib/getServerUser";
 import { getSiteUrl } from "@/lib/url-builder";
 import "./globals.css";
-import "@/styles/unified-font-system.css";
-import "@/styles/force-arabic-font.css";
-import "@/app/old-style-demo/old-style.css";
-import "@/styles/lite-stats-bar-sticky.css";
-import "@/styles/recent-news-badge.css";
-import "@/styles/dark-mode-overlay-fix.css";
-// نقل CSS غير الحرج إلى public والتحميل غير الحاجب عبر preload+onload
-import "@/styles/article-light-theme-fixes.css";
-// تحميل غير حاجب لوضع القراءة (يُحقن عبر preload+onload أدناه)
+// import "@/styles/unified-font-system.css";
+// import "@/styles/force-arabic-font.css";
+// import "@/app/old-style-demo/old-style.css";
+// import "@/styles/lite-stats-bar-sticky.css";
+// import "@/styles/recent-news-badge.css";
+// import "@/styles/dark-mode-overlay-fix.css";
+// // نقل CSS غير الحرج إلى public والتحميل غير الحاجب عبر preload+onload
+// import "@/styles/article-light-theme-fixes.css";
+// // تحميل غير حاجب لوضع القراءة (يُحقن عبر preload+onload أدناه)
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic"],

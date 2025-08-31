@@ -64,7 +64,14 @@ const nextConfig = {
     loaderFile: undefined,
     unoptimized: false,
     // إضافة domains للأداء الأفضل
-    domains: ["res.cloudinary.com", "images.unsplash.com"],
+    domains: [
+      "res.cloudinary.com",
+      "images.unsplash.com",
+      "sabq-cms-content.s3.amazonaws.com",
+      "ui-avatars.com",
+      "cdn.sabq.org",
+      "sabq-prod.imgix.net"
+    ],
     remotePatterns: [
       {
         protocol: "https",

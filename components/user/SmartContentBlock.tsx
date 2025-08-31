@@ -106,50 +106,24 @@ export default function SmartContentBlock({
   const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
       console.log('🔍 SmartContentBlock: بداية جلب البيانات...');
-      // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت متوفرة
-      // جلب الأخبار العامة مع إمكانية تضمين الأخبار المميزة
-      const cacheKey = '/api/articles/latest?limit=20';
-      
-      // محاولة استخدام Cache API إذا كانت متوفرة بالمتصفح
-      let cachedResponse: any;
-      try {
-        if ('caches' in window) {
-          const cache = await window.caches.open('smart-content-cache');
-          cachedResponse = await cache.match(cacheKey);
-        }
-      } catch (cacheError) {
-        // تجاهل أخطاء الكاش وإكمال الجلب بشكل عادي
-      }
-      
-      // استخدام الاستجابة من الكاش إن وجدت أو إجراء طلب جديد
-      const response = cachedResponse || await fetch(cacheKey, { 
+      // جلب مباشر وطازج: نتجنب الكاش لظهور الأخبار الجديدة فوراً
+      // نطلب الفئات أيضاً حتى يظهر اللّيبل
+      const baseUrl = '/api/articles/latest?limit=20&withCategories=true';
+      const url = `${baseUrl}&ts=${Date.now()}`; // منع التخزين المؤقت عبر مُعرّف زمني
+      const response = await fetch(url, {
         signal,
-        // تلميح للمتصفح بأننا جربنا الكاش بالفعل
-        cache: 'force-cache' 
+        cache: 'no-store'
       });
       
       if (response.ok) {
-        // تخزين الاستجابة في الكاش للاستخدام المستقبلي
         const data = await response.json();
-        try {
-          if ('caches' in window) {
-            const cache = await window.caches.open('smart-content-cache');
-            const clonedResponse = new Response(JSON.stringify(data), {
-              headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=300'
-              }
-            });
-            cache.put(cacheKey, clonedResponse);
-          }
-        } catch (cacheError) {
-          // تجاهل أخطاء الكاش
-        }
 
         const articles = (data.data || []).slice(0, 20);
         console.log('✅ SmartContentBlock: تم جلب البيانات بنجاح:', articles.length, 'مقال');
         const enriched: Article[] = articles.map((article: any) => ({
           ...article,
+          // توحيد حقل الصورة لضمان العرض
+          image: article.image || article.featured_image || article.social_image || article.featuredImage || article.socialImage,
           // استخدام القيم الحقيقية إن وجدت بدلاً من التوليد العشوائي
           isPersonalized: (article.isPersonalized ?? article.metadata?.isPersonalized) ?? false,
           confidence: article.confidence ?? article.metadata?.confidence,

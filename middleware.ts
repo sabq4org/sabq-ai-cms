@@ -1,145 +1,137 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// المضيف الموحد - يمكن تغييره حسب التفضيل
-const CANONICAL_HOST = process.env.CANONICAL_HOST || 'www.sabq.io';
-const PRODUCTION_DOMAINS = ['sabq.io', 'www.sabq.io'];
-
-// Advanced cache configurations
-const CACHE_POLICIES = {
-  static: 'public, max-age=31536000, immutable',
-  html: 'public, max-age=60, s-maxage=300, stale-while-revalidate=3600',
-  api: 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800',
-  images: 'public, max-age=2592000, s-maxage=2592000',
-  fonts: 'public, max-age=31536000, immutable',
-  json: 'public, max-age=600, s-maxage=1800'
+// قاموس لتحويل الأسماء العربية إلى slugs صحيحة
+const reporterNameMappings: { [key: string]: string } = {
+  "علي-الحازمي": "ali-alhazmi-389657",
+  "علي الحازمي": "ali-alhazmi-389657",
+  علي_الحازمي: "ali-alhazmi-389657",
 };
 
-export function middleware(req: NextRequest) {
-  const url = req.nextUrl.clone();
-  const hostname = req.headers.get('host') || '';
-  const userAgent = req.headers.get('user-agent') || '';
+// كاش في الذاكرة لتجنب lookups متكررة
+const contentTypeCache = new Map<
+  string,
+  { type: "NEWS" | "OPINION"; timestamp: number }
+>();
+const CACHE_DURATION = 3600000; // ساعة واحدة
+
+export async function middleware(req: NextRequest) {
+  const { nextUrl } = req;
+  const pathname = nextUrl.pathname;
+
+  // قياس زمن التنفيذ
   const startTime = Date.now();
-  
-  // تخطي في بيئة التطوير
-  if (process.env.NODE_ENV !== 'production') {
-    const response = NextResponse.next();
-    response.headers.set('Cache-Control', CACHE_POLICIES.html);
-    response.headers.set('X-Environment', 'development');
-    return response;
-  }
-  
-  // Handle static assets with optimal caching
-  const staticExtensions = /\.(ico|png|jpg|jpeg|svg|gif|webp|avif|js|css|woff|woff2|ttf|eot|pdf|txt|xml|json)$/i;
-  if (url.pathname.match(staticExtensions)) {
-    const response = NextResponse.next();
-    
-    // Different cache policies for different asset types
-    if (url.pathname.match(/\.(js|css)$/)) {
-      response.headers.set('Cache-Control', CACHE_POLICIES.static);
-    } else if (url.pathname.match(/\.(woff|woff2|ttf|eot)$/)) {
-      response.headers.set('Cache-Control', CACHE_POLICIES.fonts);
-    } else if (url.pathname.match(/\.(png|jpg|jpeg|svg|gif|webp|avif)$/)) {
-      response.headers.set('Cache-Control', CACHE_POLICIES.images);
-    } else if (url.pathname.match(/\.(json|xml)$/)) {
-      response.headers.set('Cache-Control', CACHE_POLICIES.json);
+
+  // معالجة روابط المراسلين العربية
+  if (pathname.startsWith("/reporter/")) {
+    const reporterSlug = pathname.replace("/reporter/", "");
+    const decodedSlug = decodeURIComponent(reporterSlug);
+    const correctSlug = reporterNameMappings[decodedSlug];
+    if (correctSlug) {
+      const url = nextUrl.clone();
+      url.pathname = `/reporter/${correctSlug}`;
+      console.log(`⏱️ Middleware redirect: ${Date.now() - startTime}ms`);
+      return NextResponse.redirect(url, 301);
     }
-    
-    // Add performance headers
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('X-Frame-Options', 'DENY');
-    
-    return response;
   }
-  
-  // Handle API routes with optimized caching
-  if (url.pathname.startsWith('/api/')) {
-    const response = NextResponse.next();
-    response.headers.set('Cache-Control', CACHE_POLICIES.api);
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('X-Robots-Tag', 'noindex');
-    
-    // Add timing information
-    const processingTime = Date.now() - startTime;
-    response.headers.set('Server-Timing', `middleware;dur=${processingTime}`);
-    
-    return response;
-  }
-  
-  // Skip Next.js internal routes
-  if (
-    url.pathname.startsWith('/_next/') ||
-    url.pathname.startsWith('/static/')
-  ) {
-    const response = NextResponse.next();
-    response.headers.set('Cache-Control', CACHE_POLICIES.static);
-    return response;
-  }
-  
-  // إجبار التوجيه إلى المضيف الموحد
-  if (hostname === 'sabq.io' && CANONICAL_HOST === 'www.sabq.io') {
-    console.log(`🔄 Redirecting from ${hostname} to ${CANONICAL_HOST}`);
-    url.host = CANONICAL_HOST;
-    url.hostname = CANONICAL_HOST;
-    
-    // استخدام 308 Permanent Redirect للحفاظ على الـ method
-    return NextResponse.redirect(url, 308);
-  }
-  
-  // أو العكس - إذا أردت sabq.io بدون www
-  if (hostname === 'www.sabq.io' && CANONICAL_HOST === 'sabq.io') {
-    console.log(`🔄 Redirecting from ${hostname} to ${CANONICAL_HOST}`);
-    url.host = CANONICAL_HOST;
-    url.hostname = CANONICAL_HOST;
-    return NextResponse.redirect(url, 308);
-  }
-  
-  // توجيه الدومينات الأخرى إذا لزم الأمر
-  const otherDomains = ['sabq.me', 'www.sabq.me', 'sabq.org', 'www.sabq.org', 'sabq.ai', 'www.sabq.ai'];
-  if (otherDomains.some(domain => hostname.includes(domain))) {
-    console.log(`🔄 Redirecting from ${hostname} to ${CANONICAL_HOST}`);
-    url.host = CANONICAL_HOST;
-    url.hostname = CANONICAL_HOST;
-    url.protocol = 'https';
+
+  // إعادة توجيه من dashboard إلى admin
+  if (pathname.startsWith("/dashboard/")) {
+    const url = nextUrl.clone();
+    if (
+      pathname === "/dashboard/news/unified" ||
+      pathname.startsWith("/dashboard/news/unified?")
+    ) {
+      url.pathname = "/admin/news/unified";
+    } else {
+      url.pathname = pathname
+        .replace("/dashboard/", "/admin/")
+        .replace("/article/", "/articles/");
+    }
+    console.log(`⏱️ Middleware redirect: ${Date.now() - startTime}ms`);
     return NextResponse.redirect(url, 301);
   }
-  
-  // Handle main content with optimized headers
-  const response = NextResponse.next();
-  
-  // Add security headers
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  // Add performance headers for HTML pages
-  response.headers.set('Cache-Control', CACHE_POLICIES.html);
-  
-  // Add timing information
-  const processingTime = Date.now() - startTime;
-  response.headers.set('Server-Timing', `middleware;dur=${processingTime}`);
-  
-  // Add resource hints for critical resources
-  response.headers.set('Link', 
-    '</fonts/font.woff2>; rel=preload; as=font; type=font/woff2; crossorigin, ' +
-    '</api/articles/recent>; rel=prefetch'
+
+  // تحسين: تجنب lookups لمسارات واضحة
+  // مسارات muqtarab لا تحتاج معالجة
+  if (pathname.startsWith("/muqtarab/")) {
+    return NextResponse.next();
+  }
+
+  // مسارات API لا تحتاج معالجة content type
+  if (pathname.startsWith("/api/")) {
+    const response = NextResponse.next();
+
+    // Cache headers للـ API
+    if (!pathname.includes("/auth") && !pathname.includes("/admin/")) {
+      response.headers.set(
+        "Cache-Control",
+        "public, s-maxage=60, stale-while-revalidate=300"
+      );
+    } else if (pathname.includes("/admin/")) {
+      response.headers.set(
+        "Cache-Control",
+        "no-cache, no-store, must-revalidate"
+      );
+    }
+
+    return response;
+  }
+
+  // دعم الروابط المؤرخة: /news/yyyy/mm/dd/slug → /news/slug
+  const datedNewsMatch = pathname.match(
+    /^\/news\/(\d{4})\/(\d{2})\/(\d{2})\/([^\/]+)\/?$/
   );
-  
-  return response;
+  if (datedNewsMatch) {
+    const slug = datedNewsMatch[4];
+    const url = nextUrl.clone();
+    url.pathname = `/news/${slug}`;
+    console.log(`⏱️ Middleware redirect: ${Date.now() - startTime}ms`);
+    return NextResponse.redirect(url, 301);
+  }
+
+  // تحسين: عدم عمل lookups للمسارات التي لا تحتاج
+  const skipPatterns = [
+    /^\/(images|fonts|_next|favicon)/,
+    /\.(jpg|jpeg|png|gif|webp|svg|ico|css|js)$/i,
+  ];
+
+  if (skipPatterns.some((pattern) => pattern.test(pathname))) {
+    const response = NextResponse.next();
+
+    // Cache headers للملفات الثابتة
+    if (pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)) {
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=31536000, immutable"
+      );
+    }
+
+    if (pathname.match(/\.(css|js)$/i)) {
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=31536000, immutable"
+      );
+    }
+
+    return response;
+  }
+
+  // تحسين: تأجيل content type lookups للصفحات نفسها
+  // بدلاً من عملها في middleware
+  console.log(`⏱️ Middleware execution: ${Date.now() - startTime}ms`);
+
+  return NextResponse.next();
 }
 
 export const config = {
-  // تطبيق middleware على جميع المسارات ما عدا المستثناة
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|js|css|woff|woff2|ttf|eot)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

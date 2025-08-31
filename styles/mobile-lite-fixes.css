@@ -1,9 +1,9 @@
-/* 🔧 إصلاحات النسخة الخفيفة للموبايل */
-/* Mobile Lite Version Fixes - استعادة التصميم المستقر */
+/* 🔧 Mobile Lite Version Fixes */
+/* Mobile Lite Version Fixes - Restore stable design */
 
-/* ===== 1. إصلاح بداية الصفحة من الهيدر ===== */
+/* ===== 1. Fix page start from header ===== */
 @media (max-width: 768px) {
-  /* إزالة أي مسافات غير مرغوبة */
+  /* Remove any unwanted spaces */
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 0 !important;
@@ -14,22 +14,22 @@
     margin-top: 0 !important;
   }
   
-  /* إصلاح غلاف الصفحة الرئيسية */
+  /* Fix main page wrapper */
   .homepage-wrapper {
     padding-top: 0 !important;
     margin-top: 0 !important;
   }
   
-  /* التأكد من أن المحتوى يبدأ مباشرة بعد الهيدر */
+  /* Ensure content starts directly after header */
   main, .main-content {
     margin-top: 0 !important;
     padding-top: 0 !important;
   }
 }
 
-/* ===== 2. إصلاح شريط الإحصائيات ===== */
+/* ===== 2. Fix stats bar ===== */
 @media (max-width: 768px) {
-  /* شريط الإحصائيات المدمج */
+  /* Compact stats bar */
   .compact-stats-bar {
     height: auto !important;
     padding: 0.75rem 1rem !important;
@@ -37,14 +37,14 @@
     border-bottom: 1px solid #e5e7eb;
   }
   
-  /* الشريط يكون sticky مع الهيدر */
+  /* Bar is sticky with header */
   .sticky.top-14 {
     position: sticky;
-    top: 56px; /* ارتفاع الهيدر على الموبايل */
+    top: 56px; /* Header height on mobile */
     z-index: 30;
   }
   
-  /* عناصر الإحصائيات */
+  /* Stats elements */
   .compact-stats-bar .stat-item {
     display: flex;
     flex-direction: column;
@@ -65,15 +65,15 @@
   }
 }
 
-/* ===== 3. إصلاح بلوك الأخبار المميزة ===== */
+/* ===== 3. Fix featured news block ===== */
 @media (max-width: 768px) {
-  /* حاوي الأخبار المميزة */
+  /* Featured news container */
   .featured-news-section {
     padding: 0.5rem 0 1rem 0 !important;
     margin-top: 0 !important;
   }
   
-  /* التأكد من عرض الكاروسيل حتى لو كان فارغاً مؤقتاً */
+  /* Ensure carousel displays even if temporarily empty */
   .featured-carousel {
     min-height: 200px;
     background: #f9fafb;
@@ -83,7 +83,7 @@
     justify-content: center;
   }
   
-  /* رسالة عند عدم وجود أخبار مميزة */
+  /* Message when no featured news */
   .featured-empty-state {
     text-align: center;
     padding: 2rem;
@@ -91,35 +91,35 @@
   }
 }
 
-/* ===== 4. إصلاح المسافات العامة للبلوكات ===== */
+/* ===== 4. Fix general spacing for blocks ===== */
 @media (max-width: 768px) {
-  /* المسافات الموحدة بين الأقسام */
+  /* Unified spacing between sections */
   section {
     margin-bottom: 1.5rem !important;
   }
   
-  /* padding موحد للحاويات */
+  /* Unified padding for containers */
   .max-w-7xl {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
   
-  /* بلوك التصنيفات */
+  /* Categories block */
   .categories-block {
     padding: 1rem !important;
     margin-bottom: 1.5rem !important;
   }
   
-  /* بلوك المحتوى الذكي */
+  /* Smart content block */
   .smart-content-block {
     padding: 1rem !important;
     margin-bottom: 1.5rem !important;
   }
 }
 
-/* ===== 5. إصلاح بطاقات الأخبار للنسخة الخفيفة ===== */
+/* ===== 5. Fix news cards for lite version ===== */
 @media (max-width: 768px) {
-  /* بطاقات مبسطة وخفيفة */
+  /* Simplified and light cards */
   .news-card-mobile {
     background: white;
     border-radius: 8px;
@@ -148,6 +148,7 @@
     margin-bottom: 0.25rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -161,45 +162,45 @@
   }
 }
 
-/* ===== 6. إصلاح التمرير وبداية الصفحة ===== */
+/* ===== 6. Fix scrolling and page start ===== */
 @media (max-width: 768px) {
-  /* منع التمرير التلقائي عند تحميل الصفحة */
+  /* Prevent automatic scrolling when page loads */
   body.page-loaded {
     overflow-x: hidden;
   }
   
-  /* JavaScript سيضيف هذا الكلاس بعد التحميل */
+  /* JavaScript will add this class after loading */
   body:not(.page-loaded) {
     overflow: hidden;
     position: fixed;
     width: 100%;
   }
   
-  /* إصلاح anchor links */
+  /* Fix anchor links */
   :target {
-    scroll-margin-top: 80px; /* الهيدر + شريط الإحصائيات */
+    scroll-margin-top: 80px; /* Header + stats bar */
   }
 }
 
-/* ===== 7. تحسينات الأداء ===== */
+/* ===== 7. Performance improvements ===== */
 @media (max-width: 768px) {
-  /* تحسين الأداء بإزالة التأثيرات الثقيلة */
+  /* Improve performance by removing heavy effects */
   * {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
   
-  /* تبسيط الظلال */
+  /* Simplify shadows */
   .shadow-lg {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   }
   
-  /* تبسيط الانتقالات */
+  /* Simplify transitions */
   * {
     transition-duration: 0.2s !important;
   }
   
-  /* إيقاف الرسوم المتحركة غير الضرورية */
+  /* Stop unnecessary animations */
   .animate-pulse,
   .animate-spin,
   .animate-bounce {
@@ -207,23 +208,23 @@
   }
 }
 
-/* ===== 8. إصلاحات خاصة بـ iOS ===== */
+/* ===== 8. iOS specific fixes ===== */
 @supports (-webkit-touch-callout: none) {
-  /* إصلاحات Safe Area لـ iPhone */
+  /* Safe Area fixes for iPhone */
   .homepage-wrapper {
     padding-top: env(safe-area-inset-top) !important;
     padding-bottom: env(safe-area-inset-bottom) !important;
   }
   
-  /* منع التكبير على الحقول */
+  /* Prevent zoom on fields */
   input, textarea, select {
     font-size: 16px !important;
   }
 }
 
-/* ===== 9. إعادة تعيين الأولويات ===== */
+/* ===== 9. Reset priorities ===== */
 @media (max-width: 768px) {
-  /* التأكد من أن هذه الأنماط لها الأولوية */
+  /* Ensure these styles have priority */
   .homepage-wrapper.pt-0 {
     padding-top: 0 !important;
   }
@@ -234,7 +235,7 @@
     z-index: 30 !important;
   }
   
-  /* إصلاح المسافات للأخبار المميزة */
+  /* Fix spacing for featured news */
   .pt-2.pb-4 {
     padding-top: 0.5rem !important;
     padding-bottom: 1rem !important;

@@ -10,14 +10,14 @@ import { usePathname } from "next/navigation";
 
 // CSS ضروري للتنسيق
 import "../../app/globals.css";
-import "../../styles/news-card-desktop.css";
-import "../../styles/theme-manager.css";
-import "../../styles/muqtarab-cards.css";
-import "../../styles/responsive-ui.css";
-import "../../styles/compact-stats.css";
-import "../../styles/enhanced-mobile-stats.css";
-import "../../styles/unified-mobile-news.css";
-import "../../styles/smart-content-cards.css";
+// import "../../styles/news-card-desktop.css";
+// import "../../styles/theme-manager.css";
+// import "../../styles/muqtarab-cards.css";
+// import "../../styles/responsive-ui.css";
+// import "../../styles/compact-stats.css";
+// import "../../styles/enhanced-mobile-stats.css";
+// import "../../styles/unified-mobile-news.css";
+// import "../../styles/smart-content-cards.css";
 
 export default function SiteLayout({
   children,

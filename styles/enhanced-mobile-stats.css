@@ -1,7 +1,7 @@
-/* 📊 تحسينات شريط الإحصائيات للموبايل */
+/* Enhanced Mobile Stats */
 
 .enhanced-mobile-stats {
-  /* تحسين الانتقالات */
+  /* Improve transitions */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -12,7 +12,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* تحسين البطاقات */
+/* Improve cards */
 .stats-card-enhanced {
   transition: all 0.2s ease;
   position: relative;
@@ -40,7 +40,7 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* تحسين الأيقونات */
+/* Improve icons */
 .stats-icon-container {
   transition: all 0.3s ease;
 }
@@ -49,14 +49,14 @@
   transform: rotate(5deg) scale(1.1);
 }
 
-/* تحسين الأرقام */
+/* Improve numbers */
 .stats-number {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum';
   transition: color 0.2s ease;
 }
 
-/* تحسين مؤشرات الاتجاه */
+/* Improve trend indicators */
 .trend-indicator {
   animation: pulse-trend 2s ease-in-out infinite;
 }
@@ -72,7 +72,7 @@
   }
 }
 
-/* تحسين زر التحديث */
+/* Improve refresh button */
 .refresh-button {
   transition: all 0.2s ease;
   position: relative;
@@ -97,7 +97,7 @@
   height: 100px;
 }
 
-/* تحسين المؤشرات النشطة */
+/* Improve live indicators */
 .live-indicator {
   animation: breathing 2s ease-in-out infinite;
 }
@@ -111,7 +111,7 @@
   }
 }
 
-/* تحسينات للوضع المظلم */
+/* Dark mode improvements */
 .dark .stats-card-enhanced {
   background: rgba(17, 24, 39, 0.8);
   border: 1px solid rgba(75, 85, 99, 0.3);
@@ -122,7 +122,7 @@
   border-color: rgba(107, 114, 128, 0.5);
 }
 
-/* تحسينات البيانات المتحركة */
+/* Animated data improvements */
 .data-shimmer {
   background: linear-gradient(90deg, 
     rgba(156, 163, 175, 0.1) 25%, 
@@ -142,21 +142,21 @@
   }
 }
 
-/* تحسين النصوص للقراءة */
+/* Improve text for reading */
 .stats-text {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* تحسينات الأداء */
+/* Performance improvements */
 .stats-card-enhanced,
 .stats-icon-container,
 .refresh-button {
   will-change: transform;
 }
 
-/* تحسين للشاشات الصغيرة جداً */
+/* Improve for very small screens */
 @media (max-width: 360px) {
   .enhanced-mobile-stats {
     padding: 0.5rem;
@@ -171,21 +171,21 @@
   }
 }
 
-/* تحسين للشاشات عالية الدقة */
+/* Improve for high resolution screens */
 @media (-webkit-min-device-pixel-ratio: 2) {
   .stats-card-enhanced {
     border-width: 0.5px;
   }
 }
 
-/* تحسينات إمكانية الوصول */
+/* Accessibility improvements */
 .stats-card-enhanced:focus,
 .refresh-button:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
 
-/* تقليل الحركة للمستخدمين الذين يفضلون ذلك */
+/* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   .stats-card-enhanced,
   .stats-icon-container,
@@ -200,7 +200,7 @@
   }
 }
 
-/* تحسين للاتجاه الأفقي */
+/* Improve for landscape orientation */
 @media (max-width: 768px) and (orientation: landscape) {
   .enhanced-mobile-stats {
     padding: 0.5rem 1rem;

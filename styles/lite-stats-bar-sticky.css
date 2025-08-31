@@ -1,31 +1,31 @@
-/* إصلاح التصاق شريط الإحصائيات في النسخة الخفيفة */
+/* Fix stats bar sticking in lite version */
 
 .compact-stats-bar {
-  /* إزالة أي مساحة فارغة */
+  /* Remove any empty space */
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   
-  /* ممتد بالكامل */
+  /* Full width */
   width: 100vw !important;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   
-  /* تحسين التصميم */
+  /* Improve design */
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   
-  /* إلتصاق مباشر بالهيدر */
+  /* Stick directly to header */
   position: sticky;
-  top: 56px; /* ارتفاع الهيدر الخفيف */
+  top: 56px; /* Light header height */
   z-index: 40;
 }
 
 .enhanced-mobile-stats {
-  /* ضمان عدم وجود فجوات */
+  /* Ensure no gaps */
   border-radius: 0 !important;
   
-  /* تحسين الألوان */
+  /* Improve colors */
   background: rgba(248, 248, 247, 0.95);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -35,7 +35,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* تحسين تجربة الهوفر */
+/* Improve hover experience */
 .enhanced-mobile-stats .stats-icon-container {
   transition: all 0.2s ease;
 }
@@ -45,19 +45,13 @@
   transform: scale(1.05);
 }
 
-/* تحسين الأرقام */
+/* Improve numbers */
 .stats-number {
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-feature-settings: 'tnum' 1;
 }
 
-/* تحسين العبارة الترحيبية في جميع النسخ */
-.welcome-meta-strip {
-  padding: 0 !important;
-  margin-bottom: 0.5rem !important;
-}
-
-/* ضبط المساحات في الصفحة الرئيسية */
+/* Adjust spacing in homepage */
 @media (max-width: 768px) {
   .mobile-content-wrapper {
     padding-top: 0 !important;
@@ -67,13 +61,13 @@
     margin-top: 0 !important;
   }
   
-  /* إزالة أي فراغات بعد شريط الإحصائيات */
+  /* Remove any spaces after stats bar */
   .compact-stats-bar + div {
     margin-top: 0 !important;
     padding-top: 1rem !important;
   }
   
-  /* إصلاح المحتوى بعد شريط الإحصائيات */
+  /* Fix content after stats bar */
   .mobile-content-after-stats {
     margin-top: 0 !important;
     padding-top: 0.5rem !important;
@@ -83,13 +77,13 @@
     padding-top: 0.5rem !important;
   }
   
-  /* تحسين العبارة الترحيبية في النسخة الخفيفة */
+  /* Improve welcome message in lite version */
   .welcome-meta-strip {
     margin-top: 0.75rem !important;
   }
 }
 
-/* تحسين العبارة الترحيبية في النسخة العادية */
+/* Improve welcome message in normal version */
 @media (min-width: 769px) {
   .welcome-meta-strip {
     margin-top: 0.5rem !important;
