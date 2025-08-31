@@ -54,6 +54,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
 # Copy built application
 COPY --from=builder /app/public ./public
@@ -99,6 +100,7 @@ RUN npx prisma generate
 # Set development environment
 ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
 
 # Expose port and start dev server
 EXPOSE 3000

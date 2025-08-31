@@ -226,42 +226,8 @@ const nextConfig = {
         ],
       },
       // Pages - cache ديناميكي حسب البيئة
-      {
-        source: "/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: process.env.NODE_ENV === 'development' 
-              ? "no-store, no-cache, must-revalidate"
-              : "public, s-maxage=60, max-age=30, stale-while-revalidate=120",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://va.vercel-scripts.com https://vercel.live wss:; frame-src 'self' https://vercel.live;",
-          },
-          // إضافة headers للأداء
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on"
-          },
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=31536000; includeSubDomains"
-          },
-          {
-            key: "X-Frame-Options",
-            value: "DENY"
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff"
-          },
-          {
-            key: "Referrer-Policy",
-            value: "origin-when-cross-origin"
-          }
-        ],
-      },
+      // ملاحظة: إزالة CSP الصارم الذي قد يمنع WebSocket أو سكربتات dev
+      // يمكن إعادته في الإنتاج عبر reverse proxy
     ];
   },
 
