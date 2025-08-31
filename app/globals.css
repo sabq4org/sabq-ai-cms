@@ -1,3 +1,135 @@
-/* Empty CSS file for testing */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* متغيرات CSS الأساسية */
+:root {
+  --header-height: 72px;
+  --mobile-header-height: 60px;
+  
+  /* متغيرات الألوان */
+  --bg: #ffffff;
+  --bg-elevated: #f8f9fa;
+  --fg: #1a202c;
+  --muted: #718096;
+  --accent: #3182ce;
+  --line: #e2e8f0;
+}
 
+.dark {
+  --bg: #1a202c;
+  --bg-elevated: #2d3748;
+  --fg: #ffffff;
+  --muted: #a0aec0;
+  --accent: #63b3ed;
+  --line: #4a5568;
+}
+
+/* التصميم الأساسي */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  direction: rtl;
+  text-align: right;
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui, sans-serif;
+}
+
+body {
+  color: hsl(var(--fg));
+  background: hsl(var(--bg));
+  line-height: 1.6;
+}
+
+/* الخطوط العربية */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+p, div, span, a, button, input, textarea, select {
+  font-family: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", system-ui, sans-serif;
+}
+
+/* إلغاء تأثيرات التركيز */
+* {
+  outline: none !important;
+}
+
+*:focus {
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  box-shadow: none !important;
+}
+
+/* تباعد المحتوى من الهيدر */
+.page-content-wrapper {
+  padding-top: calc(var(--header-height) + 1rem);
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .page-content-wrapper {
+    padding-top: calc(var(--mobile-header-height) + 1rem);
+  }
+}
+
+/* روابط بدون خط سفلي */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* تحسين الصور */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* تحسين أداء الحركات */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+img, svg, video, canvas, audio, iframe, embed, object {
+  transition: none !important;
+}
+
+/* الوضع المظلم */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background: hsl(var(--bg));
+  color: hsl(var(--fg));
+}
+
+/* شريط التمرير */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--bg));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
+}
