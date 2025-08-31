@@ -27,19 +27,5 @@
     }
   }, true);
   
-  // معالج أخطاء JavaScript Syntax
-  const originalError = console.error;
-  console.error = function() {
-    const args = Array.prototype.slice.call(arguments);
-    const message = String(args[0] || '');
-    
-    // تصفية أخطاء CSS Syntax
-    if (message.includes('SyntaxError') && message.includes('.css')) {
-      console.warn('CSS syntax error suppressed:', message.substring(0, 100));
-      return; // لا تظهر الخطأ
-    }
-    
-    // أخطاء أخرى تمرر عادي
-    originalError.apply(console, args);
-  };
+  // لا تغيّر console.error لتفادي إخفاء أخطاء حقيقية
 })();
