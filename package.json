@@ -23,6 +23,7 @@
     "db:check": "node scripts/check-database.js",
     "db:seed": "node scripts/seed-data.js",
     "db:test": "node debug-recent-articles.js",
+    "prod:check": "node scripts/production-diagnostics.js",
     "check-empty-categories": "node scripts/manage-empty-categories.js check",
     "delete-empty-categories": "node scripts/manage-empty-categories.js delete",
     "clean": "rm -rf .next && rm -rf node_modules/.cache",
