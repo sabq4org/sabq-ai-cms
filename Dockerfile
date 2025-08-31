@@ -53,7 +53,6 @@ WORKDIR /app
 # Set environment variables
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 # Copy built application
@@ -73,13 +72,14 @@ USER nextjs
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=5 \
+  CMD sh -c 'curl -fsS http://127.0.0.1:${PORT:-3000}/api/health || exit 1'
 
 # Use tini as init system for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start the application
+# Start the application using Next standalone server
+ENV PORT=3000
 CMD ["node", "server.js"]
 
 # ===== Development Stage =====

@@ -37,7 +37,7 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // أحجام responsive
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // تجنّب فرض CSP عبر إعداد الصور لتفادي التعارض مع المنصّة
     loader: "default",
     loaderFile: undefined,
     unoptimized: false,
