@@ -1,0 +1,16 @@
+{
+    "DATABASE_URL": "postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7",
+    "DIRECT_URL": "postgresql://_63675d59e8b3f9b1:_0128ce8b926fef059a8992b4b8a048@primary.sabq--7mcgps947hwt.addon.code.run:5432/_f730d16e1ad7",
+    "PORT": "8080",
+    "NODE_ENV": "production",
+    "NEXTAUTH_SECRET": "3fba94fd1803f7e72aebf109e4dcb3039c2fb094d3d94b9301e94feec00374c5",
+    "JWT_SECRET": "LnGAxzzUwUeKi956rm54D6BqhugTxnyx2/1Hm1pdypXzZfmPPOja9E87IM0YLXbg0nrTzSMqrjTkfkzNU5XyEA==",
+    "NEXT_PUBLIC_BASE_URL": "https://site--sabqai--7mcgps947hwt.code.run",
+    "NEXT_PUBLIC_SITE_URL": "https://site--sabqai--7mcgps947hwt.code.run",
+    "DISABLE_REDIS": "true",
+    "REDIS_ENABLED": "false",
+    "CLOUDINARY_CLOUD_NAME": "YOUR_CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY": "YOUR_CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET": "YOUR_CLOUDINARY_API_SECRET",
+    "CLOUDINARY_URL": "cloudinary://YOUR_API_KEY:YOUR_API_SECRET@YOUR_CLOUD_NAME"
+}
