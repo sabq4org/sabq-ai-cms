@@ -94,33 +94,39 @@ export default async function LightFeaturedServerMarkup({ limit = 3 }: { limit?:
   }
 
   return (
-    <section aria-label="الأخبار المميزة" className="mb-6">
-      <h2 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">الأخبار المميزة</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <section aria-label="الأخبار المميزة" className="relative" dir="rtl">
+      <div
+        className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
+        style={{ WebkitOverflowScrolling: "touch" as any, scrollbarWidth: 'none' as any }}
+      >
         {articles.slice(0, 3).map((article, idx) => {
           const href = getArticleHref(article);
-          const displaySrc = normalizeImageSrc(
-            article.featured_image || article.social_image || article.image_url
-          ) || "/images/news-placeholder-lite.svg";
-          
+          const rawImage =
+            article.featured_image || article.social_image || article.image_url || article.image || article.thumbnail;
+          const displaySrc = normalizeImageSrc(rawImage) || "/images/news-placeholder-lite.svg";
           return (
             <Link
               key={article.id || idx}
               href={href}
               prefetch={false}
-              className="block"
+              className="group flex-shrink-0 snap-start w-[70%] xs:w-[60%] sm:w-[45%] md:w-[320px] max-w-[340px] select-none"
+              aria-label={article.title}
+              style={{ contentVisibility: "auto" as any, containIntrinsicSize: "320px 260px" as any }}
             >
-              <article className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="relative aspect-video">
+              <article className="relative rounded-2xl overflow-hidden border transition-all duration-200 h-full flex flex-col shadow-sm bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                   <img
                     src={displaySrc}
                     alt={article.title}
                     loading={idx === 0 ? "eager" : "lazy"}
-                    className="w-full h-full object-cover"
+                    decoding="async"
+                    // @ts-ignore
+                    fetchPriority={idx === 0 ? ("high" as any) : ("low" as any)}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 </div>
-                <div className="p-4">
-                  <h3 className="font-semibold line-clamp-2 text-gray-900 dark:text-white">
+                <div className="flex flex-col p-3 pb-4 flex-1">
+                  <h3 className="text-sm sm:text-base font-semibold leading-snug line-clamp-2 mb-2 text-gray-900 dark:text-white">
                     {article.title}
                   </h3>
                 </div>

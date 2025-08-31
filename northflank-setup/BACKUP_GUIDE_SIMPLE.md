@@ -78,3 +78,4 @@ pg_dump "postgresql://YOUR_CONNECTION_STRING" > my_backup.sql
 **تحتاج مساعدة؟** شارك رسالة الخطأ وسأساعدك! 💪
 
 
+
