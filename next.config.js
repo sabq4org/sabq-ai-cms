@@ -16,29 +16,7 @@ const nextConfig = {
   experimental: {
     // تحسينات الأداء المتقدمة
     webpackBuildWorker: true,
-    
-    // تحسين imports للمكتبات الكبيرة - الأولوية العليا
-    optimizePackageImports: [
-      'lucide-react',
-      '@radix-ui/react-icons',
-      '@headlessui/react',
-      'framer-motion',
-      'react-hot-toast',
-      '@tanstack/react-query',
-      'date-fns'
-    ],
-    
-    // تحسين Bundle Size
-    bundlePagesRouterDependencies: true,
-    optimizeCss: true,
-    
-    // تحسين Cache للصفحات
-    staleTimes: {
-      dynamic: 30,
-      static: 180,
-    },
-    
-    // تحسين CSS
+    // إزالة مفاتيح غير معترف بها لتفادي فشل البناء
     optimizeCss: true
   },
 
