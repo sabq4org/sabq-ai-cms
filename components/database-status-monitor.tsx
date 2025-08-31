@@ -82,7 +82,7 @@ export default function DatabaseStatusMonitor({
             : isConnected
             ? "bg-green-500"
             : "bg-red-500"
-        } ${isChecking ? "animate-pulse" : ""}`}
+        }`}
       />
       <span className="text-xs">
         {isConnected === null

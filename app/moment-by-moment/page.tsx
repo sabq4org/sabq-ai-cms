@@ -240,7 +240,7 @@ export default function MomentByMomentPage() {
 
           <div className="relative max-w-7xl mx-auto px-4 md:px-6">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 shadow-2xl animate-pulse">
+              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 shadow-2xl">
                 <Radio className="w-10 h-10 text-white" />
               </div>
 
@@ -271,8 +271,8 @@ export default function MomentByMomentPage() {
               {mounted && (
                 <div className="mt-4 inline-flex items-center gap-2 live-indicator">
                   <div className="relative">
-                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                    <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full opacity-75"></div>
                   </div>
                   <span className="text-sm font-medium text-red-600 dark:text-red-400">
                     متابعة مباشرة

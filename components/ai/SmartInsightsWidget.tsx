@@ -95,16 +95,16 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
     } catch {}
   }, []);
 
-  // دوران تلقائي للمؤشرات
-  useEffect(() => {
-    if (insights.length > 1) {
-      const carousel = setInterval(() => {
-        setCurrentIndex(prev => (prev + 1) % Math.min(5, insights.length));
-      }, 8000); // كل 8 ثواني
+  // دوران تلقائي للمؤشرات - معطل مؤقتاً لمنع الوميض
+  // useEffect(() => {
+  //   if (insights.length > 1) {
+  //     const carousel = setInterval(() => {
+  //       setCurrentIndex(prev => (prev + 1) % Math.min(5, insights.length));
+  //     }, 8000); // كل 8 ثواني
       
-      return () => clearInterval(carousel);
-    }
-  }, [insights.length]);
+  //     return () => clearInterval(carousel);
+  //   }
+  // }, [insights.length]);
 
   const getInsightConfig = (tag: string) => {
     const configs = {
@@ -212,11 +212,11 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-[#f0f0ef] dark:border-slate-600/50">
                         <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 bg-red-500/90 dark:bg-red-500/80 rounded-full animate-pulse"></div>
-              <div className="w-2.5 h-2.5 bg-blue-500/90 dark:bg-blue-500/80 rounded-full animate-pulse delay-100"></div>
-              <div className="w-2.5 h-2.5 bg-green-500/90 dark:bg-green-500/80 rounded-full animate-pulse delay-200"></div>
-              <div className="w-2.5 h-2.5 bg-yellow-500/90 dark:bg-yellow-500/80 rounded-full animate-pulse delay-300"></div>
-              <div className="w-2.5 h-2.5 bg-purple-500/90 dark:bg-purple-500/80 rounded-full animate-pulse delay-500"></div>
+              <div className="w-2.5 h-2.5 bg-red-500/60 dark:bg-red-500/40 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-blue-500/60 dark:bg-blue-500/40 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-green-500/60 dark:bg-green-500/40 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-yellow-500/60 dark:bg-yellow-500/40 rounded-full"></div>
+              <div className="w-2.5 h-2.5 bg-purple-500/60 dark:bg-purple-500/40 rounded-full"></div>
             </div>
               <div className="text-xs text-slate-400 dark:text-slate-500">جاري التحميل...</div>
             </div>
@@ -277,7 +277,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
       <div className={`${isCompact ? 'mb-3' : 'mb-4'}`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               مباشر الآن
             </span>
