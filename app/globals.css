@@ -134,7 +134,7 @@ img, svg, video, canvas, audio, iframe, embed, object {
   background: hsl(var(--accent));
 }
 
-/* تصميم بطاقات الأخبار - النسخة الخفيفة */
+/* تصميم بطاقات الأخبار - النسخة الخفيفة الأصلية */
 .old-style-news-block {
   width: 100%;
   margin-bottom: 32px;
@@ -171,29 +171,32 @@ img, svg, video, canvas, audio, iframe, embed, object {
   gap: 20px;
 }
 
+/* بطاقة الخبر - تصميم بسيط بدون إطارات كما كان سابقاً */
 .old-style-news-card {
-  background: hsl(var(--bg-elevated));
-  border: 1px solid hsl(var(--line));
-  border-radius: 12px;
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
   transition: all 0.3s ease;
   text-decoration: none;
   color: inherit;
   display: block;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .old-style-news-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* حاوي الصورة - زوايا منحنية قليلاً فقط */
 .old-style-news-image-container {
   position: relative;
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background: hsl(var(--bg));
+  background: #f3f4f6;
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
 
 .old-style-news-image {
@@ -201,23 +204,23 @@ img, svg, video, canvas, audio, iframe, embed, object {
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+  border-radius: 8px;
 }
 
 .old-style-news-card:hover .old-style-news-image {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
+/* محتوى البطاقة - بدون padding */
 .old-style-news-content {
-  padding: 16px;
+  padding: 0;
 }
 
 .old-style-news-top-bar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .old-style-news-badges {
@@ -233,10 +236,10 @@ img, svg, video, canvas, audio, iframe, embed, object {
   gap: 4px;
   background: #dc2626;
   color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .old-style-news-custom-badge {
@@ -254,15 +257,19 @@ img, svg, video, canvas, audio, iframe, embed, object {
 .recent-news-badge {
   background: #10b981 !important;
   color: white !important;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .old-style-news-date-inline {
   font-size: 12px;
   color: hsl(var(--muted));
   font-weight: 500;
-  white-space: nowrap;
 }
 
+/* عنوان المقال */
 .old-style-news-card-title {
   font-size: 16px;
   font-weight: 600;
@@ -281,13 +288,13 @@ img, svg, video, canvas, audio, iframe, embed, object {
   color: hsl(var(--accent));
 }
 
+/* الشريط السفلي */
 .old-style-news-bottom-bar {
   display: flex;
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
   margin-top: auto;
-  padding-top: 8px;
 }
 
 .old-style-news-meta-item {
@@ -309,12 +316,12 @@ img, svg, video, canvas, audio, iframe, embed, object {
   text-align: center;
   padding: 48px 20px;
   color: hsl(var(--muted));
-  background: hsl(var(--bg-elevated));
-  border: 1px dashed hsl(var(--line));
-  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
 }
 
-/* تجاوب مع الأجهزة المختلفة */
+/* التجاوب مع الأجهزة المختلفة - كما كان سابقاً */
 @media (max-width: 1024px) {
   .old-style-news-grid {
     grid-template-columns: repeat(2, 1fr) !important;
@@ -336,25 +343,25 @@ img, svg, video, canvas, audio, iframe, embed, object {
   }
   
   .old-style-news-image-container {
-    height: 180px;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 12px;
   }
   
   .old-style-news-content {
-    padding: 12px;
+    padding: 0;
   }
   
   .old-style-news-card-title {
     font-size: 15px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     margin-bottom: 8px;
   }
   
   .old-style-news-bottom-bar {
+    margin-top: 8px;
     gap: 12px;
-    padding-top: 6px;
-  }
-  
-  .old-style-news-badges {
-    gap: 6px;
   }
   
   .old-style-news-breaking-badge,
@@ -362,27 +369,5 @@ img, svg, video, canvas, audio, iframe, embed, object {
   .recent-news-badge {
     font-size: 10px;
     padding: 3px 6px;
-  }
-}
-
-@media (max-width: 480px) {
-  .old-style-news-content {
-    padding: 10px;
-  }
-  
-  .old-style-news-top-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  
-  .old-style-news-badges {
-    width: 100%;
-    justify-content: flex-start;
-  }
-  
-  .old-style-news-card-title {
-    font-size: 14px;
-    line-height: 1.3;
   }
 }
