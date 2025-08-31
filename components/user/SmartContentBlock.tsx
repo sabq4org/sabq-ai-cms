@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
 // Switch to dynamic import to reduce main bundle for desktop users
-import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
+import SimpleHorizontalCard from '@/components/old-style/SimpleHorizontalCard';
 
 // Reuse a single date formatter instance to avoid recreating Intl on each render
 const AR_DATE = new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -53,15 +53,7 @@ export default function SmartContentBlock({
     description: "تتابع أهم ما يهمك من أخبار ومقالات مختارة خصيصاً بناءً على تفضيلاتك"
   }), []);
 
-  // تحويل بيانات المقالات للطراز القديم (memoized)
-  const oldStyleArticles = useMemo(() => (
-    (articles as any[]).map((a: any) => ({
-      ...a,
-      is_custom: a.isPersonalized === true,
-      published_at: a.published_at || a.publishedAt || a.created_at || a.createdAt,
-      reading_time: a.readTime || a.reading_time,
-    }))
-  ), [articles]);
+
 
   // تحسين useEffect للتحميل السريع
   useEffect(() => {
@@ -275,13 +267,8 @@ export default function SmartContentBlock({
             {content.description}
           </p>
         </div>
-        <OldStyleNewsBlock
-          // تمرير is_custom الحقيقي فقط للمقالات المخصصة
-          articles={oldStyleArticles as unknown as any[]}
-          title={content.title}
-          showTitle={false}
-          columns={3}
-          className="mt-6 mb-4"
+        <SimpleHorizontalCard
+          articles={articles as any[]}
         />
       </div>
     );
