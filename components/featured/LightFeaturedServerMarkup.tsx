@@ -49,8 +49,8 @@ function getArticleHref(a: FeaturedArticleLite): string {
 }
 
 export default async function LightFeaturedServerMarkup({ limit = 3 }: { limit?: number }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const endpoint = `${baseUrl}/api/articles/featured?limit=${Math.max(1, Math.min(6, limit))}`;
+  // استخدام مسار نسبي يعمل في جميع البيئات
+  const endpoint = `/api/articles/featured?limit=${Math.max(1, Math.min(6, limit))}`;
 
   let articles: FeaturedArticleLite[] = [];
   try {
