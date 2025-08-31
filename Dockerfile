@@ -2,7 +2,7 @@
 # Production-optimized with security best practices
 
 # ===== Dependencies Stage =====
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 
 # Install security updates
 RUN apk update && apk upgrade && apk add --no-cache libc6-compat
@@ -21,7 +21,7 @@ RUN npm ci --only=production && npm cache clean --force
 RUN npx prisma generate
 
 # ===== Builder Stage =====
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # ===== Runner Stage =====
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 # Security: Create non-root user
 RUN addgroup --system --gid 1001 nodejs
@@ -82,7 +82,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "server.js"]
 
 # ===== Development Stage =====
-FROM node:18-alpine AS development
+FROM node:20-alpine AS development
 
 WORKDIR /app
 
