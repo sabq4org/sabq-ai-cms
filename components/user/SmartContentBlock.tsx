@@ -6,11 +6,7 @@ import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
 // Switch to dynamic import to reduce main bundle for desktop users
-import dynamic from 'next/dynamic';
-const OldStyleNewsBlockLazy = dynamic(() => import('@/components/old-style/OldStyleNewsBlock'), {
-  ssr: false,
-  loading: () => <div style={{ padding: '16px 0' }} />
-});
+import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
 
 // Reuse a single date formatter instance to avoid recreating Intl on each render
 const AR_DATE = new Intl.DateTimeFormat('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -110,9 +106,9 @@ export default function SmartContentBlock({
   const fetchSmartContent = async (signal?: AbortSignal) => {
     try {
       console.log('🔍 SmartContentBlock: بداية جلب البيانات...');
-      // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت موجودة
+      // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت متوفرة
       // جلب الأخبار العامة مع إمكانية تضمين الأخبار المميزة
-      const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc';
+      const cacheKey = '/api/articles/latest?limit=20';
       
       // محاولة استخدام Cache API إذا كانت متوفرة بالمتصفح
       let cachedResponse: any;
@@ -150,7 +146,7 @@ export default function SmartContentBlock({
           // تجاهل أخطاء الكاش
         }
 
-        const articles = (data.articles || []).slice(0, 20);
+        const articles = (data.data || []).slice(0, 20);
         console.log('✅ SmartContentBlock: تم جلب البيانات بنجاح:', articles.length, 'مقال');
         const enriched: Article[] = articles.map((article: any) => ({
           ...article,
@@ -305,7 +301,7 @@ export default function SmartContentBlock({
             {content.description}
           </p>
         </div>
-        <OldStyleNewsBlockLazy
+        <OldStyleNewsBlock
           // تمرير is_custom الحقيقي فقط للمقالات المخصصة
           articles={oldStyleArticles as unknown as any[]}
           title={content.title}
