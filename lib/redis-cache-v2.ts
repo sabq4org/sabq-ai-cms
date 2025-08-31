@@ -9,7 +9,32 @@ type RedisClient = {
 
 let client: RedisClient;
 
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+// حراس البيئة لتعطيل Redis بأمان أو التبديل لذاكرة مؤقتة عند غياب الإعدادات
+const redisDisabled = process.env.DISABLE_REDIS === 'true' || process.env.REDIS_ENABLED === 'false';
+const hasUpstash = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+const hasRedisUrl = Boolean(process.env.REDIS_URL && process.env.REDIS_URL.trim().length > 0);
+
+// عميل ذاكرة بسيط كبديل آمن عند عدم توفر Redis
+class MemoryRedis implements RedisClient {
+  private store = new Map<string, string>();
+  async get(k: string) {
+    return this.store.has(k) ? this.store.get(k)! : null;
+  }
+  async set(k: string, v: string, opts?: { ex?: number }) {
+    this.store.set(k, v);
+    if (opts?.ex && opts.ex > 0) {
+      setTimeout(() => this.store.delete(k), opts.ex * 1000).unref?.();
+    }
+  }
+  async del(k: string) {
+    this.store.delete(k);
+  }
+}
+
+if (redisDisabled || (!hasUpstash && !hasRedisUrl)) {
+  // تعطيل Redis أو عدم توفر إعدادات الاتصال → استخدام ذاكرة محلية آمنة
+  client = new MemoryRedis();
+} else if (hasUpstash) {
   // Upstash REST
   const base = process.env.UPSTASH_REDIS_REST_URL!;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
@@ -35,17 +60,50 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
     }
   };
 } else {
-  // ioredis over REDIS_URL
+  // ioredis عبر REDIS_URL مع إعدادات آمنة لمنع التعليق/الأخطاء غير المعالجة
   const IORedis = require('ioredis');
   const r = new IORedis(process.env.REDIS_URL!, {
-    maxRetriesPerRequest: 2,
     enableAutoPipelining: true,
-    tls: process.env.REDIS_TLS === 'true' ? {} : undefined
+    maxRetriesPerRequest: 1,
+    enableOfflineQueue: false,
+    lazyConnect: true,
+    retryStrategy: (times: number) => (times > 3 ? null : Math.min(times * 50, 2000)),
+    tls: process.env.REDIS_TLS === 'true' || (process.env.REDIS_URL || '').startsWith('rediss://') ? {} : undefined,
   });
+
+  // منع كسر التطبيق بسبب أحداث خطأ غير معالَجة
+  try {
+    r.on('error', (err: any) => {
+      if (!err?.message?.includes('ECONNREFUSED')) {
+        // طباعة مختصرة فقط للأخطاء غير المتكررة/المعروفة
+        console.warn('[redis-cache-v2] Redis connection error:', err?.message || err);
+      }
+    });
+  } catch {}
+
   client = {
-    get: (k) => r.get(k),
-    set: (k, v, opts) => r.set(k, v, 'EX', (opts?.ex ?? 0) || 1),
-    del: (k) => r.del(k)
+    get: async (k) => {
+      try {
+        // اتصال كسول: اتصل فقط عند الطلب
+        if (!(r as any).status || (r as any).status === 'wait') await r.connect();
+        return await r.get(k);
+      } catch {
+        return null;
+      }
+    },
+    set: async (k, v, opts) => {
+      try {
+        if (!(r as any).status || (r as any).status === 'wait') await r.connect();
+        const ttl = (opts?.ex ?? 0) || 1;
+        return await r.set(k, v, 'EX', ttl);
+      } catch {}
+    },
+    del: async (k) => {
+      try {
+        if (!(r as any).status || (r as any).status === 'wait') await r.connect();
+        return await r.del(k);
+      } catch {}
+    },
   };
 }
 
