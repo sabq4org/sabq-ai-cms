@@ -151,7 +151,7 @@ export default function OldStyleNewsBlock({
             className="old-style-news-card"
             style={{ contentVisibility: 'auto', containIntrinsicSize: '300px 220px' as any }}
           >
-            {/* صورة المقال */}
+            {/* صورة المقال + شريط الشارات والتاريخ كـ overlay لتجنب الوميض */}
             <div className="old-style-news-image-container">
               <SafeNewsImage
                 src={getImageUrl(article)}
@@ -162,24 +162,17 @@ export default function OldStyleNewsBlock({
                 width={300}
                 height={200}
               />
-            </div>
-
-            {/* محتوى المقال */}
-            <div className="old-style-news-content">
-              {/* الشريط العلوي: شارات + التاريخ بجانب الشارات وعلى يمين البطاقة */}
-              <div className="old-style-news-top-bar">
+              <div className="old-style-news-top-bar-overlay">
                 <div className="old-style-news-badges">
-                  {/* شارة عاجل - أولوية أعلى من باقي الشارات */}
                   {(article.breaking || article.is_breaking) && (
                     <div className="old-style-news-breaking-badge">
                       <span className="old-style-lightning-emoji" aria-hidden>⚡</span>
                       <span>عاجل</span>
                     </div>
                   )}
-                  {/* ليبل التصنيف - تم إخفاؤه حسب طلب المستخدم */}
                   {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
-                    <div className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
-                      <span className="text-xs">🔥</span>
+                    <div className="old-style-news-new-badge">
+                      <span className="old-style-flame-icon" aria-hidden></span>
                       <span>جديد</span>
                     </div>
                   )}
@@ -189,16 +182,18 @@ export default function OldStyleNewsBlock({
                       <span>مخصص</span>
                     </div>
                   )}
-                  {/* التاريخ يظهر دائمًا بجانب الشارات، وبحجم موحّد */}
-                  <span className="old-style-news-date-inline">{formatGregorianDate(article.published_at)}</span>
                 </div>
+                <span className="old-style-news-date-inline">{formatGregorianDate(article.published_at)}</span>
               </div>
+            </div>
 
+            {/* محتوى المقال */}
+            <div className="old-style-news-content">
               {/* العنوان */}
               <h3 className="old-style-news-card-title">
                 {article.title}
               </h3>
-
+              
               {/* شريط المعلومات السفلي: المشاهدات ومدة القراءة */}
               <div className="old-style-news-bottom-bar">
                 {article.views && (
