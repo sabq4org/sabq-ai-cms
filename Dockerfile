@@ -88,7 +88,7 @@ WORKDIR /app
 
 # Install all dependencies including dev
 COPY package*.json ./
-RUN npm ci
+RUN npm config set legacy-peer-deps true && npm install --no-audit --no-fund
 
 # Copy source code
 COPY . .
