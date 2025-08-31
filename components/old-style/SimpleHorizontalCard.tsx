@@ -108,19 +108,19 @@ export default function SimpleHorizontalCard({ articles = [] }: SimpleHorizontal
             />
           </div>
 
+          {/* السطر الأول: ليبل جديد + التاريخ - بجانب الصورة */}
+          <div className="simple-horizontal-meta">
+            {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
+              <span className="simple-new-badge">
+                <span className="flame-emoji">🔥</span>
+                جديد
+              </span>
+            )}
+            <span className="simple-date">{formatGregorianDate(article.published_at)}</span>
+          </div>
+
           {/* المحتوى على اليسار */}
           <div className="simple-horizontal-content">
-            {/* السطر الأول: ليبل جديد + التاريخ */}
-            <div className="simple-horizontal-meta">
-              {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
-                <span className="simple-new-badge">
-                  <span className="flame-emoji">🔥</span>
-                  جديد
-                </span>
-              )}
-              <span className="simple-date">{formatGregorianDate(article.published_at)}</span>
-            </div>
-
             {/* العنوان */}
             <h3 className="simple-horizontal-title">
               {article.title}
@@ -187,12 +187,15 @@ export default function SimpleHorizontalCard({ articles = [] }: SimpleHorizontal
           min-width: 0;
         }
 
-        /* السطر الأول: ليبل جديد + التاريخ */
+        /* السطر الأول: ليبل جديد + التاريخ - بجانب الصورة */
         .simple-horizontal-meta {
           display: flex;
-          align-items: center;
-          gap: 8px;
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 4px;
           font-size: 12px;
+          min-width: fit-content;
+          padding-right: 8px;
         }
 
         /* ليبل جديد */
