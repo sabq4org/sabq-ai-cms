@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+// Removed Vercel SpeedInsights - not needed outside Vercel
 import Script from "next/script";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
@@ -200,7 +200,7 @@ export default async function RootLayout({
           {children}
         </ConditionalLayout>
         <ToastContainer />
-        <SpeedInsights />
+
       </body>
     </html>
   );

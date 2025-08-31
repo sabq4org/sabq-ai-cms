@@ -122,8 +122,6 @@
     "@types/react": "^18.3.16",
     "@types/react-dom": "^18.3.5",
     "@types/redis": "^4.0.10",
-    "@vercel/analytics": "^1.5.0",
-    "@vercel/speed-insights": "^1.2.0",
     "archiver": "^7.0.1",
     "autoprefixer": "^10.4.21",
     "aws-sdk": "^2.1692.0",
