@@ -8,7 +8,7 @@ export async function GET() {
     
     // عد الجداول الموجودة
     const tableCount = await prisma.$queryRaw`
-      SELECT COUNT(*) as count 
+      SELECT COUNT(*)::int as count 
       FROM information_schema.tables 
       WHERE table_schema = 'public'
     `;
