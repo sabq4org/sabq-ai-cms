@@ -40,20 +40,28 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
 
   const fetchInsights = async () => {
     try {
-      const response = await fetch('/api/ai-insights', { next: { revalidate: 120 } });
-      
-      if (!response.ok) throw new Error('Failed to fetch insights');
-      
-      const data = await response.json();
+      // محاولة أساسية
+      let data: any = null;
+      try {
+        const response = await fetch('/api/ai-insights', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Failed to fetch insights');
+        data = await response.json();
+      } catch (e) {
+        // fallback هادئ: عرض واجهة placeholder بدون كسر الواجهة
+        data = { success: true, data: [] };
+      }
+
       if (data.success && data.data) {
         setInsights(data.data);
         setError(null);
       } else {
-        setError('فشل في تحميل المؤشرات');
+        setInsights([]);
+        setError(null);
       }
     } catch (err) {
       console.error('Error fetching insights:', err);
-      setError('فشل في تحميل المؤشرات');
+      setInsights([]);
+      setError(null);
     } finally {
       setLoading(false);
     }

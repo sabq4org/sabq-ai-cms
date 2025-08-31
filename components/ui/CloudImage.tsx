@@ -58,23 +58,22 @@ export default function CloudImage({
           !window.location.hostname.includes("192.168.") &&
           !window.location.hostname.includes("dev-"));
 
-      // استخدام معالج الإنتاج في بيئة الإنتاج
-      if (isProduction) {
+      // استخدام معالج الإنتاج دائماً، مع fallback لCloudinary/S3 عند الفشل
+      try {
         return getProductionImageUrl(src, {
           width,
           height,
           quality,
           fallbackType,
         });
+      } catch (_e) {
+        return getImageUrl(src, {
+          width,
+          height,
+          quality,
+          fallbackType,
+        });
       }
-
-      // في بيئة التطوير، استخدم المعالج العادي
-      return getImageUrl(src, {
-        width,
-        height,
-        quality,
-        fallbackType,
-      });
     } catch (error) {
       if (process.env.NODE_ENV !== "production") {
         console.error("خطأ في معالجة رابط الصورة:", error);

@@ -25,12 +25,27 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     (async () => {
       try {
         const isProd = process.env.NODE_ENV === 'production';
-        const endpoint = isProd
-          ? `/api/articles/featured?limit=${limit}`
-          : `/api/articles/featured-json?limit=${limit}`;
-        const res = await fetch(endpoint, { cache: "force-cache", next: { revalidate: 60 } });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
+        const primary = `/api/articles/featured?limit=${limit}`;
+        const fallback = `/api/articles/featured-json?limit=${limit}`;
+
+        // المحاولة الأساسية (مع سياسة لا تعتمد على الكاش لتفادي 503 المتوارث)
+        let json: any = null;
+        try {
+          const res = await fetch(primary, { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          json = await res.json();
+        } catch (e) {
+          // fallback هادئ إلى نسخة JSON المحلية عند الفشل
+          try {
+            const res2 = await fetch(fallback, { cache: 'no-store' });
+            if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+            json = await res2.json();
+          } catch (e2) {
+            console.error('فشل جلب الأخبار المميزة (primary & fallback):', e2);
+            json = { data: [] };
+          }
+        }
+        
         const list: FeaturedArticleLite[] = (json?.data || []).map((a: any) => ({
           id: a.id,
           title: a.title,
