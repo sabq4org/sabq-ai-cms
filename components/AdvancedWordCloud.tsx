@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import dynamic from "next/dynamic";
 import { 
   Settings, 
   Download, 
@@ -16,19 +15,6 @@ import {
   Target,
   Zap
 } from "lucide-react";
-
-// تحميل ديناميكي لمكون سحابة الكلمات
-const ReactWordcloud = dynamic(() => import("react-wordcloud"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-96 bg-gray-50">
-      <div className="text-center">
-        <RefreshCw className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-2" />
-        <p className="text-gray-600">جارٍ تحميل سحابة الكلمات...</p>
-      </div>
-    </div>
-  )
-});
 
 interface WordCloudData {
   id: string;
@@ -192,36 +178,22 @@ export default function AdvancedWordCloud({
     });
   };
 
-  // إعدادات سحابة الكلمات
-  const wordCloudOptions = useMemo(() => {
-    const colorSchemes = {
-      blue: ["#1e40af", "#3b82f6", "#60a5fa", "#93c5fd", "#dbeafe"],
-      green: ["#166534", "#16a34a", "#4ade80", "#86efac", "#dcfce7"],
-      red: ["#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fee2e2"],
-      purple: ["#7c3aed", "#8b5cf6", "#a78bfa", "#c4b5fd", "#ede9fe"],
-      rainbow: ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899"]
-    };
-
-    return {
-      colors: colorSchemes[filters.colorScheme as keyof typeof colorSchemes] || colorSchemes.blue,
-      enableTooltip: true,
-      deterministic: false,
-      fontFamily: filters.fontFamily,
-      fontSizes: [14, 64] as [number, number],
-      fontStyle: "normal" as const,
-      fontWeight: "bold" as const,
-      padding: filters.padding,
-      rotations: filters.enableRotation ? 3 : 1,
-      rotationAngles: filters.enableRotation ? [-45, 45] as [number, number] : [0, 0] as [number, number],
-      scale: "sqrt" as const,
-      spiral: filters.enableSpiral ? "archimedean" as const : "rectangular" as const,
-      transitionDuration: 1000,
-    };
-  }, [filters]);
+  // مخططات الألوان
+  const colorSchemes = {
+    blue: ["#1e40af", "#3b82f6", "#60a5fa", "#93c5fd", "#dbeafe"],
+    green: ["#166534", "#16a34a", "#4ade80", "#86efac", "#dcfce7"],
+    red: ["#dc2626", "#ef4444", "#f87171", "#fca5a5", "#fee2e2"],
+    purple: ["#7c3aed", "#8b5cf6", "#a78bfa", "#c4b5fd", "#ede9fe"],
+    rainbow: ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899"]
+  };
+  
+  const getWordColor = useCallback((index: number) => {
+    const colors = colorSchemes[filters.colorScheme as keyof typeof colorSchemes] || colorSchemes.blue;
+    return colors[index % colors.length];
+  }, [filters.colorScheme]);
 
   // معالجة النقر على الكلمة
-  const handleWordClick = useCallback(async (word: any, event: any) => {
-    const wordData = words.find(w => w.text === word.text);
+  const handleWordClick = useCallback(async (event: any, wordData: WordCloudData) => {
     if (!wordData) return;
 
     // تسجيل النقرة
@@ -244,7 +216,7 @@ export default function AdvancedWordCloud({
   }, [words, onWordClick]);
 
   // معالجة التمرير فوق الكلمة
-  const handleWordHover = useCallback((word: any, event: any) => {
+  const handleWordHover = useCallback((event: any, wordData: WordCloudData) => {
     // يمكن إضافة تأثيرات إضافية هنا
   }, []);
 
@@ -567,15 +539,31 @@ export default function AdvancedWordCloud({
         )}
 
         {!loading && !error && words.length > 0 && (
-          <div className="h-full">
-            <ReactWordcloud
-              words={words}
-              options={wordCloudOptions}
-              callbacks={{
-                onWordClick: handleWordClick,
-                onWordMouseOver: handleWordHover,
-              }}
-            />
+          <div className="h-full p-8 overflow-auto">
+            <div className="flex flex-wrap gap-2 justify-center items-center">
+              {words.map((word, index) => {
+                const fontSize = Math.max(12, Math.min(48, word.value / 2));
+                const opacity = Math.max(0.5, Math.min(1, word.value / 100));
+                
+                return (
+                  <button
+                    key={word.id}
+                    onClick={() => handleWordClick(null, word)}
+                    onMouseEnter={() => handleWordHover(null, word)}
+                    className="transition-all duration-200 hover:scale-110 cursor-pointer"
+                    style={{
+                      fontSize: `${fontSize}px`,
+                      opacity: opacity,
+                      color: word.color || getWordColor(index),
+                      fontWeight: word.value > 50 ? 'bold' : 'normal',
+                      transform: `rotate(${index % 3 === 0 ? (Math.random() - 0.5) * 10 : 0}deg)`
+                    }}
+                  >
+                    {word.text}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
