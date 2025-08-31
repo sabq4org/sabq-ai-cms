@@ -265,6 +265,54 @@ const nextConfig = {
     ];
   },
 
+  // استبدال منطق الميدل وير بقواعد Redirects ثابتة (301) لتجنّب Edge runtime
+  async redirects() {
+    return [
+      // تحويل dashboard إلى admin
+      {
+        source: '/dashboard/news/unified',
+        destination: '/admin/news/unified',
+        permanent: true,
+      },
+      {
+        // التعامل الخاص مع مسار المقالات المفرد → الجمع
+        source: '/dashboard/article/:path*',
+        destination: '/admin/articles/:path*',
+        permanent: true,
+      },
+      {
+        // باقي مسارات الداشبورد
+        source: '/dashboard/:path*',
+        destination: '/admin/:path*',
+        permanent: true,
+      },
+
+      // دعم الروابط المؤرخة للأخبار
+      {
+        source: '/news/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug',
+        destination: '/news/:slug',
+        permanent: true,
+      },
+
+      // تحويلات أسماء المراسلين بالعربية إلى السجل الصحيح
+      {
+        source: '/reporter/علي-الحازمي',
+        destination: '/reporter/ali-alhazmi-389657',
+        permanent: true,
+      },
+      {
+        source: '/reporter/علي الحازمي',
+        destination: '/reporter/ali-alhazmi-389657',
+        permanent: true,
+      },
+      {
+        source: '/reporter/علي_الحازمي',
+        destination: '/reporter/ali-alhazmi-389657',
+        permanent: true,
+      },
+    ];
+  },
+
   // تحسين Webpack للأداء العالي
   webpack: (config, { dev, isServer }) => {
     // إضافة استثناءات للمكتبات المشاكسة
