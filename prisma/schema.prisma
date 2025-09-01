@@ -10,6 +10,22 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model AdvancedAnalytics {
+  id                String   @id
+  metric_category   String
+  metric_name       String
+  dimensions        Json
+  measures          Json
+  time_period       String
+  aggregation_level String
+  filters           Json?
+  raw_data          Json?
+  computed_at       DateTime @default(now())
+
+  @@index([metric_category, time_period])
+  @@index([metric_name, computed_at])
+}
+
 model EmailJob {
   id            String          @id
   template_id   String?
@@ -71,9 +87,208 @@ model EmailTemplate {
   updated_at   DateTime
 }
 
-/// تخزين رموز التحديث (Refresh Tokens) وإبطالها
+model Entity {
+  id          String        @id
+  name        String
+  type        String?
+  description String?
+  metadata    Json?
+  created_at  DateTime      @default(now())
+  StoryEntity StoryEntity[]
+}
+
+model Event {
+  id              String   @id
+  story_id        String
+  title           String
+  content         String
+  source          String?
+  event_date      DateTime
+  importanceScore Decimal  @default(5.0)
+  sentimentScore  Decimal?
+  metadata        Json?
+  created_at      DateTime @default(now())
+  Story           Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+
+  @@index([event_date])
+  @@index([story_id])
+}
+
+model ExternalContent {
+  id                  String              @id
+  source_id           String
+  external_id         String
+  title               String
+  content             String?
+  summary             String?
+  url                 String?
+  published_at        DateTime?
+  category            String?
+  tags                String[]
+  metadata            Json?
+  import_status       ImportStatus        @default(pending)
+  processed_at        DateTime?
+  created_at          DateTime            @default(now())
+  ExternalDataSources ExternalDataSources @relation(fields: [source_id], references: [id], onDelete: Cascade)
+
+  @@unique([source_id, external_id])
+  @@index([source_id, import_status])
+}
+
+model ExternalDataSources {
+  id              String            @id
+  name            String            @unique
+  type            String
+  url             String
+  config          Json
+  last_sync       DateTime?
+  sync_frequency  String
+  is_active       Boolean           @default(true)
+  error_count     Int               @default(0)
+  success_count   Int               @default(0)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime
+  ExternalContent ExternalContent[]
+}
+
+model LoyaltySettings {
+  id           String   @id
+  action_type  String   @unique
+  points_value Int
+  daily_limit  Int?
+  description  String?
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime
+}
+
+model LoyaltyTransactions {
+  id               String   @id
+  user_id          String
+  points           Int
+  transaction_type String
+  reason           String?
+  reference_type   String?
+  reference_id     String?
+  balance_after    Int
+  metadata         Json?
+  created_at       DateTime @default(now())
+  users            users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([created_at])
+  @@index([transaction_type])
+  @@index([user_id])
+}
+
+model MLModels {
+  id                  String           @id
+  name                String           @unique
+  type                MLModelType
+  version             String
+  description         String?
+  status              MLModelStatus    @default(training)
+  config              Json
+  hyperparameters     Json?
+  training_data       Json?
+  performance_metrics Json?
+  model_path          String?
+  api_endpoint        String?
+  is_active           Boolean          @default(false)
+  created_at          DateTime         @default(now())
+  updated_at          DateTime
+  MLPredictions       MLPredictions[]
+  MLTrainingJobs      MLTrainingJobs[]
+}
+
+model MLPredictions {
+  id               String    @id
+  model_id         String
+  input_data       Json
+  prediction       Json
+  confidence_score Float?
+  processing_time  Int?
+  user_id          String?
+  article_id       String?
+  created_at       DateTime  @default(now())
+  articles         articles? @relation(fields: [article_id], references: [id])
+  MLModels         MLModels  @relation(fields: [model_id], references: [id], onDelete: Cascade)
+  users            users?    @relation(fields: [user_id], references: [id])
+
+  @@index([model_id, created_at])
+  @@index([user_id, created_at])
+}
+
+model MLTrainingJobs {
+  id              String         @id
+  model_id        String
+  status          TrainingStatus @default(queued)
+  dataset_config  Json
+  training_config Json
+  progress        Float          @default(0)
+  metrics         Json?
+  error_log       String?
+  started_at      DateTime?
+  completed_at    DateTime?
+  created_at      DateTime       @default(now())
+  MLModels        MLModels       @relation(fields: [model_id], references: [id], onDelete: Cascade)
+
+  @@index([model_id, status])
+}
+
+model MembershipLevels {
+  id            String   @id
+  level_name    String   @unique
+  level_name_ar String
+  min_points    Int
+  benefits      Json?
+  badge_icon    String?
+  color         String?
+  created_at    DateTime @default(now())
+}
+
+model PerformanceMetrics {
+  id          String   @id
+  metric_type String
+  metric_name String
+  value       Float
+  unit        String?
+  context     Json?
+  timestamp   DateTime @default(now())
+  tags        String[]
+
+  @@index([metric_name, timestamp])
+  @@index([metric_type, timestamp])
+}
+
+model Prediction {
+  id               String   @id
+  story_id         String
+  prediction_text  String
+  confidence_score Decimal?
+  prediction_date  DateTime @default(now())
+  actual_outcome   String?
+  is_verified      Boolean  @default(false)
+  created_at       DateTime @default(now())
+  Story            Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+
+  @@index([story_id])
+}
+
+model RecommendationModels {
+  id                  String                @id
+  name                String                @unique
+  type                RecommendationType
+  algorithm           String
+  config              Json
+  is_active           Boolean               @default(false)
+  performance_score   Float?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime
+  UserRecommendations UserRecommendations[]
+}
+
 model RefreshToken {
-  id        String    @id @default(cuid())
+  id        String    @id
   userId    String
   tokenHash String
   userAgent String?
@@ -85,6 +300,123 @@ model RefreshToken {
   @@index([userId, expiresAt])
 }
 
+model SearchQueries {
+  id              String   @id
+  user_id         String?
+  query           String
+  query_vector    Json?
+  filters         Json?
+  results_count   Int      @default(0)
+  clicked_results String[]
+  search_time_ms  Int?
+  result_quality  Float?
+  session_id      String?
+  ip_address      String?
+  user_agent      String?
+  created_at      DateTime @default(now())
+  users           users?   @relation(fields: [user_id], references: [id])
+
+  @@index([query, created_at])
+  @@index([user_id, created_at])
+}
+
+model SentimentAnalysis {
+  id              String         @id
+  content_id      String
+  content_type    String
+  text_content    String
+  sentiment_score Float
+  sentiment_label SentimentLabel
+  confidence      Float
+  emotions        Json?
+  keywords        String[]
+  language        String         @default("ar")
+  model_version   String
+  processed_at    DateTime       @default(now())
+  user_id         String?
+  article_id      String?
+  articles        articles?      @relation(fields: [article_id], references: [id])
+  users           users?         @relation(fields: [user_id], references: [id])
+
+  @@index([article_id])
+  @@index([content_type, sentiment_label])
+  @@index([processed_at])
+  @@index([user_id])
+}
+
+model SmartNotifications {
+  id                    String               @id
+  user_id               String?
+  title                 String
+  message               String
+  type                  NotificationType
+  priority              NotificationPriority @default(medium)
+  category              String?
+  data                  Json?
+  scheduled_at          DateTime?
+  sent_at               DateTime?
+  read_at               DateTime?
+  clicked_at            DateTime?
+  status                NotificationStatus   @default(pending)
+  delivery_channels     String[]
+  ai_optimized          Boolean              @default(false)
+  personalization_score Float?
+  created_at            DateTime             @default(now())
+  users                 users?               @relation(fields: [user_id], references: [id])
+
+  @@index([scheduled_at, status])
+  @@index([type, priority])
+  @@index([user_id, status])
+}
+
+model Story {
+  id                String              @id
+  title             String
+  description       String?
+  category          String?
+  status            String              @default("active")
+  importanceLevel   Int                 @default(5)
+  tags              String[]
+  metadata          Json?
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  Event             Event[]
+  Prediction        Prediction[]
+  StoryEntity       StoryEntity[]
+  StorySubscription StorySubscription[]
+
+  @@index([category])
+  @@index([created_at])
+  @@index([status])
+}
+
+model StoryEntity {
+  id             String   @id
+  story_id       String
+  entity_id      String
+  role           String?
+  relevanceScore Decimal  @default(5.0)
+  created_at     DateTime @default(now())
+  Entity         Entity   @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+  Story          Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+
+  @@index([entity_id])
+  @@index([story_id])
+}
+
+model StorySubscription {
+  id                String   @id
+  user_id           String
+  story_id          String
+  notificationLevel String   @default("medium")
+  is_active         Boolean  @default(true)
+  created_at        DateTime @default(now())
+  Story             Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
+
+  @@index([story_id])
+  @@index([user_id])
+}
+
 model Subscriber {
   id          String            @id
   email       String            @unique
@@ -94,6 +426,163 @@ model Subscriber {
   metadata    Json?
   created_at  DateTime          @default(now())
   updated_at  DateTime
+}
+
+model SystemSettings {
+  id               String   @id
+  module           String
+  category         String
+  key              String
+  value            Json
+  data_type        String
+  description      String?
+  is_public        Boolean  @default(false)
+  is_user_editable Boolean  @default(false)
+  default_value    Json?
+  validation_rules Json?
+  created_at       DateTime @default(now())
+  updated_at       DateTime
+
+  @@unique([module, category, key])
+  @@index([module, category])
+}
+
+model UserBadges {
+  id          String   @id
+  user_id     String
+  badge_type  String
+  badge_level Int      @default(1)
+  earned_at   DateTime @default(now())
+  progress    Json?
+  users       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, badge_type])
+  @@index([badge_type])
+  @@index([user_id])
+}
+
+model UserDailyActivities {
+  id                 String   @id
+  user_id            String
+  activity_date      DateTime @db.Date
+  articles_read      Int      @default(0)
+  time_spent_minutes Int      @default(0)
+  interactions_count Int      @default(0)
+  points_earned      Int      @default(0)
+  streak_count       Int      @default(0)
+  achievements       Json?
+  users              users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, activity_date])
+  @@index([activity_date])
+  @@index([user_id])
+}
+
+model UserDetailedPreferences {
+  id               String   @id
+  user_id          String
+  preference_type  String
+  preference_value Json
+  confidence_score Float    @default(1.0)
+  last_updated     DateTime @default(now())
+  users            users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, preference_type])
+  @@index([preference_type])
+  @@index([user_id])
+}
+
+model UserInteractions {
+  id                String   @id
+  user_id           String
+  article_id        String?
+  interaction_type  String
+  interaction_value Json?
+  points_earned     Int      @default(0)
+  session_id        String?
+  device_type       String?
+  ip_address        String?
+  user_agent        String?
+  created_at        DateTime @default(now())
+  users             users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([article_id])
+  @@index([created_at])
+  @@index([interaction_type])
+  @@index([user_id])
+}
+
+model UserRecommendations {
+  id                   String               @id
+  user_id              String
+  model_id             String
+  recommended_items    Json
+  confidence_scores    Json
+  reason               String?
+  clicked_items        String[]
+  feedback_score       Float?
+  created_at           DateTime             @default(now())
+  expires_at           DateTime?
+  RecommendationModels RecommendationModels @relation(fields: [model_id], references: [id], onDelete: Cascade)
+  users                users                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([model_id, created_at])
+  @@index([user_id, created_at])
+}
+
+model UserSessions {
+  id               String    @id
+  user_id          String
+  session_token    String
+  ip_address       String?
+  user_agent       String?
+  device_type      String?
+  location         Json?
+  started_at       DateTime  @default(now())
+  last_activity_at DateTime  @default(now())
+  ended_at         DateTime?
+  is_active        Boolean   @default(true)
+  users            users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([is_active])
+  @@index([session_token])
+  @@index([user_id])
+}
+
+model UserSettings {
+  id         String   @id
+  user_id    String
+  module     String
+  key        String
+  value      Json
+  created_at DateTime @default(now())
+  updated_at DateTime
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, module, key])
+  @@index([user_id, module])
+}
+
+model NewsArticleAssets {
+  A            String
+  B            String
+  media_assets media_assets @relation(fields: [A], references: [id], onDelete: Cascade)
+  articles     articles     @relation(fields: [B], references: [id], onDelete: Cascade)
+
+  @@id([A, B], map: "_NewsArticleAssets_AB_pkey")
+  @@index([B], map: "_NewsArticleAssets_B_index")
+  @@map("_NewsArticleAssets")
+}
+
+model account_lockouts {
+  id           String    @id @default(dbgenerated("gen_random_uuid()"))
+  email        String    @unique
+  locked_until DateTime
+  reason       String?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime?
+
+  @@index([locked_until])
 }
 
 model activity_logs {
@@ -110,6 +599,67 @@ model activity_logs {
   created_at  DateTime @default(now())
 }
 
+model ad_analytics {
+  id           String   @id
+  ad_id        String
+  event_type   String
+  user_id      String?
+  session_id   String?
+  ip_hash      String?
+  user_agent   String?
+  referrer     String?
+  device_type  String?
+  browser_type String?
+  country_code String?
+  created_at   DateTime @default(now())
+  ads          ads      @relation(fields: [ad_id], references: [id], onDelete: Cascade)
+
+  @@index([ad_id, event_type])
+  @@index([created_at])
+}
+
+model ads {
+  id           String         @id
+  title        String?        @db.VarChar(255)
+  image_url    String
+  target_url   String
+  placement    ads_placement
+  start_date   DateTime
+  end_date     DateTime
+  views_count  Int            @default(0)
+  clicks_count Int            @default(0)
+  is_active    Boolean        @default(true)
+  created_at   DateTime       @default(now())
+  updated_at   DateTime
+  created_by   String?
+  metadata     Json?
+  is_always_on Boolean        @default(false)
+  max_views    Int?
+  ad_analytics ad_analytics[]
+  users        users?         @relation(fields: [created_by], references: [id])
+
+  @@index([created_by])
+  @@index([placement, is_active])
+  @@index([start_date, end_date])
+}
+
+model ai_poll_votes {
+  id            String   @id
+  article_id    String
+  question_id   String
+  question_text String
+  option_index  Int
+  options       Json?
+  user_id       String?
+  ip_hash       String
+  user_agent    String?
+  created_at    DateTime @default(now())
+
+  @@unique([article_id, question_id, ip_hash])
+  @@unique([article_id, question_id, user_id])
+  @@index([article_id, question_id])
+}
+
 model analytics_data {
   id           String   @id
   date         DateTime @db.Date
@@ -124,6 +674,33 @@ model analytics_data {
   @@index([metric_name])
 }
 
+model article_authors {
+  id               String             @id
+  full_name        String             @db.VarChar(255)
+  slug             String             @unique @db.VarChar(255)
+  title            String?            @db.VarChar(200)
+  bio              String?
+  email            String?            @db.VarChar(255)
+  avatar_url       String?
+  social_links     Json?              @default("{}")
+  is_active        Boolean            @default(true)
+  role             String             @default("writer") @db.VarChar(50)
+  specializations  String[]
+  total_articles   Int                @default(0)
+  total_views      Int                @default(0)
+  total_likes      Int                @default(0)
+  total_shares     Int                @default(0)
+  ai_score         Float              @default(0.0)
+  last_article_at  DateTime?
+  created_at       DateTime           @default(now())
+  updated_at       DateTime
+  articles         articles[]
+  author_analytics author_analytics[]
+
+  @@index([is_active])
+  @@index([slug])
+}
+
 model article_keywords {
   id         String   @id
   article_id String
@@ -133,6 +710,31 @@ model article_keywords {
   @@unique([article_id, keyword_id])
   @@index([article_id])
   @@index([keyword_id])
+}
+
+model article_quotes {
+  id            String   @id
+  article_id    String
+  quote_text    String
+  quote_order   Int      @default(0)
+  ai_confidence Float    @default(0.0)
+  is_featured   Boolean  @default(false)
+  created_at    DateTime @default(now())
+  articles      articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
+
+  @@index([article_id])
+}
+
+model article_tags {
+  id         String   @id
+  article_id String
+  tag_id     String
+  articles   articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  tags       tags     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@unique([article_id, tag_id])
+  @@index([article_id])
+  @@index([tag_id])
 }
 
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
@@ -170,17 +772,16 @@ model articles {
   summary                String?
   tags                   String[]
   is_opinion_leader      Boolean             @default(false)
-  /// نوع المحتوى المعياري: NEWS أو OPINION (مكمّل لحقل article_type لأغراض التوافق)
   content_type           ContentType         @default(NEWS)
   featured_image_alt     String?
   featured_image_caption String?
-  ml_predictions         MLPredictions[]
-  sentiment_analyses     SentimentAnalysis[]
+  MLPredictions          MLPredictions[]
+  SentimentAnalysis      SentimentAnalysis[]
   NewsArticleAssets      NewsArticleAssets[]
   article_quotes         article_quotes[]
   article_tags           article_tags[]
-  article_author         article_authors?    @relation(fields: [article_author_id], references: [id])
-  author                 users               @relation("ArticleAuthor", fields: [author_id], references: [id])
+  article_authors        article_authors?    @relation(fields: [article_author_id], references: [id])
+  users                  users               @relation(fields: [author_id], references: [id])
   categories             categories?         @relation(fields: [category_id], references: [id])
   interactions           interactions[]
 
@@ -235,8 +836,8 @@ model audio_newsletters {
 
   @@index([created_at])
   @@index([is_featured])
-  @@index([is_published])
   @@index([is_main_page])
+  @@index([is_published])
 }
 
 model audio_programs {
@@ -280,22 +881,40 @@ model audio_scheduled_jobs {
   @@index([status])
 }
 
+model author_analytics {
+  id                 String          @id
+  author_id          String
+  date               DateTime        @db.Date
+  articles_published Int             @default(0)
+  total_views        Int             @default(0)
+  total_likes        Int             @default(0)
+  total_shares       Int             @default(0)
+  engagement_rate    Float           @default(0.0)
+  reading_time_avg   Float           @default(0.0)
+  created_at         DateTime        @default(now())
+  updated_at         DateTime
+  article_authors    article_authors @relation(fields: [author_id], references: [id], onDelete: Cascade)
+
+  @@unique([author_id, date])
+  @@index([author_id, date])
+}
+
 model categories {
-  id               String           @id
+  id               String             @id
   name             String
-  slug             String           @unique
+  slug             String             @unique
   description      String?
-  display_order    Int              @default(0)
-  is_active        Boolean          @default(true)
-  color            String?          @db.VarChar(50)
-  icon             String?          @db.VarChar(50)
+  display_order    Int                @default(0)
+  is_active        Boolean            @default(true)
+  color            String?            @db.VarChar(50)
+  icon             String?            @db.VarChar(50)
   metadata         Json?
   name_en          String?
   parent_id        String?
-  created_at       DateTime         @default(now())
+  created_at       DateTime           @default(now())
   updated_at       DateTime
   articles         articles[]
-  muqtarab_corners MuqtarabCorner[]
+  muqtarab_corners muqtarab_corners[]
   user_interests   user_interests[]
 }
 
@@ -313,38 +932,38 @@ model comments {
 }
 
 model daily_doses {
-  id                String                @id
-  period            daily_doses_period
-  title             String                @db.VarChar(500)
-  subtitle          String                @db.VarChar(500)
-  date              DateTime              @db.Date
-  status            daily_doses_status    @default(draft)
-  publishedAt       DateTime?
-  views             Int                   @default(0)
-  metadata          Json?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime
-  ai_prompt_used    String?
-  created_by        String?
-  editor_notes      String?
-  generated_by_ai   Boolean               @default(false)
-  interaction_count Int                   @default(0)
-  is_global         Boolean               @default(true)
-  share_count       Int                   @default(0)
-  source_articles   String[]              @default([])
-  topics            String[]              @default([])
-  user_id           String?
-  creator           users?                @relation("DoseCreator", fields: [created_by], references: [id])
-  user              users?                @relation("UserDoses", fields: [user_id], references: [id], onDelete: Cascade)
-  feedback          smart_dose_feedback[]
+  id                                  String                @id
+  period                              daily_doses_period
+  title                               String                @db.VarChar(500)
+  subtitle                            String                @db.VarChar(500)
+  date                                DateTime              @db.Date
+  status                              daily_doses_status    @default(draft)
+  publishedAt                         DateTime?
+  views                               Int                   @default(0)
+  metadata                            Json?
+  createdAt                           DateTime              @default(now())
+  updatedAt                           DateTime
+  ai_prompt_used                      String?
+  created_by                          String?
+  editor_notes                        String?
+  generated_by_ai                     Boolean               @default(false)
+  interaction_count                   Int                   @default(0)
+  is_global                           Boolean               @default(true)
+  share_count                         Int                   @default(0)
+  source_articles                     String[]              @default([])
+  topics                              String[]              @default([])
+  user_id                             String?
+  users_daily_doses_created_byTousers users?                @relation("daily_doses_created_byTousers", fields: [created_by], references: [id])
+  users_daily_doses_user_idTousers    users?                @relation("daily_doses_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade)
+  smart_dose_feedback                 smart_dose_feedback[]
 
   @@unique([date, period])
   @@unique([date, period, user_id])
   @@index([date])
+  @@index([is_global, period])
   @@index([period])
   @@index([status])
   @@index([user_id, period])
-  @@index([is_global, period])
 }
 
 model deep_analyses {
@@ -392,6 +1011,34 @@ model email_verification_codes {
   @@index([code])
   @@index([email])
   @@index([expires_at])
+}
+
+model entity_links {
+  id                                                           String         @id
+  source_entity_id                                             String
+  target_entity_id                                             String
+  relationship_type                                            String
+  relationship_ar                                              String?
+  strength                                                     Int            @default(1)
+  is_active                                                    Boolean        @default(true)
+  created_at                                                   DateTime       @default(now())
+  updated_at                                                   DateTime
+  smart_entities_entity_links_source_entity_idTosmart_entities smart_entities @relation("entity_links_source_entity_idTosmart_entities", fields: [source_entity_id], references: [id])
+  smart_entities_entity_links_target_entity_idTosmart_entities smart_entities @relation("entity_links_target_entity_idTosmart_entities", fields: [target_entity_id], references: [id])
+
+  @@unique([source_entity_id, target_entity_id, relationship_type])
+}
+
+model failed_login_attempts {
+  id           String   @id @default(dbgenerated("gen_random_uuid()"))
+  email        String
+  attempts     Int      @default(1)
+  ip_address   String?
+  last_attempt DateTime @default(now())
+  created_at   DateTime @default(now())
+
+  @@index([created_at])
+  @@index([email])
 }
 
 model forum_badges {
@@ -570,26 +1217,9 @@ model interactions {
 
   @@unique([user_id, article_id, type])
   @@index([article_id, type, created_at(sort: Desc)], map: "idx_interactions_article_type")
+  @@index([article_id, type, created_at(sort: Desc)], map: "idx_interactions_article_type_v2")
   @@index([article_id])
   @@index([user_id])
-}
-
-/// تصويتات الاستطلاع لأسئلة الذكاء الإبداعي للمقالات
-model ai_poll_votes {
-  id            String   @id @default(cuid())
-  article_id    String
-  question_id   String
-  question_text String
-  option_index  Int
-  options       Json?
-  user_id       String?
-  ip_hash       String
-  user_agent    String?
-  created_at    DateTime @default(now())
-
-  @@unique([article_id, question_id, ip_hash])
-  @@unique([article_id, question_id, user_id])
-  @@index([article_id, question_id])
 }
 
 model keywords {
@@ -598,6 +1228,28 @@ model keywords {
   slug       String
   count      Int      @default(0)
   created_at DateTime @default(now())
+}
+
+model link_analytics {
+  id           String   @id
+  link_id      String?
+  article_id   String
+  entity_id    String?
+  event_type   String
+  user_agent   String?
+  ip_hash      String?
+  session_id   String?
+  referrer     String?
+  time_on_page Int?
+  scroll_depth Float?
+  device_type  String?
+  browser_type String?
+  timestamp    DateTime @default(now())
+
+  @@index([article_id])
+  @@index([entity_id])
+  @@index([event_type])
+  @@index([timestamp])
 }
 
 model loyalty_points {
@@ -609,6 +1261,53 @@ model loyalty_points {
   reference_type String?
   metadata       Json?
   created_at     DateTime @default(now())
+}
+
+model media_assets {
+  id                String              @id
+  filename          String
+  originalName      String
+  mimeType          String
+  size              Int
+  width             Int?
+  height            Int?
+  duration          Int?
+  cloudinaryId      String              @unique
+  cloudinaryUrl     String
+  thumbnailUrl      String?
+  type              MediaType
+  metadata          Json?
+  folderId          String?
+  uploadedById      String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  NewsArticleAssets NewsArticleAssets[]
+  media_folders     media_folders?      @relation(fields: [folderId], references: [id])
+  users             users               @relation(fields: [uploadedById], references: [id])
+  muqtarab_articles muqtarab_articles[] @relation("MuqtarabArticleAssets")
+
+  @@index([createdAt])
+  @@index([type, folderId])
+  @@index([uploadedById])
+}
+
+model media_folders {
+  id                  String          @id
+  name                String
+  slug                String
+  parentId            String?
+  path                String
+  createdById         String
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime
+  media_assets        media_assets[]
+  users               users           @relation(fields: [createdById], references: [id])
+  media_folders       media_folders?  @relation("media_foldersTomedia_folders", fields: [parentId], references: [id], onDelete: Cascade)
+  other_media_folders media_folders[] @relation("media_foldersTomedia_folders")
+
+  @@unique([parentId, slug])
+  @@index([createdById])
+  @@index([path])
 }
 
 model messages {
@@ -623,6 +1322,176 @@ model messages {
   reply_content String?
   metadata      Json?
   created_at    DateTime  @default(now())
+}
+
+model muqtarab_analytics {
+  id                String             @id
+  article_id        String?
+  corner_id         String?
+  user_id           String?
+  session_id        String?
+  ip_hash           String?
+  view_duration     Int?
+  scroll_depth      Float?
+  completion_rate   Float?
+  referrer_source   String?
+  referrer_url      String?
+  utm_source        String?
+  utm_medium        String?
+  utm_campaign      String?
+  device_type       String?
+  browser_type      String?
+  operating_system  String?
+  screen_resolution String?
+  country_code      String?
+  city              String?
+  bounce_rate       Boolean            @default(false)
+  return_visitor    Boolean            @default(false)
+  visit_hour        Int?
+  visit_day         Int?
+  created_at        DateTime           @default(now())
+  muqtarab_articles muqtarab_articles? @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  muqtarab_corners  muqtarab_corners?  @relation(fields: [corner_id], references: [id], onDelete: Cascade)
+  users             users?             @relation(fields: [user_id], references: [id])
+
+  @@index([article_id])
+  @@index([corner_id])
+  @@index([created_at])
+  @@index([device_type])
+  @@index([referrer_source])
+  @@index([session_id])
+  @@index([user_id])
+}
+
+model muqtarab_articles {
+  id                     String                  @id
+  corner_id              String
+  title                  String
+  slug                   String                  @unique
+  content                String
+  excerpt                String?
+  cover_image            String?
+  author_name            String?
+  author_bio             String?
+  author_avatar          String?
+  tags                   String[]
+  is_featured            Boolean                 @default(false)
+  read_time              Int?
+  publish_at             DateTime?
+  status                 String                  @default("draft")
+  ai_sentiment           String?
+  ai_compatibility_score Int?                    @default(0)
+  ai_summary             String?
+  ai_keywords            String[]
+  ai_mood                String?
+  view_count             Int                     @default(0)
+  like_count             Int                     @default(0)
+  share_count            Int                     @default(0)
+  comment_count          Int                     @default(0)
+  created_by             String?
+  created_at             DateTime                @default(now())
+  updated_at             DateTime
+  muqtarab_analytics     muqtarab_analytics[]
+  muqtarab_corners       muqtarab_corners        @relation(fields: [corner_id], references: [id], onDelete: Cascade)
+  users                  users?                  @relation(fields: [created_by], references: [id])
+  muqtarab_comments      muqtarab_comments[]
+  muqtarab_interactions  muqtarab_interactions[]
+  media_assets           media_assets[]          @relation("MuqtarabArticleAssets")
+
+  @@index([slug], map: "idx_muqtarab_articles_slug")
+  @@index([ai_sentiment])
+  @@index([corner_id])
+  @@index([created_at])
+  @@index([created_by])
+  @@index([is_featured])
+  @@index([publish_at])
+  @@index([slug])
+  @@index([status])
+}
+
+model muqtarab_comments {
+  id                      String              @id
+  article_id              String
+  user_id                 String?
+  guest_name              String?
+  guest_email             String?
+  content                 String
+  is_approved             Boolean             @default(false)
+  is_hidden               Boolean             @default(false)
+  parent_id               String?
+  created_at              DateTime            @default(now())
+  updated_at              DateTime
+  muqtarab_articles       muqtarab_articles   @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  muqtarab_comments       muqtarab_comments?  @relation("muqtarab_commentsTomuqtarab_comments", fields: [parent_id], references: [id])
+  other_muqtarab_comments muqtarab_comments[] @relation("muqtarab_commentsTomuqtarab_comments")
+  users                   users?              @relation(fields: [user_id], references: [id])
+
+  @@index([article_id])
+  @@index([created_at])
+  @@index([is_approved])
+  @@index([user_id])
+}
+
+model muqtarab_corners {
+  id                 String               @id
+  name               String
+  slug               String               @unique
+  author_name        String
+  author_bio         String?
+  cover_image        String?
+  description        String?
+  category_id        String?
+  ai_enabled         Boolean              @default(true)
+  is_active          Boolean              @default(true)
+  is_featured        Boolean              @default(false)
+  created_by         String?
+  created_at         DateTime             @default(now())
+  updated_at         DateTime
+  theme_color        String?              @default("#3B82F6") @db.VarChar(7)
+  muqtarab_analytics muqtarab_analytics[]
+  muqtarab_articles  muqtarab_articles[]
+  categories         categories?          @relation(fields: [category_id], references: [id])
+  users              users?               @relation(fields: [created_by], references: [id])
+  muqtarab_followers muqtarab_followers[]
+
+  @@index([category_id])
+  @@index([created_by])
+  @@index([is_active])
+  @@index([slug])
+}
+
+model muqtarab_followers {
+  id                    String           @id
+  corner_id             String
+  user_id               String
+  notifications_enabled Boolean          @default(true)
+  email_notifications   Boolean          @default(false)
+  created_at            DateTime         @default(now())
+  muqtarab_corners      muqtarab_corners @relation(fields: [corner_id], references: [id], onDelete: Cascade)
+  users                 users            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([corner_id, user_id])
+  @@index([corner_id])
+  @@index([user_id])
+}
+
+model muqtarab_interactions {
+  id                String            @id
+  article_id        String
+  user_id           String?
+  interaction_type  String
+  metadata          Json?
+  session_id        String?
+  ip_hash           String?
+  created_at        DateTime          @default(now())
+  muqtarab_articles muqtarab_articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  users             users?            @relation(fields: [user_id], references: [id])
+
+  @@unique([article_id, user_id, interaction_type])
+  @@index([article_id])
+  @@index([interaction_type])
+  @@index([session_id])
+  @@index([user_id])
 }
 
 model opinion_articles {
@@ -686,6 +1555,47 @@ model password_reset_tokens {
   @@index([user_id])
 }
 
+model reporters {
+  id                  String   @id
+  user_id             String   @unique
+  full_name           String
+  slug                String   @unique
+  title               String?
+  bio                 String?
+  avatar_url          String?
+  is_verified         Boolean  @default(false)
+  verification_badge  String?  @default("verified")
+  specializations     Json?
+  coverage_areas      Json?
+  languages           Json?    @default("[\"ar\"]")
+  twitter_url         String?
+  linkedin_url        String?
+  website_url         String?
+  email_public        String?
+  total_articles      Int      @default(0)
+  total_views         Int      @default(0)
+  total_likes         Int      @default(0)
+  total_shares        Int      @default(0)
+  avg_reading_time    Float?
+  engagement_rate     Float    @default(0.0)
+  writing_style       Json?
+  popular_topics      Json?
+  publication_pattern Json?
+  reader_demographics Json?
+  is_active           Boolean  @default(true)
+  show_stats          Boolean  @default(true)
+  show_contact        Boolean  @default(false)
+  display_order       Int?
+  created_at          DateTime @default(now())
+  updated_at          DateTime
+  users               users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([is_active])
+  @@index([is_verified])
+  @@index([slug])
+  @@index([total_articles])
+}
+
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model roles {
   id           String   @id
@@ -707,6 +1617,33 @@ model site_settings {
   updated_at DateTime
 }
 
+model smart_article_links {
+  id              String         @id
+  article_id      String
+  entity_id       String
+  matched_text    String
+  context_before  String?
+  context_after   String?
+  position        Int
+  confidence      Float          @default(1.0)
+  link_type       String
+  target_url      String?
+  tooltip_content String?
+  is_approved     Boolean        @default(false)
+  is_active       Boolean        @default(true)
+  auto_generated  Boolean        @default(true)
+  clicks          Int            @default(0)
+  impressions     Int            @default(0)
+  last_clicked    DateTime?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime
+  smart_entities  smart_entities @relation(fields: [entity_id], references: [id])
+
+  @@index([article_id])
+  @@index([entity_id])
+  @@index([is_approved])
+}
+
 model smart_blocks {
   id            String    @id
   name          String    @db.VarChar(255)
@@ -719,6 +1656,169 @@ model smart_blocks {
   performance   Json?
   created_at    DateTime  @default(now())
   updated_at    DateTime
+}
+
+model smart_dose_feedback {
+  id              String       @id
+  user_id         String
+  dose_id         String
+  reaction        DoseReaction @default(neutral)
+  shared          Boolean      @default(false)
+  saved           Boolean      @default(false)
+  time_spent      Int?
+  read_percentage Float?
+  comment         String?
+  platform        String?
+  created_at      DateTime     @default(now())
+  updated_at      DateTime
+  daily_doses     daily_doses  @relation(fields: [dose_id], references: [id], onDelete: Cascade)
+  users           users        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, dose_id])
+  @@index([dose_id, reaction])
+  @@index([user_id, created_at])
+}
+
+model smart_dose_templates {
+  id            String             @id
+  period        daily_doses_period
+  template_name String
+  main_text     String
+  sub_text      String
+  usage_count   Int                @default(0)
+  is_active     Boolean            @default(true)
+  priority      Int                @default(1)
+  created_by    String
+  created_at    DateTime           @default(now())
+  updated_at    DateTime
+  users         users              @relation(fields: [created_by], references: [id])
+
+  @@index([period, is_active])
+  @@index([priority, period])
+}
+
+model smart_entities {
+  id                                                         String                @id
+  name                                                       String
+  name_ar                                                    String?
+  name_en                                                    String?
+  entity_type_id                                             String
+  description                                                String?
+  short_bio                                                  String?
+  importance_score                                           Int                   @default(5)
+  is_active                                                  Boolean               @default(true)
+  is_verified                                                Boolean               @default(false)
+  aliases                                                    Json?
+  official_website                                           String?
+  wikipedia_url                                              String?
+  social_media                                               Json?
+  birth_date                                                 DateTime?
+  start_date                                                 DateTime?
+  end_date                                                   DateTime?
+  location                                                   String?
+  country                                                    String?               @default("SA")
+  region                                                     String?
+  slug                                                       String?               @unique
+  seo_keywords                                               String?
+  mention_count                                              Int                   @default(0)
+  click_count                                                Int                   @default(0)
+  last_mentioned                                             DateTime?
+  created_at                                                 DateTime              @default(now())
+  updated_at                                                 DateTime
+  entity_links_entity_links_source_entity_idTosmart_entities entity_links[]        @relation("entity_links_source_entity_idTosmart_entities")
+  entity_links_entity_links_target_entity_idTosmart_entities entity_links[]        @relation("entity_links_target_entity_idTosmart_entities")
+  smart_article_links                                        smart_article_links[]
+  smart_entity_types                                         smart_entity_types    @relation(fields: [entity_type_id], references: [id])
+
+  @@index([entity_type_id])
+  @@index([importance_score])
+  @@index([mention_count])
+}
+
+model smart_entity_types {
+  id             String           @id
+  name           String           @unique
+  name_ar        String
+  icon           String
+  color          String
+  description    String?
+  is_active      Boolean          @default(true)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime
+  smart_entities smart_entities[]
+}
+
+model smart_terms {
+  id            String   @id
+  term_ar       String?
+  term_en       String?
+  definition    String
+  detailed_def  String?
+  example       String?
+  category      String?
+  difficulty    String   @default("medium")
+  synonyms      Json?
+  reference_url String?
+  wikipedia_url String?
+  usage_count   Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+
+  @@index([category])
+  @@index([usage_count])
+}
+
+model tag_analytics {
+  id               String   @id
+  tag_id           String
+  date             DateTime @db.Date
+  usage_count      Int      @default(0)
+  article_count    Int      @default(0)
+  views_count      Int      @default(0)
+  clicks_count     Int      @default(0)
+  interactions     Int      @default(0)
+  growth_factor    Float    @default(0.0)
+  popularity_score Float    @default(0.0)
+  created_at       DateTime @default(now())
+  tags             tags     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@unique([tag_id, date])
+  @@index([date])
+  @@index([popularity_score])
+  @@index([tag_id])
+}
+
+model tags {
+  id                   String          @id
+  name                 String          @unique
+  slug                 String          @unique
+  description          String?
+  color                String          @default("#3B82F6")
+  category             String?
+  priority             Int             @default(5)
+  is_active            Boolean         @default(true)
+  synonyms             String[]        @default([])
+  seo_meta_description String?
+  created_at           DateTime        @default(now())
+  updated_at           DateTime
+  clicks_count         Int             @default(0)
+  growth_rate          Float           @default(0.0)
+  last_used_at         DateTime?
+  popularity_score     Float           @default(0.0)
+  total_usage_count    Int             @default(0)
+  views_count          Int             @default(0)
+  article_tags         article_tags[]
+  tag_analytics        tag_analytics[]
+
+  @@index([category])
+  @@index([is_active])
+  @@index([last_used_at])
+  @@index([name])
+  @@index([popularity_score])
+  @@index([priority])
+  @@index([slug])
+  @@index([total_usage_count])
 }
 
 model team_members {
@@ -783,6 +1883,37 @@ model timeline_events {
   created_at     DateTime @default(now())
 }
 
+model two_factor_auth {
+  id           String    @id @default(dbgenerated("gen_random_uuid()"))
+  user_id      String    @unique
+  secret       String
+  backup_codes Json
+  is_enabled   Boolean   @default(true)
+  verified_at  DateTime?
+  last_used_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime?
+  users        users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model two_factor_temp {
+  id           String   @id @default(dbgenerated("gen_random_uuid()"))
+  user_id      String   @unique
+  secret       String
+  backup_codes Json
+  created_at   DateTime @default(now())
+}
+
+model ui_settings {
+  id          String   @id
+  key         String   @unique
+  value       Json
+  updatedById String?
+  updatedAt   DateTime
+  createdAt   DateTime @default(now())
+  users       users?   @relation(fields: [updatedById], references: [id])
+}
+
 model user_insights {
   id                      String    @id @db.VarChar(36)
   user_id                 String    @unique @db.VarChar(36)
@@ -801,6 +1932,22 @@ model user_insights {
   last_read_date          DateTime? @db.Timestamptz(6)
   calculated_at           DateTime? @default(now()) @db.Timestamptz(6)
   updated_at              DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model user_interests {
+  id          Int        @id @default(autoincrement())
+  user_id     String     @db.VarChar(255)
+  category_id String     @db.VarChar(255)
+  is_active   Boolean?   @default(true)
+  created_at  DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime?  @default(now()) @db.Timestamp(6)
+  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users       users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, category_id])
+  @@index([category_id], map: "idx_user_interests_category_id")
+  @@index([is_active], map: "idx_user_interests_is_active")
+  @@index([user_id], map: "idx_user_interests_user_id")
 }
 
 model user_preferences {
@@ -849,130 +1996,74 @@ model user_similar_readers {
   @@unique([user_id, similar_user_id])
 }
 
-model user_activities {
-  id            String   @id @db.VarChar(50)
-  user_id       String   @default("anonymous") @db.VarChar(36)
-  session_id    String   @db.VarChar(100)
-  activity_type String   @db.VarChar(50)
-  activity_data Json?
-  created_at    DateTime @default(now())
-
-  @@index([user_id])
-  @@index([session_id])
-  @@index([activity_type])
-  @@index([created_at])
-}
-
 model users {
-  id                       String                    @id
-  email                    String                    @unique
-  password_hash            String?
-  name                     String?
-  avatar                   String?
-  role                     String                    @default("user")
-  is_admin                 Boolean                   @default(false)
-  is_verified              Boolean                   @default(false)
-  verification_token       String?
-  reset_token              String?
-  reset_token_expiry       DateTime?
-  created_at               DateTime                  @default(now())
-  updated_at               DateTime
-  city                     String?
-  country                  String                    @default("SA")
-  date_of_birth            DateTime?
-  email_verified_at        DateTime?
-  gender                   String?
-  interests                Json                      @default("[]")
-  last_login_at            DateTime?
-  loyalty_points           Int                       @default(0)
-  notification_preferences Json                      @default("{\"sms\": false, \"push\": false, \"email\": true}")
-  phone                    String?
-  preferred_language       String                    @default("ar")
-  profile_completed        Boolean                   @default(false)
-  status                   String                    @default("active")
-  two_factor_enabled       Boolean                   @default(false)
-  LoyaltyTransactions      LoyaltyTransactions[]
-  ml_predictions           MLPredictions[]
-  search_queries           SearchQueries[]
-  sentiment_analyses       SentimentAnalysis[]
-  smart_notifications      SmartNotifications[]
-  UserBadges               UserBadges[]
-  UserDailyActivities      UserDailyActivities[]
-  UserDetailedPreferences  UserDetailedPreferences[]
-  UserInteractions         UserInteractions[]
-  user_recommendations     UserRecommendations[]
-  UserSessions             UserSessions[]
-  user_settings            UserSettings[]
-  created_ads              ads[]                     @relation("AdCreator")
-  authored_articles        articles[]                @relation("ArticleAuthor")
-  audio_episodes           audio_episodes[]
-  audio_programs           audio_programs[]
-  created_doses            daily_doses[]             @relation("DoseCreator")
-  user_doses               daily_doses[]             @relation("UserDoses")
-  interactions             interactions[]
-  MediaAssets              MediaAsset[]
-  MediaFolders             MediaFolder[]
-  muqtarab_analytics       MuqtarabAnalytics[]
-  muqtarab_articles        MuqtarabArticle[]
-  muqtarab_comments        MuqtarabComment[]
-  muqtarab_corners         MuqtarabCorner[]
-  muqtarab_followers       MuqtarabFollower[]
-  muqtarab_interactions    MuqtarabInteraction[]
-  reporter_profile         reporters?
-  dose_feedback            smart_dose_feedback[]     @relation("DoseFeedbackUser")
-  dose_templates           smart_dose_templates[]    @relation("DoseTemplateCreator")
-  two_factor_auth          two_factor_auth?
-  ui_settings              UiSetting[]
-  user_interests           user_interests[]
+  id                                        String                    @id
+  email                                     String                    @unique
+  password_hash                             String?
+  name                                      String?
+  avatar                                    String?
+  role                                      String                    @default("user")
+  is_admin                                  Boolean                   @default(false)
+  is_verified                               Boolean                   @default(false)
+  verification_token                        String?
+  reset_token                               String?
+  reset_token_expiry                        DateTime?
+  created_at                                DateTime                  @default(now())
+  updated_at                                DateTime
+  city                                      String?
+  country                                   String                    @default("SA")
+  date_of_birth                             DateTime?
+  email_verified_at                         DateTime?
+  gender                                    String?
+  interests                                 Json                      @default("[]")
+  last_login_at                             DateTime?
+  loyalty_points                            Int                       @default(0)
+  notification_preferences                  Json                      @default("{\"sms\": false, \"push\": false, \"email\": true}")
+  phone                                     String?
+  preferred_language                        String                    @default("ar")
+  profile_completed                         Boolean                   @default(false)
+  status                                    String                    @default("active")
+  two_factor_enabled                        Boolean                   @default(false)
+  LoyaltyTransactions                       LoyaltyTransactions[]
+  MLPredictions                             MLPredictions[]
+  SearchQueries                             SearchQueries[]
+  SentimentAnalysis                         SentimentAnalysis[]
+  SmartNotifications                        SmartNotifications[]
+  UserBadges                                UserBadges[]
+  UserDailyActivities                       UserDailyActivities[]
+  UserDetailedPreferences                   UserDetailedPreferences[]
+  UserInteractions                          UserInteractions[]
+  UserRecommendations                       UserRecommendations[]
+  UserSessions                              UserSessions[]
+  UserSettings                              UserSettings[]
+  ads                                       ads[]
+  articles                                  articles[]
+  audio_episodes                            audio_episodes[]
+  audio_programs                            audio_programs[]
+  daily_doses_daily_doses_created_byTousers daily_doses[]             @relation("daily_doses_created_byTousers")
+  daily_doses_daily_doses_user_idTousers    daily_doses[]             @relation("daily_doses_user_idTousers")
+  interactions                              interactions[]
+  media_assets                              media_assets[]
+  media_folders                             media_folders[]
+  muqtarab_analytics                        muqtarab_analytics[]
+  muqtarab_articles                         muqtarab_articles[]
+  muqtarab_comments                         muqtarab_comments[]
+  muqtarab_corners                          muqtarab_corners[]
+  muqtarab_followers                        muqtarab_followers[]
+  muqtarab_interactions                     muqtarab_interactions[]
+  reporters                                 reporters?
+  smart_dose_feedback                       smart_dose_feedback[]
+  smart_dose_templates                      smart_dose_templates[]
+  two_factor_auth                           two_factor_auth?
+  ui_settings                               ui_settings[]
+  user_interests                            user_interests[]
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
   @@index([email])
-  @@index([role])
   @@index([loyalty_points])
+  @@index([role])
   @@index([status])
-}
-
-model reporters {
-  id                  String   @id @default(cuid())
-  user_id             String   @unique
-  full_name           String
-  slug                String   @unique
-  title               String?
-  bio                 String?
-  avatar_url          String?
-  is_verified         Boolean  @default(false)
-  verification_badge  String?  @default("verified")
-  specializations     Json?
-  coverage_areas      Json?
-  languages           Json?    @default("[\"ar\"]")
-  twitter_url         String?
-  linkedin_url        String?
-  website_url         String?
-  email_public        String?
-  total_articles      Int      @default(0)
-  total_views         Int      @default(0)
-  total_likes         Int      @default(0)
-  total_shares        Int      @default(0)
-  avg_reading_time    Float?
-  engagement_rate     Float    @default(0.0)
-  writing_style       Json?
-  popular_topics      Json?
-  publication_pattern Json?
-  reader_demographics Json?
-  is_active           Boolean  @default(true)
-  show_stats          Boolean  @default(true)
-  show_contact        Boolean  @default(false)
-  display_order       Int?
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-  user                users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([slug])
-  @@index([is_active])
-  @@index([is_verified])
-  @@index([total_articles])
-  @@map("reporters")
 }
 
 model was_news {
@@ -1000,1141 +2091,17 @@ model was_news {
   @@index([news_basket_CD])
 }
 
-model SystemSettings {
-  id               String   @id @default(cuid())
-  module           String
-  category         String
-  key              String
-  value            Json
-  data_type        String
-  description      String?
-  is_public        Boolean  @default(false)
-  is_user_editable Boolean  @default(false)
-  default_value    Json?
-  validation_rules Json?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-
-  @@unique([module, category, key])
-  @@index([module, category])
+enum ContentType {
+  NEWS
+  OPINION
 }
 
-model UserSettings {
-  id         String   @id @default(cuid())
-  user_id    String
-  module     String
-  key        String
-  value      Json
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, module, key])
-  @@index([user_id, module])
-}
-
-model MLModels {
-  id                  String           @id @default(cuid())
-  name                String           @unique
-  type                MLModelType
-  version             String
-  description         String?
-  status              MLModelStatus    @default(training)
-  config              Json
-  hyperparameters     Json?
-  training_data       Json?
-  performance_metrics Json?
-  model_path          String?
-  api_endpoint        String?
-  is_active           Boolean          @default(false)
-  created_at          DateTime         @default(now())
-  updated_at          DateTime         @updatedAt
-  predictions         MLPredictions[]
-  training_jobs       MLTrainingJobs[]
-}
-
-model MLTrainingJobs {
-  id              String         @id @default(cuid())
-  model_id        String
-  status          TrainingStatus @default(queued)
-  dataset_config  Json
-  training_config Json
-  progress        Float          @default(0)
-  metrics         Json?
-  error_log       String?
-  started_at      DateTime?
-  completed_at    DateTime?
-  created_at      DateTime       @default(now())
-  model           MLModels       @relation(fields: [model_id], references: [id], onDelete: Cascade)
-
-  @@index([model_id, status])
-}
-
-model MLPredictions {
-  id               String    @id @default(cuid())
-  model_id         String
-  input_data       Json
-  prediction       Json
-  confidence_score Float?
-  processing_time  Int?
-  user_id          String?
-  article_id       String?
-  created_at       DateTime  @default(now())
-  article          articles? @relation(fields: [article_id], references: [id])
-  model            MLModels  @relation(fields: [model_id], references: [id], onDelete: Cascade)
-  user             users?    @relation(fields: [user_id], references: [id])
-
-  @@index([model_id, created_at])
-  @@index([user_id, created_at])
-}
-
-model SentimentAnalysis {
-  id              String         @id @default(cuid())
-  content_id      String
-  content_type    String
-  text_content    String
-  sentiment_score Float
-  sentiment_label SentimentLabel
-  confidence      Float
-  emotions        Json?
-  keywords        String[]
-  language        String         @default("ar")
-  model_version   String
-  processed_at    DateTime       @default(now())
-  user_id         String?
-  article_id      String?
-  article         articles?      @relation(fields: [article_id], references: [id])
-  user            users?         @relation(fields: [user_id], references: [id])
-
-  @@index([content_type, sentiment_label])
-  @@index([processed_at])
-  @@index([user_id])
-  @@index([article_id])
-}
-
-model SmartNotifications {
-  id                    String               @id @default(cuid())
-  user_id               String?
-  title                 String
-  message               String
-  type                  NotificationType
-  priority              NotificationPriority @default(medium)
-  category              String?
-  data                  Json?
-  scheduled_at          DateTime?
-  sent_at               DateTime?
-  read_at               DateTime?
-  clicked_at            DateTime?
-  status                NotificationStatus   @default(pending)
-  delivery_channels     String[]
-  ai_optimized          Boolean              @default(false)
-  personalization_score Float?
-  created_at            DateTime             @default(now())
-  user                  users?               @relation(fields: [user_id], references: [id])
-
-  @@index([user_id, status])
-  @@index([scheduled_at, status])
-  @@index([type, priority])
-}
-
-model PerformanceMetrics {
-  id          String   @id @default(cuid())
-  metric_type String
-  metric_name String
-  value       Float
-  unit        String?
-  context     Json?
-  timestamp   DateTime @default(now())
-  tags        String[]
-
-  @@index([metric_type, timestamp])
-  @@index([metric_name, timestamp])
-}
-
-model RecommendationModels {
-  id                String                @id @default(cuid())
-  name              String                @unique
-  type              RecommendationType
-  algorithm         String
-  config            Json
-  is_active         Boolean               @default(false)
-  performance_score Float?
-  created_at        DateTime              @default(now())
-  updated_at        DateTime              @updatedAt
-  recommendations   UserRecommendations[]
-}
-
-model UserRecommendations {
-  id                String               @id @default(cuid())
-  user_id           String
-  model_id          String
-  recommended_items Json
-  confidence_scores Json
-  reason            String?
-  clicked_items     String[]
-  feedback_score    Float?
-  created_at        DateTime             @default(now())
-  expires_at        DateTime?
-  model             RecommendationModels @relation(fields: [model_id], references: [id], onDelete: Cascade)
-  user              users                @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id, created_at])
-  @@index([model_id, created_at])
-}
-
-model SearchQueries {
-  id              String   @id @default(cuid())
-  user_id         String?
-  query           String
-  query_vector    Json?
-  filters         Json?
-  results_count   Int      @default(0)
-  clicked_results String[]
-  search_time_ms  Int?
-  result_quality  Float?
-  session_id      String?
-  ip_address      String?
-  user_agent      String?
-  created_at      DateTime @default(now())
-  user            users?   @relation(fields: [user_id], references: [id])
-
-  @@index([user_id, created_at])
-  @@index([query, created_at])
-}
-
-model AdvancedAnalytics {
-  id                String   @id @default(cuid())
-  metric_category   String
-  metric_name       String
-  dimensions        Json
-  measures          Json
-  time_period       String
-  aggregation_level String
-  filters           Json?
-  raw_data          Json?
-  computed_at       DateTime @default(now())
-
-  @@index([metric_category, time_period])
-  @@index([metric_name, computed_at])
-}
-
-model ExternalDataSources {
-  id               String            @id @default(cuid())
-  name             String            @unique
-  type             String
-  url              String
-  config           Json
-  last_sync        DateTime?
-  sync_frequency   String
-  is_active        Boolean           @default(true)
-  error_count      Int               @default(0)
-  success_count    Int               @default(0)
-  created_at       DateTime          @default(now())
-  updated_at       DateTime          @updatedAt
-  imported_content ExternalContent[]
-}
-
-model ExternalContent {
-  id            String              @id @default(cuid())
-  source_id     String
-  external_id   String
-  title         String
-  content       String?
-  summary       String?
-  url           String?
-  published_at  DateTime?
-  category      String?
-  tags          String[]
-  metadata      Json?
-  import_status ImportStatus        @default(pending)
-  processed_at  DateTime?
-  created_at    DateTime            @default(now())
-  source        ExternalDataSources @relation(fields: [source_id], references: [id], onDelete: Cascade)
-
-  @@unique([source_id, external_id])
-  @@index([source_id, import_status])
-}
-
-model SmartEntityTypes {
-  id          String          @id
-  name        String          @unique
-  name_ar     String
-  icon        String
-  color       String
-  description String?
-  is_active   Boolean         @default(true)
-  created_at  DateTime        @default(now())
-  updated_at  DateTime        @updatedAt
-  entities    SmartEntities[]
-
-  @@map("smart_entity_types")
-}
-
-model SmartEntities {
-  id                  String              @id @default(cuid())
-  name                String
-  name_ar             String?
-  name_en             String?
-  entity_type_id      String
-  description         String?
-  short_bio           String?
-  importance_score    Int                 @default(5)
-  is_active           Boolean             @default(true)
-  is_verified         Boolean             @default(false)
-  aliases             Json?
-  official_website    String?
-  wikipedia_url       String?
-  social_media        Json?
-  birth_date          DateTime?
-  start_date          DateTime?
-  end_date            DateTime?
-  location            String?
-  country             String?             @default("SA")
-  region              String?
-  slug                String?             @unique
-  seo_keywords        String?
-  mention_count       Int                 @default(0)
-  click_count         Int                 @default(0)
-  last_mentioned      DateTime?
-  created_at          DateTime            @default(now())
-  updated_at          DateTime            @updatedAt
-  entity_links_source EntityLinks[]       @relation("SourceEntity")
-  entity_links_target EntityLinks[]       @relation("TargetEntity")
-  smart_links         SmartArticleLinks[]
-  entity_type         SmartEntityTypes    @relation(fields: [entity_type_id], references: [id])
-
-  @@index([entity_type_id])
-  @@index([importance_score])
-  @@index([mention_count])
-  @@map("smart_entities")
-}
-
-model EntityLinks {
-  id                String        @id @default(cuid())
-  source_entity_id  String
-  target_entity_id  String
-  relationship_type String
-  relationship_ar   String?
-  strength          Int           @default(1)
-  is_active         Boolean       @default(true)
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
-  source_entity     SmartEntities @relation("SourceEntity", fields: [source_entity_id], references: [id])
-  target_entity     SmartEntities @relation("TargetEntity", fields: [target_entity_id], references: [id])
-
-  @@unique([source_entity_id, target_entity_id, relationship_type])
-  @@map("entity_links")
-}
-
-model SmartArticleLinks {
-  id              String        @id @default(cuid())
-  article_id      String
-  entity_id       String
-  matched_text    String
-  context_before  String?
-  context_after   String?
-  position        Int
-  confidence      Float         @default(1.0)
-  link_type       String
-  target_url      String?
-  tooltip_content String?
-  is_approved     Boolean       @default(false)
-  is_active       Boolean       @default(true)
-  auto_generated  Boolean       @default(true)
-  clicks          Int           @default(0)
-  impressions     Int           @default(0)
-  last_clicked    DateTime?
-  created_at      DateTime      @default(now())
-  updated_at      DateTime      @updatedAt
-  entity          SmartEntities @relation(fields: [entity_id], references: [id])
-
-  @@index([article_id])
-  @@index([entity_id])
-  @@index([is_approved])
-  @@map("smart_article_links")
-}
-
-model SmartTerms {
-  id            String   @id @default(cuid())
-  term_ar       String?
-  term_en       String?
-  definition    String
-  detailed_def  String?
-  example       String?
-  category      String?
-  difficulty    String   @default("medium")
-  synonyms      Json?
-  reference_url String?
-  wikipedia_url String?
-  usage_count   Int      @default(0)
-  is_active     Boolean  @default(true)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-
-  @@index([category])
-  @@index([usage_count])
-  @@map("smart_terms")
-}
-
-model LinkAnalytics {
-  id           String   @id @default(cuid())
-  link_id      String?
-  article_id   String
-  entity_id    String?
-  event_type   String
-  user_agent   String?
-  ip_hash      String?
-  session_id   String?
-  referrer     String?
-  time_on_page Int?
-  scroll_depth Float?
-  device_type  String?
-  browser_type String?
-  timestamp    DateTime @default(now())
-
-  @@index([article_id])
-  @@index([entity_id])
-  @@index([event_type])
-  @@index([timestamp])
-  @@map("link_analytics")
-}
-
-model MuqtarabCorner {
-  id          String              @id @default(cuid())
-  name        String
-  slug        String              @unique
-  author_name String
-  author_bio  String?
-  cover_image String?
-  description String?
-  category_id String?
-  ai_enabled  Boolean             @default(true)
-  is_active   Boolean             @default(true)
-  is_featured Boolean             @default(false)
-  created_by  String?
-  created_at  DateTime            @default(now())
-  updated_at  DateTime            @updatedAt
-  theme_color String?             @default("#3B82F6") @db.VarChar(7)
-  analytics   MuqtarabAnalytics[]
-  articles    MuqtarabArticle[]
-  category    categories?         @relation(fields: [category_id], references: [id])
-  creator     users?              @relation(fields: [created_by], references: [id])
-  followers   MuqtarabFollower[]
-
-  @@index([slug])
-  @@index([is_active])
-  @@index([created_by])
-  @@index([category_id])
-  @@map("muqtarab_corners")
-}
-
-model MuqtarabArticle {
-  id                     String                @id @default(cuid())
-  corner_id              String
-  title                  String
-  slug                   String                @unique
-  content                String
-  excerpt                String?
-  cover_image            String?
-  author_name            String?
-  author_bio             String?
-  author_avatar          String?
-  tags                   String[]
-  is_featured            Boolean               @default(false)
-  read_time              Int?
-  publish_at             DateTime?
-  status                 String                @default("draft")
-  ai_sentiment           String?
-  ai_compatibility_score Int?                  @default(0)
-  ai_summary             String?
-  ai_keywords            String[]
-  ai_mood                String?
-  view_count             Int                   @default(0)
-  like_count             Int                   @default(0)
-  share_count            Int                   @default(0)
-  comment_count          Int                   @default(0)
-  created_by             String?
-  created_at             DateTime              @default(now())
-  updated_at             DateTime              @updatedAt
-  analytics              MuqtarabAnalytics[]
-  corner                 MuqtarabCorner        @relation(fields: [corner_id], references: [id], onDelete: Cascade)
-  creator                users?                @relation(fields: [created_by], references: [id])
-  comments               MuqtarabComment[]
-  interactions           MuqtarabInteraction[]
-  media_assets           MediaAsset[]          @relation("MuqtarabArticleAssets")
-
-  @@index([corner_id])
-  @@index([slug])
-  @@index([status])
-  @@index([publish_at])
-  @@index([is_featured])
-  @@index([ai_sentiment])
-  @@index([created_by])
-  @@index([created_at])
-  @@index([slug], map: "idx_muqtarab_articles_slug")
-  @@map("muqtarab_articles")
-}
-
-model MuqtarabInteraction {
-  id               String          @id @default(cuid())
-  article_id       String
-  user_id          String?
-  interaction_type String
-  metadata         Json?
-  session_id       String?
-  ip_hash          String?
-  created_at       DateTime        @default(now())
-  article          MuqtarabArticle @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  user             users?          @relation(fields: [user_id], references: [id])
-
-  @@unique([article_id, user_id, interaction_type])
-  @@index([article_id])
-  @@index([user_id])
-  @@index([interaction_type])
-  @@index([session_id])
-  @@map("muqtarab_interactions")
-}
-
-model MuqtarabAnalytics {
-  id                String           @id @default(cuid())
-  article_id        String?
-  corner_id         String?
-  user_id           String?
-  session_id        String?
-  ip_hash           String?
-  view_duration     Int?
-  scroll_depth      Float?
-  completion_rate   Float?
-  referrer_source   String?
-  referrer_url      String?
-  utm_source        String?
-  utm_medium        String?
-  utm_campaign      String?
-  device_type       String?
-  browser_type      String?
-  operating_system  String?
-  screen_resolution String?
-  country_code      String?
-  city              String?
-  bounce_rate       Boolean          @default(false)
-  return_visitor    Boolean          @default(false)
-  visit_hour        Int?
-  visit_day         Int?
-  created_at        DateTime         @default(now())
-  article           MuqtarabArticle? @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  corner            MuqtarabCorner?  @relation(fields: [corner_id], references: [id], onDelete: Cascade)
-  user              users?           @relation(fields: [user_id], references: [id])
-
-  @@index([article_id])
-  @@index([corner_id])
-  @@index([user_id])
-  @@index([session_id])
-  @@index([referrer_source])
-  @@index([device_type])
-  @@index([created_at])
-  @@map("muqtarab_analytics")
-}
-
-model MuqtarabFollower {
-  id                    String         @id @default(cuid())
-  corner_id             String
-  user_id               String
-  notifications_enabled Boolean        @default(true)
-  email_notifications   Boolean        @default(false)
-  created_at            DateTime       @default(now())
-  corner                MuqtarabCorner @relation(fields: [corner_id], references: [id], onDelete: Cascade)
-  user                  users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([corner_id, user_id])
-  @@index([corner_id])
-  @@index([user_id])
-  @@map("muqtarab_followers")
-}
-
-model MuqtarabComment {
-  id          String            @id @default(cuid())
-  article_id  String
-  user_id     String?
-  guest_name  String?
-  guest_email String?
-  content     String
-  is_approved Boolean           @default(false)
-  is_hidden   Boolean           @default(false)
-  parent_id   String?
-  created_at  DateTime          @default(now())
-  updated_at  DateTime          @updatedAt
-  article     MuqtarabArticle   @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  parent      MuqtarabComment?  @relation("CommentReplies", fields: [parent_id], references: [id])
-  replies     MuqtarabComment[] @relation("CommentReplies")
-  user        users?            @relation(fields: [user_id], references: [id])
-
-  @@index([article_id])
-  @@index([user_id])
-  @@index([is_approved])
-  @@index([created_at])
-  @@map("muqtarab_comments")
-}
-
-/// Smart Story Tracking - Core Models
-model Story {
-  id              String              @id @default(cuid())
-  title           String
-  description     String?
-  category        String?
-  status          String              @default("active")
-  importanceLevel Int                 @default(5)
-  tags            String[]
-  metadata        Json?
-  created_at      DateTime            @default(now())
-  updated_at      DateTime            @updatedAt
-  events          Event[]
-  predictions     Prediction[]
-  storyEntities   StoryEntity[]
-  subscriptions   StorySubscription[]
-
-  @@index([category])
-  @@index([status])
-  @@index([created_at])
-}
-
-model Event {
-  id              String   @id @default(cuid())
-  story_id        String
-  title           String
-  content         String
-  source          String?
-  event_date      DateTime
-  importanceScore Decimal  @default(5.0)
-  sentimentScore  Decimal?
-  metadata        Json?
-  created_at      DateTime @default(now())
-  story           Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
-
-  @@index([story_id])
-  @@index([event_date])
-}
-
-model Entity {
-  id          String        @id @default(cuid())
-  name        String
-  type        String?
-  description String?
-  metadata    Json?
-  created_at  DateTime      @default(now())
-  stories     StoryEntity[]
-}
-
-model StoryEntity {
-  id             String   @id @default(cuid())
-  story_id       String
-  entity_id      String
-  role           String?
-  relevanceScore Decimal  @default(5.0)
-  created_at     DateTime @default(now())
-  entity         Entity   @relation(fields: [entity_id], references: [id], onDelete: Cascade)
-  story          Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
-
-  @@index([story_id])
-  @@index([entity_id])
-}
-
-model StorySubscription {
-  id                String   @id @default(cuid())
-  user_id           String
-  story_id          String
-  notificationLevel String   @default("medium")
-  is_active         Boolean  @default(true)
-  created_at        DateTime @default(now())
-  story             Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@index([story_id])
-}
-
-model Prediction {
-  id               String   @id @default(cuid())
-  story_id         String
-  prediction_text  String
-  confidence_score Decimal?
-  prediction_date  DateTime @default(now())
-  actual_outcome   String?
-  is_verified      Boolean  @default(false)
-  created_at       DateTime @default(now())
-  story            Story    @relation(fields: [story_id], references: [id], onDelete: Cascade)
-
-  @@index([story_id])
-}
-
-/// إعدادات واجهة عامة (Global UI Settings)
-model UiSetting {
-  id          String   @id @default(cuid())
-  key         String   @unique
-  value       Json
-  updatedById String?
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
-  updatedBy   users?   @relation(fields: [updatedById], references: [id])
-
-  @@map("ui_settings")
-}
-
-model MediaFolder {
-  id          String        @id @default(cuid())
-  name        String
-  slug        String
-  parentId    String?
-  path        String
-  createdById String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  assets      MediaAsset[]
-  createdBy   users         @relation(fields: [createdById], references: [id])
-  parent      MediaFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
-  subfolders  MediaFolder[] @relation("FolderHierarchy")
-
-  @@unique([parentId, slug])
-  @@index([path])
-  @@index([createdById])
-  @@map("media_folders")
-}
-
-model MediaAsset {
-  id                String              @id @default(cuid())
-  filename          String
-  originalName      String
-  mimeType          String
-  size              Int
-  width             Int?
-  height            Int?
-  duration          Int?
-  cloudinaryId      String              @unique
-  cloudinaryUrl     String
-  thumbnailUrl      String?
-  type              MediaType
-  metadata          Json?
-  folderId          String?
-  uploadedById      String
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  NewsArticleAssets NewsArticleAssets[]
-  folder            MediaFolder?        @relation(fields: [folderId], references: [id])
-  uploadedBy        users               @relation(fields: [uploadedById], references: [id])
-  muqtarabArticles  MuqtarabArticle[]   @relation("MuqtarabArticleAssets")
-
-  @@index([type, folderId])
-  @@index([uploadedById])
-  @@index([createdAt])
-  @@map("media_assets")
-}
-
-model article_authors {
-  id               String             @id
-  full_name        String             @db.VarChar(255)
-  slug             String             @unique @db.VarChar(255)
-  title            String?            @db.VarChar(200)
-  bio              String?
-  email            String?            @db.VarChar(255)
-  avatar_url       String?
-  social_links     Json?              @default("{}")
-  is_active        Boolean            @default(true)
-  role             String             @default("writer") @db.VarChar(50)
-  specializations  String[]
-  total_articles   Int                @default(0)
-  total_views      Int                @default(0)
-  total_likes      Int                @default(0)
-  total_shares     Int                @default(0)
-  ai_score         Float              @default(0.0)
-  last_article_at  DateTime?
-  created_at       DateTime           @default(now())
-  updated_at       DateTime           @updatedAt
-  articles         articles[]
-  author_analytics author_analytics[]
-
-  @@index([slug])
-  @@index([is_active])
-}
-
-model article_quotes {
-  id            String   @id
-  article_id    String
-  quote_text    String
-  quote_order   Int      @default(0)
-  ai_confidence Float    @default(0.0)
-  is_featured   Boolean  @default(false)
-  created_at    DateTime @default(now())
-  article       articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
-
-  @@index([article_id])
-}
-
-model author_analytics {
-  id                 String          @id
-  author_id          String
-  date               DateTime        @db.Date
-  articles_published Int             @default(0)
-  total_views        Int             @default(0)
-  total_likes        Int             @default(0)
-  total_shares       Int             @default(0)
-  engagement_rate    Float           @default(0.0)
-  reading_time_avg   Float           @default(0.0)
-  created_at         DateTime        @default(now())
-  updated_at         DateTime        @updatedAt
-  author             article_authors @relation(fields: [author_id], references: [id], onDelete: Cascade)
-
-  @@unique([author_id, date])
-  @@index([author_id, date])
-}
-
-model smart_dose_feedback {
-  id              String       @id @default(cuid())
-  user_id         String
-  dose_id         String
-  reaction        DoseReaction @default(neutral)
-  shared          Boolean      @default(false)
-  saved           Boolean      @default(false)
-  time_spent      Int?
-  read_percentage Float?
-  comment         String?
-  platform        String?
-  created_at      DateTime     @default(now())
-  updated_at      DateTime     @updatedAt
-  dose            daily_doses  @relation(fields: [dose_id], references: [id], onDelete: Cascade)
-  user            users        @relation("DoseFeedbackUser", fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, dose_id])
-  @@index([dose_id, reaction])
-  @@index([user_id, created_at])
-}
-
-model smart_dose_templates {
-  id            String             @id @default(cuid())
-  period        daily_doses_period
-  template_name String
-  main_text     String
-  sub_text      String
-  usage_count   Int                @default(0)
-  is_active     Boolean            @default(true)
-  priority      Int                @default(1)
-  created_by    String
-  created_at    DateTime           @default(now())
-  updated_at    DateTime           @updatedAt
-  creator       users              @relation("DoseTemplateCreator", fields: [created_by], references: [id])
-
-  @@index([period, is_active])
-  @@index([priority, period])
-}
-
-model user_interests {
-  id          Int        @id @default(autoincrement())
-  user_id     String     @db.VarChar(255)
-  category_id String     @db.VarChar(255)
-  is_active   Boolean?   @default(true)
-  created_at  DateTime?  @default(now()) @db.Timestamp(6)
-  updated_at  DateTime?  @default(now()) @updatedAt @db.Timestamp(6)
-  category    categories @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user        users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@unique([user_id, category_id])
-  @@index([category_id], map: "idx_user_interests_category_id")
-  @@index([is_active], map: "idx_user_interests_is_active")
-  @@index([user_id], map: "idx_user_interests_user_id")
-}
-
-model LoyaltySettings {
-  id           String   @id
-  action_type  String   @unique
-  points_value Int
-  daily_limit  Int?
-  description  String?
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime
-}
-
-model LoyaltyTransactions {
-  id               String   @id
-  user_id          String
-  points           Int
-  transaction_type String
-  reason           String?
-  reference_type   String?
-  reference_id     String?
-  balance_after    Int
-  metadata         Json?
-  created_at       DateTime @default(now())
-  users            users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([created_at])
-  @@index([transaction_type])
-  @@index([user_id])
-}
-
-model MembershipLevels {
-  id            String   @id
-  level_name    String   @unique
-  level_name_ar String
-  min_points    Int
-  benefits      Json?
-  badge_icon    String?
-  color         String?
-  created_at    DateTime @default(now())
-}
-
-model UserBadges {
-  id          String   @id
-  user_id     String
-  badge_type  String
-  badge_level Int      @default(1)
-  earned_at   DateTime @default(now())
-  progress    Json?
-  users       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, badge_type])
-  @@index([badge_type])
-  @@index([user_id])
-}
-
-model UserDailyActivities {
-  id                 String   @id
-  user_id            String
-  activity_date      DateTime @db.Date
-  articles_read      Int      @default(0)
-  time_spent_minutes Int      @default(0)
-  interactions_count Int      @default(0)
-  points_earned      Int      @default(0)
-  streak_count       Int      @default(0)
-  achievements       Json?
-  users              users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, activity_date])
-  @@index([activity_date])
-  @@index([user_id])
-}
-
-model UserDetailedPreferences {
-  id               String   @id
-  user_id          String
-  preference_type  String
-  preference_value Json
-  confidence_score Float    @default(1.0)
-  last_updated     DateTime @default(now())
-  users            users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, preference_type])
-  @@index([preference_type])
-  @@index([user_id])
-}
-
-model UserInteractions {
-  id                String   @id
-  user_id           String
-  article_id        String?
-  interaction_type  String
-  interaction_value Json?
-  points_earned     Int      @default(0)
-  session_id        String?
-  device_type       String?
-  ip_address        String?
-  user_agent        String?
-  created_at        DateTime @default(now())
-  users             users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([article_id])
-  @@index([created_at])
-  @@index([interaction_type])
-  @@index([user_id])
-}
-
-model UserSessions {
-  id               String    @id
-  user_id          String
-  session_token    String
-  ip_address       String?
-  user_agent       String?
-  device_type      String?
-  location         Json?
-  started_at       DateTime  @default(now())
-  last_activity_at DateTime  @default(now())
-  ended_at         DateTime?
-  is_active        Boolean   @default(true)
-  users            users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([is_active])
-  @@index([session_token])
-  @@index([user_id])
-}
-
-model ads {
-  id           String         @id @default(cuid())
-  title        String?        @db.VarChar(255)
-  image_url    String
-  target_url   String
-  placement    ads_placement
-  start_date   DateTime
-  end_date     DateTime
-  views_count  Int            @default(0)
-  clicks_count Int            @default(0)
-  is_active    Boolean        @default(true)
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
-  created_by   String?
-  metadata     Json?
-  is_always_on Boolean        @default(false)
-  max_views    Int?
-  analytics    ad_analytics[]
-  creator      users?         @relation("AdCreator", fields: [created_by], references: [id])
-
-  @@index([placement, is_active])
-  @@index([start_date, end_date])
-  @@index([created_by])
-}
-
-model ad_analytics {
-  id           String   @id @default(cuid())
-  ad_id        String
-  event_type   String
-  user_id      String?
-  session_id   String?
-  ip_hash      String?
-  user_agent   String?
-  referrer     String?
-  device_type  String?
-  browser_type String?
-  country_code String?
-  created_at   DateTime @default(now())
-  ad           ads      @relation(fields: [ad_id], references: [id], onDelete: Cascade)
-
-  @@index([ad_id, event_type])
-  @@index([created_at])
-}
-
-model tags {
-  id                   String          @id @default(cuid())
-  name                 String          @unique
-  slug                 String          @unique
-  description          String?
-  color                String          @default("#3B82F6")
-  category             String?
-  priority             Int             @default(5)
-  is_active            Boolean         @default(true)
-  synonyms             String[]        @default([])
-  seo_meta_description String?
-  created_at           DateTime        @default(now())
-  updated_at           DateTime        @updatedAt
-  clicks_count         Int             @default(0)
-  growth_rate          Float           @default(0.0)
-  last_used_at         DateTime?
-  popularity_score     Float           @default(0.0)
-  total_usage_count    Int             @default(0)
-  views_count          Int             @default(0)
-  article_tags         article_tags[]
-  tag_analytics        tag_analytics[]
-
-  @@index([name])
-  @@index([slug])
-  @@index([category])
-  @@index([is_active])
-  @@index([priority])
-  @@index([popularity_score])
-  @@index([total_usage_count])
-  @@index([last_used_at])
-  @@map("tags")
-}
-
-model article_tags {
-  id         String   @id @default(cuid())
-  article_id String
-  tag_id     String
-  articles   articles @relation(fields: [article_id], references: [id], onDelete: Cascade)
-  tags       tags     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
-
-  @@unique([article_id, tag_id])
-  @@index([article_id])
-  @@index([tag_id])
-  @@map("article_tags")
-}
-
-model tag_analytics {
-  id               String   @id @default(cuid())
-  tag_id           String
-  date             DateTime @db.Date
-  usage_count      Int      @default(0)
-  article_count    Int      @default(0)
-  views_count      Int      @default(0)
-  clicks_count     Int      @default(0)
-  interactions     Int      @default(0)
-  growth_factor    Float    @default(0.0)
-  popularity_score Float    @default(0.0)
-  created_at       DateTime @default(now())
-  tags             tags     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
-
-  @@unique([tag_id, date])
-  @@index([tag_id])
-  @@index([date])
-  @@index([popularity_score])
-  @@map("tag_analytics")
-}
-
-model NewsArticleAssets {
-  A            String
-  B            String
-  media_assets MediaAsset @relation(fields: [A], references: [id], onDelete: Cascade)
-  articles     articles   @relation(fields: [B], references: [id], onDelete: Cascade)
-
-  @@id([A, B], map: "_NewsArticleAssets_AB_pkey")
-  @@index([B], map: "_NewsArticleAssets_B_index")
-  @@map("_NewsArticleAssets")
-}
-
-model failed_login_attempts {
-  id           String   @id @default(dbgenerated("gen_random_uuid()"))
-  email        String
-  attempts     Int      @default(1)
-  ip_address   String?
-  last_attempt DateTime @default(now())
-  created_at   DateTime @default(now())
-
-  @@index([email])
-  @@index([created_at])
-}
-
-model account_lockouts {
-  id           String    @id @default(dbgenerated("gen_random_uuid()"))
-  email        String    @unique
-  locked_until DateTime
-  reason       String?
-  created_at   DateTime  @default(now())
-  updated_at   DateTime?
-
-  @@index([locked_until])
-}
-
-model two_factor_auth {
-  id           String    @id @default(dbgenerated("gen_random_uuid()"))
-  user_id      String    @unique
-  secret       String
-  backup_codes Json
-  is_enabled   Boolean   @default(true)
-  verified_at  DateTime?
-  last_used_at DateTime?
-  created_at   DateTime  @default(now())
-  updated_at   DateTime?
-  user         users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-}
-
-model two_factor_temp {
-  id           String   @id @default(dbgenerated("gen_random_uuid()"))
-  user_id      String   @unique
-  secret       String
-  backup_codes Json
-  created_at   DateTime @default(now())
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-  AUDIO
-  DOCUMENT
+enum DoseReaction {
+  like
+  dislike
+  neutral
+  shared
+  saved
 }
 
 enum EmailJob_status {
@@ -2163,16 +2130,111 @@ enum EmailProviderConfig_type {
   ses
 }
 
+enum ImportStatus {
+  pending
+  processing
+  completed
+  failed
+  duplicate
+  rejected
+}
+
+enum MLModelStatus {
+  training
+  trained
+  deployed
+  failed
+  deprecated
+}
+
+enum MLModelType {
+  classification
+  regression
+  clustering
+  recommendation
+  nlp
+  computer_vision
+  time_series
+  neural_network
+  transformer
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+}
+
+enum NotificationPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum NotificationStatus {
+  pending
+  scheduled
+  sent
+  delivered
+  read
+  failed
+}
+
+enum NotificationType {
+  breaking_news
+  article_recommendation
+  system_alert
+  user_engagement
+  performance_warning
+  content_moderation
+  ai_insight
+}
+
 enum OpinionArticle_status {
   draft
   published
   archived
 }
 
+enum RecommendationType {
+  content_based
+  collaborative_filtering
+  hybrid
+  deep_learning
+  knowledge_based
+}
+
+enum SentimentLabel {
+  very_negative
+  negative
+  neutral
+  positive
+  very_positive
+}
+
 enum Subscriber_status {
   active
   inactive
   unsubscribed
+}
+
+enum TrainingStatus {
+  queued
+  running
+  completed
+  failed
+  cancelled
+}
+
+enum ads_placement {
+  below_featured
+  below_custom_block
+  article_detail_header
+  sidebar_top
+  sidebar_bottom
+  footer_banner
 }
 
 enum daily_doses_period {
@@ -2246,106 +2308,4 @@ enum interactions_type {
   comment
   view
   reading_session
-}
-
-enum MLModelType {
-  classification
-  regression
-  clustering
-  recommendation
-  nlp
-  computer_vision
-  time_series
-  neural_network
-  transformer
-}
-
-enum MLModelStatus {
-  training
-  trained
-  deployed
-  failed
-  deprecated
-}
-
-enum TrainingStatus {
-  queued
-  running
-  completed
-  failed
-  cancelled
-}
-
-enum SentimentLabel {
-  very_negative
-  negative
-  neutral
-  positive
-  very_positive
-}
-
-/// نوع المحتوى الأساسي للفصل بين الأخبار ومقالات الرأي
-enum ContentType {
-  NEWS
-  OPINION
-}
-
-enum RecommendationType {
-  content_based
-  collaborative_filtering
-  hybrid
-  deep_learning
-  knowledge_based
-}
-
-enum ImportStatus {
-  pending
-  processing
-  completed
-  failed
-  duplicate
-  rejected
-}
-
-enum DoseReaction {
-  like
-  dislike
-  neutral
-  shared
-  saved
-}
-
-enum ads_placement {
-  below_featured
-  below_custom_block
-  article_detail_header
-  sidebar_top
-  sidebar_bottom
-  footer_banner
-}
-
-enum NotificationType {
-  breaking_news
-  article_recommendation
-  system_alert
-  user_engagement
-  performance_warning
-  content_moderation
-  ai_insight
-}
-
-enum NotificationPriority {
-  low
-  medium
-  high
-  urgent
-}
-
-enum NotificationStatus {
-  pending
-  scheduled
-  sent
-  delivered
-  read
-  failed
 }

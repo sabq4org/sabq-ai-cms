@@ -37,6 +37,10 @@ export function middleware(req: NextRequest) {
     // Different cache policies for different asset types
     if (url.pathname.match(/\.(js|css)$/)) {
       response.headers.set('Cache-Control', CACHE_POLICIES.static);
+      // إصلاح MIME type للـ CSS
+      if (url.pathname.endsWith('.css')) {
+        response.headers.set('Content-Type', 'text/css');
+      }
     } else if (url.pathname.match(/\.(woff|woff2|ttf|eot)$/)) {
       response.headers.set('Cache-Control', CACHE_POLICIES.fonts);
     } else if (url.pathname.match(/\.(png|jpg|jpeg|svg|gif|webp|avif)$/)) {
@@ -45,8 +49,10 @@ export function middleware(req: NextRequest) {
       response.headers.set('Cache-Control', CACHE_POLICIES.json);
     }
     
-    // Add performance headers
-    response.headers.set('X-Content-Type-Options', 'nosniff');
+    // Add performance headers - تم إزالة X-Content-Type-Options للـ CSS
+    if (!url.pathname.endsWith('.css')) {
+      response.headers.set('X-Content-Type-Options', 'nosniff');
+    }
     response.headers.set('X-Frame-Options', 'DENY');
     
     return response;

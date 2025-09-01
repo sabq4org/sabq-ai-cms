@@ -186,7 +186,6 @@ export async function GET(request: NextRequest) {
           categories: {
             select: { id: true, name: true, slug: true, color: true },
           },
-          author: { select: { id: true, name: true } },
         },
       });
     });
@@ -233,7 +232,7 @@ export async function GET(request: NextRequest) {
       ...article,
       image: article.featured_image,
       category: article.categories,
-      author_name: article.author?.name || null,
+      author_name: null, // سنحصل عليها لاحقاً من author_id إذا لزم الأمر
       views: article.views || 0,
       views_count: article.views || 0,
       comments_count: commentsCountsMap.get(article.id) || 0,
