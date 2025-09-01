@@ -94,11 +94,6 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "d2kdkzp4dtcikk.cloudfront.net",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "*.cloudinary.com",
         pathname: "/**",
       },
@@ -205,6 +200,20 @@ const nextConfig = {
         headers: [
           {
             key: "Cache-Control", 
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // CSS Files - إصلاح مشكلة MIME type
+      {
+        source: "/_next/static/css/:path*.css",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/css; charset=utf-8",
+          },
+          {
+            key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
           },
         ],

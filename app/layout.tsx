@@ -110,7 +110,6 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://ui-avatars.com" />
-        <link rel="dns-prefetch" href="https://d2kdkzp4dtcikk.cloudfront.net" />
         {/* Preconnect to the most common image CDNs for faster LCP */}
         <link rel="preconnect" href="https://cdn.sabq.org" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://sabq-prod.imgix.net" crossOrigin="anonymous" />
@@ -118,9 +117,9 @@ export default async function RootLayout({
         {/* إضافة preconnect لمزوّد صور Cloudinary والمجالات النشطة لتحسين LCP */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ui-avatars.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://d2kdkzp4dtcikk.cloudfront.net" crossOrigin="anonymous" />
         {/* ملاحظة: إزالة preload لطلبات API لتفادي تزاحم الشبكة على المحمول وتحسين FCP */}
         {/* إصلاحات إنتاج عامة وCSS */}
+        <Script src="/enhanced-error-handler.js" strategy="beforeInteractive" />
         <Script src="/css-error-handler.js" strategy="afterInteractive" />
         <Script src="/production-error-fixes.js" strategy="afterInteractive" />
         <Script src="/fix-cors-auth.js" strategy="afterInteractive" />
