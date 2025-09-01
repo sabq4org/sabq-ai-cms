@@ -73,7 +73,7 @@ export default function SmartContentBlock({
     const controller = new AbortController();
     const loadContent = async () => {
       try {
-        await fetchSmartContent(controller.signal);
+        await fetchSmartContent();
       } catch (error) {
         console.error('خطأ في التحميل:', error);
         setIsLoading(false);
@@ -107,71 +107,74 @@ export default function SmartContentBlock({
     };
   }, []);
 
-  const fetchSmartContent = async (signal?: AbortSignal) => {
+  const fetchSmartContent = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+
     try {
-      console.log('🔍 SmartContentBlock: بداية جلب البيانات...');
-      // إستراتيجية أسرع للتحميل: استخدام preloaded fetch إذا كانت موجودة
-      // جلب الأخبار العامة مع إمكانية تضمين الأخبار المميزة
       const cacheKey = '/api/articles?limit=20&sort=published_at&order=desc';
       
-      // محاولة استخدام Cache API إذا كانت متوفرة بالمتصفح
-      let cachedResponse: any;
-      try {
-        if ('caches' in window) {
-          const cache = await window.caches.open('smart-content-cache');
-          cachedResponse = await cache.match(cacheKey);
+      // تحديد وقت انتهاء الكاش (دقيقتان بدلاً من 5 دقائق)
+      const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+      let useCache = false;
+      
+      // تجربة الكاش أولاً
+      if ('caches' in window) {
+        const cache = await caches.open('articles-cache');
+        const cachedResponse = await cache.match(cacheKey);
+        if (cachedResponse) {
+          const cacheTime = cachedResponse.headers.get('X-Cache-Time');
+          if (cacheTime) {
+            const cacheAge = Date.now() - parseInt(cacheTime);
+            if (cacheAge < CACHE_DURATION) {
+              const cachedData = await cachedResponse.json();
+              console.log("⚡ استخدام البيانات من الكاش (عمر الكاش:", Math.round(cacheAge / 1000), "ثانية)");
+              setArticles(cachedData.articles || []);
+              setIsLoading(false);
+              useCache = true;
+              return;
+            } else {
+              console.log("🔄 انتهت صلاحية الكاش، جلب بيانات جديدة...");
+              // حذف الكاش المنتهي الصلاحية
+              await cache.delete(cacheKey);
+            }
+          }
         }
-      } catch (cacheError) {
-        // تجاهل أخطاء الكاش وإكمال الجلب بشكل عادي
       }
-      
-      // استخدام الاستجابة من الكاش إن وجدت أو إجراء طلب جديد
-      const response = cachedResponse || await fetch(cacheKey, { 
-        signal,
-        // تلميح للمتصفح بأننا جربنا الكاش بالفعل
-        cache: 'force-cache' 
-      });
-      
-      if (response.ok) {
-        // تخزين الاستجابة في الكاش للاستخدام المستقبلي
+
+      if (!useCache) {
+        console.log("🔄 جلب المقالات من الخادم...");
+        const response = await fetch(cacheKey, { 
+          cache: 'no-cache', // تغيير مهم: استخدام no-cache بدلاً من force-cache
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
         const data = await response.json();
-        try {
+        
+        if (data.success && data.articles) {
+          setArticles(data.articles);
+          console.log("✅ تم جلب", data.articles.length, "مقال من الخادم");
+          
+          // حفظ في الكاش مع وقت التخزين
           if ('caches' in window) {
-            const cache = await window.caches.open('smart-content-cache');
-            const clonedResponse = new Response(JSON.stringify(data), {
+            const cache = await caches.open('articles-cache');
+            await cache.put(cacheKey, new Response(JSON.stringify(data), {
               headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=300'
+                'Cache-Control': `max-age=${CACHE_DURATION / 1000}`,
+                'X-Cache-Time': Date.now().toString()
               }
-            });
-            cache.put(cacheKey, clonedResponse);
+            }));
           }
-        } catch (cacheError) {
-          // تجاهل أخطاء الكاش
+        } else {
+          console.error("فشل في جلب المقالات:", data.error);
         }
-
-        const articles = (data.articles || []).slice(0, 20);
-        console.log('✅ SmartContentBlock: تم جلب البيانات بنجاح:', articles.length, 'مقال');
-        const enriched: Article[] = articles.map((article: any) => ({
-          ...article,
-          // استخدام القيم الحقيقية إن وجدت بدلاً من التوليد العشوائي
-          isPersonalized: (article.isPersonalized ?? article.metadata?.isPersonalized) ?? false,
-          confidence: article.confidence ?? article.metadata?.confidence,
-        }));
-        console.log('🎯 SmartContentBlock: تم إعداد المقالات:', enriched.length);
-        setArticles(enriched);
-      } else {
-        console.error('❌ فشل في جلب المقالات:', response.status);
-        // fallback سريع
-        setArticles([]);
       }
-    } catch (error: any) {
-      if (error?.name === 'AbortError') return;
-      console.error('❌ Error fetching smart content:', error);
-      // fallback سريع
-      setArticles([]);
+    } catch (error) {
+      console.error("خطأ في جلب المحتوى الذكي:", error);
     } finally {
-      console.log('🏁 SmartContentBlock: انتهاء التحميل, isLoading =', false);
       setIsLoading(false);
     }
   };
