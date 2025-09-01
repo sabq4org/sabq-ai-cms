@@ -120,9 +120,8 @@ export function middleware(req: NextRequest) {
   const processingTime = Date.now() - startTime;
   response.headers.set('Server-Timing', `middleware;dur=${processingTime}`);
   
-  // Add resource hints for critical resources
+  // Add resource hints for critical resources (removed non-existent font preload)
   response.headers.set('Link', 
-    '</fonts/font.woff2>; rel=preload; as=font; type=font/woff2; crossorigin, ' +
     '</api/articles/recent>; rel=prefetch'
   );
   
