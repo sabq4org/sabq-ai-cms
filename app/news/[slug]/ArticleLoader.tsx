@@ -61,16 +61,7 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
         shares: true,
         saves: true,
         // تحميل العلاقات الضرورية فقط
-        author: { 
-          select: { 
-            id: true, 
-            name: true, 
-            email: true, 
-            avatar: true, 
-            role: true 
-          } 
-        },
-        article_author: { 
+        article_authors: { 
           select: { 
             id: true, 
             full_name: true, 
@@ -100,18 +91,6 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
               }
             }
           }
-        },
-        // تحميل الصور مباشرة
-        NewsArticleAssets: {
-          select: {
-            media_assets: {
-              select: {
-                cloudinaryUrl: true,
-                width: true,
-                height: true
-              }
-            }
-          }
         }
       },
     });
@@ -130,21 +109,6 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
         height: 900 
       });
     }
-    
-    // صور إضافية من MediaAssets
-    if (article.NewsArticleAssets) {
-      article.NewsArticleAssets.forEach((relation) => {
-        const asset = relation.media_assets;
-        if (asset.cloudinaryUrl && !images.some(img => img.url === asset.cloudinaryUrl)) {
-          images.push({ 
-            url: asset.cloudinaryUrl, 
-            alt: article.title || undefined,
-            width: asset.width || 1600,
-            height: asset.height || 900
-          });
-        }
-      });
-    }
 
     // تحويل البيانات للشكل المطلوب
     const mapped: Article = {
@@ -159,8 +123,8 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
       readMinutes: (article as any).reading_time || null,
       views: article.views || 0,
       images,
-      author: article.author,
-      article_author: (article as any).article_author,
+      author: null, // تم حذف author من الـ schema
+      article_author: (article as any).article_authors,
       categories: article.categories,
       tags: (article as any).article_tags?.map((at: any) => at.tags) || [],
     };
@@ -179,8 +143,8 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
 }
 
 // تنظيف الـ cache القديم كل 5 دقائق
-if (typeof global !== 'undefined' && !global.articleCacheCleanupInterval) {
-  global.articleCacheCleanupInterval = setInterval(() => {
+if (typeof global !== 'undefined' && !(global as any).articleCacheCleanupInterval) {
+  (global as any).articleCacheCleanupInterval = setInterval(() => {
     const now = Date.now();
     for (const [key, value] of articleCache.entries()) {
       if (value.timestamp < now - CACHE_TTL) {
