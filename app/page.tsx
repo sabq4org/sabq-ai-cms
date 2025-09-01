@@ -66,6 +66,17 @@ const LightFeaturedLoader = dynamic(
   }
 );
 
+// استيراد بلوك الأخبار الحديثة
+const RecentNewsBlock = dynamic(
+  () => import("@/components/news/RecentNewsBlock"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+    ),
+  }
+);
+
 // (تم حذف الأخبار المميزة من النسخة الكاملة)
 
 // مكون شاشة التحميل المحسن
@@ -162,6 +173,7 @@ export default function Page() {
       <Suspense fallback={<div className="h-[360px] bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
         <OldFeaturedHero />
       </Suspense>
+      
       {/* المؤشرات الذكية */}
       <div className="max-w-6xl mx-auto px-4 mt-16">
         <SmartInsightsWidget />

@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
       where,
       take: limit,
       orderBy: [
-        { featured: 'desc' },
         { published_at: 'desc' },
+        { featured: 'desc' },
         { views: 'desc' }
       ],
       select: {

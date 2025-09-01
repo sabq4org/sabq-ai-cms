@@ -21,12 +21,12 @@ interface Article {
   views: number;
   featured: boolean;
   breaking: boolean;
-  category: {
+  category?: {
     id: string;
     name: string;
     slug: string;
     color?: string;
-  };
+  } | null;
   views_count: number;
   isPersonalized: boolean;
   confidence: number;
@@ -54,8 +54,8 @@ interface SmartContentBlockProps {
 
 const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
   category,
-  limit = 8,
-  title = "المحتوى المقترح لك",
+  limit = 12,
+  title = "أحدث الأخبار",
   showPersonalization = true
 }) => {
   const [data, setData] = useState<SmartContentResponse | null>(null);
@@ -72,14 +72,40 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
         params.set('limit', limit.toString());
         if (category) params.set('category', category);
         
-        const response = await fetch(`/api/smart-content?${params.toString()}`);
+        const response = await fetch(`/api/articles/recent?${params.toString()}`);
         
         if (!response.ok) {
           throw new Error('فشل في جلب المحتوى الذكي');
         }
         
-        const result: SmartContentResponse = await response.json();
-        setData(result);
+        const result = await response.json();
+        
+        // تحويل من structure الـ recent API إلى smart content format
+        const smartResult: SmartContentResponse = {
+          success: result.success,
+          articles: (result.data || []).map((article: any) => ({
+            ...article,
+            category: article.categories ? {
+              id: article.categories.id,
+              name: article.categories.name,
+              slug: article.categories.slug,
+              color: article.categories.color
+            } : null,
+            views_count: article.views || 0,
+            isPersonalized: false,
+            confidence: 0.9,
+            readTime: Math.ceil((article.excerpt?.length || 100) / 200),
+          })),
+          total: result.total,
+          metadata: {
+            algorithm: 'recent-news',
+            personalized: false,
+            cached: false,
+            timestamp: new Date().toISOString()
+          }
+        };
+        
+        setData(smartResult);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
       } finally {
@@ -98,7 +124,7 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
           <Skeleton className="h-7 w-48" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 12 }).map((_, i) => (
             <Card key={i} className="overflow-hidden">
               <Skeleton className="h-48 w-full" />
               <CardContent className="p-4 space-y-3">
@@ -158,7 +184,7 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
       {/* Articles Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.articles.map((article) => (
-          <Card key={article.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-md">
+          <Card key={article.id} className="group overflow-hidden transition-all duration-300 border" style={{ borderColor: '#f0f0ef' }}>
             <div className="relative">
               {/* Image */}
               <div className="relative h-48 overflow-hidden">
@@ -174,9 +200,21 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
                     <div className="text-4xl text-gray-400">📰</div>
                   </div>
                 )}
+                
+                {/* Category Badge على الصورة */}
+                {article.category && (
+                  <div className="absolute top-3 right-3">
+                    <Badge 
+                      className="text-white font-medium"
+                      style={{ backgroundColor: article.category.color || '#3B82F6' }}
+                    >
+                      {article.category.name}
+                    </Badge>
+                  </div>
+                )}
               </div>
 
-              {/* Badges */}
+              {/* Breaking/Featured Badges */}
               <div className="absolute top-3 left-3 flex gap-2">
                 {article.breaking && (
                   <Badge className="bg-red-500 text-white">
@@ -192,7 +230,7 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
 
               {/* Personalization Score */}
               {article.isPersonalized && showPersonalization && (
-                <div className="absolute top-3 right-3">
+                <div className="absolute bottom-3 left-3">
                   <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
                     {Math.round(article.confidence * 100)}%
@@ -202,17 +240,6 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
             </div>
 
             <CardContent className="p-4">
-              {/* Category */}
-              <div className="mb-3">
-                <Badge 
-                  variant="secondary" 
-                  style={{ backgroundColor: article.category.color || '#f1f5f9' }}
-                  className="text-xs"
-                >
-                  {article.category.name}
-                </Badge>
-              </div>
-
               {/* Title */}
               <Link href={`/${article.slug}`} className="group-hover:text-blue-600 transition-colors">
                 <h3 className="font-semibold text-lg leading-tight mb-2 line-clamp-2">
