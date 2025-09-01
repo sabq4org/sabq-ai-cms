@@ -60,18 +60,8 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
         likes: true,
         shares: true,
         saves: true,
+        article_author_id: true, // للاستعلام المنفصل عن المؤلف
         // تحميل العلاقات الضرورية فقط
-        article_authors: { 
-          select: { 
-            id: true, 
-            full_name: true, 
-            slug: true, 
-            title: true, 
-            avatar_url: true,
-            specializations: true,
-            bio: true
-          } 
-        },
         categories: { 
           select: { 
             id: true, 
@@ -96,6 +86,27 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
     });
 
     if (!article) return null;
+
+    // جلب معلومات المؤلف إذا كان موجوداً
+    let articleAuthor = null;
+    if ((article as any).article_author_id) {
+      try {
+        articleAuthor = await prisma.article_authors.findUnique({
+          where: { id: (article as any).article_author_id },
+          select: { 
+            id: true, 
+            full_name: true, 
+            slug: true, 
+            title: true, 
+            avatar_url: true,
+            specializations: true,
+            bio: true
+          } 
+        });
+      } catch (authorError) {
+        console.warn('خطأ في جلب معلومات المؤلف:', authorError);
+      }
+    }
 
     // معالجة الصور
     const images: Article["images"] = [];
@@ -124,7 +135,7 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
       views: article.views || 0,
       images,
       author: null, // تم حذف author من الـ schema
-      article_author: (article as any).article_authors,
+      article_author: articleAuthor, // من الاستعلام المنفصل
       categories: article.categories,
       tags: (article as any).article_tags?.map((at: any) => at.tags) || [],
     };
