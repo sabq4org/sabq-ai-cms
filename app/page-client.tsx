@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // Lazy loading للمكونات الثقيلة
 const DeepAnalysisBlock = dynamic(() => import("@/components/DeepAnalysisBlock"), {
@@ -1666,6 +1667,7 @@ export default function PageClient({
   initialDeepAnalyses = [],
   initialFeaturedArticles = [],
 }: PageClientProps) {
+  const { darkMode } = useDarkMode();
   // 🔍 Debug: فحص البيانات الواردة (تعطيل في الإنتاج)
   if (process.env.NODE_ENV !== "production") {
     console.log("🎯 [DEBUG] PageClient received data:", {

@@ -24,6 +24,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Article {
   id: string;
@@ -55,6 +56,7 @@ export default function NewsletterSignup({
   compact = false,
   className = "",
 }: NewsletterSignupProps) {
+  const { darkMode } = useDarkMode();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<

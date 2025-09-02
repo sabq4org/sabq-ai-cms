@@ -34,6 +34,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface OpinionArticle {
   id: string;
@@ -129,6 +130,7 @@ interface OpinionArticle {
 }
 
 export default function OpinionArticlePage() {
+  const { darkMode } = useDarkMode();
   const params = useParams();
   const slug = params?.slug as string;
   const { toast } = useToast();

@@ -17,6 +17,7 @@ import {
   Hash, Type, Target, Lightbulb, Info, ChevronLeft, Shield, Layers, Home
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // تعريف خطوات الـ Wizard
 const WIZARD_STEPS = [
@@ -93,6 +94,7 @@ interface Author {
 }
 
 export default function EditArticleEnhancedPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const params = useParams();
   const articleId = params?.id as string;

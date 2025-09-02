@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Brain, 
   Eye, 
@@ -39,6 +40,7 @@ interface EnhancedDeepAnalysisProps {
 }
 
 export default function EnhancedDeepAnalysis({ className = '' }: EnhancedDeepAnalysisProps) {
+  const { darkMode } = useDarkMode();
   const [analyses, setAnalyses] = useState<DeepAnalysisItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);

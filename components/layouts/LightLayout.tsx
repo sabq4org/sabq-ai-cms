@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface LightLayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ const navigationItems = [
 ];
 
 export default function LightLayout({ children }: LightLayoutProps) {
+  const { darkMode } = useDarkMode();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const { user } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();

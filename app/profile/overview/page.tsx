@@ -24,6 +24,7 @@ import {
   Clock
 } from 'lucide-react';
 import { formatRelativeDate } from '@/lib/date-utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface UserStats {
   totalLikes: number;
@@ -47,6 +48,7 @@ interface UserProfile {
 }
 
 export default function ProfileOverviewPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);

@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface OpinionArticle {
   id: string;
@@ -83,6 +84,7 @@ interface OpinionFilters {
 }
 
 export default function OpinionIndexPage() {
+  const { darkMode } = useDarkMode();
   
   const [opinions, setOpinions] = useState<OpinionArticle[]>([]);
   const [loading, setLoading] = useState(true);

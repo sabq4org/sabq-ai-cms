@@ -18,6 +18,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartRecommendationsProps {
   currentArticleId: string;
@@ -112,6 +113,7 @@ export default function SmartRecommendations({
   currentArticleId,
   recommendations,
 }: SmartRecommendationsProps) {
+  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState<
     "highly_recommended" | "trending_now" | "reading_pattern"
   >("highly_recommended");

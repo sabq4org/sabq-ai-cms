@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { 
   RefreshCw, Trash2, Database, CheckCircle, AlertCircle, 
   Loader2, Server, Info, Zap, Shield, Clock
@@ -13,6 +14,7 @@ interface CacheStats {
 }
 
 export default function CacheManagementPage() {
+  const { darkMode } = useDarkMode();
   const [loading, setLoading] = useState(false);
   const [cacheStats, setCacheStats] = useState<CacheStats | null>(null);
   const [clearingType, setClearingType] = useState<string | null>(null);

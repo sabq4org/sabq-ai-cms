@@ -75,6 +75,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface User {
   id: string;
@@ -92,6 +93,7 @@ interface User {
 }
 
 export default function AdminUsersPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);

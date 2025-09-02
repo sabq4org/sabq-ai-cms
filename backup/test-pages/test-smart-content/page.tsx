@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import SmartPersonalizedContent from '@/components/article/SmartPersonalizedContent';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function TestSmartContentPage() {
-  const [darkMode, setDarkMode] = useState(false);
-
-  return (
+  const { darkMode } = useDarkMode();
+return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="max-w-6xl mx-auto py-8 px-4">
           {/* رأس الصفحة */}

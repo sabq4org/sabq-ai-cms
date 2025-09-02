@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import CommentForm from './CommentForm';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 import { 
   ThumbsUp, 
@@ -59,6 +60,7 @@ export default function CommentItem({
   onReport, 
   depth 
 }: CommentItemProps) {
+  const { darkMode } = useDarkMode();
   const { user } = useAuth();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showOptions, setShowOptions] = useState(false);

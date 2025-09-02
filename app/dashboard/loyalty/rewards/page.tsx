@@ -4,13 +4,10 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Gift, Plus, Edit, Trash2, Star, Crown } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 export default function RewardsPage() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
   }, []);
   const rewards = [
     {

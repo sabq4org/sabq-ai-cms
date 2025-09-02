@@ -10,6 +10,7 @@ import FeaturedNewsCard, {
   HeroNewsCard,
 } from "@/components/FeaturedNewsCardEnhanced";
 // import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // بيانات تجريبية للاختبار
 const testArticles = [
@@ -88,6 +89,7 @@ const testArticles = [
 ];
 
 export default function FeaturedCardsTestPage() {
+  const { darkMode } = useDarkMode();
 
   return (
     <div

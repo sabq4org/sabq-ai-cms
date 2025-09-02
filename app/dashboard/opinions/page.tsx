@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Eye, Calendar, User, MessageSquare, TrendingUp, FileText } from 'lucide-react'
@@ -39,6 +40,7 @@ interface Article {
   }
 }
 export default function OpinionsPage() {
+  const { darkMode } = useDarkMode();
   const { toast } = useToast()
   const router = useRouter()
   const [articles, setArticles] = useState<Article[]>([])

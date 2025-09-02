@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Table, Plus, Trash2 } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface TableData {
   headers: string[];
@@ -18,6 +19,7 @@ interface TableBlockProps {
 }
 
 export default function TableBlock({ data, onChange, readOnly }: TableBlockProps) {
+  const { darkMode } = useDarkMode();
   const [tableData, setTableData] = useState<TableData>(
     data.table || { headers: ['العمود 1', 'العمود 2'], rows: [['', '']] }
   );

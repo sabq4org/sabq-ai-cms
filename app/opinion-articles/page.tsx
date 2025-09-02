@@ -3,6 +3,7 @@
 import Footer from "@/components/Footer";
 // import OpinionArticleCard from "@/components/mobile/OpinionArticleCard";
 import { cn } from "@/lib/utils";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import {
   Calendar,
   ChevronDown,
@@ -48,6 +49,7 @@ interface Category {
 const ITEMS_PER_PAGE = 12;
 
 export default function OpinionArticlesPage() {
+  const { darkMode } = useDarkMode();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

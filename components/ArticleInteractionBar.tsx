@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Heart, Bookmark, Share2, MessageSquare, Eye, Clock } from 'lucide-react';
 import { useEnhancedTracking } from '@/hooks/useEnhancedTracking';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ArticleInteractionBarProps {
   articleId: string;
@@ -22,6 +23,7 @@ export default function ArticleInteractionBar({
   initialLikes = 0,
   onComment
 }: ArticleInteractionBarProps) {
+  const { darkMode } = useDarkMode();
   const [liked, setLiked] = useState(initialLiked);
   const [saved, setSaved] = useState(initialSaved);
   const [likes, setLikes] = useState(initialLikes);

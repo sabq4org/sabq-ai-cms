@@ -8,6 +8,7 @@ import { createBlock, reorderBlocks } from './utils';
 import BlockItem from './BlockItem';
 import BlockMenu from './BlockMenu';
 import { Plus } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function BlockEditor({
   blocks,
@@ -16,6 +17,7 @@ export default function BlockEditor({
   placeholder = 'ابدأ الكتابة أو اضغط "/" لإضافة بلوك...',
   readOnly = false
 }: BlockEditorProps) {
+  const { darkMode } = useDarkMode();
   const [localBlocks, setLocalBlocks] = useState<Block[]>(blocks);
 
   useEffect(() => {

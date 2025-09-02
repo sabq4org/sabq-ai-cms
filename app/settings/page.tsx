@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { Bell, Shield, Moon, Sun, Globe, Save, ArrowLeft, Brain, Trash2 } from 'lucide-react';
 interface UserSettings {
   notifications: {
@@ -19,6 +20,7 @@ interface UserSettings {
   theme: 'light' | 'dark' | 'system';
 }
 export default function SettingsPage() {
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [personalizationEnabled, setPersonalizationEnabled] = useState<boolean>(true);

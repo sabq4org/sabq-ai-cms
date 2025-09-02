@@ -1,6 +1,7 @@
 'use client';
 
 import React, { memo, useState, useMemo, useCallback, useEffect } from 'react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Smartphone, Palette, Zap, Code2, Layout, 
   TrendingUp, Clock, Star, Heart, Eye

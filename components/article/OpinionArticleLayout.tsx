@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import AuthorLatestArticles from "./AuthorLatestArticles";
 import { SmartInteractionButtons } from "./SmartInteractionButtons";
 import TrendingArticles from "./TrendingArticles";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface OpinionArticleLayoutProps {
   article: ArticleData;
@@ -29,6 +30,7 @@ interface OpinionArticleLayoutProps {
 export default function OpinionArticleLayout({
   article,
 }: OpinionArticleLayoutProps) {
+  const { darkMode } = useDarkMode();
   const { elementRef } = useViewTracking({ articleId: article.id });
   const [readingProgress, setReadingProgress] = useState(0);
 

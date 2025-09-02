@@ -31,9 +31,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import "./categories-dashboard.css";
 
 export default function CategoriesPage() {
+  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState("list");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");

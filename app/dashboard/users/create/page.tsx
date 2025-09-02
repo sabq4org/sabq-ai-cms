@@ -4,10 +4,11 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Save, Mail, Phone, Shield, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useDarkMode } from "@/hooks/useDarkMode";
 export default function CreateUserPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -59,13 +60,7 @@ export default function CreateUserPage() {
     { id: 'moderate_comments', name: 'إدارة التعليقات', category: 'التفاعل' },
     { id: 'manage_media', name: 'إدارة الوسائط', category: 'الوسائط' }
   ];
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
-  const validateForm = () => {
+const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.firstName.trim()) newErrors.firstName = 'الاسم الأول مطلوب';
     if (!formData.lastName.trim()) newErrors.lastName = 'الاسم الأخير مطلوب';

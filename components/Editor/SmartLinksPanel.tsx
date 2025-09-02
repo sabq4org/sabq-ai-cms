@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Loader2, ExternalLink, Eye, EyeOff, Sparkles, BarChart3, CheckCircle, XCircle } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartLink {
   entityId: string;
@@ -53,6 +54,7 @@ export default function SmartLinksPanel({
   onToggleLinks,
   isEnabled
 }: SmartLinksPanelProps) {
+  const { darkMode } = useDarkMode();
   const [appliedLinks, setAppliedLinks] = useState<Set<string>>(new Set());
   const [rejectedLinks, setRejectedLinks] = useState<Set<string>>(new Set());
 

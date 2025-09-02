@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Menu, 
   X, 
@@ -51,6 +52,7 @@ function useMediaQuery(query: string) {
 }
 
 export default function ResponsiveLayout({ children, user, onLogin, onLogout }: ResponsiveLayoutProps) {
+  const { darkMode } = useDarkMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

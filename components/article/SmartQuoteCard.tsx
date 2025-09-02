@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Quote, Copy, Share2, CheckCircle, Sparkles, Brain, Zap } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartQuoteCardProps {
   quote: {
@@ -51,6 +52,7 @@ const quoteTypeConfig = {
 };
 
 export default function SmartQuoteCard({ quote, articleTitle, authorName }: SmartQuoteCardProps) {
+  const { darkMode } = useDarkMode();
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
 

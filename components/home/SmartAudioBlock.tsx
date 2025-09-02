@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AudioNewsletter {
   id: string;
@@ -664,6 +665,7 @@ export default function SmartAudioBlock({
   variant = "default",
   className,
 }: SmartAudioBlockProps) {
+  const { darkMode } = useDarkMode();
 
   return (
     <div

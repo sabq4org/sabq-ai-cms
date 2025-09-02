@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import EnhancedOpinionLayout from "@/components/article/EnhancedOpinionLayout";
 import SmartReadingTracker from "@/components/article/SmartReadingTracker";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
@@ -110,6 +111,7 @@ export default function ArticleClientComponent({
   initialArticle,
   articleId,
 }: ArticleClientComponentProps) {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const isMobile = useMediaQuery("(max-width: 768px)");
 

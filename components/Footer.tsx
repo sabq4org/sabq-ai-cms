@@ -8,9 +8,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import SabqLogo from "./SabqLogo";
 
 export default function Footer() {
+  const { darkMode } = useDarkMode();
   const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
 
   // تتبع تغيير اللون من نظام الألوان المتغيرة

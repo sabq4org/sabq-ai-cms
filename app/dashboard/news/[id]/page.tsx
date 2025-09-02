@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   ArrowRight, Edit3, Trash2, Copy, Eye, Calendar, User, Clock, Activity, FileText, BarChart3, Brain
 } from 'lucide-react';
@@ -44,22 +45,16 @@ const categories: { [key: number]: { name: string; color: string } } = {
   10: { name: 'دولي', color: '#F97316' }
 };
 export default function ArticleViewPage() {
+  const { darkMode } = useDarkMode();
   const params = useParams();
   const router = useRouter();
   const articleId = params?.id as string;
   const [activeTab, setActiveTab] = useState('content');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [article, setArticle] = useState<Article | null>(null);
+const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   // استرجاع حالة الوضع الليلي من localStorage
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
-  // جلب بيانات المقال
+// جلب بيانات المقال
   useEffect(() => {
     const fetchArticle = async () => {
       try {

@@ -8,6 +8,7 @@ import {
   FileText, Calendar, User, Tag, Globe 
 } from 'lucide-react';
 import ImageUploadComponent from '@/components/ui/ImageUpload';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Category {
   id: string;
@@ -22,6 +23,7 @@ interface Author {
 }
 
 export default function CreateNewsPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   
   // حالة النموذج

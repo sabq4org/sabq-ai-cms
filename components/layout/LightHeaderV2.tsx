@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // نظام الألوان المتغيرة المطور
 const themes = [
@@ -64,6 +65,7 @@ interface LightHeaderProps {
 }
 
 export default function LightHeader({ className = '' }: LightHeaderProps) {
+  const { darkMode } = useDarkMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);

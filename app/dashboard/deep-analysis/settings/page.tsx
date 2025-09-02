@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // ملاحظة: هذه الصفحة أصبحت قديمة
 // يجب استخدام صفحة الإعدادات الموحدة /dashboard/settings/ai-settings
 export default function DeepAnalysisSettingsPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
 
   useEffect(() => {

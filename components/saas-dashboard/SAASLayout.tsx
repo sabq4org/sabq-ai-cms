@@ -4,6 +4,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useState } from "react";
 import SAASHeader from "./SAASHeader";
 import SAASSidebar from "./SAASSidebar";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SAASLayoutProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ export default function SAASLayout({
   onEditClick,
   className = "",
 }: SAASLayoutProps) {
+  const { darkMode } = useDarkMode();
   const isMobile = useMediaQuery("(max-width: 1024px)");
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 

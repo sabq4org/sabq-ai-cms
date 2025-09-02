@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Bookmark, Share2, Eye, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ArticleInteractionsProps {
   articleId: string;
@@ -21,6 +22,7 @@ export default function ArticleInteractions({
   initialStats = {},
   className = ''
 }: ArticleInteractionsProps) {
+  const { darkMode } = useDarkMode();
   const { user } = useAuth();
   const [stats, setStats] = useState({
     likes: initialStats.likes || 0,

@@ -67,6 +67,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AnalyticsData {
   pageViews: number;
@@ -127,6 +128,7 @@ const analyticsData: AnalyticsData = {
 };
 
 export default function ModernAnalytics() {
+  const { darkMode } = useDarkMode();
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
   const [activeTab, setActiveTab] = useState('overview');
 

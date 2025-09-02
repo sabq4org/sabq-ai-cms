@@ -29,6 +29,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AIMetric {
   id: string;
@@ -82,6 +83,7 @@ interface PerformanceData {
 }
 
 export default function AIAnalyticsPage() {
+  const { darkMode } = useDarkMode();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState("7d");

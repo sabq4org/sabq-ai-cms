@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 interface Article {
   id: string;
   title: string;
@@ -49,8 +50,8 @@ interface PersonalizedContent {
   };
 }
 export default function HomePage() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { darkMode } = useDarkMode();
+const [loading, setLoading] = useState(true);
   const [personalizedContent, setPersonalizedContent] =
     useState<PersonalizedContent | null>(null);
   const [breakingNews, setBreakingNews] = useState<Article[]>([]);

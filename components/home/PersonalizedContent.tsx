@@ -21,6 +21,7 @@ import {
     Zap
 } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 
 
@@ -64,6 +65,7 @@ interface UserPreference {
 }
 
 export default function PersonalizedContent() {
+  const { darkMode } = useDarkMode();
   const [articles, setArticles] = useState<Article[]>([]);
   const [stats, setStats] = useState<PersonalizationStats | null>(null);
   const [loading, setLoading] = useState(true);

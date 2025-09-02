@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   ArrowRight, 
   Edit, 
@@ -46,6 +47,7 @@ interface DeepAnalysis {
 }
 
 export default function ViewDeepAnalysisPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();

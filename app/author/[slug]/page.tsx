@@ -13,6 +13,7 @@ import {
   Users, Target, Zap, Activity, BarChart3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Author {
   id: string;
@@ -72,6 +73,7 @@ interface AuthorStats {
 const ARTICLES_PER_PAGE = 9;
 
 export default function AuthorPage() {
+  const { darkMode } = useDarkMode();
   const params = useParams();
   const rawSlug = params?.slug as string;
   

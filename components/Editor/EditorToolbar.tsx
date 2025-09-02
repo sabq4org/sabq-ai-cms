@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 
 import ImageUploadDialog from "./ImageUploadDialog";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface EditorToolbarProps {
   editor: Editor;
@@ -47,6 +48,7 @@ export default function EditorToolbar({
   enableAI = true,
   onAIAction,
 }: EditorToolbarProps) {
+  const { darkMode } = useDarkMode();
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [showImageUploadDialog, setShowImageUploadDialog] = useState(false);

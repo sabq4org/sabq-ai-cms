@@ -69,6 +69,7 @@ import { MediaStep } from '@/components/article/steps/MediaStep';
 import { PublishStep } from '@/components/article/steps/PublishStep';
 import { SEOStep } from '@/components/article/steps/SEOStep';
 import { ReviewStep } from '@/components/article/steps/ReviewStep';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Category {
   id: string;
@@ -89,6 +90,7 @@ interface UploadedImage {
 }
 
 export default function CreateArticlePage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   
   // تحميل البيانات الأساسية فقط عند الحاجة

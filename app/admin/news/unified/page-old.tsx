@@ -36,6 +36,7 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import("@/components/Editor/Editor"), {
@@ -63,6 +64,7 @@ interface Reporter {
 }
 
 export default function UnifiedNewsCreatePageUltraEnhanced() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const searchParams = useSearchParams();
   const editorRef = useRef<any>(null);

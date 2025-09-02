@@ -7,8 +7,10 @@ import { ArrowLeft, Edit3, Eye, FileText, TrendingUp, Calendar, Tag, BarChart3, 
 import { Button } from '@/components/ui/button';
 import { Category } from '@/types/category';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function CategoryDetailsPage() {
+  const { darkMode } = useDarkMode();
   const params = useParams();
   const router = useRouter();
   const [category, setCategory] = useState<Category | null>(null);

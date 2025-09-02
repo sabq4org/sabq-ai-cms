@@ -23,6 +23,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartArticleHeroProps {
   article: {
@@ -82,6 +83,7 @@ const recommendationLabels = {
 };
 
 export default function SmartArticleHero({ article }: SmartArticleHeroProps) {
+  const { darkMode } = useDarkMode();
   const [bookmarked, setBookmarked] = useState(false);
   const [shared, setShared] = useState(false);
 

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Article {
   id: string;
@@ -37,6 +38,7 @@ interface Article {
 }
 
 export default function ArticlesListPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);

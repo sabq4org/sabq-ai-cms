@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useFeaturedCarousel } from "@/components/featured/hooks/useFeaturedCarousel";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface FeaturedArticle {
   id: string;
@@ -77,7 +78,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   });
 
   // إيقاف التحريك التلقائي عند تحريك الماوس فوق المكون
-  const handleMouseEnter = () => {/* يمكن لاحقاً تفعيل الإيقاف */};
+  const handleMouseEnter = () => {
+  const { darkMode } = useDarkMode();/* يمكن لاحقاً تفعيل الإيقاف */};
   const handleMouseLeave = () => {/* يمكن لاحقاً إعادة التشغيل */};
 
   const getVerificationIcon = (badge: string) => {

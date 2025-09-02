@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import '@/styles/old-style-news.css';
 
 interface FeaturedArticle {
@@ -50,6 +51,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
 
   // تحديد إذا كان الخبر جديد (آخر 12 ساعة)
   const isNewsNew = (dateString: string) => {
+  const { darkMode } = useDarkMode();
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());

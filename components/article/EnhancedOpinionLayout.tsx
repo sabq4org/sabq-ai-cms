@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface EnhancedOpinionLayoutProps {
   article: ArticleData;
@@ -28,6 +29,7 @@ interface EnhancedOpinionLayoutProps {
 export default function EnhancedOpinionLayout({
   article,
 }: EnhancedOpinionLayoutProps) {
+  const { darkMode } = useDarkMode();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isFloatingVisible, setIsFloatingVisible] = useState(false);
 

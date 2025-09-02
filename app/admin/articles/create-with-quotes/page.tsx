@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 import SafeArticleEditor from '@/components/Editor/SafeArticleEditor';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // Types
 interface ArticleAuthor {
@@ -37,6 +38,7 @@ interface ArticleForm {
 }
 
 const NewArticlePage = () => {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   
   // State

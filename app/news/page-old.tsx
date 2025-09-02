@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import "../categories/categories-fixes.css";
 import "./news-styles.css";
 
@@ -88,6 +89,7 @@ const categoriesCache = new Map();
 const statsCache = new Map();
 
 export default function NewsPage() {
+  const { darkMode } = useDarkMode();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

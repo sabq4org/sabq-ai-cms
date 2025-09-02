@@ -28,6 +28,7 @@ import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface UserHeaderProps {
   onMenuClick?: () => void;
@@ -35,6 +36,7 @@ interface UserHeaderProps {
 }
 
 export default function UserHeader({ onMenuClick, showMenuButton = false }: UserHeaderProps) {
+  const { darkMode } = useDarkMode();
   const { user, logout } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -44,9 +46,7 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
   const [mounted, setMounted] = useState(false);
   const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
   // Added: track dark mode to avoid ReferenceError and react to changes
-  const [darkMode, setDarkMode] = useState(false);
-  
-  // التحقق من حجم الشاشة ومنع مشاكل Hydration
+// التحقق من حجم الشاشة ومنع مشاكل Hydration
   React.useEffect(() => {
     setMounted(true);
     const checkMobile = () => {

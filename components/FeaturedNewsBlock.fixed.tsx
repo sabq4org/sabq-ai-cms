@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface FeaturedArticle {
   id: string;
@@ -63,6 +64,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const updateIsDesktop = () => {
+  const { darkMode } = useDarkMode();
         setIsDesktop(window.innerWidth >= 1024);
       };
       

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export interface TabItem {
   id: string;
@@ -19,9 +20,8 @@ interface TabsEnhancedProps {
 }
 
 export function TabsEnhanced({ tabs, activeTab, onTabChange, className = '' }: TabsEnhancedProps) {
-  const [darkMode, setDarkMode] = useState(false);
-  
-  useEffect(() => {
+  const { darkMode } = useDarkMode();
+useEffect(() => {
     // Check for dark mode from document or localStorage
     const isDark = document.documentElement.classList.contains('dark') || 
                   localStorage.getItem('theme') === 'dark';

@@ -6,6 +6,7 @@ import { useEnhancedTracking } from '@/hooks/useEnhancedTracking';
 import { useUserInteractions } from '@/stores/userInteractions';
 import UnifiedInteractionButtons from '@/components/ui/UnifiedInteractionButtons';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ArticleInteractionBarProps {
   articleId: string;
@@ -26,6 +27,7 @@ export default function ArticleInteractionBarUpdated({
   onComment,
   className = ''
 }: ArticleInteractionBarProps) {
+  const { darkMode } = useDarkMode();
   const [views, setViews] = useState(initialViews);
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
   

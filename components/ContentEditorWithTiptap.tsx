@@ -5,6 +5,7 @@ import React, { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { EditorErrorBoundary } from '@/components/ErrorBoundary';
 import { AutoSaveIndicator } from '@/components/AutoSave';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 import { Image as ImageIcon, Sparkles
 } from 'lucide-react';
@@ -56,6 +57,7 @@ export default function ContentEditorWithTiptap({
   onGenerateDescription,
   aiLoading = {}
 }: ContentEditorProps) {
+  const { darkMode } = useDarkMode();
   const editorRef = useRef<any>(null);
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiAction, setAiAction] = useState<string>('');

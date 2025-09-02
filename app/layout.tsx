@@ -4,6 +4,7 @@ import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
 import { ThemeProvider } from 'next-themes';
+import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
 import { getServerUser } from "@/lib/getServerUser";
@@ -195,9 +196,11 @@ export default async function RootLayout({
           />
         )}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ConditionalLayout initialUser={initialUser}>
-            {children}
-          </ConditionalLayout>
+          <DarkModeProvider>
+            <ConditionalLayout initialUser={initialUser}>
+              {children}
+            </ConditionalLayout>
+          </DarkModeProvider>
         </ThemeProvider>
         <ToastContainer />
         <SpeedInsights />

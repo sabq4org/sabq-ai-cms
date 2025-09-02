@@ -38,6 +38,7 @@ export default function SAASActivityCards({
   showFilters = true,
   maxItems = 10,
 }: SAASActivityCardsProps) {
+  const { darkMode } = useDarkMode();
 
   // بيانات تجريبية إذا لم يتم تمرير أنشطة
   const defaultActivities: ActivityItem[] = [

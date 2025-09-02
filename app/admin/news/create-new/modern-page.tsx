@@ -64,6 +64,7 @@ import FeaturedImageUpload from "@/components/FeaturedImageUpload";
 import { generateShortSlug } from "@/lib/slug";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(
@@ -97,6 +98,7 @@ interface Author {
 }
 
 export default function ModernCreateNewsPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const { toast } = useToast();
   const editorRef = useRef<any>(null);

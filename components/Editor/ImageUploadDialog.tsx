@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ImageUploadDialogProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export default function ImageUploadDialog({
   onClose,
   onImageSelected,
 }: ImageUploadDialogProps) {
+  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState<"upload" | "url">("upload");
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");

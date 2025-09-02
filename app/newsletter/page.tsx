@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import {
   ArrowRight,
   Brain,
@@ -36,6 +37,7 @@ interface SubscriptionPlan {
 }
 
 export default function NewsletterPage() {
+  const { darkMode } = useDarkMode();
   const [email, setEmail] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("smart");
   const [isSubmitting, setIsSubmitting] = useState(false);

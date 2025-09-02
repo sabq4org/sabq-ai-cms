@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SAASHeaderProps {
   title?: string;
@@ -33,6 +34,7 @@ export default function SAASHeader({
   onMenuClick,
   showMenuButton = false,
 }: SAASHeaderProps) {
+  const { darkMode } = useDarkMode();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 

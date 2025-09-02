@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Brain, Lightbulb, TrendingUp, Target, CheckCircle, 
   ChevronDown, ChevronUp, Clock, BookOpen, Zap,
@@ -26,6 +27,7 @@ interface SmartSummaryProps {
 }
 
 export default function SmartSummary({ summary, articleTitle, originalReadingTime }: SmartSummaryProps) {
+  const { darkMode } = useDarkMode();
   const [expanded, setExpanded] = useState(false);
   const [showNextSteps, setShowNextSteps] = useState(false);
 

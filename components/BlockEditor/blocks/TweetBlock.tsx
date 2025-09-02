@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React from 'react';
 import { Twitter } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface TweetBlockProps {
   data: {
@@ -16,6 +17,7 @@ interface TweetBlockProps {
 }
 
 export default function TweetBlock({ data, onChange, readOnly }: TweetBlockProps) {
+  const { darkMode } = useDarkMode();
   
   // استخراج URL من البيانات المحفوظة
   const tweetUrl = data.tweet?.url || data.url || '';

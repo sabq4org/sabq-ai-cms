@@ -69,6 +69,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -212,6 +213,7 @@ export const ArticleList: React.FC<ArticleListProps> = ({
   };
 
   const getStatusColor = (status: string) => {
+  const { darkMode } = useDarkMode();
     switch (status) {
       case 'published':
         return 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700';

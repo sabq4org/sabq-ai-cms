@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Newsletter {
   id: string;
@@ -37,6 +38,7 @@ interface Newsletter {
 }
 
 export default function NewslettersArchive() {
+  const { darkMode } = useDarkMode();
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPlaying, setCurrentPlaying] = useState<string | null>(null);

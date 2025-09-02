@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React from 'react';
 import { Link, ExternalLink } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface LinkBlockProps {
   data: {
@@ -14,6 +15,7 @@ interface LinkBlockProps {
 }
 
 export default function LinkBlock({ data, onChange, readOnly }: LinkBlockProps) {
+  const { darkMode } = useDarkMode();
   
   const handleChange = (field: 'url' | 'text', value: string) => {
     onChange({

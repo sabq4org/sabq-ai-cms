@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import DashboardLayout from "@/components/admin/modern-dashboard/DashboardLayout";
 import { SidebarPreferencesProvider } from "@/contexts/SidebarPreferencesContext";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "next-themes";
 
 export default function AdminPureLayout({
   children,
@@ -30,7 +31,7 @@ export default function AdminPureLayout({
       minHeight: '100vh',
       backgroundColor: '#f9fafb'
     }}>
-      <DarkModeProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <SidebarPreferencesProvider>
           <DashboardLayout
             pageTitle="لوحة الإدارة"
@@ -40,7 +41,7 @@ export default function AdminPureLayout({
           </DashboardLayout>
           <Toaster position="top-center" />
         </SidebarPreferencesProvider>
-      </DarkModeProvider>
+      </ThemeProvider>
     </div>
   );
 }

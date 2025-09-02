@@ -19,6 +19,7 @@ import {
   Globe, TrendingUp, BookOpen, ChevronRight, Home
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
@@ -40,6 +41,7 @@ interface Author {
 }
 
 export default function UnifiedArticleNewPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const editorRef = useRef<any>(null);
   

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AudioNewsletter {
   id: string;
@@ -28,6 +29,7 @@ interface AudioNewsletter {
 }
 
 export default function PodcastBlock() {
+  const { darkMode } = useDarkMode();
   const [newsletter, setNewsletter] = useState<AudioNewsletter | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

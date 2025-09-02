@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ArrowRight, CheckCircle, Mail, Send, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface NewsletterBoxProps {
   title?: string;
@@ -28,6 +29,7 @@ export default function NewsletterBox({
   showFeatures = false,
   className = "",
 }: NewsletterBoxProps) {
+  const { darkMode } = useDarkMode();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<

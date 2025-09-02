@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Activity,
   Users,
@@ -56,8 +57,8 @@ interface UserStats {
   last_active: string;
 }
 export default function ConsolePage() {
+  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);

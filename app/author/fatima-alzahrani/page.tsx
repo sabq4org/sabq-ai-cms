@@ -12,8 +12,10 @@ import {
   Users, Target, Zap, Activity, BarChart3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function FatimaAlzahraniPage() {
+  const { darkMode } = useDarkMode();
 
   // بيانات تجريبية للكاتبة فاطمة الزهراني
   const author = {

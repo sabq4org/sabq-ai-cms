@@ -11,6 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface TabItem {
   id: string;
@@ -36,6 +37,7 @@ export default function SAASTabs({
   variant = "default",
   size = "md",
 }: SAASTabsProps) {
+  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id);
 
   const handleTabChange = (tabId: string) => {

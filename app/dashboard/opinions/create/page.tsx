@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   PenTool,
   Save,
@@ -35,6 +36,7 @@ interface OpinionAuthor {
   avatar?: string;
 }
 export default function CreateOpinionPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [authors, setAuthors] = useState<OpinionAuthor[]>([]);

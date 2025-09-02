@@ -3,6 +3,7 @@
 import React from 'react';
 import { formatDateShort } from '@/lib/date-utils';
 import Image from 'next/image';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 
 
@@ -11,6 +12,7 @@ import { useState, useEffect } from 'react'
 import { Menu, X, Search, User, Sun, Moon, Bell, Activity } from 'lucide-react'
 
 export function StaticHeader() {
+  const { darkMode } = useDarkMode();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [newEventsCount, setNewEventsCount] = useState(0)

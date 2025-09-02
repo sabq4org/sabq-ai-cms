@@ -25,6 +25,7 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // تحميل المحرر المتقدم بشكل ديناميكي
 const AdvancedEditor = dynamic(() => import("@/components/AdvancedEditor").then(mod => ({ default: mod.AdvancedEditor })), {
@@ -60,6 +61,7 @@ interface Reporter {
 }
 
 export default function ManusNewsCreatePage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const searchParams = useSearchParams();
   const editorRef = useRef<any>(null);

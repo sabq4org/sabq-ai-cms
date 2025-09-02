@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Eye, Clock, Calendar } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface FeaturedArticle {
   id: string;
@@ -33,6 +34,7 @@ export default function FeaturedNewsBlockCompact({
   title = "🔥 الأخبار المميزة",
   maxItems = 3
 }: FeaturedNewsBlockCompactProps) {
+  const { darkMode } = useDarkMode();
   const [loading, setLoading] = useState(true);
   const [featuredArticles, setFeaturedArticles] = useState<FeaturedArticle[]>([]);
 

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { formatRelativeDate, formatFullDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SavedArticle {
   id: string;
@@ -59,6 +60,7 @@ interface ApiResponse {
 }
 
 export default function SavedArticlesPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
   const [loading, setLoading] = useState(true);

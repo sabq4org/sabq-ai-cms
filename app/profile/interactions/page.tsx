@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { formatRelativeDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface InteractionArticle {
   id: string;
@@ -53,6 +54,7 @@ interface InteractionStats {
 }
 
 export default function InteractionsPage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const [interactions, setInteractions] = useState<InteractionArticle[]>([]);
   const [stats, setStats] = useState<InteractionStats | null>(null);

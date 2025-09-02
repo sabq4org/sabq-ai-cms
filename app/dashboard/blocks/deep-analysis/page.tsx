@@ -21,6 +21,7 @@ interface BlockSettings {
 }
 
 export default function DeepAnalysisBlockSettings() {
+  const { darkMode } = useDarkMode();
   const [settings, setSettings] = useState<BlockSettings>({
     enabled: true,
     displayCount: 3,

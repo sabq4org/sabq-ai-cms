@@ -8,6 +8,7 @@ import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdown';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // نظام الألوان المتغيرة المطور
 const themes = [
@@ -68,6 +69,7 @@ interface LightHeaderProps {
 }
 
 export default function LightHeader({ className = '' }: LightHeaderProps) {
+  const { darkMode } = useDarkMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);

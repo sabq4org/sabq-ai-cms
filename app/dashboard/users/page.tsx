@@ -7,6 +7,7 @@ import {format} from 'date-fns';
 import {ar} from 'date-fns/locale';
 import {getMembershipLevel} from '@/lib/loyalty';
 import {TabsEnhanced} from '@/components/ui/tabs-enhanced';
+import { useDarkMode } from "@/hooks/useDarkMode";
 import {
   Users,
   UserCheck,
@@ -68,6 +69,7 @@ const loyaltyIconMap: Record<string, React.ComponentType<any>> = {
   'سفير': Crown
 };
 export default function UsersPage() {
+  const { darkMode } = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedRole, setSelectedRole] = useState('all');
@@ -92,8 +94,7 @@ export default function UsersPage() {
  } | null>(null);
 
   // Added: darkMode state and observers
-  const [darkMode, setDarkMode] = useState(false);
-  useEffect(() => {
+useEffect(() => {
     if (typeof window === 'undefined') return;
     const getDark = () =>
       document.documentElement.classList.contains('dark') ||

@@ -23,6 +23,7 @@ import EditorStyles from './EditorStyles';
 import { Button } from '@/components/ui/button';
 import { Undo2, Redo2, Save, RotateCcw, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface EditorProps {
   content?: any;
@@ -175,6 +176,7 @@ const Editor = forwardRef<EditorRef, EditorProps>(({
       
       // حفظ عند مغادرة الصفحة
       const handleBeforeUnload = () => {
+  const { darkMode } = useDarkMode();
         autoSave();
       };
       window.addEventListener('beforeunload', handleBeforeUnload);

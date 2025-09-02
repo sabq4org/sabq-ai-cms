@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSidebarPreferences } from "@/contexts/SidebarPreferencesContext";
 import { AlertCircle, CheckCircle, RefreshCw, Settings } from "lucide-react";
 import React from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function SidebarTestPage() {
+  const { darkMode } = useDarkMode();
   const { preferences, loading, updatePreferences, resetPreferences } =
     useSidebarPreferences();
   const [testResult, setTestResult] = React.useState<string>("");

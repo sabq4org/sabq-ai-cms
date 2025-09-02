@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface CleanupStats {
   totalArticles: number;
@@ -21,6 +22,7 @@ interface CleanupStats {
 }
 
 const AdminCleanupPage = () => {
+  const { darkMode } = useDarkMode();
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<CleanupStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);

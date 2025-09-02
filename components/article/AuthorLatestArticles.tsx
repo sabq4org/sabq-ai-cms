@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { linkTo } from "@/lib/url-builder";
 import { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Article {
   id: string;
@@ -35,6 +36,7 @@ export default function AuthorLatestArticles({
   currentArticleId,
   limit = 5,
 }: AuthorLatestArticlesProps) {
+  const { darkMode } = useDarkMode();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 

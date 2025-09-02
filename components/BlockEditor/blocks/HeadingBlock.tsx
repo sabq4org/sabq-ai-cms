@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useRef, useEffect, useState } from 'react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface HeadingBlockProps {
   data: { text: string; level: 1 | 2 | 3 | 4 | 5 | 6; alignment?: 'left' | 'center' | 'right' };
@@ -18,6 +19,7 @@ export default function HeadingBlock({
   readOnly = false,
   autoFocus = false 
 }: HeadingBlockProps) {
+  const { darkMode } = useDarkMode();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 

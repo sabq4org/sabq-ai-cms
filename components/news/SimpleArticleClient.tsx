@@ -5,12 +5,14 @@ import { Calendar, Clock, User, Eye } from "lucide-react";
 import Link from "next/link";
 import AudioSummaryPlayer from "@/components/AudioSummaryPlayer";
 import CommentsSection from "@/components/article/CommentsSection";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SimpleArticleClientProps {
   article: any;
 }
 
 export default function SimpleArticleClient({ article }: SimpleArticleClientProps) {
+  const { darkMode } = useDarkMode();
   const [imageError, setImageError] = useState(false);
 
   if (!article) {

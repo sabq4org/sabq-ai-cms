@@ -6,16 +6,17 @@ import { usePathname } from "next/navigation";
 // النسخة الكاملة (للديسكتوب)
 import UserHeader from "@/components/user/UserHeader";
 import LightHeader from "@/components/layout/LightHeader";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ResponsiveLayoutProps {
   children: React.ReactNode;
 }
 
 export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
+  const { darkMode } = useDarkMode();
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const pathname = usePathname();
+const pathname = usePathname();
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
   const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
 

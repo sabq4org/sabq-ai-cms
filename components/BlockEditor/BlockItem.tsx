@@ -8,6 +8,7 @@ import BlockToolbar from './BlockToolbar';
 import BlockMenu from './BlockMenu';
 import { ParagraphBlock, HeadingBlock, ImageBlock, VideoBlock, QuoteBlock, ListBlock, DividerBlock, TweetBlock, LinkBlock, TableBlock } from './blocks';
 import { Code } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface BlockItemProps {
   block: Block;
@@ -30,6 +31,7 @@ export default function BlockItem({
   autoFocus = false,
   dragHandleProps
 }: BlockItemProps) {
+  const { darkMode } = useDarkMode();
   const [isDragging, setIsDragging] = useState(false);
 
   const handleMove = (direction: 'up' | 'down') => {

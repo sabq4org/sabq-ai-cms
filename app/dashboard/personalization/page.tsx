@@ -3,9 +3,10 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Users, Target, Brain, BarChart3 } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 export default function PersonalizationPage() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { darkMode } = useDarkMode();
+const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     activeUsers: 0,
     personalizationAccuracy: 0,
@@ -14,13 +15,7 @@ export default function PersonalizationPage() {
   });
   const [personalizationRules, setPersonalizationRules] = useState<any[]>([]);
   const [aiModels, setAIModels] = useState<any[]>([]);
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, []);
-  // جلب البيانات الحقيقية
+// جلب البيانات الحقيقية
   useEffect(() => {
     const fetchRealData = async () => {
       try {

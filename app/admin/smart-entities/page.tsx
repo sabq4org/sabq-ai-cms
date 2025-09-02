@@ -16,6 +16,7 @@ import {
   Star, Brain, Target, Globe, Zap
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartEntity {
   id: string;
@@ -49,6 +50,7 @@ interface EntityStats {
 }
 
 export default function SmartEntitiesManagement() {
+  const { darkMode } = useDarkMode();
   const [entities, setEntities] = useState<SmartEntity[]>([]);
   const [entityTypes, setEntityTypes] = useState<any[]>([]);
   const [stats, setStats] = useState<EntityStats | null>(null);

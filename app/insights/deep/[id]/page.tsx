@@ -33,6 +33,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface DeepAnalysisPageProps {
   id: string;
@@ -108,9 +109,9 @@ function countWordsInElement(element: HTMLElement | null): number {
 }
 
 export default function DeepAnalysisPage() {
+  const { darkMode } = useDarkMode();
   const params = useParams();
-  const [darkMode, setDarkMode] = useState(false);
-  const [analysis, setAnalysis] = useState<DeepAnalysisPageProps | null>(null);
+const [analysis, setAnalysis] = useState<DeepAnalysisPageProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);

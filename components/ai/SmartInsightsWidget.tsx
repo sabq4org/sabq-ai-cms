@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Clock, TrendingUp, Eye, MessageCircle } from 'lucide-react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ArticleInsight {
   id: string;
@@ -28,6 +29,7 @@ interface SmartInsightsWidgetProps {
 }
 
 export default function SmartInsightsWidget({ variant = 'default', className = '' }: SmartInsightsWidgetProps) {
+  const { darkMode } = useDarkMode();
   const [insights, setInsights] = useState<ArticleInsight[]>([]);
   const [accentActive, setAccentActive] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);

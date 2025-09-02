@@ -7,6 +7,7 @@ import Link from "next/link";
 import { linkTo } from "@/lib/url-builder";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Article {
   id: string;
@@ -43,6 +44,7 @@ export default function TrendingArticles({
   refreshMs = 60000,
   className,
 }: TrendingArticlesProps) {
+  const { darkMode } = useDarkMode();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 

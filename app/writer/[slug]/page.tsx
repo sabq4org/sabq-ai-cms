@@ -19,6 +19,7 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { cn, getArticleLink } from '@/lib/utils';
 import FooterOfficial from '@/components/Footer';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ArticleAuthor {
   id: string;
@@ -76,6 +77,7 @@ interface WriterStats {
 }
 
 const WriterProfilePage = () => {
+  const { darkMode } = useDarkMode();
   const params = useParams();
   const slug = params.slug as string;
   

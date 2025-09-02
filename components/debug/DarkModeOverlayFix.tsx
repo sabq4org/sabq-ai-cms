@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function DarkModeOverlayFix() {
+  const { darkMode } = useDarkMode();
 
   useEffect(() => {
     if (!mounted) return;

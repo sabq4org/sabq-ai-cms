@@ -19,6 +19,7 @@ import { toast } from 'react-hot-toast';
 import { useToast } from '@/hooks/use-toast';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 import Link from 'next/link';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
@@ -57,6 +58,7 @@ interface UploadedImage {
 }
 
 export default function EditArticlePage() {
+  const { darkMode } = useDarkMode();
   const router = useRouter();
   const params = useParams();
   const articleId = params?.id as string;

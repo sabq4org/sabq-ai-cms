@@ -23,8 +23,10 @@ import {
   Filter
 } from 'lucide-react';
 import { DeepAnalysis } from '@/types/deep-analysis';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function DeepAnalysesPage() {
+  const { darkMode } = useDarkMode();
   const [mounted, setMounted] = useState(false);
   const [analyses, setAnalyses] = useState<DeepAnalysis[]>([]);
   const [filteredAnalyses, setFilteredAnalyses] = useState<DeepAnalysis[]>([]);

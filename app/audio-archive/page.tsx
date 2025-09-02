@@ -17,6 +17,7 @@ import {
   Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AudioNewsletter {
   id: string;
@@ -32,6 +33,7 @@ interface AudioNewsletter {
 }
 
 export default function AudioArchivePage() {
+  const { darkMode } = useDarkMode();
   const [newsletters, setNewsletters] = useState<AudioNewsletter[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
