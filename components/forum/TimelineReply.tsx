@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { format, isToday, isYesterday, differenceInDays } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { useClientTheme } from '@/hooks/useClientTheme';
 
 interface Reply {
   id: string;
@@ -23,17 +24,8 @@ interface TimelineReplyProps {
 }
 
 export default function TimelineReply({ replies }: TimelineReplyProps) {
-  // نظام الثيم مع حماية من SSR
-  const [darkMode, setDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // استخدام localStorage لتحديد الثيم
-    const theme = localStorage.getItem('sabq-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
-  }, []);
+  // استخدام hook الثيم الموحد
+  const { darkMode, mounted } = useClientTheme();
   
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import TimelineReply from '@/components/forum/TimelineReply';
+import { useClientTheme } from '@/hooks/useClientTheme';
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -70,42 +71,8 @@ export default function TopicPage() {
   const router = useRouter();
   const topicId = params?.id as string;
   
-  // نظام الثيم مع حماية من SSR
-  const [darkMode, setDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // استخدام localStorage لتحديد الثيم
-    const theme = localStorage.getItem('sabq-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
-  }, []);
-
-  // دالة لتبديل الثيم
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('sabq-theme', newMode ? 'dark' : 'light');
-    
-    // تطبيق الثيم على الـ body
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
-  // تطبيق الثيم عند التحميل
-  useEffect(() => {
-    if (mounted) {
-      if (darkMode) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-  }, [darkMode, mounted]);
+  // استخدام hook الثيم الموحد
+  const { darkMode, toggleDarkMode, mounted } = useClientTheme();
   
   const [topic, setTopic] = useState<Topic | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
