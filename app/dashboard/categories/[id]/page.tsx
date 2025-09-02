@@ -5,14 +5,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Edit3, Eye, FileText, TrendingUp, Calendar, Tag, BarChart3, Users, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Category } from '@/types/category';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function CategoryDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [articles, setArticles] = useState<any[]>([]);

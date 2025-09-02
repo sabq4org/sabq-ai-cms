@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useRef, useEffect } from 'react';
 import { BlockType } from './types';
 import { getBlockTitle } from './utils';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 import {
   Type, Heading, Image as ImageIcon, Video, Quote, List, Code,
@@ -37,7 +36,6 @@ export default function BlockMenu({ onSelect, trigger }: BlockMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
-  const { darkMode } = useDarkModeContext();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

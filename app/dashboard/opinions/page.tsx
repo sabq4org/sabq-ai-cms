@@ -12,7 +12,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
 import { useToast } from '@/hooks/use-toast'
-import { useDarkModeContext } from '@/contexts/DarkModeContext'
 import { Input } from '@/components/ui/input'
 import { Select, SelectOption } from '@/components/ui/select'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -40,7 +39,6 @@ interface Article {
   }
 }
 export default function OpinionsPage() {
-  const { darkMode } = useDarkModeContext()
   const { toast } = useToast()
   const router = useRouter()
   const [articles, setArticles] = useState<Article[]>([])

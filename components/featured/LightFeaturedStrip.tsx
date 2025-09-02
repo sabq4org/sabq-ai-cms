@@ -4,7 +4,6 @@ import React, { useRef, useCallback } from "react";
 import Link from "next/link";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 // replace Next/Image with robust SafeNewsImage for thumbnails
 import SafeNewsImage from "@/components/ui/SafeNewsImage";
 
@@ -19,7 +18,6 @@ interface LightFeaturedStripProps {
  * بدون أزرار تنقل، بدون مؤشر، بدون "عرض المزيد"
  */
 export default function LightFeaturedStrip({ articles, heading }: LightFeaturedStripProps) {
-  const { darkMode } = useDarkModeContext();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // تحديد إذا كان الخبر جديد (آخر 12 ساعة)

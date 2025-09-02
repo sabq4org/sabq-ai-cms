@@ -3,7 +3,6 @@
 import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 import OldStyleNewsBlock from "@/components/old-style/OldStyleNewsBlock";
 import "@/components/mobile/mobile-news.css";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
 import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
 import CloudImage from "@/components/ui/CloudImage";
@@ -89,7 +88,6 @@ const categoriesCache = new Map();
 const statsCache = new Map();
 
 export default function NewsPage() {
-  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

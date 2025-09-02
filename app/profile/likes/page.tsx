@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { formatRelativeDate, formatFullDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface LikedArticle {
   id: string;
@@ -60,7 +59,6 @@ interface ApiResponse {
 
 export default function LikesPage() {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const [likedArticles, setLikedArticles] = useState<LikedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);

@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { getAuthHeaders } from "@/lib/utils/auth-headers";
 import { cn } from "@/lib/utils";
 import {
@@ -66,7 +65,6 @@ interface Reporter {
 export default function UnifiedNewsCreatePageUltraEnhanced() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { darkMode } = useDarkModeContext();
   const editorRef = useRef<any>(null);
 
   // الحصول على معرف المقال من URL

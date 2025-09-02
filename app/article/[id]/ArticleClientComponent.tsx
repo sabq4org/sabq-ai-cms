@@ -12,7 +12,6 @@ import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
 import { isEmergencyArticleSupported } from "@/app/emergency-articles";
 import ReporterLink from "@/components/ReporterLink";
 import DbConnectionError from "@/components/db-connection-error";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
 import {
@@ -112,7 +111,6 @@ export default function ArticleClientComponent({
   articleId,
 }: ArticleClientComponentProps) {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // معالجة metadata إذا كانت string

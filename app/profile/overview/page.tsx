@@ -23,7 +23,6 @@ import {
   BookOpen,
   Clock
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { formatRelativeDate } from '@/lib/date-utils';
 
 interface UserStats {
@@ -49,7 +48,6 @@ interface UserProfile {
 
 export default function ProfileOverviewPage() {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);

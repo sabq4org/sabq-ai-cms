@@ -12,7 +12,6 @@ import CloudImage from "@/components/ui/CloudImage";
 import ArticleViews from "@/components/ui/ArticleViews";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
 // Dynamic imports للمكونات الثقيلة
 const OldStyleNewsBlock = dynamic(() => import("@/components/old-style/OldStyleNewsBlock"), {
@@ -67,7 +66,6 @@ export function NewsPageContent({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { darkMode } = useDarkModeContext();
   
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [categories] = useState<Category[]>(initialCategories);

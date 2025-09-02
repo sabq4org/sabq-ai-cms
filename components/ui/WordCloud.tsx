@@ -9,7 +9,6 @@ import React, { useMemo, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus, RotateCcw, ExternalLink } from 'lucide-react';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { WordItem, WordCloudProps, ColorCategory } from '@/types/word-cloud';
 
 // خريطة الألوان الدلالية
@@ -250,7 +249,6 @@ const WordCloud: React.FC<WordCloudProps> = ({
   enableTooltip = true,
   className = ''
 }) => {
-  const { darkMode } = useDarkModeContext();
   
   // معالجة البيانات وتطبيع الألوان والأحجام
   const normalizedWords = useMemo(() => {

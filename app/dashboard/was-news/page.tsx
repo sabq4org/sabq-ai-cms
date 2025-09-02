@@ -25,7 +25,6 @@ import {
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import toast from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import WasApiTester from '@/components/WasApiTester';
 
 interface WasNews {
@@ -59,7 +58,6 @@ interface ApiLog {
 }
 
 export default function WasNewsPage() {
-  const { darkMode } = useDarkModeContext();
   const [activeTab, setActiveTab] = useState('monitor');
   const [loading, setLoading] = useState(false);
   const [fetchingNew, setFetchingNew] = useState(false);

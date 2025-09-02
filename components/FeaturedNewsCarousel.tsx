@@ -2,7 +2,6 @@
 
 import CloudImage from "@/components/ui/CloudImage";
 import OptimizedImage from "@/components/ui/OptimizedImage";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import {
   ArrowLeft,
@@ -70,7 +69,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   titleClassName,
   halfWidth = false,
 }) => {
-  const { darkMode } = useDarkModeContext();
   const hasAnyBreaking = articles.some((a) => (a as any).breaking || (a as any).is_breaking);
   const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
     length: articles.length,

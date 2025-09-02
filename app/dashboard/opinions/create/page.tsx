@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import dynamic from 'next/dynamic';
 import { 
   PenTool,
@@ -37,7 +36,6 @@ interface OpinionAuthor {
 }
 export default function CreateOpinionPage() {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(false);
   const [authors, setAuthors] = useState<OpinionAuthor[]>([]);
   const [previewMode, setPreviewMode] = useState(false);

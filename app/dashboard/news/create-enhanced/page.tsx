@@ -7,7 +7,6 @@ import {
   Save, Send, ArrowLeft, Loader2, Image as ImageIcon, 
   FileText, Calendar, User, Tag, Globe 
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import ImageUploadComponent from '@/components/ui/ImageUpload';
 
 interface Category {
@@ -24,7 +23,6 @@ interface Author {
 
 export default function CreateNewsPage() {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   
   // حالة النموذج
   const [formData, setFormData] = useState({

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Link from 'next/link';
 import { Clock, TrendingUp, Eye, MessageCircle } from 'lucide-react';
 
@@ -29,7 +28,6 @@ interface SmartInsightsWidgetProps {
 }
 
 export default function SmartInsightsWidget({ variant = 'default', className = '' }: SmartInsightsWidgetProps) {
-  const { darkMode } = useDarkModeContext();
   const [insights, setInsights] = useState<ArticleInsight[]>([]);
   const [accentActive, setAccentActive] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);

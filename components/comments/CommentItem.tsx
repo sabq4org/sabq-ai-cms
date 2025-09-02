@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import React, { useState } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useAuth } from '@/hooks/useAuth';
 import CommentForm from './CommentForm';
 import { formatDistanceToNow } from 'date-fns';
@@ -60,7 +59,6 @@ export default function CommentItem({
   onReport, 
   depth 
 }: CommentItemProps) {
-  const { darkMode } = useDarkModeContext();
   const { user } = useAuth();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showOptions, setShowOptions] = useState(false);

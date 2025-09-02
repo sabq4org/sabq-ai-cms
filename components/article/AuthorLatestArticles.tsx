@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import { Calendar, Eye, User } from "lucide-react";
 import Image from "next/image";
@@ -36,7 +35,6 @@ export default function AuthorLatestArticles({
   currentArticleId,
   limit = 5,
 }: AuthorLatestArticlesProps) {
-  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 

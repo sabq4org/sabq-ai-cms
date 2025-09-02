@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useTheme } from '@/contexts/ThemeContext';
 import TimelineReply from '@/components/forum/TimelineReply';
 import { 
   ArrowRight, 
@@ -69,7 +68,6 @@ interface Reply {
 export default function TopicPage() {
   const params = useParams();
   const router = useRouter();
-  const { theme } = useTheme();
   const darkMode = theme === 'dark';
   const topicId = params?.id as string;
   

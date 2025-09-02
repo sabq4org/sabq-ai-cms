@@ -1,10 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 export default function DarkModeOverlayFix() {
-  const { darkMode, mounted } = useDarkModeContext();
 
   useEffect(() => {
     if (!mounted) return;

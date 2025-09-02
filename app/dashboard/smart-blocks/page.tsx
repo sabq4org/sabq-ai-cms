@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { SelectContent, SelectItem, SelectTrigger, SelectValue, RadixSelect } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { toast } from 'react-hot-toast';
 import { 
   Plus, 
@@ -164,7 +163,6 @@ const EnhancedStatsCard = ({
   );
 };
 export default function SmartBlocksPage() {
-  const { darkMode } = useDarkModeContext();
   const [blocks, setBlocks] = useState<SmartBlock[]>([]);
   const [selectedBlock, setSelectedBlock] = useState<SmartBlock | null>(null);
   const [isEditing, setIsEditing] = useState(false);

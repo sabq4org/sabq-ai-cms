@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   AlertCircle,
@@ -33,7 +32,6 @@ export default function ImageUploadDialog({
   onClose,
   onImageSelected,
 }: ImageUploadDialogProps) {
-  const { darkMode } = useDarkModeContext();
   const [activeTab, setActiveTab] = useState<"upload" | "url">("upload");
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");

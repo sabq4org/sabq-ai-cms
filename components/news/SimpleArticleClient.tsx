@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Calendar, Clock, User, Eye } from "lucide-react";
 import Link from "next/link";
 import AudioSummaryPlayer from "@/components/AudioSummaryPlayer";
@@ -12,7 +11,6 @@ interface SimpleArticleClientProps {
 }
 
 export default function SimpleArticleClient({ article }: SimpleArticleClientProps) {
-  const { darkMode } = useDarkModeContext();
   const [imageError, setImageError] = useState(false);
 
   if (!article) {

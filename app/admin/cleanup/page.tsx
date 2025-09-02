@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
@@ -22,7 +21,6 @@ interface CleanupStats {
 }
 
 const AdminCleanupPage = () => {
-  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<CleanupStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);

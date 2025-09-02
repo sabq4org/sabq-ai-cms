@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   User, Mail, Calendar, MapPin, Briefcase, BookOpen, 
   Eye, Heart, MessageCircle, Clock, Share2, Award,
@@ -15,7 +14,6 @@ import {
 import { cn } from '@/lib/utils';
 
 export default function FatimaAlzahraniPage() {
-  const { darkMode } = useDarkModeContext();
 
   // بيانات تجريبية للكاتبة فاطمة الزهراني
   const author = {

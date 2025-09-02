@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateArabic } from "@/lib/date-utils";
 import {
   formatCommentsCount,
@@ -83,7 +82,6 @@ const recommendationLabels = {
 };
 
 export default function SmartArticleHero({ article }: SmartArticleHeroProps) {
-  const { darkMode } = useDarkModeContext();
   const [bookmarked, setBookmarked] = useState(false);
   const [shared, setShared] = useState(false);
 

@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   Calendar,
@@ -33,7 +32,6 @@ interface AudioNewsletter {
 }
 
 export default function AudioArchivePage() {
-  const { darkMode } = useDarkModeContext();
   const [newsletters, setNewsletters] = useState<AudioNewsletter[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

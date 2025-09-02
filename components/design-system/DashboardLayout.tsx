@@ -8,7 +8,6 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { sabqTheme } from '@/lib/design-system/theme';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import SabqCard from './SabqCard';
 import SabqButton from './SabqButton';
 import { 
@@ -66,7 +65,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   className
 }) => {
   
-  const { darkMode } = useDarkModeContext();
   const pathname = usePathname();
   
   const [sidebarOpen, setSidebarOpen] = useState(true);

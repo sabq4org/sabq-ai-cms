@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   ArrowRight,
@@ -37,7 +36,6 @@ interface SubscriptionPlan {
 }
 
 export default function NewsletterPage() {
-  const { darkMode } = useDarkModeContext();
   const [email, setEmail] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("smart");
   const [isSubmitting, setIsSubmitting] = useState(false);

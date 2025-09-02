@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { cn, getArticleLink } from '@/lib/utils';
@@ -79,7 +78,6 @@ interface WriterStats {
 const WriterProfilePage = () => {
   const params = useParams();
   const slug = params.slug as string;
-  const { darkMode } = useDarkModeContext();
   
   // State
   const [writer, setWriter] = useState<ArticleAuthor | null>(null);

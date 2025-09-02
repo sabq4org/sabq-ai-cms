@@ -6,7 +6,6 @@ import {
   ChevronDown, ChevronUp, Clock, BookOpen, Zap,
   BarChart3, Users, Award, Sparkles
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface SmartSummaryProps {
   summary: {
@@ -27,7 +26,6 @@ interface SmartSummaryProps {
 }
 
 export default function SmartSummary({ summary, articleTitle, originalReadingTime }: SmartSummaryProps) {
-  const { darkMode } = useDarkModeContext();
   const [expanded, setExpanded] = useState(false);
   const [showNextSteps, setShowNextSteps] = useState(false);
 

@@ -1,7 +1,6 @@
 "use client";
 
 import ReporterLink from "@/components/ReporterLink";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useViewTracking } from "@/hooks/useViewTracking";
 import { ArticleData } from "@/lib/article-api";
 import { formatDateNumeric, formatFullDate } from "@/lib/date-utils";
@@ -30,7 +29,6 @@ interface OpinionArticleLayoutProps {
 export default function OpinionArticleLayout({
   article,
 }: OpinionArticleLayoutProps) {
-  const { darkMode } = useDarkModeContext();
   const { elementRef } = useViewTracking({ articleId: article.id });
   const [readingProgress, setReadingProgress] = useState(0);
 

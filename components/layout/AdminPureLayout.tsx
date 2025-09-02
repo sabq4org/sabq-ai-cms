@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation";
 import DashboardLayout from "@/components/admin/modern-dashboard/DashboardLayout";
 import { SidebarPreferencesProvider } from "@/contexts/SidebarPreferencesContext";
-import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import { Toaster } from "react-hot-toast";
 
 export default function AdminPureLayout({

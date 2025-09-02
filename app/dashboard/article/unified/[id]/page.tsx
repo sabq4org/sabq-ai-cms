@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,7 +42,6 @@ interface Author {
 export default function UnifiedArticleEditPage() {
   const router = useRouter();
   const params = useParams();
-  const { darkMode } = useDarkModeContext();
   const articleId = params?.id as string;
   const editorRef = useRef<any>(null);
   

@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import React, { useState, useCallback, useMemo } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import BlockEditor from './BlockEditor/BlockEditor';
 import { Block, AIAction } from './BlockEditor/types';
 
@@ -32,7 +31,6 @@ export default function ContentEditorWithBlocks({
   onGenerateDescription,
   aiLoading = {}
 }: ContentEditorProps) {
-  const { darkMode } = useDarkModeContext();
   const [aiProcessing, setAiProcessing] = useState<string | null>(null);
 
   // تحويل البلوكات القديمة إلى تنسيق البلوكات الجديد إذا لزم الأمر

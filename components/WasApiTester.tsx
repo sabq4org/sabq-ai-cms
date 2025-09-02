@@ -10,7 +10,6 @@ import {
   Info,
   AlertTriangle
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface TestResult {
   endpoint: string;
@@ -22,7 +21,6 @@ interface TestResult {
 }
 
 export default function WasApiTester() {
-  const { darkMode } = useDarkModeContext();
   const [results, setResults] = useState<Record<string, TestResult>>({});
   const [testingAll, setTestingAll] = useState(false);
   const [basketId, setBaskletId] = useState(3);

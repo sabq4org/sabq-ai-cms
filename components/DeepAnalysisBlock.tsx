@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "@/contexts/ThemeContext";
 import {
   Award,
   BookOpen,

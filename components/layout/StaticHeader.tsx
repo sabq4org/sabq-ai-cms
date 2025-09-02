@@ -9,10 +9,8 @@ import Image from 'next/image';
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { Menu, X, Search, User, Sun, Moon, Bell, Activity } from 'lucide-react'
-import { useDarkModeContext } from '@/contexts/DarkModeContext'
 
 export function StaticHeader() {
-  const { darkMode, mounted, toggleDarkMode } = useDarkModeContext()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [newEventsCount, setNewEventsCount] = useState(0)

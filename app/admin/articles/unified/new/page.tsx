@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +41,6 @@ interface Author {
 
 export default function UnifiedArticleNewPage() {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const editorRef = useRef<any>(null);
   
   // حالات التحميل

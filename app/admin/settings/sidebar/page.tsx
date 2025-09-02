@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { 
   Settings, 
   Info, 
@@ -37,7 +36,6 @@ const SidebarCustomizer = dynamic(
 );
 
 export default function SidebarSettingsPage() {
-  const { darkMode } = useDarkModeContext();
   const [stats, setStats] = useState({
     activeItems: 8,
     hiddenItems: 3,

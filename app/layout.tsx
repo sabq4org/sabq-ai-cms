@@ -13,8 +13,6 @@ import "@/styles/force-arabic-font.css";
 import "@/app/old-style-demo/old-style.css";
 import "@/styles/lite-stats-bar-sticky.css";
 import "@/styles/recent-news-badge.css";
-import "@/styles/dark-mode-overlay-fix.css";
-// نقل CSS غير الحرج إلى public والتحميل غير الحاجب عبر preload+onload
 import "@/styles/article-light-theme-fixes.css";
 // تحميل غير حاجب لوضع القراءة (يُحقن عبر preload+onload أدناه)
 

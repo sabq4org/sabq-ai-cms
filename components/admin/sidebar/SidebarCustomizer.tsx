@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useSidebarPreferences } from "@/contexts/SidebarPreferencesContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -202,7 +201,6 @@ function SortableItem({
 }
 
 export default function SidebarCustomizer() {
-  const { darkMode } = useDarkModeContext();
   const { toast } = useToast();
   const { preferences, loading, updatePreferences, resetPreferences } =
     useSidebarPreferences();

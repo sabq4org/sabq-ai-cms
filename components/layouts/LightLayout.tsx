@@ -4,7 +4,6 @@ import { Moon, Sun, Menu, X, Home, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
@@ -21,7 +20,6 @@ const navigationItems = [
 
 export default function LightLayout({ children }: LightLayoutProps) {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const { darkMode, toggleDarkMode } = useDarkModeContext();
   const { user } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();
 

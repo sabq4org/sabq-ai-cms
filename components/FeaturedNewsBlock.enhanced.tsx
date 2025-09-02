@@ -1,7 +1,6 @@
 "use client";
 
 import OptimizedImage from "@/components/ui/OptimizedImage";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import { getImageUrl } from "@/lib/image-utils";
 import {
@@ -57,7 +56,6 @@ interface FeaturedNewsBlockProps {
 }
 
 const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
-  const { darkMode } = useDarkModeContext();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);

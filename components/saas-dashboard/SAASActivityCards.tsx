@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import {
   CheckCircle,
   Clock,
@@ -39,7 +38,6 @@ export default function SAASActivityCards({
   showFilters = true,
   maxItems = 10,
 }: SAASActivityCardsProps) {
-  const { darkMode } = useDarkModeContext();
 
   // بيانات تجريبية إذا لم يتم تمرير أنشطة
   const defaultActivities: ActivityItem[] = [

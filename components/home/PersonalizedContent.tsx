@@ -1,6 +1,5 @@
 'use client';
 
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 import { getSmartArticleLink } from '@/lib/utils';
 import Image from 'next/image';
@@ -65,7 +64,6 @@ interface UserPreference {
 }
 
 export default function PersonalizedContent() {
-  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [stats, setStats] = useState<PersonalizationStats | null>(null);
   const [loading, setLoading] = useState(true);

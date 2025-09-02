@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import React, { useState } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { AIAction } from './types';
 
 import {
@@ -39,7 +38,6 @@ export default function BlockToolbar({
 }: BlockToolbarProps) {
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const { darkMode } = useDarkModeContext();
 
   const aiActions = [
     { type: 'generate' as const, label: 'توليد محتوى', icon: Wand2 },

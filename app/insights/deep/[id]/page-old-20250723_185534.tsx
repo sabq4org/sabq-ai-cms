@@ -6,7 +6,6 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Footer from '@/components/Footer';
 import toast from 'react-hot-toast';
 import { 
@@ -106,7 +105,6 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
 
 export default function DeepAnalysisPage() {
   const params = useParams();
-  const { darkMode: contextDarkMode } = useDarkModeContext();
   const [darkMode, setDarkMode] = useState(false);
   const [analysis, setAnalysis] = useState<DeepAnalysisPageProps | null>(null);
   const [loading, setLoading] = useState(true);

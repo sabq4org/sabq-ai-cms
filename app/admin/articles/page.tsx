@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   Brain,
@@ -73,7 +72,6 @@ interface ArticleStats {
 }
 
 const ArticlesAdminPage = () => {
-  const { darkMode } = useDarkModeContext();
 
   // State
   const [articles, setArticles] = useState<Article[]>([]);

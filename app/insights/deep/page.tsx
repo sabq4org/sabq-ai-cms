@@ -6,7 +6,6 @@ import React, { useState, useEffect } from 'react';
 import DeepAnalysisCard from '@/components/deep-analysis/DeepAnalysisCard';
 import SmartDeepAnalysisCard from '@/components/deep-analysis/SmartDeepAnalysisCard';
 import DeepAnalysisHorizontalScroll from '@/components/deep-analysis/DeepAnalysisHorizontalScroll';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 import { 
   Brain,
@@ -26,7 +25,6 @@ import {
 import { DeepAnalysis } from '@/types/deep-analysis';
 
 export default function DeepAnalysesPage() {
-  const { darkMode } = useDarkModeContext();
   const [mounted, setMounted] = useState(false);
   const [analyses, setAnalyses] = useState<DeepAnalysis[]>([]);
   const [filteredAnalyses, setFilteredAnalyses] = useState<DeepAnalysis[]>([]);

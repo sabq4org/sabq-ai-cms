@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import React, { useRef, useEffect, useState } from 'react';
 import { Quote } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface QuoteBlockProps {
   data: { text: string; author?: string; alignment?: 'left' | 'center' | 'right' };
@@ -20,7 +19,6 @@ export default function QuoteBlock({
   readOnly = false,
   autoFocus = false 
 }: QuoteBlockProps) {
-  const { darkMode } = useDarkModeContext();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 

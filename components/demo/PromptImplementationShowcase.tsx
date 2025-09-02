@@ -1,7 +1,6 @@
 'use client';
 
 import React, { memo, useState, useMemo, useCallback, useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Smartphone, Palette, Zap, Code2, Layout, 
   TrendingUp, Clock, Star, Heart, Eye
@@ -9,7 +8,6 @@ import {
 
 // مكون متقدم لعرض التحسينات المُطبقة حسب البرومبت
 const PromptImplementationShowcase = memo(() => {
-  const { darkMode } = useDarkModeContext();
   const [activeDemo, setActiveDemo] = useState('colors');
 
   // إحصائيات التحسين

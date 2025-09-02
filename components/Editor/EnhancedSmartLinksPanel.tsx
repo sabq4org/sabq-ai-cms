@@ -12,7 +12,6 @@ import {
   CheckCircle, XCircle, Brain, Globe, Users, TrendingUp,
   Network, Zap, Target, BookOpen, Settings2
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface SmartLink {
   entityId: string;
@@ -113,7 +112,6 @@ export default function EnhancedSmartLinksPanel({
   settings,
   onSettingsChange
 }: EnhancedSmartLinksPanelProps) {
-  const { darkMode } = useDarkModeContext();
   const [appliedLinks, setAppliedLinks] = useState<Set<string>>(new Set());
   const [rejectedLinks, setRejectedLinks] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState('links');

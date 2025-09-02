@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { ArticleWizard } from '@/components/article/ArticleWizard';
 import { 
   FileText, Image as ImageIcon, Settings, Search, Sparkles, CheckCircle,
@@ -92,7 +91,6 @@ interface UploadedImage {
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
-  const { darkMode } = useDarkModeContext();
   const articleId = params?.id as string;
   
   // تحميل البيانات الأساسية

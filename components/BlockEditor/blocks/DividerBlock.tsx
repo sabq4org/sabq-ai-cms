@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import React from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface DividerBlockProps {
   data: { style?: 'solid' | 'dashed' | 'dotted' };
@@ -11,7 +10,6 @@ interface DividerBlockProps {
 }
 
 export default function DividerBlock({ data, onChange, readOnly = false }: DividerBlockProps) {
-  const { darkMode } = useDarkModeContext();
 
   const styles = {
     solid: 'border-solid',

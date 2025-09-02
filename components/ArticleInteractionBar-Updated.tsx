@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { MessageSquare, Eye, Clock, Share2 } from 'lucide-react';
 import { useEnhancedTracking } from '@/hooks/useEnhancedTracking';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useUserInteractions } from '@/stores/userInteractions';
 import UnifiedInteractionButtons from '@/components/ui/UnifiedInteractionButtons';
 import toast from 'react-hot-toast';
@@ -27,7 +26,6 @@ export default function ArticleInteractionBarUpdated({
   onComment,
   className = ''
 }: ArticleInteractionBarProps) {
-  const { darkMode } = useDarkModeContext();
   const [views, setViews] = useState(initialViews);
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
   

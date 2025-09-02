@@ -1,7 +1,6 @@
 "use client";
 
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,6 @@ interface EnhancedOpinionLayoutProps {
 export default function EnhancedOpinionLayout({
   article,
 }: EnhancedOpinionLayoutProps) {
-  const { darkMode } = useDarkModeContext();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isFloatingVisible, setIsFloatingVisible] = useState(false);
 

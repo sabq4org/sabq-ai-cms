@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import {
   TrendingUp,
   TrendingDown,
@@ -128,7 +127,6 @@ const analyticsData: AnalyticsData = {
 };
 
 export default function ModernAnalytics() {
-  const { darkMode } = useDarkModeContext();
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
   const [activeTab, setActiveTab] = useState('overview');
 

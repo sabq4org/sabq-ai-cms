@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectOption } from "@/components/ui/select";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -70,7 +69,6 @@ import {
 // import { useDarkMode } from '@/hooks/useDarkMode';
 export default function DeepAnalysisPage() {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const [analyses, setAnalyses] = useState<DeepAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

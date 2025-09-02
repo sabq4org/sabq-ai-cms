@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useDarkMode } from '@/hooks/useDarkMode';
+
 import { 
   Mail,
   Archive,
@@ -60,7 +60,7 @@ const statusConfig = {
   archived: { label: 'مؤرشف', color: 'yellow', icon: Archive }
 };
 function MessagesContent() {
-  const { darkMode } = useDarkMode();
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);

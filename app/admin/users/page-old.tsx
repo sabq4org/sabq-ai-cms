@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import {
   Users,
   Search,
@@ -93,7 +92,6 @@ interface User {
 }
 
 export default function AdminUsersPage() {
-  const { darkMode } = useDarkModeContext();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);

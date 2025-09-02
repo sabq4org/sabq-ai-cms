@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
@@ -69,7 +68,6 @@ interface Comment {
   };
 }
 export default function CommentsManagementPage() {
-  const { darkMode } = useDarkModeContext();
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);

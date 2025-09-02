@@ -1,7 +1,6 @@
 "use client";
 
 // import CompactCategoryCardMini from "@/components/mobile/CompactCategoryCardMini";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { getArticleLink } from "@/lib/utils";
 import "@/styles/compact-category-cards-mini.css";
 import "@/styles/mobile-category-cards.css";
@@ -142,7 +141,6 @@ interface PageProps {
 }
 export default function CategoryDetailPage({ params }: PageProps) {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const [category, setCategory] = useState<Category | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);

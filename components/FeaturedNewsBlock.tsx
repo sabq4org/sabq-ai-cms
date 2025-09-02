@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import '@/styles/old-style-news.css';
 
 interface FeaturedArticle {
@@ -48,7 +47,6 @@ interface FeaturedNewsBlockProps {
 }
 
 const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
-  const { darkMode } = useDarkModeContext();
 
   // تحديد إذا كان الخبر جديد (آخر 12 ساعة)
   const isNewsNew = (dateString: string) => {

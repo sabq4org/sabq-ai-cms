@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import {
   Bell,
   Calendar,
@@ -34,7 +33,6 @@ export default function SAASHeader({
   onMenuClick,
   showMenuButton = false,
 }: SAASHeaderProps) {
-  const { darkMode } = useDarkModeContext();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 

@@ -16,7 +16,6 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface DeepAnalysisItem {
   id: string;
@@ -40,7 +39,6 @@ interface EnhancedDeepAnalysisProps {
 }
 
 export default function EnhancedDeepAnalysis({ className = '' }: EnhancedDeepAnalysisProps) {
-  const { darkMode } = useDarkModeContext();
   const [analyses, setAnalyses] = useState<DeepAnalysisItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);

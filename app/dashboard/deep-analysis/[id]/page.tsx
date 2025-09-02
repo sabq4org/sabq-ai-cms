@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { 
   ArrowRight, 
   Edit, 
@@ -50,7 +49,6 @@ export default function ViewDeepAnalysisPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
-  const { theme: darkMode } = useTheme();
   
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<DeepAnalysis | null>(null);

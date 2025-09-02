@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   User, Mail, Calendar, MapPin, Briefcase, BookOpen, 
   Eye, Heart, MessageCircle, Clock, Share2, Award,
@@ -75,7 +74,6 @@ const ARTICLES_PER_PAGE = 9;
 export default function AuthorPage() {
   const params = useParams();
   const rawSlug = params?.slug as string;
-  const { darkMode } = useDarkModeContext();
   
   // فك ترميز الـ slug للتعامل مع الأسماء العربية
   const slug = rawSlug ? decodeURIComponent(rawSlug) : '';

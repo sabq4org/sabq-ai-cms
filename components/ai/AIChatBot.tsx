@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,7 +26,6 @@ interface AIChatBotProps {
 }
 
 export default function AIChatBot({ isOpen, onClose }: AIChatBotProps) {
-  const { theme } = useTheme();
   const darkMode = theme === 'dark';
   
   const [messages, setMessages] = useState<Message[]>([

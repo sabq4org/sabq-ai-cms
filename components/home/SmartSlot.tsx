@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import SmartBlockRenderer from '@/components/smart-blocks/SmartBlockRenderer';
 import { SmartBlock } from '@/types/smart-block';
 
-// import { useDarkModeContext } from '@/contexts/DarkModeContext'; // تم تعطيل الوضع الليلي
 
 interface SmartSlotProps {
   position: 'topBanner' | 'afterHighlights' | 'afterCards' | 'beforePersonalization' | 'beforeFooter' | 'below_header' | 'below_personalized' | 'below_deep_analysis' | 'above_footer';

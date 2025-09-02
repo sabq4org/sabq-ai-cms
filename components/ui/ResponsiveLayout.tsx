@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Menu, 
   X, 
@@ -58,7 +57,6 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
-  const { darkMode } = useDarkModeContext();
   const isMobile = useMediaQuery('(max-width: 767px)');
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
 

@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowRight, Search, Filter, MessageCircle, MessageSquare, Clock, Eye, User, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "@/contexts/ThemeContext";
 
 interface SearchResult {
   id: string;
@@ -34,7 +33,6 @@ interface SearchResult {
 export default function ForumSearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { theme } = useTheme();
   const darkMode = theme === 'dark';
   
   const [searchQuery, setSearchQuery] = useState('');

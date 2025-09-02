@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Video, Youtube, Link } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface VideoBlockProps {
   data: { url: string; caption?: string; provider?: 'youtube' | 'vimeo' | 'other' };
@@ -12,7 +11,6 @@ interface VideoBlockProps {
 }
 
 export default function VideoBlock({ data, onChange, readOnly = false }: VideoBlockProps) {
-  const { darkMode } = useDarkModeContext();
   const [showUrlInput, setShowUrlInput] = useState(!data.url);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {

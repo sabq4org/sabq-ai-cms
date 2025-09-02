@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import {
   Activity,
   AlertCircle,
@@ -83,7 +82,6 @@ interface PerformanceData {
 }
 
 export default function AIAnalyticsPage() {
-  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState("7d");

@@ -26,9 +26,8 @@ import DarkModeToggle from '@/components/admin/modern-dashboard/DarkModeToggle';
 import Image from 'next/image';
 import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
-import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
+
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface UserHeaderProps {
   onMenuClick?: () => void;
@@ -38,7 +37,6 @@ interface UserHeaderProps {
 export default function UserHeader({ onMenuClick, showMenuButton = false }: UserHeaderProps) {
   const { user, logout } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();
-  const { darkMode } = useDarkModeContext();
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
@@ -387,7 +385,6 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
             </div> */}
 
             {/* منتقي الألوان المتوسع */}
-            <CompactThemeSwitcher />
 
             {/* زر الوضع الداكن */}
             <DarkModeToggle />

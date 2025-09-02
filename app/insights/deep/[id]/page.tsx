@@ -3,7 +3,6 @@
 import "@/app/insights/deep/[id]/enhanced-styles.css";
 import "@/app/insights/deep/[id]/mobile-styles.css";
 import Footer from "@/components/Footer";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import {
   ArrowUp,
@@ -110,7 +109,6 @@ function countWordsInElement(element: HTMLElement | null): number {
 
 export default function DeepAnalysisPage() {
   const params = useParams();
-  const { darkMode: contextDarkMode } = useDarkModeContext();
   const [darkMode, setDarkMode] = useState(false);
   const [analysis, setAnalysis] = useState<DeepAnalysisPageProps | null>(null);
   const [loading, setLoading] = useState(true);

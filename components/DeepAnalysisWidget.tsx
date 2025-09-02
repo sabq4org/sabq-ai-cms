@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { Clock3, Brain, Share2, Eye, TrendingUp, Award, BookOpen, ChevronLeft, Heart, BookmarkPlus, ExternalLink, User, ChevronRight, Plus, Bot, UserCheck, Users } from "lucide-react";
 import toast from 'react-hot-toast';
 import AnalysisTypeIcon from './deep-analysis/AnalysisTypeIcon';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MobileDeepAnalysisCard from './mobile/MobileDeepAnalysisCard';

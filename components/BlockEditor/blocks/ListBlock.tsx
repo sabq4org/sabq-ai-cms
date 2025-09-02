@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { List, ListOrdered, Plus, Trash2 } from 'lucide-react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface ListBlockProps {
   data: { items: string[]; ordered?: boolean };
@@ -12,7 +11,6 @@ interface ListBlockProps {
 }
 
 export default function ListBlock({ data, onChange, readOnly = false }: ListBlockProps) {
-  const { darkMode } = useDarkModeContext();
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
   const handleItemChange = (index: number, value: string) => {

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Image from 'next/image';
 import { 
   ArrowLeft, 
@@ -46,7 +45,6 @@ interface Category {
 export default function EditCategoryPage() {
   const params = useParams();
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const iconPickerRef = useRef<HTMLDivElement>(null);

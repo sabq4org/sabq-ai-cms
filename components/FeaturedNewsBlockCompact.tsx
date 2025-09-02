@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Eye, Clock, Calendar } from "lucide-react";
@@ -34,7 +33,6 @@ export default function FeaturedNewsBlockCompact({
   title = "🔥 الأخبار المميزة",
   maxItems = 3
 }: FeaturedNewsBlockCompactProps) {
-  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(true);
   const [featuredArticles, setFeaturedArticles] = useState<FeaturedArticle[]>([]);
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
@@ -29,13 +28,12 @@ import UserDropdown from "./UserDropdown";
 // import MobileUserDropdown from "./mobile/UserDropdown"; // مؤقتاً معطل
 // import UserMenuDrawer from "./mobile/UserMenuDrawer"; // مؤقتاً معطل
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
-import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
+
 import AuthStateDebugger from '@/components/debug/AuthStateDebugger';
 
 
 export default function Header() {
   const router = useRouter();
-  const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
 
   // Auth state (موحد)
@@ -121,8 +119,8 @@ export default function Header() {
     return () => window.removeEventListener("resize", updateHeaderHeights);
   }, []);
 
-  // عدم عرض أي شيء حتى يتم تحميل الثيم
-  if (!mounted) {
+  // عدم عرض أي شيء حتى يتم تحميل المكونات
+  if (settingsLoading) {
     return null;
   }
 
@@ -130,11 +128,7 @@ export default function Header() {
     <>
       <header
         ref={headerElRef}
-        className={`fixed-header transition-all duration-300 relative z-50 ${
-          darkMode
-            ? "bg-gray-900/95 backdrop-blur-lg border-gray-700/50"
-            : "bg-blue-50/95 backdrop-blur-lg border-blue-200"
-        } border-b shadow-sm`}
+        className="fixed-header transition-all duration-300 relative z-50 bg-blue-50/95 backdrop-blur-lg border-blue-200 border-b shadow-sm"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
           <div className="flex items-center h-full relative">
@@ -169,11 +163,7 @@ export default function Header() {
                   href={item.url}
                   className={`relative flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     item.highlight
-                      ? darkMode
-                        ? "text-red-400 hover:text-red-300 hover:bg-gray-800/50"
-                        : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
-                      : darkMode
-                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                      ? "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
                       : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
                   }`}
                 >
@@ -202,23 +192,6 @@ export default function Header() {
                 )}
               </Link>
 
-              {/* منتقي الألوان المتوسع */}
-              <CompactThemeSwitcher />
-
-              {/* زر الوضع الليلي */}
-              <button
-                onClick={toggleDarkMode}
-                className="relative p-1.5 md:p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
-                aria-label={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
-                title={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
-              >
-                {darkMode ? (
-                  <Sun className="h-5 w-5 md:h-6 md:w-6" />
-                ) : (
-                  <Moon className="h-5 w-5 md:h-6 md:w-6" />
-                )}
-              </button>
-
               {/* الإشعارات الذكية المحسنة */}
               {user && (
                 <NotificationDropdown />
@@ -229,11 +202,7 @@ export default function Header() {
                 <button
                   ref={userAnchorRef as any}
                   onClick={() => setUserOpen((v) => !v)}
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    darkMode
-                      ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
-                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
-                  }`}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-blue-700 hover:text-blue-800 hover:bg-blue-100"
                 >
                   <User className="w-4 h-4" />
                   {user.name || "حسابي"}
@@ -241,11 +210,7 @@ export default function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
-                    darkMode
-                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
-                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
-                  }`}
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors text-blue-700 hover:text-blue-800 hover:bg-blue-100"
                   title="تسجيل الدخول"
                 >
                   <LogIn className="w-5 h-5" />

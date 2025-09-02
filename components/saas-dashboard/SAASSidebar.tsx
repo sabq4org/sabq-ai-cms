@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import {
   BarChart3,
   Bell,
@@ -37,7 +36,6 @@ export default function SAASSidebar({
   onToggle,
 }: SAASSidebarProps) {
   const pathname = usePathname();
-  const { darkMode } = useDarkModeContext();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const sidebarItems: SidebarItem[] = [

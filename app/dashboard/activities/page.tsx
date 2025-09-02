@@ -19,7 +19,6 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced'
-import { useDarkModeContext } from '@/contexts/DarkModeContext'
 interface ActivityItem {
   id: string;
   user: string;
@@ -46,7 +45,6 @@ interface CategoriesStats {
 }
 export default function ActivitiesPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const { darkMode } = useDarkModeContext()
   const [activeTab, setActiveTab] = useState('all')
   const [filterType, setFilterType] = useState('')
   const [loading, setLoading] = useState(true)

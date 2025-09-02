@@ -45,7 +45,6 @@ import React, { useCallback, useEffect, useState } from "react";
 
 
 import SafeHydration from "@/components/SafeHydration";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Clock, User } from "lucide-react";
 const LiteStatsBar = dynamic(() => import("@/components/mobile/LiteStatsBar"), {
   ssr: false,
@@ -186,7 +185,6 @@ function NewspaperHomePage({
   initialFeaturedArticles = [],
 }: PageClientProps) {
   const { user, loading: authLoading } = useAuth();
-  const { darkMode } = useDarkModeContext();
   // حالة الجهاز - نبدأ بقيمة undefined لتجنب مشاكل hydration
   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
   // حالة الخمول لجدولة المكوّنات غير الحرجة

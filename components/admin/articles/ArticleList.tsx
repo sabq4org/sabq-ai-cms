@@ -25,7 +25,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner, SkeletonCard } from '@/components/ui/loading';
 import { useArticles } from '@/hooks/useDataFetch';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Search, 
   Filter, 
@@ -115,7 +114,6 @@ export const ArticleList: React.FC<ArticleListProps> = ({
   pageSize = 10,
   showActions = true
 }) => {
-  const { darkMode } = useDarkModeContext();
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all');

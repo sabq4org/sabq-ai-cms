@@ -17,9 +17,7 @@ import { AlertCircle, Save, ArrowLeft, Upload, Loader2, Eye, Sparkles, Plus, Fil
 import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
 import { useToast } from '@/hooks/use-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-import { useTheme } from '@/contexts/ThemeContext';
 import Link from 'next/link';
 
 // تحميل المحرر بشكل ديناميكي
@@ -61,7 +59,6 @@ interface UploadedImage {
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
-  const { darkMode } = useDarkModeContext();
   const articleId = params?.id as string;
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);

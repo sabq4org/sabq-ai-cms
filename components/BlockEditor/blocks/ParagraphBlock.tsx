@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import React, { useRef, useEffect, useState } from 'react';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface ParagraphBlockProps {
   data: { text: string; alignment?: 'left' | 'center' | 'right' | 'justify' };
@@ -19,7 +18,6 @@ export default function ParagraphBlock({
   readOnly = false,
   autoFocus = false 
 }: ParagraphBlockProps) {
-  const { darkMode } = useDarkModeContext();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 

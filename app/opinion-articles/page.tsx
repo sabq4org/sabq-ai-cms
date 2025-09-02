@@ -2,7 +2,6 @@
 
 import Footer from "@/components/Footer";
 // import OpinionArticleCard from "@/components/mobile/OpinionArticleCard";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   Calendar,
@@ -49,7 +48,6 @@ interface Category {
 const ITEMS_PER_PAGE = 12;
 
 export default function OpinionArticlesPage() {
-  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, lazy, Suspense, useCallback } from 
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
-import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { ArticleWizard } from '@/components/article/ArticleWizard';
 import { 
   FileText, Image as ImageIcon, Settings, Search, Sparkles, CheckCircle,
@@ -91,7 +90,6 @@ interface UploadedImage {
 
 export default function CreateArticlePage() {
   const router = useRouter();
-  const { darkMode } = useDarkModeContext();
   
   // تحميل البيانات الأساسية فقط عند الحاجة
   const [categories, setCategories] = useState<Category[]>([]);

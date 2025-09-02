@@ -1,6 +1,5 @@
 "use client";
 
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useState } from "react";
 import SAASHeader from "./SAASHeader";
@@ -23,7 +22,6 @@ export default function SAASLayout({
   onEditClick,
   className = "",
 }: SAASLayoutProps) {
-  const { darkMode } = useDarkModeContext();
   const isMobile = useMediaQuery("(max-width: 1024px)");
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
@@ -80,7 +78,6 @@ export default function SAASLayout({
 
 // مكون صفحة رئيسية مع التصميم الجديد
 export function SAASMainDashboard() {
-  const { darkMode } = useDarkModeContext();
 
   const stats = [
     {
