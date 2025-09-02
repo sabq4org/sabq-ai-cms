@@ -64,7 +64,8 @@ export default function NotFoundPage() {
     fetchEmergencyArticles();
   }, []);
 
-  const darkMode = isMounted && theme === 'dark';
+  // إصلاح مشكلة server-side rendering مع next-themes
+  const darkMode = isMounted ? theme === 'dark' : false;
 
   if (!isMounted) {
     // Render a skeleton or null during server-side rendering & initial client-side render

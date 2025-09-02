@@ -194,11 +194,11 @@ export default async function RootLayout({
             }}
           />
         )}
-        <ConditionalLayout initialUser={initialUser}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ConditionalLayout initialUser={initialUser}>
             {children}
-          </ThemeProvider>
-        </ConditionalLayout>
+          </ConditionalLayout>
+        </ThemeProvider>
         <ToastContainer />
         <SpeedInsights />
       </body>
