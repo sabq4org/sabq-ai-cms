@@ -81,6 +81,31 @@ export default function TopicPage() {
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
   }, []);
+
+  // دالة لتبديل الثيم
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('sabq-theme', newMode ? 'dark' : 'light');
+    
+    // تطبيق الثيم على الـ body
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  // تطبيق الثيم عند التحميل
+  useEffect(() => {
+    if (mounted) {
+      if (darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, [darkMode, mounted]);
   
   const [topic, setTopic] = useState<Topic | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -333,6 +358,13 @@ export default function TopicPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              <button 
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                title="تبديل الثيم"
+              >
+                {darkMode ? '☀️' : '🌙'}
+              </button>
               <button className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
                 <Share2 className="w-5 h-5" />
               </button>
