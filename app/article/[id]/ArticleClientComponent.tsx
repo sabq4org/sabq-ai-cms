@@ -1,3 +1,6 @@
+// This file is deprecated. All articles now use /news/[slug] routing.
+// This component is kept for backwards compatibility but should be removed in future versions.
+
 "use client";
 
 import dynamic from "next/dynamic";

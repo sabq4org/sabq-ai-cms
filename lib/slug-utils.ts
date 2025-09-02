@@ -109,7 +109,16 @@ export function getArticleIdentifier(article: {
   slug?: string;
   title?: string;
 }): string {
-  // أولوية للـ UUID دائماً - أكثر استقراراً ومنع مشاكل React #130
+  // Prioritize slug for better SEO and user-friendly URLs
+  if (article.slug && typeof article.slug === 'string' && article.slug.length > 0) {
+    // Clean the slug to ensure it's valid
+    const cleanSlug = enforceEnglishSlug(article.slug);
+    if (cleanSlug && cleanSlug.length >= 2) {
+      return cleanSlug;
+    }
+  }
+
+  // Fallback to ID if slug is not available or invalid
   if (article.id && article.id.length === 36 && article.id.includes("-")) {
     return article.id;
   }
@@ -124,10 +133,8 @@ export function getArticleIdentifier(article: {
     return article.id;
   }
 
-  // تجنب الـ slugs العربية تماماً - تسبب مشاكل في الـ routing وReact errors
-  // استخدام ID فقط لضمان عدم تعارض الأحرف العربية مع React rendering
-
   // إذا لم يكن هناك ID صحيح، ولّد معرف جديد
+  console.warn("getArticleIdentifier: No valid slug or ID found, generating unique ID");
   return generateUniqueId();
 }
 
