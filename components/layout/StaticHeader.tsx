@@ -12,10 +12,16 @@ import { useState, useEffect } from 'react'
 import { Menu, X, Search, User, Sun, Moon, Bell, Activity } from 'lucide-react'
 
 export function StaticHeader() {
-  const { darkMode } = useDarkMode();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [newEventsCount, setNewEventsCount] = useState(0)
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navigationItems = [
     { label: 'الرئيسية', url: '/', icon: null },

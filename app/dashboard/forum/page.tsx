@@ -66,7 +66,17 @@ interface RecentTopic {
 }
 
 export default function ForumAdminPage() {
-  const darkMode = theme === 'dark';
+  // نظام الثيم مع حماية من SSR
+  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // استخدام localStorage لتحديد الثيم
+    const theme = localStorage.getItem('sabq-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
+  }, []);
   
   const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'topics' | 'settings'>('overview');
   const [stats, setStats] = useState<ForumStats>({
@@ -423,15 +433,15 @@ export default function ForumAdminPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !mounted) {
     return (
-      <div className={`min-h-screen p-6 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="min-h-screen p-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
-            <div className={`h-8 ${darkMode ? 'bg-gray-800' : 'bg-gray-200'} rounded w-1/4`}></div>
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className={`h-32 ${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg border`}></div>
+                <div key={i} className="h-32 bg-white rounded-lg border"></div>
               ))}
             </div>
           </div>

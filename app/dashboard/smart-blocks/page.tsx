@@ -55,6 +55,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatFullDate } from '@/lib/date-utils';
+import { useDarkMode } from "@/hooks/useDarkMode";
+
 interface SmartBlock {
   id: string;
   name: string;
@@ -163,6 +165,7 @@ const EnhancedStatsCard = ({
   );
 };
 export default function SmartBlocksPage() {
+  const { darkMode } = useDarkMode();
   const [blocks, setBlocks] = useState<SmartBlock[]>([]);
   const [selectedBlock, setSelectedBlock] = useState<SmartBlock | null>(null);
   const [isEditing, setIsEditing] = useState(false);

@@ -65,7 +65,7 @@ interface LightHeaderProps {
 }
 
 export default function LightHeader({ className = '' }: LightHeaderProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);

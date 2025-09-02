@@ -29,7 +29,18 @@ interface AuthUser {
 
 export default function NewTopicPage() {
   const router = useRouter();
-  const darkMode = theme === 'dark';
+  
+  // نظام الثيم مع حماية من SSR
+  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // استخدام localStorage لتحديد الثيم
+    const theme = localStorage.getItem('sabq-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
+  }, []);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -189,12 +200,12 @@ export default function NewTopicPage() {
   const selectedCategory = categories.find(cat => cat.id === formData.category_id);
 
   // عرض شاشة التحميل أثناء التحقق من المصادقة
-  if (authLoading) {
+  if (authLoading || !mounted) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>جاري التحقق من صلاحياتك...</p>
+          <p className="text-gray-600">جاري التحقق من صلاحياتك...</p>
         </div>
       </div>
     );

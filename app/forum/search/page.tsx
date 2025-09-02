@@ -33,7 +33,18 @@ interface SearchResult {
 export default function ForumSearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const darkMode = theme === 'dark';
+  
+  // نظام الثيم مع حماية من SSR
+  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // استخدام localStorage لتحديد الثيم
+    const theme = localStorage.getItem('sabq-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
+  }, []);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'all' | 'topics' | 'replies'>('all');
@@ -114,6 +125,15 @@ export default function ForumSearchPage() {
       router.push(`/forum/search?${params}`);
     }
   };
+
+  // حماية من عرض المحتوى قبل التهيئة
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">

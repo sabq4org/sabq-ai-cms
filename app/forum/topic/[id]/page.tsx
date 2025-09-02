@@ -68,8 +68,19 @@ interface Reply {
 export default function TopicPage() {
   const params = useParams();
   const router = useRouter();
-  const darkMode = theme === 'dark';
   const topicId = params?.id as string;
+  
+  // نظام الثيم مع حماية من SSR
+  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // استخدام localStorage لتحديد الثيم
+    const theme = localStorage.getItem('sabq-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
+  }, []);
   
   const [topic, setTopic] = useState<Topic | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -218,7 +229,7 @@ export default function TopicPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>

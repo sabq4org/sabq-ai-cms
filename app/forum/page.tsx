@@ -12,6 +12,38 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import "./forum.css";
 
+// مكون للوصول الآمن إلى theme context
+function useTheme() {
+  const [theme, setTheme] = useState('light');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // محاولة قراءة الثيم من localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      // التحقق من system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+
+    // الاستماع لتغييرات الثيم
+    const handleThemeChange = () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        setTheme(savedTheme);
+      }
+    };
+
+    window.addEventListener('storage', handleThemeChange);
+    return () => window.removeEventListener('storage', handleThemeChange);
+  }, []);
+
+  return { theme: theme as 'light' | 'dark', mounted };
+}
+
 // مكون إحصائيات المنتدى
 function ForumStats({ darkMode }: { darkMode: boolean }) {
   const [stats, setStats] = useState({
@@ -210,7 +242,13 @@ export default function SabqForum() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [categories, setCategories] = useState([
+    { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' }
+  ]);
+  
+  const { theme, mounted } = useTheme();
   const darkMode = theme === 'dark';
+  
   // جلب المواضيع من API
   useEffect(() => {
     const fetchTopics = async () => {
@@ -237,9 +275,6 @@ export default function SabqForum() {
     };
     fetchTopics();
   }, [selectedCategory]);
-  const [categories, setCategories] = useState([
-    { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' }
-  ]);
   
   // جلب الفئات من API
   useEffect(() => {
@@ -275,6 +310,10 @@ export default function SabqForum() {
     };
     fetchCategories();
   }, []);
+  
+  if (!mounted) {
+    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900"></div>;
+  }
   return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
       {/* الهيدر الرسمي للصحيفة */}

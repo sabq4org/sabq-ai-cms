@@ -20,7 +20,7 @@ const navigationItems = [
 ];
 
 export default function LightLayout({ children }: LightLayoutProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const { user } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();

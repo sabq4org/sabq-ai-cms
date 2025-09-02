@@ -69,14 +69,20 @@ interface LightHeaderProps {
 }
 
 export default function LightHeader({ className = '' }: LightHeaderProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
   const { logoUrl, logoDarkUrl, siteName, loading: settingsLoading } = useSiteSettings();
   const { user, isLoggedIn, logout } = useAuth();
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // تحميل اللون المحفوظ عند التحميل
   useEffect(() => {
