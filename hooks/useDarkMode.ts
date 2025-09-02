@@ -1,14 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
 
 export function useDarkMode() {
-  const { theme, setTheme, systemTheme } = useTheme();
+  const [darkMode, setDarkModeState] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // تحقق من الإعداد المحفوظ
+    const saved = localStorage.getItem('darkMode');
+    if (saved !== null) {
+      const isDark = JSON.parse(saved);
+      setDarkModeState(isDark);
+      document.documentElement.classList.toggle('dark', isDark);
+    } else {
+      // تحقق من تفضيل النظام
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const isDark = mediaQuery.matches;
+      setDarkModeState(isDark);
+      document.documentElement.classList.toggle('dark', isDark);
+    }
   }, []);
 
   // تجنب hydration mismatch
@@ -20,15 +32,17 @@ export function useDarkMode() {
     };
   }
 
-  const currentTheme = theme === 'system' ? systemTheme : theme;
-  const darkMode = currentTheme === 'dark';
-
   const toggleDarkMode = () => {
-    setTheme(darkMode ? 'light' : 'dark');
+    const newDarkMode = !darkMode;
+    setDarkModeState(newDarkMode);
+    localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
+    document.documentElement.classList.toggle('dark', newDarkMode);
   };
 
   const setDarkMode = (isDark: boolean) => {
-    setTheme(isDark ? 'dark' : 'light');
+    setDarkModeState(isDark);
+    localStorage.setItem('darkMode', JSON.stringify(isDark));
+    document.documentElement.classList.toggle('dark', isDark);
   };
 
   return {

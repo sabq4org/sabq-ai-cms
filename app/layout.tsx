@@ -196,11 +196,9 @@ export default async function RootLayout({
           />
         )}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <DarkModeProvider>
-            <ConditionalLayout initialUser={initialUser}>
-              {children}
-            </ConditionalLayout>
-          </DarkModeProvider>
+          <ConditionalLayout initialUser={initialUser}>
+            {children}
+          </ConditionalLayout>
         </ThemeProvider>
         <ToastContainer />
         <SpeedInsights />
