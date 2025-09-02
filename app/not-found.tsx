@@ -3,13 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useTheme } from 'next-themes';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function NotFoundPage() {
   const [emergencyArticles, setEmergencyArticles] = useState<any[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(true);
   const [dbConnected, setDbConnected] = useState<boolean | null>(null);
-  const { theme } = useTheme();
+  const { darkMode } = useDarkMode();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -64,8 +64,7 @@ export default function NotFoundPage() {
     fetchEmergencyArticles();
   }, []);
 
-  // إصلاح مشكلة server-side rendering مع next-themes
-  const darkMode = isMounted ? theme === 'dark' : false;
+  // استخدام darkMode من useDarkMode hook
 
   if (!isMounted) {
     // Render a skeleton or null during server-side rendering & initial client-side render

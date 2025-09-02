@@ -10,39 +10,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, MessageSquare, ThumbsUp, Eye, Search, Plus, TrendingUp, MessageCircle, Users, Award, HelpCircle, Lightbulb, Hash, Clock, Pin, Bug, Megaphone } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useDarkMode } from "@/hooks/useDarkMode";
 import "./forum.css";
 
-// مكون للوصول الآمن إلى theme context
-function useTheme() {
-  const [theme, setTheme] = useState('light');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // محاولة قراءة الثيم من localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      // التحقق من system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-    }
-
-    // الاستماع لتغييرات الثيم
-    const handleThemeChange = () => {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) {
-        setTheme(savedTheme);
-      }
-    };
-
-    window.addEventListener('storage', handleThemeChange);
-    return () => window.removeEventListener('storage', handleThemeChange);
-  }, []);
-
-  return { theme: theme as 'light' | 'dark', mounted };
-}
+// تم استبدال useTheme المحلي بـ useDarkMode hook
 
 // مكون إحصائيات المنتدى
 function ForumStats({ darkMode }: { darkMode: boolean }) {
@@ -246,8 +217,7 @@ export default function SabqForum() {
     { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' }
   ]);
   
-  const { theme, mounted } = useTheme();
-  const darkMode = theme === 'dark';
+  const { darkMode } = useDarkMode();
   
   // جلب المواضيع من API
   useEffect(() => {
@@ -311,9 +281,7 @@ export default function SabqForum() {
     fetchCategories();
   }, []);
   
-  if (!mounted) {
-    return <div className="min-h-screen bg-gray-50 dark:bg-gray-900"></div>;
-  }
+  // تم إزالة فحص mounted لأنه لم يعد مطلوباً مع useDarkMode
   return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
       {/* الهيدر الرسمي للصحيفة */}
