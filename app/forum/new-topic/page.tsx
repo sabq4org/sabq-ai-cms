@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code, User, Shield } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Category {
   id: string;
@@ -30,9 +31,8 @@ interface AuthUser {
 export default function NewTopicPage() {
   const router = useRouter();
   
-  // نظام الثيم مع حماية من SSR
-  const [darkMode, setDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // استخدام useDarkMode hook
+  const { darkMode } = useDarkMode();
 
   useEffect(() => {
     setMounted(true);

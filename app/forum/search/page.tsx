@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowRight, Search, Filter, MessageCircle, MessageSquare, Clock, Eye, User, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SearchResult {
   id: string;
@@ -34,9 +35,8 @@ export default function ForumSearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  // نظام الثيم مع حماية من SSR
-  const [darkMode, setDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // استخدام useDarkMode hook
+  const { darkMode } = useDarkMode();
 
   useEffect(() => {
     setMounted(true);

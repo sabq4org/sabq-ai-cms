@@ -17,6 +17,7 @@ import {
   Share2,
   MoreVertical
 } from 'lucide-react';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 interface Reply {
   id: string;
@@ -68,7 +69,7 @@ export default function EnhancedTimelineReply({
   currentUserId 
 }: EnhancedTimelineReplyProps) {
   // نظام الثيم مع حماية من SSR
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

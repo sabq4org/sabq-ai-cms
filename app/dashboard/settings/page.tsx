@@ -44,6 +44,7 @@ import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 interface SettingsData {
   openai: {
     apiKey: string;
@@ -80,7 +81,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("identity");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
 
   useEffect(() => {
     const isDark =

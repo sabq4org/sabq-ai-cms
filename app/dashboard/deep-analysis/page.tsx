@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 import {
   DropdownMenu,
@@ -71,7 +72,7 @@ export default function DeepAnalysisPage() {
   const router = useRouter();
   
   // نظام الثيم مع حماية من SSR
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useClientTheme } from '@/hooks/useClientTheme';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,7 @@ interface RecentTopic {
 
 export default function ForumAdminPage() {
   // نظام الثيم مع حماية من SSR
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
