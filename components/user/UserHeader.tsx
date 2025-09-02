@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from "@/hooks/useAuth";
+import { useClientTheme } from '@/hooks/useClientTheme';
 import {
   Bell,
   Search,
@@ -36,19 +37,17 @@ interface UserHeaderProps {
 }
 
 export default function UserHeader({ onMenuClick, showMenuButton = false }: UserHeaderProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode, setDarkMode, mounted } = useClientTheme();
   const { user, logout } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
   const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
   // Added: track dark mode to avoid ReferenceError and react to changes
 // التحقق من حجم الشاشة ومنع مشاكل Hydration
   React.useEffect(() => {
-    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -56,39 +55,6 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Added: observe dark mode from html class and media query
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const getDark = () =>
-      document.documentElement.classList.contains('dark') ||
-      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-    // initialize
-    setDarkMode(getDark());
-
-    // listen to media query changes
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const mqListener = (e: MediaQueryListEvent) => setDarkMode(e.matches || document.documentElement.classList.contains('dark'));
-    // Support older Safari
-    // @ts-ignore
-    mq.addEventListener ? mq.addEventListener('change', mqListener) : mq.addListener(mqListener);
-
-    // observe html class changes
-    const observer = new MutationObserver(() => setDarkMode(getDark()));
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
-    // optional custom event from toggles
-    const onToggle = () => setDarkMode(getDark());
-    window.addEventListener('dark-mode-toggle', onToggle as EventListener);
-
-    return () => {
-      // @ts-ignore
-      mq.removeEventListener ? mq.removeEventListener('change', mqListener) : mq.removeListener(mqListener);
-      observer.disconnect();
-      window.removeEventListener('dark-mode-toggle', onToggle as EventListener);
-    };
   }, []);
 
   // تتبع تغيير اللون من نظام الألوان المتغيرة
