@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
+import { ThemeProvider } from 'next-themes';
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
 import { getServerUser } from "@/lib/getServerUser";
@@ -194,7 +195,9 @@ export default async function RootLayout({
           />
         )}
         <ConditionalLayout initialUser={initialUser}>
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
         </ConditionalLayout>
         <ToastContainer />
         <SpeedInsights />

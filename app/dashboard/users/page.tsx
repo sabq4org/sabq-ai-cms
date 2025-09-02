@@ -90,6 +90,35 @@ export default function UsersPage() {
     type: 'success' | 'error';
     message: string;
  } | null>(null);
+
+  // Added: darkMode state and observers
+  const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const getDark = () =>
+      document.documentElement.classList.contains('dark') ||
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setDarkMode(getDark());
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const mqListener = (e: MediaQueryListEvent) => setDarkMode(e.matches || document.documentElement.classList.contains('dark'));
+    // @ts-ignore
+    mq.addEventListener ? mq.addEventListener('change', mqListener) : mq.addListener(mqListener);
+
+    const observer = new MutationObserver(() => setDarkMode(getDark()));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    const onToggle = () => setDarkMode(getDark());
+    window.addEventListener('dark-mode-toggle', onToggle as EventListener);
+
+    return () => {
+      // @ts-ignore
+      mq.removeEventListener ? mq.removeEventListener('change', mqListener) : mq.removeListener(mqListener);
+      observer.disconnect();
+      window.removeEventListener('dark-mode-toggle', onToggle as EventListener);
+    };
+  }, []);
+
   useEffect(() => {
     fetchUsers();
  }, []);

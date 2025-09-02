@@ -43,6 +43,8 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
+  // Added: track dark mode to avoid ReferenceError and react to changes
+  const [darkMode, setDarkMode] = useState(false);
   
   // التحقق من حجم الشاشة ومنع مشاكل Hydration
   React.useEffect(() => {
@@ -54,6 +56,39 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Added: observe dark mode from html class and media query
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const getDark = () =>
+      document.documentElement.classList.contains('dark') ||
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    // initialize
+    setDarkMode(getDark());
+
+    // listen to media query changes
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const mqListener = (e: MediaQueryListEvent) => setDarkMode(e.matches || document.documentElement.classList.contains('dark'));
+    // Support older Safari
+    // @ts-ignore
+    mq.addEventListener ? mq.addEventListener('change', mqListener) : mq.addListener(mqListener);
+
+    // observe html class changes
+    const observer = new MutationObserver(() => setDarkMode(getDark()));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    // optional custom event from toggles
+    const onToggle = () => setDarkMode(getDark());
+    window.addEventListener('dark-mode-toggle', onToggle as EventListener);
+
+    return () => {
+      // @ts-ignore
+      mq.removeEventListener ? mq.removeEventListener('change', mqListener) : mq.removeListener(mqListener);
+      observer.disconnect();
+      window.removeEventListener('dark-mode-toggle', onToggle as EventListener);
+    };
   }, []);
 
   // تتبع تغيير اللون من نظام الألوان المتغيرة
@@ -217,8 +252,6 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
 
   return (
     <>
-      <link rel="stylesheet" href="/manus-ui.css" />
-      
       <header style={{
         position: 'fixed',
         top: 0,
