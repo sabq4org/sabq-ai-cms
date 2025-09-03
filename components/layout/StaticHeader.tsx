@@ -34,7 +34,7 @@ export function StaticHeader() {
   useEffect(() => {
     const checkNewEvents = async () => {
       try {
-        const response = await fetch('/api/articles?status=published&limit=10&article_type=news');
+        const response = await fetch('/api/news/fast?status=published&limit=10&order=desc&noCount=1');
         const data = await response.json();
         
         if (data.articles) {
