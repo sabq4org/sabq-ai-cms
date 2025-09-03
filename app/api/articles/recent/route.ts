@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { ensureDbConnected } from '@/lib/prisma';
+import { unstable_cache } from 'next/cache';
+
+export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,15 +58,24 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    // جلب أحدث الأخبار المنشورة
-    const articles = await prisma.articles.findMany({
-      where,
-      take: limit,
-      orderBy: [
-        { published_at: 'desc' }
-      ],
-      select: selectFields
-    });
+    // جلب أحدث الأخبار مع طبقة كاش خفيفة
+    const cacheKey = ['recent-news', `${limit}`, category || 'all', isLight ? 'light' : 'full'];
+    const cacheTime = isLight ? 300 : 180; // النسخة الخفيفة تُخزن لفترة أطول
+
+    const getRecentArticles = unstable_cache(
+      async () => {
+        return prisma.articles.findMany({
+          where,
+          take: limit,
+          orderBy: [{ published_at: 'desc' }],
+          select: selectFields
+        });
+      },
+      cacheKey,
+      { revalidate: cacheTime, tags: ['recent-news'] }
+    );
+
+    const articles = await getRecentArticles();
 
     const response = {
       success: true,
@@ -76,11 +88,12 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    const cacheTime = isLight ? 300 : 180; // النسخة الخفيفة تُخزن لفترة أطول
-
     return NextResponse.json(response, {
       headers: {
-        "Cache-Control": `public, max-age=${cacheTime}`,
+        // تمكين الكاش على المتصفح وCDN مع SWR
+        "Cache-Control": `public, max-age=60, s-maxage=${cacheTime}, stale-while-revalidate=600`,
+        "CDN-Cache-Control": `public, s-maxage=${cacheTime}, stale-while-revalidate=600`,
+        "Vercel-CDN-Cache-Control": `public, s-maxage=${cacheTime}, stale-while-revalidate=600`,
       },
     });
 

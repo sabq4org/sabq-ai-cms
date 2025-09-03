@@ -73,6 +73,8 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
         params.set('limit', limit.toString());
         if (category) params.set('category', category);
         
+        // نستخدم النسخة الخفيفة لتقليل حجم الحمولة وتحسين السرعة
+        params.set('light', 'true');
         const response = await fetch(`/api/articles/recent?${params.toString()}`);
         
         if (!response.ok) {
