@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useTheme } from '@/contexts/ThemeContext';
 
 import { 
   MessageSquare, ThumbsUp, Share2, Bookmark, 
@@ -64,6 +65,7 @@ export default function InteractiveArticle({
   const [savedBlocks, setSavedBlocks] = useState<Set<string>>(new Set());
   const [isListening, setIsListening] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
+  const { theme } = useTheme();
   const isDark = theme === 'dark';
 
   // تتبع تقدم القراءة

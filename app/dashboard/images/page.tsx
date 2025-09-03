@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Image as ImageIcon, 
   RefreshCw, 
@@ -38,7 +38,7 @@ interface FixSummary {
   results: ImageIssue[];
 }
 export default function ImagesManagementPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [issues, setIssues] = useState<ImageIssue[]>([]);
   const [summary, setSummary] = useState<FixSummary | null>(null);
   const [loading, setLoading] = useState(false);

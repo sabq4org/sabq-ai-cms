@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import {
   Bell,
@@ -47,6 +48,7 @@ export default function ModernHeader({
   onMenuClick,
   showMenuButton,
 }: ModernHeaderProps) {
+  const { theme, setTheme, resolvedTheme, mounted } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const { logout } = useAuth();
   const router = useRouter();

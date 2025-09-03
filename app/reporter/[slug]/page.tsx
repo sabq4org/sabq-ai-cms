@@ -2,6 +2,7 @@
 
 import FooterOfficial from "@/components/Footer";
 import CloudImage from "@/components/ui/CloudImage";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import {
   formatDashboardStat,
@@ -177,6 +178,7 @@ function getVerificationText(badge: string) {
 const ReporterProfilePage: React.FC = () => {
   const params = useParams();
   const slug = params?.slug as string;
+  const { darkMode } = useDarkModeContext();
 
   const [reporter, setReporter] = useState<Reporter | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);

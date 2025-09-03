@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import { useAuth } from '@/hooks/useAuth';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 import { 
   MessageCircle, 
@@ -58,7 +58,7 @@ interface CommentsSectionProps {
 }
 
 export default function CommentsSection({ articleId, allowComments }: CommentsSectionProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);

@@ -502,6 +502,9 @@ select {
   }
 
   /* لوحة التحكم - ألوان الوضع الليلي */
+  .dark {
+    color-scheme: dark;
+  }
 
   /* تحسين التمرير في الوضع الليلي */
   .dark ::-webkit-scrollbar {

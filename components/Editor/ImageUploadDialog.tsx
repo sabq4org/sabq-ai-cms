@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   AlertCircle,
@@ -20,7 +21,6 @@ import {
 } from "lucide-react";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ImageUploadDialogProps {
   isOpen: boolean;
@@ -33,7 +33,7 @@ export default function ImageUploadDialog({
   onClose,
   onImageSelected,
 }: ImageUploadDialogProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [activeTab, setActiveTab] = useState<"upload" | "url">("upload");
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");

@@ -1,0 +1,493 @@
+/* 
+ * 🎨 نظام إدارة الثيم المتقدم
+ * ===========================
+ * 
+ * هذا الملف يحتوي على:
+ * - متغيرات CSS للثيمات المختلفة
+ * - كلاسات لتطبيق الثيمات
+ * - انتقالات وحركات سلسة
+ * - تحسينات للأداء
+ */
+
+/* ===== متغيرات الثيم الأساسية ===== */
+:root {
+  /* الثيم الافتراضي - سبق */
+  --theme-primary: #1e40af;
+  --theme-secondary: #3b82f6;
+  --theme-accent: #06b6d4;
+  --theme-background: #f8f8f7;
+  --theme-surface: #f8f8f7;
+  --theme-text: #1e293b;
+  --theme-text-secondary: #64748b;
+  --theme-border: #e2e8f0;
+  --theme-success: #10b981;
+  --theme-warning: #f59e0b;
+  --theme-error: #ef4444;
+  --theme-info: #3b82f6;
+  
+  /* إعدادات المظهر */
+  --theme-border-radius: 8px;
+  --theme-font-size: 16px;
+  
+  /* مدة الانتقالات */
+  --theme-transition-duration: 0.3s;
+  --theme-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== الوضع الليلي - متغيرات محدثة ===== */
+.dark {
+  --theme-primary: #3b82f6;
+  --theme-secondary: #60a5fa;
+  --theme-accent: #22d3ee;
+  --theme-background: #0f172a;
+  --theme-surface: #1e293b;
+  --theme-text: #f1f5f9;
+  --theme-text-secondary: #cbd5e1;
+  --theme-border: #334155;
+  --theme-success: #22c55e;
+  --theme-warning: #fbbf24;
+  --theme-error: #f87171;
+  --theme-info: #60a5fa;
+}
+
+/* ===== متغيرات ألوان عامة موحدة للمكونات (HSL) ===== */
+:root {
+  /* تُستخدم مع hsl(var(--accent) / <alpha>) */
+  --accent: 212 96% 45%;
+  --accent-hover: 212 96% 40%;
+  --accent-light: 212 96% 96%;
+  --fg: 222 47% 11%;           /* نص رئيسي */
+  --muted: 215 16% 47%;        /* نص ثانوي */
+  --bg: 0 0% 98%;              /* خلفية أساسية (#fafafa) */
+  --bg-elevated: 0 0% 98%;     /* خلفية بطاقات (#fafafa) */
+  --line: 220 13% 91%;         /* لون الحدود */
+}
+
+/* الوضع الليلي - متغيرات HSL */
+.dark {
+  --accent: 217 91% 60%;       /* أزرق أفتح للوضع الليلي */
+  --accent-hover: 217 91% 70%;
+  --accent-light: 222 47% 20%;
+  --fg: 210 40% 98%;           /* نص أبيض مائل للرمادي */
+  --muted: 215 20% 65%;        /* نص ثانوي أفتح */
+  --bg: 222 47% 11%;           /* خلفية داكنة */
+  --bg-elevated: 217 33% 17%;  /* خلفية بطاقات أفتح قليلاً */
+  --line: 217 33% 22%;         /* حدود أغمق */
+}
+
+/* ===== تطبيق الثيم على العناصر ===== */
+body {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-text) !important;
+  font-size: var(--theme-font-size);
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
+              color var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* العناصر الأساسية */
+.theme-card,
+.dashboard-card,
+.card {
+  background-color: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: var(--theme-border-radius);
+  transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+  color: var(--theme-text) !important;
+}
+
+/* تطبيق على العناصر الرئيسية للوحة التحكم */
+.min-h-screen,
+[class*="bg-slate-50"],
+[class*="bg-gray-"],
+[class*="bg-white"] {
+  background-color: var(--theme-background) !important;
+  color: var(--theme-text) !important;
+}
+
+/* تطبيق على البطاقات */
+[class*="bg-white"],
+[class*="bg-gray-50"],
+[class*="bg-slate-"] {
+  background-color: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+}
+
+/* تطبيق على الحدود */
+[class*="border-gray"],
+[class*="border-slate"] {
+  border-color: var(--theme-border) !important;
+}
+
+.theme-card:hover,
+.dashboard-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* الأزرار */
+.theme-button-primary,
+.btn-primary {
+  background-color: var(--theme-primary);
+  color: white;
+  border: none;
+  border-radius: var(--theme-border-radius);
+  transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+.theme-button-primary:hover,
+.btn-primary:hover {
+  background-color: var(--theme-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-button-secondary,
+.btn-secondary {
+  background-color: transparent;
+  color: var(--theme-primary);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-border-radius);
+  transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+.theme-button-secondary:hover,
+.btn-secondary:hover {
+  background-color: var(--theme-surface);
+  border-color: var(--theme-primary);
+}
+
+/* المدخلات */
+.theme-input,
+.form-input {
+  background-color: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-border-radius);
+  color: var(--theme-text);
+  transition: all var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+.theme-input:focus,
+.form-input:focus {
+  outline: none;
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* النصوص */
+.theme-text-primary {
+  color: var(--theme-text);
+}
+
+.theme-text-secondary {
+  color: var(--theme-text-secondary);
+}
+
+.theme-text-accent {
+  color: var(--theme-accent);
+}
+
+/* ألوان الحالة */
+.theme-success {
+  color: var(--theme-success);
+}
+
+.theme-warning {
+  color: var(--theme-warning);
+}
+
+.theme-error {
+  color: var(--theme-error);
+}
+
+.theme-info {
+  color: var(--theme-info);
+}
+
+.theme-bg-success {
+  background-color: var(--theme-success);
+}
+
+.theme-bg-warning {
+  background-color: var(--theme-warning);
+}
+
+.theme-bg-error {
+  background-color: var(--theme-error);
+}
+
+.theme-bg-info {
+  background-color: var(--theme-info);
+}
+
+/* ===== الوضع المضغوط ===== */
+.theme-compact {
+  --theme-border-radius: 4px;
+  --theme-font-size: 14px;
+}
+
+.theme-compact .theme-card,
+.theme-compact .dashboard-card,
+.theme-compact .card {
+  padding: 12px;
+}
+
+.theme-compact .theme-button-primary,
+.theme-compact .theme-button-secondary,
+.theme-compact .btn-primary,
+.theme-compact .btn-secondary {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.theme-compact .theme-input,
+.theme-compact .form-input {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+/* ===== تعطيل الحركات ===== */
+.theme-no-animations *,
+.theme-no-animations *::before,
+.theme-no-animations *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ===== تحسينات الأداء ===== */
+.theme-card,
+.dashboard-card,
+.theme-button-primary,
+.theme-button-secondary {
+  will-change: transform, box-shadow;
+}
+
+.theme-card:not(:hover),
+.dashboard-card:not(:hover),
+.theme-button-primary:not(:hover),
+.theme-button-secondary:not(:hover) {
+  will-change: auto;
+}
+
+/* ===== تحسينات خاصة بالموبايل ===== */
+@media (max-width: 768px) {
+  :root {
+    --theme-border-radius: 12px;
+    --theme-font-size: 16px; /* منع zoom في iOS */
+  }
+  
+  .theme-card,
+  .dashboard-card {
+    margin: 8px;
+    padding: 16px;
+  }
+  
+  .theme-button-primary,
+  .theme-button-secondary {
+    min-height: 44px; /* accessibility */
+    padding: 12px 20px;
+  }
+  
+  .theme-input {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+}
+
+/* ===== ثيمات محددة ===== */
+
+/* ثيم الزمرد */
+.theme-emerald {
+  --theme-primary: #059669;
+  --theme-secondary: #10b981;
+  --theme-accent: #34d399;
+  --theme-surface: #f0fdf4;
+  --theme-border: #d1fae5;
+}
+
+.dark.theme-emerald {
+  --theme-primary: #10b981;
+  --theme-secondary: #34d399;
+  --theme-accent: #6ee7b7;
+  --theme-background: #022c22;
+  --theme-surface: #064e3b;
+  --theme-border: #065f46;
+}
+
+/* ثيم البنفسجي */
+.theme-purple {
+  --theme-primary: #7c3aed;
+  --theme-secondary: #8b5cf6;
+  --theme-accent: #a78bfa;
+  --theme-surface: #faf5ff;
+  --theme-border: #e9d5ff;
+}
+
+.dark.theme-purple {
+  --theme-primary: #8b5cf6;
+  --theme-secondary: #a78bfa;
+  --theme-accent: #c4b5fd;
+  --theme-background: #1e1b4b;
+  --theme-surface: #312e81;
+  --theme-border: #4c1d95;
+}
+
+/* ثيم الوردي */
+.theme-rose {
+  --theme-primary: #e11d48;
+  --theme-secondary: #f43f5e;
+  --theme-accent: #fb7185;
+  --theme-surface: #fff1f2;
+  --theme-border: #fecdd3;
+}
+
+.dark.theme-rose {
+  --theme-primary: #f43f5e;
+  --theme-secondary: #fb7185;
+  --theme-accent: #fda4af;
+  --theme-background: #4c0519;
+  --theme-surface: #881337;
+  --theme-border: #9f1239;
+}
+
+/* ثيم البرتقالي */
+.theme-orange {
+  --theme-primary: #ea580c;
+  --theme-secondary: #f97316;
+  --theme-accent: #fb923c;
+  --theme-surface: #fff7ed;
+  --theme-border: #fed7aa;
+}
+
+.dark.theme-orange {
+  --theme-primary: #f97316;
+  --theme-secondary: #fb923c;
+  --theme-accent: #fdba74;
+  --theme-background: #431407;
+  --theme-surface: #7c2d12;
+  --theme-border: #9a3412;
+}
+
+/* ===== خلفية قسم مُقترب المتغيرة ===== */
+.muqtarab-section-bg {
+  background: #f8f8f7;
+  position: relative;
+  overflow: hidden;
+}
+
+.muqtarab-section-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.02) 0%,
+    transparent 70%
+  );
+  animation: subtle-glow 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes subtle-glow {
+  0%, 100% { opacity: 0.3; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.6; transform: scale(1.1) rotate(180deg); }
+}
+
+.dark .muqtarab-section-bg {
+  background: #1a1a1a;
+}
+
+/* ===== انتقالات ناعمة بين الثيمات ===== */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: var(--theme-transition-timing);
+  transition-duration: var(--theme-transition-duration);
+}
+
+/* ===== تحسينات خاصة بالـ RTL ===== */
+[dir="rtl"] .theme-card,
+[lang="ar"] .theme-card {
+  text-align: right;
+}
+
+/* ===== دعم الطباعة ===== */
+@media print {
+  .theme-card,
+  .dashboard-card {
+    background: white !important;
+    border: 1px solid #718096 !important;
+    box-shadow: none !important;
+  }
+  
+  .theme-button-primary,
+  .theme-button-secondary {
+    background: white !important;
+    color: #2d3748 !important;
+    border: 1px solid #718096 !important;
+  }
+}
+
+/* ===== تحسينات للـ accessibility ===== */
+@media (prefers-reduced-motion: reduce) {
+  .theme-no-animations *,
+  .theme-no-animations *::before,
+  .theme-no-animations *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --theme-border: #4a5568;
+  }
+  
+  .dark {
+    --theme-border: #cbd5e1;
+  }
+}
+
+/* ===== كلاسات مساعدة للثيم ===== */
+.theme-gradient {
+  background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+}
+
+.theme-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .theme-glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.theme-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.theme-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .theme-shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.dark .theme-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+.dark .theme-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+}

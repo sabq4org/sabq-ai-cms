@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import SafeNewsImage from '@/components/ui/SafeNewsImage';
 import { formatDateGregorian } from '@/lib/date-utils';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface FeaturedArticle {
   id: string;
@@ -56,9 +56,9 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({
   className = "",
   showCompact = false 
 }) => {
+  const { darkMode } = useDarkModeContext();
 
   const getVerificationIcon = (badge: string) => {
-  const { darkMode } = useDarkMode();
     switch (badge) {
       case 'expert':
         return <Star className="w-4 h-4 text-amber-500" />;

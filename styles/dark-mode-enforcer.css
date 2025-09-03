@@ -1,0 +1,137 @@
+/*
+ * 🌙 نظام إنفاذ الوضع الليلي الشامل
+ * =====================================
+ * يضمن تطبيق الوضع الليلي على جميع العناصر
+ */
+
+/* ===== تطبيق شامل على جميع العناصر ===== */
+html.dark,
+html.dark *,
+body.dark,
+body.dark * {
+  color-scheme: dark !important;
+}
+
+/* ===== خلفيات أساسية ===== */
+.dark {
+  --bg-main: #0f172a !important;
+  --bg-elevated: #1e293b !important;
+  --bg-surface: #334155 !important;
+  --text-primary: #f8fafc !important;
+  --text-secondary: #cbd5e1 !important;
+  --border-color: #475569 !important;
+}
+
+/* ===== تطبيق قوي على العناصر العنيدة ===== */
+.dark,
+.dark div,
+.dark section,
+.dark article,
+.dark main,
+.dark header,
+.dark nav,
+.dark aside,
+.dark footer {
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ===== إصلاح الخلفيات البيضاء العنيدة ===== */
+.dark [style*="background-color: white"],
+.dark [style*="background-color:#fff"],
+.dark [style*="background-color: #fff"],
+.dark [style*="background-color:#ffffff"],
+.dark [style*="background-color: #ffffff"],
+.dark [style*="background: white"],
+.dark [style*="background:#fff"],
+.dark [style*="background: #fff"],
+.dark [style*="background:#ffffff"],
+.dark [style*="background: #ffffff"] {
+  background-color: var(--bg-elevated) !important;
+}
+
+/* ===== إصلاح النصوص السوداء العنيدة ===== */
+.dark [style*="color: black"],
+.dark [style*="color:#000"],
+.dark [style*="color: #000"],
+.dark [style*="color:#000000"],
+.dark [style*="color: #000000"] {
+  color: var(--text-primary) !important;
+}
+
+/* ===== إصلاح الحدود ===== */
+.dark [class*="border"],
+.dark [style*="border-color"] {
+  border-color: var(--border-color) !important;
+}
+
+/* ===== إصلاح الأزرار والمدخلات ===== */
+.dark button,
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark button:hover,
+.dark input:hover,
+.dark textarea:hover,
+.dark select:hover {
+  background-color: var(--bg-surface) !important;
+}
+
+/* ===== إصلاح البطاقات والحاويات ===== */
+.dark [class*="card"],
+.dark [class*="container"],
+.dark [class*="wrapper"],
+.dark [class*="panel"],
+.dark [class*="box"] {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* ===== تطبيق فوري وشامل ===== */
+html[data-mode="dark"] {
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-mode="dark"] body {
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ===== إصلاح التمرير ===== */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: var(--bg-surface);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b;
+}
+
+/* ===== انتقالات سلسة ===== */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+}
+
+/* ===== الأولوية القصوى للوضع الليلي ===== */
+.dark-mode-enforced {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode-enforced * {
+  background-color: inherit !important;
+  color: inherit !important;
+}

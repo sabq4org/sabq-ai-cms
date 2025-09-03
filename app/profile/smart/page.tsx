@@ -6,8 +6,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
-import { useDarkMode } from '@/hooks/useDarkMode';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Brain, 
   TrendingUp, 
@@ -75,7 +75,8 @@ const personalityConfig: Record<string, {
 };
 export default function SmartProfilePage() {
   const router = useRouter();
-  const { darkMode } = useDarkMode();
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   const { profile, isLoading, error } = useReaderProfile();
   const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'achievements'>('overview');
   if (isLoading) {

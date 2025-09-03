@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Menu, 
   X, 
@@ -52,13 +52,13 @@ function useMediaQuery(query: string) {
 }
 
 export default function ResponsiveLayout({ children, user, onLogin, onLogout }: ResponsiveLayoutProps) {
-  const { darkMode } = useDarkMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
+  const { darkMode } = useDarkModeContext();
   const isMobile = useMediaQuery('(max-width: 767px)');
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
 

@@ -4,12 +4,9 @@ import { useDeviceType } from "@/hooks/useDeviceType";
 import UserWelcomeBlock from "@/components/user/UserWelcomeBlock";
 import WelcomeMetaStrip from "@/components/user/WelcomeMetaStrip";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
-import { useEffect, useMemo, Suspense, useState } from "react";
+import { useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
 import LiteStatsBar from "@/components/mobile/LiteStatsBar";
-
-// تفعيل/تعطيل بلوك "مقترب" من الواجهة بسهولة
-const SHOW_MUQTARAB = true;
 
 // استيراد بلوك مقترب بشكل ديناميكي مع تحسين التحميل
 const MuqtarabBlock = dynamic(
@@ -66,17 +63,6 @@ const LightFeaturedLoader = dynamic(
   }
 );
 
-// استيراد بلوك الأخبار الحديثة
-const RecentNewsBlock = dynamic(
-  () => import("@/components/news/RecentNewsBlock"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
-    ),
-  }
-);
-
 // (تم حذف الأخبار المميزة من النسخة الكاملة)
 
 // مكون شاشة التحميل المحسن
@@ -99,8 +85,6 @@ export default function Page() {
       }
     }
   }, [mounted]);
-
-
 
   // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
   const MobileContent = useMemo(() => (
@@ -142,21 +126,19 @@ export default function Page() {
           <DeepAnalysisBlock maxItems={3} className="mt-10" />
         </Suspense>
         
-        {SHOW_MUQTARAB ? (
-          <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
-            <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
-              <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
-                <MuqtarabBlock
-                  limit={8}
-                  showPagination={false}
-                  showFilters={false}
-                  viewMode="grid"
-                  className="mt-12 mx-auto"
-                />
-              </div>
-            </Suspense>
-          </div>
-        ) : null}
+        <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
+          <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
+            <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
+              <MuqtarabBlock
+                limit={8}
+                showPagination={false}
+                showFilters={false}
+                viewMode="grid"
+                className="mt-12 mx-auto"
+              />
+            </div>
+          </Suspense>
+        </div>
       </div>
     </>
   ), []);
@@ -170,25 +152,33 @@ export default function Page() {
         </Suspense>
       </div>
       {/* الأخبار المميزة من النسخة القديمة - النسخة الكاملة فقط */}
-      <Suspense fallback={<div className="h-[360px] bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
+      <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
         <OldFeaturedHero />
       </Suspense>
+      <Suspense
+        fallback={
+          <div className="max-w-6xl mx-auto px-4 mt-10">
+            <div className="h-24 animate-pulse bg-gray-200 rounded" />
+          </div>
+        }
+      >
+        <div className="max-w-6xl mx-auto px-4 mt-16">
+          <SmartInsightsWidget />
+        </div>
+      </Suspense>
       
-      {/* المؤشرات الذكية */}
-      <div className="max-w-6xl mx-auto px-4 mt-16">
-        <SmartInsightsWidget />
-      </div>
+      <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <div className="max-w-6xl mx-auto px-4">
+          <SmartContentBlock />
+        </div>
+      </Suspense>
       
-      {/* المحتوى الذكي */}
-      <div className="max-w-6xl mx-auto px-4">
-        <SmartContentBlock />
-      </div>
+      <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
+        <DeepAnalysisBlock maxItems={3} className="mt-12" />
+      </Suspense>
       
-      {/* التحليل العميق */}
-      <DeepAnalysisBlock maxItems={3} className="mt-12" />
-      
-      {SHOW_MUQTARAB ? (
-        <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
+      <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
+        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
           <div className="w-full max-w-6xl mx-auto px-4">
             <MuqtarabBlock
               limit={8}
@@ -198,8 +188,8 @@ export default function Page() {
               className="mt-12 mx-auto"
             />
           </div>
-        </div>
-      ) : null}
+        </Suspense>
+      </div>
     </div>
   ), []);
 

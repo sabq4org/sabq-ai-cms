@@ -42,13 +42,17 @@ export async function GET(request: NextRequest) {
     if (sortBy === "featured") orderBy = { is_featured: "desc" };
 
     const where: any = {
+      status: "published",
       publish_at: { lte: new Date() },
       ...(featured ? { is_featured: true } : {}),
+      ...(category
+        ? { corner: { slug: category } } // تصفية حسب الزاوية إذا وُجدت
+        : {}),
     };
 
     // استعلام محسن جداً
     const [articles, totalCount] = await Promise.all([
-      prisma.muqtarab_articles.findMany({
+      prisma.muqtarabArticle.findMany({
         where,
         skip,
         take: limit,
@@ -64,18 +68,33 @@ export async function GET(request: NextRequest) {
           view_count: true,
           tags: true,
           is_featured: true,
-          author_name: true,
-          author_bio: true,
+          // زاوية مبسطة
+          corner: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              theme_color: true,
+            },
+          },
+          // منشئ مبسط
+          creator: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
         },
       }),
       // عد بسيط وسريع
-      prisma.muqtarab_articles.count({ where }),
+      prisma.muqtarabArticle.count({ where }),
     ]);
 
     const queryTime = Date.now() - startTime;
     console.log(`⚡ استعلام المقالات: ${queryTime}ms`);
 
-    const formattedArticles = articles.map((article: any) => ({
+    const formattedArticles = articles.map((article) => ({
       id: article.id,
       title: article.title,
       excerpt: article.excerpt || "",
@@ -85,25 +104,31 @@ export async function GET(request: NextRequest) {
       publishDate: article.publish_at,
       views: article.view_count || 0,
       tags: article.tags || [],
-      angle: null, // لا يوجد corner في هذا الجدول
+      angle: article.corner
+        ? {
+            id: article.corner.id,
+            title: article.corner.name,
+            slug: article.corner.slug,
+            themeColor: article.corner.theme_color || "#3B82F6",
+          }
+        : null,
       author: {
-        id: null,
-        name: article.author_name || "فريق التحرير",
-        avatar: null,
+        id: article.creator?.id,
+        name: article.creator?.name || "فريق التحرير",
+        avatar: article.creator?.avatar,
       },
       link: `/muqtarab/articles/${article.slug}`,
       isFeatured: article.is_featured,
-      isRecent: article.publish_at ? 
-        article.publish_at > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) : 
-        false,
+      isRecent:
+        article.publish_at > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     }));
 
     // إحصائيات مبسطة للسرعة
     const stats = {
       totalArticles: totalCount,
-      featuredCount: articles.filter((a: any) => a.is_featured).length,
-      recentCount: formattedArticles.filter((a: any) => a.isRecent).length,
-      totalViews: articles.reduce((sum: number, art: any) => sum + (art.view_count || 0), 0),
+      featuredCount: articles.filter((a) => a.is_featured).length,
+      recentCount: formattedArticles.filter((a) => a.isRecent).length,
+      totalViews: articles.reduce((sum, art) => sum + (art.view_count || 0), 0),
     };
 
     const responseData = {

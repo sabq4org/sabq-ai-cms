@@ -3,16 +3,21 @@
 import Image from 'next/image';
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   ArrowRight, Mail, Phone, MapPin, Calendar, Eye, MessageSquare, 
   Heart, Award, Edit, Ban, UserCheck, Monitor, 
   Smartphone
 } from 'lucide-react';
 export default function UserDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { darkMode } = useDarkMode();
   const { id } = use(params);
-const user = {
+  const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
+  }, []);
+  const user = {
     id: id,
     name: 'أحمد محمد الأحمد',
     email: 'ahmed@example.com',

@@ -1,13 +1,12 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
 import HeroGallery from "./HeroGallery";
 import Container from "./Container";
 import ArticleBody from "./ArticleBody";
 import FloatingReadButton from "./FloatingReadButton";
-import dynamic from "next/dynamic";
-// import CommentsSection from "./CommentsSection"; // استبدلناه بتحميل ديناميكي
+import StickyInsightsPanel from "./StickyInsightsPanel";
+import CommentsSection from "./CommentsSection";
+import SmartQuestions from "./SmartQuestions";
 import { Calendar, Clock, BookOpen, Eye } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 
 interface ResponsiveArticleProps {
   article: any;
@@ -15,32 +14,10 @@ interface ResponsiveArticleProps {
   slug: string;
 }
 
-const LazyCommentsSection = dynamic(() => import("./CommentsSection"), {
-  ssr: false,
-  loading: () => (
-    <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 shadow-md animate-pulse h-40 mt-8" />
-  )
-});
-
 export default function ResponsiveArticle({ article, insights, slug }: ResponsiveArticleProps) {
   const heroImages = useMemo(() => article.images || [], [article.images]);
   const contentHtml = article.content || "";
   const hiddenImageUrls = heroImages.map((img: any) => img.url);
-  // حالة بسيطة للتحقق من التركيب
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const StickyInsightsPanel = useMemo(() => dynamic(() => import("./StickyInsightsPanel"), {
-    ssr: false,
-    loading: () => <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 h-64 animate-pulse" />
-  }), []);
-
-  const SmartQuestions = useMemo(() => dynamic(() => import("./SmartQuestions"), {
-    ssr: false,
-    loading: () => <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 h-40 animate-pulse" />
-  }), []);
 
   // الصور البارزة فقط للموبايل
   const featuredImage = article.featured_image ? [{ 
@@ -164,36 +141,6 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
 
               {/* البانل للموبايل - يظهر كامل */}
               <div className="block lg:hidden mt-8">
-                {mounted && (
-                  <StickyInsightsPanel insights={insights} article={{
-                    id: article.id,
-                    summary: article.summary,
-                    categories: article.categories,
-                    tags: article.tags,
-                    likes: article.likes || 0,
-                    shares: article.shares || 0,
-                    saves: article.saves || 0,
-                  }} />
-                )}
-              </div>
-              
-              {/* أسئلة ذكية حول الخبر */}
-              {mounted && (
-                <SmartQuestions 
-                  articleId={article.id} 
-                  articleTitle={article.title}
-                  content={article.content || ""}
-                  author={article.article_author || article.author}
-                />
-              )}
-              
-              {/* قسم التعليقات */}
-              <LazyCommentsSection articleId={article.id} articleSlug={slug} />
-            </section>
-            
-            {/* البانل الجانبي للشاشات الكبيرة */}
-            <aside className="hidden lg:block lg:col-span-4">
-              {mounted && (
                 <StickyInsightsPanel insights={insights} article={{
                   id: article.id,
                   summary: article.summary,
@@ -203,7 +150,31 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   shares: article.shares || 0,
                   saves: article.saves || 0,
                 }} />
-              )}
+              </div>
+              
+              {/* أسئلة ذكية حول الخبر */}
+              <SmartQuestions 
+                articleId={article.id} 
+                articleTitle={article.title}
+                content={article.content || ""}
+                author={article.article_author || article.author}
+              />
+              
+              {/* قسم التعليقات */}
+              <CommentsSection articleId={article.id} articleSlug={slug} />
+            </section>
+            
+            {/* البانل الجانبي للشاشات الكبيرة */}
+            <aside className="hidden lg:block lg:col-span-4">
+              <StickyInsightsPanel insights={insights} article={{
+                id: article.id,
+                summary: article.summary,
+                categories: article.categories,
+                tags: article.tags,
+                likes: article.likes || 0,
+                shares: article.shares || 0,
+                saves: article.saves || 0,
+              }} />
             </aside>
           </div>
         </Container>

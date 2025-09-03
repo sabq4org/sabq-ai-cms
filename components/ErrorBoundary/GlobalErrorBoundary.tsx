@@ -2,7 +2,6 @@
 
 import React, { ReactNode, ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface GlobalErrorBoundaryProps {
   children: ReactNode;

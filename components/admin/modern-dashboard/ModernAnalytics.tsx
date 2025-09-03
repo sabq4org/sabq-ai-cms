@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { DesignComponents } from '@/components/design-system/DesignSystemGuide';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import {
   TrendingUp,
   TrendingDown,
@@ -67,7 +68,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import toast from 'react-hot-toast';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AnalyticsData {
   pageViews: number;
@@ -128,7 +128,7 @@ const analyticsData: AnalyticsData = {
 };
 
 export default function ModernAnalytics() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
   const [activeTab, setActiveTab] = useState('overview');
 

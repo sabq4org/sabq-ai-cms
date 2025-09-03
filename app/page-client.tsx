@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 // Lazy loading للمكونات الثقيلة
 const DeepAnalysisBlock = dynamic(() => import("@/components/DeepAnalysisBlock"), {
@@ -15,25 +14,12 @@ const SmartInsightsWidget = dynamic(() => import("@/components/ai/SmartInsightsW
 });
 
 import PageWrapper from "@/components/PageWrapper";
-const SmartSlot = dynamic(() => import("@/components/home/SmartSlot").then(m => m.SmartSlot), {
-  ssr: false,
-  loading: () => <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-xl" />
-});
+import { SmartSlot } from "@/components/home/SmartSlot";
 
 import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
-const SmartContentNewsCard = dynamic(() => import("@/components/mobile/SmartContentNewsCard"), {
-  ssr: false,
-  loading: () => <div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-xl" />
-});
+import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
-const AdBanner = dynamic(() => import("@/components/ads/AdBanner"), {
-  ssr: false,
-  loading: () => (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div className="relative w-full aspect-[16/9] sm:aspect-[20/6] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" />
-    </div>
-  )
-});
+import AdBanner from "@/components/ads/AdBanner";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
 import type { RecommendedArticle } from "@/lib/ai-recommendations";
@@ -46,11 +32,9 @@ import React, { useCallback, useEffect, useState } from "react";
 
 
 import SafeHydration from "@/components/SafeHydration";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Clock, User } from "lucide-react";
-const LiteStatsBar = dynamic(() => import("@/components/mobile/LiteStatsBar"), {
-  ssr: false,
-  loading: () => <div className="w-full h-8 bg-gray-100 dark:bg-gray-800" />
-});
+import LiteStatsBar from "@/components/mobile/LiteStatsBar";
 
 // Safe Dynamic imports with Next.js dynamic and SSR disabled to prevent hydration issues
 const EmptyComponent = () => null;
@@ -186,10 +170,9 @@ function NewspaperHomePage({
   initialFeaturedArticles = [],
 }: PageClientProps) {
   const { user, loading: authLoading } = useAuth();
+  const { darkMode } = useDarkModeContext();
   // حالة الجهاز - نبدأ بقيمة undefined لتجنب مشاكل hydration
   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
-  // حالة الخمول لجدولة المكوّنات غير الحرجة
-  const [isIdle, setIsIdle] = useState(false);
   const isLoggedIn = !!user;
 
   // فحص نوع الجهاز
@@ -218,16 +201,6 @@ function NewspaperHomePage({
 
   // استخدم false كقيمة افتراضية فقط عند العرض
   const isMobileView = isMobile ?? false;
-
-  // تحديد وقت الخمول لعرض المكونات الثقيلة لاحقاً
-  useEffect(() => {
-    try {
-      const schedule: any = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 300));
-      schedule(() => setIsIdle(true));
-    } catch {
-      setTimeout(() => setIsIdle(true), 300);
-    }
-  }, []);
 
   // =============================
   // المتغيرات المساعدة لمنع الأخطاء أثناء التشغيل (قابلة للتحديث مستقبلاً)
@@ -605,30 +578,30 @@ function NewspaperHomePage({
   }, [initialFeaturedArticles]);
 
   useEffect(() => {
-    const fetchSmartRecommendations = () => {
+    const fetchSmartRecommendations = async () => {
       try {
+        // نحتاج مقال واحد على الأقل كمرجع
         if (articles.length === 0) return;
+
         const currentArticle = articles[0];
-        const run = async () => {
-          const recommendations = await generatePersonalizedRecommendations({
-            currentArticleId: currentArticle.id,
-            userId: user?.id || "anonymous",
-            currentCategory:
-              currentArticle.categories?.name || currentArticle.category,
-            currentTags: currentArticle.tags || [],
-            limit: 10,
-          });
-          setSmartRecommendations(recommendations.slice(0, 10));
-        };
-        // جدولة عند الخمول لتخفيف TBT على المحمول
-        const schedule = (window as any).requestIdleCallback || ((cb: any) => setTimeout(cb, 200));
-        schedule(run);
+        const recommendations = await generatePersonalizedRecommendations({
+          currentArticleId: currentArticle.id,
+          userId: user?.id || "anonymous",
+          currentCategory:
+            currentArticle.categories?.name || currentArticle.category,
+          currentTags: currentArticle.tags || [],
+          limit: 10,
+        });
+
+        setSmartRecommendations(recommendations.slice(0, 10)); // نحتاج 10 توصيات للتوزيع المتوازن
       } catch (error) {
         console.error("خطأ في جلب التوصيات الذكية:", error);
       }
     };
 
-    if (articles.length > 0) fetchSmartRecommendations();
+    if (articles.length > 0) {
+      fetchSmartRecommendations();
+    }
 
     // لا نحتاج تحديث مستمر كل 30 ثانية - يسبب بطء
     // التحديث سيحدث عند تغيير المقالات أو المستخدم
@@ -817,11 +790,7 @@ function NewspaperHomePage({
               >
                 {/* استبدال محتوى التصنيفات بـ AI Insights */}
                 <div className="relative -m-4 sm:-m-6 lg:-m-8">
-                  {isIdle ? (
-                    <SmartInsightsWidget variant={isMobileView ? 'compact' : 'default'} />
-                  ) : (
-                    <div className="w-full h-48 sm:h-56 lg:h-64 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-                  )}
+                  <SmartInsightsWidget variant={isMobileView ? 'compact' : 'default'} />
                 </div>
               </div>
             </div>
@@ -1533,11 +1502,7 @@ function NewspaperHomePage({
           <>
             {/* بلوك الكلمات المفتاحية للموبايل */}
             <div className="mobile-word-cloud-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-6">
-              {isIdle ? (
-                <HomeWordCloud maxKeywords={15} />
-              ) : (
-                <div className="w-full h-32 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-              )}
+              <HomeWordCloud maxKeywords={15} />
             </div>
             
             {/* بلوك مقترب للموبايل */}
@@ -1587,11 +1552,7 @@ function NewspaperHomePage({
         {/* الكلمات المفتاحية للديسكتوب */}
         {!isMobileView && (
           <div className="desktop-word-cloud-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-8">
-            {isIdle ? (
-              <HomeWordCloud maxKeywords={15} />
-            ) : (
-              <div className="w-full h-40 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-            )}
+            <HomeWordCloud maxKeywords={15} />
           </div>
         )}
         {/* 8. التحليل العميق (Deep Analysis) 🧠 */}
@@ -1618,15 +1579,11 @@ function NewspaperHomePage({
 
           {/* بلوك المحتوى - خلفية ممتدة بالكامل */}
           <div className="relative z-10 w-full">
-            {isIdle ? (
-              <DeepAnalysisBlock
-                maxItems={3}
-                showTitle={false}
-                insights={initialDeepAnalyses as any}
-              />
-            ) : (
-              <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-            )}
+            <DeepAnalysisBlock
+              maxItems={3}
+              showTitle={false}
+              insights={initialDeepAnalyses as any}
+            />
           </div>
         </section>
         {/* 9. قادة الرأي (Opinion Leaders) 👥 */}
@@ -1635,19 +1592,11 @@ function NewspaperHomePage({
         </main>
         {/* 10. الرحلة المعرفية (Knowledge Journey) 🎓 */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          {isIdle ? (
-            <SmartSlot position="below_personalized" />
-          ) : (
-            <div className="w-full h-20 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-          )}
+          <SmartSlot position="below_personalized" />
         </div>
         {/* Smart Blocks إضافية */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {isIdle ? (
-            <SmartSlot position="above_footer" />
-          ) : (
-            <div className="w-full h-16 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-          )}
+          <SmartSlot position="above_footer" />
         </div>
         {/* Smart content - فوق الـ footer */}
       </div>
@@ -1667,7 +1616,6 @@ export default function PageClient({
   initialDeepAnalyses = [],
   initialFeaturedArticles = [],
 }: PageClientProps) {
-  const { darkMode } = useDarkMode();
   // 🔍 Debug: فحص البيانات الواردة (تعطيل في الإنتاج)
   if (process.env.NODE_ENV !== "production") {
     console.log("🎯 [DEBUG] PageClient received data:", {

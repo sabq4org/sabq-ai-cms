@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Send, X } from 'lucide-react';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface CommentFormProps {
   onSubmit: (content: string) => void;
@@ -20,7 +20,7 @@ export default function CommentForm({
   submitText = 'إرسال التعليق',
   initialValue = ''
 }: CommentFormProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [content, setContent] = useState(initialValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);

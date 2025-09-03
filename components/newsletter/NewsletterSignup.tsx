@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { cn, getArticleLink } from "@/lib/utils";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { cn } from "@/lib/utils";
 import {
   ArrowRight,
   BookOpen,
@@ -24,7 +25,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Article {
   id: string;
@@ -56,7 +56,7 @@ export default function NewsletterSignup({
   compact = false,
   className = "",
 }: NewsletterSignupProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<
@@ -354,7 +354,7 @@ export default function NewsletterSignup({
                 {latestArticles.map((article) => (
                   <Link
                     key={article.id}
-                    href={getArticleLink(article)}
+                    href={`/news/${article.id}`}
                     className="block group"
                   >
                     <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Play, 
   Pause, 
@@ -19,7 +20,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Newsletter {
   id: string;
@@ -38,7 +38,7 @@ interface Newsletter {
 }
 
 export default function NewslettersArchive() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPlaying, setCurrentPlaying] = useState<string | null>(null);

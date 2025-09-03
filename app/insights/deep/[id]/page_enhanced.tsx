@@ -4,9 +4,9 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import Footer from '@/components/Footer';
 import toast from 'react-hot-toast';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Brain, 
   Eye, 
@@ -103,9 +103,10 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
 }
 
 export default function DeepAnalysisPage() {
-  const { darkMode } = useDarkMode();
   const params = useParams();
-const [analysis, setAnalysis] = useState<DeepAnalysisPageProps | null>(null);
+  const { darkMode: contextDarkMode } = useDarkModeContext();
+  const [darkMode, setDarkMode] = useState(false);
+  const [analysis, setAnalysis] = useState<DeepAnalysisPageProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +20,6 @@ import {
   Globe, TrendingUp, BookOpen, ChevronRight, Home
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import('@/components/Editor/Editor'), { ssr: false });
@@ -41,9 +41,9 @@ interface Author {
 }
 
 export default function UnifiedArticleEditPage() {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
   const params = useParams();
+  const { darkMode } = useDarkModeContext();
   const articleId = params?.id as string;
   const editorRef = useRef<any>(null);
   

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   Award,
   BookOpen,
@@ -15,7 +16,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface DeepInsight {
   id: string;
@@ -94,7 +94,8 @@ export default function DeepAnalysisBlock({
   maxItems = 3,
 }: DeepAnalysisBlockProps) {
   const [readItems, setReadItems] = useState<string[]>([]);
-  const { darkMode } = useDarkMode();
+  const { resolvedTheme, mounted } = useTheme();
+  const darkMode = resolvedTheme === "dark";
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAllTags, setShowAllTags] = useState<{ [key: string]: boolean }>(

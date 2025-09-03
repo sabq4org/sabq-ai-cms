@@ -1,9 +1,9 @@
 "use client";
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
 import DeepAnalysisCard from "./DeepAnalysisCard";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AnalysisData {
   id: string;
@@ -34,7 +34,7 @@ export default function DeepAnalysisHorizontalScroll({
   analyses,
   title = "التحليلات العميقة",
 }: DeepAnalysisHorizontalScrollProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);

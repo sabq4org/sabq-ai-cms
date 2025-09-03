@@ -4,10 +4,13 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { Target, Plus, Calendar, Users, TrendingUp, Play, Pause, Edit } from 'lucide-react';
-import { useDarkMode } from "@/hooks/useDarkMode";
 export default function CampaignsPage() {
-  const { darkMode } = useDarkMode();
+  const [darkMode, setDarkMode] = useState(false);
   useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
   }, []);
   const campaigns = [
     {

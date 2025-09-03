@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { useState, useEffect } from 'react'
 import { 
   Activity, 
@@ -20,6 +19,7 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced'
+import { useDarkModeContext } from '@/contexts/DarkModeContext'
 interface ActivityItem {
   id: string;
   user: string;
@@ -45,8 +45,8 @@ interface CategoriesStats {
   settings: number;
 }
 export default function ActivitiesPage() {
-  const { darkMode } = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('')
+  const { darkMode } = useDarkModeContext()
   const [activeTab, setActiveTab] = useState('all')
   const [filterType, setFilterType] = useState('')
   const [loading, setLoading] = useState(true)

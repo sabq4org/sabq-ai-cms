@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { format, isToday, isYesterday, differenceInDays } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Reply {
   id: string;
@@ -24,12 +24,10 @@ interface TimelineReplyProps {
 }
 
 export default function TimelineReply({ replies }: TimelineReplyProps) {
-  // استخدام useDarkMode hook
-  const { darkMode } = useDarkMode();
-
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const repliesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -76,26 +74,6 @@ export default function TimelineReply({ replies }: TimelineReplyProps) {
       setTimeout(() => setActiveReplyId(null), 2000);
     }
   };
-
-  // حماية من العرض قبل التهيئة
-  if (!mounted) {
-    return (
-      <div className="flex gap-4 relative">
-        <div className="w-24 h-32 bg-gray-200 animate-pulse rounded-lg hidden lg:block"></div>
-        <div className="flex-1 space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white p-4 rounded-lg shadow-sm border">
-              <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex gap-4 relative">
@@ -193,7 +171,7 @@ export default function TimelineReply({ replies }: TimelineReplyProps) {
                   w-10 h-10 rounded-full flex items-center justify-center text-white font-bold
                   ${darkMode ? 'bg-gray-600' : 'bg-gray-400'}
                 `}>
-                  {reply.author.avatar || (reply.author.name ? reply.author.name.charAt(0).toUpperCase() : '؟')}
+                  {reply.author.avatar || (reply.author.name ? reply.author.name.charAt(0).toUpperCase() : reply.author.email ? reply.author.email.charAt(0).toUpperCase() : '؟')}
                 </div>
                 
                 {/* معلومات المؤلف */}

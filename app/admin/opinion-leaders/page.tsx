@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Check, X, Crown, Calendar, Eye, Clock, User, Bookmark, AlertCircle, Search, Filter } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 interface ArticleAuthor {
   id: string;
@@ -29,7 +29,7 @@ interface Article {
 }
 
 export default function OpinionLeadersPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

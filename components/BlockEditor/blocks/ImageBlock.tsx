@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import React, { useState, useRef } from 'react';
 import { Image as ImageIcon, Upload, Link, Loader } from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { getDefaultImageUrl } from '@/lib/cloudinary';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface ImageBlockProps {
   data: { url: string; alt?: string; caption?: string };
@@ -13,7 +13,7 @@ interface ImageBlockProps {
 }
 
 export default function ImageBlock({ data, onChange, readOnly = false }: ImageBlockProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [showUrlInput, setShowUrlInput] = useState(!data.url);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);

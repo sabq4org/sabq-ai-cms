@@ -40,47 +40,21 @@ export default function OptimizedImage({
   // كشف Cloudinary وتحضير تحويلات ذكية إن لزم
   const computedSrc = useMemo(() => {
     try {
-      if (!src) return src;
-      
+      if (!src || !smartCrop) return src;
       const isCloudinary = src.includes('res.cloudinary.com') && src.includes('/upload/');
       if (!isCloudinary) return src;
 
       const parts = src.split('/upload/');
       if (parts.length !== 2) return src;
 
-      // بناء transformations محسنة للأداء
-      const transformations = [];
-      
-      // إضافة أبعاد إذا كانت متوفرة
-      if (width) transformations.push(`w_${width}`);
-      if (height) transformations.push(`h_${height}`);
-      
-      // إضافة smartCrop إذا كان مطلوباً
-      if (smartCrop) {
-        const g = smartCrop === 'face' ? 'g_face' : 
-                  smartCrop === 'subject' ? 'g_auto:subject' : 'g_auto';
-        transformations.push(g);
-      }
-      
-      // إضافة نسبة الأبعاد
-      if (aspectRatio) {
-        const ar = aspectRatio.replace('x', ':');
-        transformations.push(`ar_${ar}`);
-      }
-      
-      // تحسينات الأداء الإلزامية
-      transformations.push('c_fill');
-      transformations.push('f_auto'); // تحويل تلقائي إلى WebP/AVIF
-      transformations.push(`q_${quality || 'auto'}`); // ضغط ذكي
-      transformations.push('fl_progressive'); // تحميل تدريجي
-      transformations.push('dpr_auto'); // كثافة البكسل التلقائية
-      
-      const transformString = transformations.join(',');
-      return `${parts[0]}/upload/${transformString}/${parts[1]}`;
+      const g = smartCrop === 'face' ? 'g_face' : smartCrop === 'subject' ? 'g_auto:subject' : 'g_auto';
+      const ar = aspectRatio ? `,ar_${aspectRatio.replace('x', ':')}` : '';
+      const transform = `c_fill,f_auto,q_auto,${g}${ar}`;
+      return `${parts[0]}/upload/${transform}/${parts[1]}`;
     } catch {
       return src;
     }
-  }, [src, width, height, smartCrop, aspectRatio, quality]);
+  }, [src, smartCrop, aspectRatio]);
 
   const handleError = () => {
     if (process.env.NODE_ENV === 'development') {

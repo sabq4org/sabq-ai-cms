@@ -20,6 +20,7 @@ import { SmartLinksExtension } from './extensions/SmartLinksExtension';
 import SmartLinksPanel from './SmartLinksPanel';
 import EnhancedSmartLinksPanel from './EnhancedSmartLinksPanel';
 import toast from 'react-hot-toast';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface SmartLink {
   entityId: string;
@@ -72,6 +73,7 @@ export default function TiptapEditorWithSmartLinks({
   articleId,
   enhancedMode = true
 }: TiptapEditorWithSmartLinksProps) {
+  const { darkMode } = useDarkModeContext();
   const [savedContent, setSavedContent] = useState<string>('');
   const [charCount, setCharCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);

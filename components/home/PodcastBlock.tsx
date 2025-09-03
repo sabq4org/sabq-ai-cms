@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   Archive,
@@ -15,7 +16,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AudioNewsletter {
   id: string;
@@ -29,7 +29,7 @@ interface AudioNewsletter {
 }
 
 export default function PodcastBlock() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [newsletter, setNewsletter] = useState<AudioNewsletter | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

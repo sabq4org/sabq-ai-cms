@@ -12,10 +12,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 
 import SafeArticleEditor from '@/components/Editor/SafeArticleEditor';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 // Types
 interface ArticleAuthor {
@@ -38,7 +38,7 @@ interface ArticleForm {
 }
 
 const NewArticlePage = () => {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const router = useRouter();
   
   // State

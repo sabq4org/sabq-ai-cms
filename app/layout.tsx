@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import Script from "next/script";
-import { ThemeProvider } from 'next-themes';
-import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
 import { getServerUser } from "@/lib/getServerUser";
@@ -13,14 +10,21 @@ import "./globals.css";
 import "@/styles/unified-font-system.css";
 import "@/styles/force-arabic-font.css";
 import "@/app/old-style-demo/old-style.css";
+import "@/styles/color-softening.css";
+import "@/styles/notification-fixes.css";
+import "@/styles/notification-modern-ui.css";
+import "@/styles/notification-light-header.css";
 import "@/styles/lite-stats-bar-sticky.css";
 import "@/styles/recent-news-badge.css";
+import "@/styles/dark-mode-overlay-fix.css";
+import "@/styles/remove-featured-image-effects.css";
+import "@/styles/soft-read-more-button.css";
 import "@/styles/article-light-theme-fixes.css";
-// تحميل غير حاجب لوضع القراءة (يُحقن عبر preload+onload أدناه)
+import "@/styles/enhanced-reading-mode.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "700"],
+  subsets: ["arabic", "latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
   variable: "--font-ibm-plex-arabic",
   display: "swap",
   preload: true,
@@ -98,71 +102,13 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable} suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* DNS prefetch to speed up first connections */}
-        <meta httpEquiv="x-dns-prefetch-control" content="on" />
-        <link rel="dns-prefetch" href="https://cdn.sabq.org" />
-        <link rel="dns-prefetch" href="https://sabq-prod.imgix.net" />
-        <link rel="dns-prefetch" href="https://sabq-cms-content.s3.amazonaws.com" />
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="dns-prefetch" href="https://ui-avatars.com" />
-        {/* Preconnect to the most common image CDNs for faster LCP */}
-        <link rel="preconnect" href="https://cdn.sabq.org" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://sabq-prod.imgix.net" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://sabq-cms-content.s3.amazonaws.com" crossOrigin="anonymous" />
-        {/* إضافة preconnect لمزوّد صور Cloudinary والمجالات النشطة لتحسين LCP */}
-        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://ui-avatars.com" crossOrigin="anonymous" />
-        {/* ملاحظة: إزالة preload لطلبات API لتفادي تزاحم الشبكة على المحمول وتحسين FCP */}
         {/* إصلاحات إنتاج عامة وCSS */}
-        <Script src="/enhanced-error-handler.js" strategy="beforeInteractive" />
-        <Script src="/css-error-handler.js" strategy="afterInteractive" />
-        <Script src="/production-error-fixes.js" strategy="afterInteractive" />
-        <Script src="/fix-cors-auth.js" strategy="afterInteractive" />
-        {/* Web Vitals RUM - نسخة محلية بالكامل */}
-        <Script src="/web-vitals-local.js" strategy="afterInteractive" />
-        {/* تسجيل Service Worker للصور فقط - لا يؤثر على الواجهة */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').catch(function(){});
-                });
-              }
-            `
-          }}
-        />
-        {/* تأجيل تحميل CSS غير الحرج إلى أوقات الخمول لتحسين FCP/LCP على المحمول */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                var cssList = [
-                  '/styles/enhanced-reading-mode.css',
-                  '/styles/color-softening.css',
-                  '/styles/notification-fixes.css',
-                  '/styles/notification-modern-ui.css',
-                  '/styles/notification-light-header.css',
-                  '/styles/remove-featured-image-effects.css',
-                  '/styles/soft-read-more-button.css'
-                ];
-                function loadCSS(href){
-                  var l = document.createElement('link');
-                  l.rel='stylesheet'; l.href=href; l.media='print';
-                  l.onload=function(){ this.media='all'; };
-                  document.head.appendChild(l);
-                }
-                var schedule = window.requestIdleCallback || function(cb){ return setTimeout(cb, 200); };
-                schedule(function(){ cssList.forEach(loadCSS); });
-              })();
-            `,
-          }}
-        />
+        <script src="/production-error-fixes.js" defer></script>
+        <script src="/fix-cors-auth.js" defer></script>
         {/* تمرير بيانات المستخدم إلى العميل */}
         {initialUser && (
           <script
@@ -173,33 +119,16 @@ export default async function RootLayout({
         )}
       </head>
       <body className={`${ibmPlexArabic.className} font-arabic antialiased`} suppressHydrationWarning>
-        {/* مراقبة المهام الطويلة لتشخيص انفجار الخيط الرئيسي في البيئات غير الإنتاجية */}
-        {process.env.NODE_ENV !== 'production' && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                try{
-                  if ('PerformanceObserver' in window) {
-                    const po = new PerformanceObserver((list) => {
-                      for (const entry of list.getEntries()) {
-                        if (entry.duration > 50) {
-                          console.warn('[LongTask]', Math.round(entry.duration)+'ms', 'start:', Math.round(entry.startTime));
-                        }
-                      }
-                    });
-                    // @ts-ignore
-                    po.observe({entryTypes:['longtask']});
-                  }
-                }catch(e){}
-              `
-            }}
-          />
-        )}
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#f8f8f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="mt-3 text-gray-600">جاري التحميل...</p>
+          </div>
+        </div>}>
           <ConditionalLayout initialUser={initialUser}>
             {children}
           </ConditionalLayout>
-        </ThemeProvider>
+        </Suspense>
         <ToastContainer />
         <SpeedInsights />
       </body>

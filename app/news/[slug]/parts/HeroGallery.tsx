@@ -7,20 +7,6 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Img = { url: string; alt?: string; width?: number | null; height?: number | null };
 
-// تحسين رابط Cloudinary عند توفره لتقليل LCP عبر f_auto,q_auto,w_...
-function transformCloudinary(url: string, width: number): string {
-  try {
-    if (!url || typeof url !== 'string') return url;
-    if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
-    const parts = url.split('/upload/');
-    if (parts.length !== 2) return url;
-    // إذا كانت التحويلات موجودة بالفعل، نعيد الرابط كما هو
-    if (/\/upload\/(c_|w_|f_|q_|g_)/.test(url)) return url;
-    const tx = `f_auto,q_auto,w_${width}`;
-    return `${parts[0]}/upload/${tx}/${parts[1]}`;
-  } catch { return url; }
-}
-
 export default function HeroGallery({ images }: { images: Img[] }) {
   if (!images || images.length === 0) return null;
   if (images.length === 1) return <OneImageHero img={images[0]} />;
@@ -29,32 +15,17 @@ export default function HeroGallery({ images }: { images: Img[] }) {
 }
 
 function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
-  // نحسب نسبة الصورة لتحديد إذا كانت عمودية
-  const isPortrait = img.height && img.width && (img.height / img.width) > 1.2;
-  
   return (
     <div className="relative w-full py-2 px-2 md:px-4">
       <div className="mx-auto max-w-[1200px]">
-        <div className={cn(
-          "relative overflow-hidden rounded-2xl",
-          // للصور العمودية على الموبايل، نستخدم aspect-auto للحفاظ على النسبة الأصلية
-          isPortrait ? "aspect-auto sm:aspect-[4/3] md:aspect-[16/9]" : "aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:h-[520px]",
-          // خلفية رمادية خفيفة للصور العمودية
-          isPortrait && "bg-gray-50 dark:bg-gray-900"
-        )}>
+        <div className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:h-[520px] overflow-hidden rounded-2xl">
           <Image
-            src={transformCloudinary(img.url, 1600)}
+            src={img.url}
             alt={img.alt || "صورة الخبر"}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1200px"
             priority
-            fetchPriority="high"
-            decoding="async"
-            className={cn(
-              // للصور العمودية على الموبايل نستخدم contain، وعلى الشاشات الكبيرة cover
-              isPortrait ? "object-contain sm:object-cover" : "object-cover",
-              "object-center"
-            )}
+            className="object-cover object-center"
           />
           {hasMore && (
             <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 bg-black/50 text-white text-xs md:text-sm px-3 py-1.5 rounded-full">عرض كل الصور</div>
@@ -98,32 +69,27 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
       <div className="mx-auto max-w-[1200px]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-0 rounded-2xl overflow-hidden">
           {/* هيرو - 50% بالضبط */}
-          <div className="relative md:h-full group cursor-zoom-in bg-gray-50 dark:bg-gray-900" onClick={() => openAt(0)}>
+          <div className="relative md:h-full group cursor-zoom-in" onClick={() => openAt(0)}>
             <div className="relative w-full h-full min-h-[300px] md:min-h-[400px] overflow-hidden">
               <Image 
-                src={transformCloudinary(hero?.url || imgs[0].url, 1200)} 
+                src={hero?.url || imgs[0].url} 
                 alt={hero?.alt || imgs[0].alt || "صورة"} 
                 fill 
-                sizes="(max-width: 768px) 100vw, 50vw" 
-                priority 
-                fetchPriority="high"
-                decoding="async"
-                className="object-cover object-center" 
+                sizes="(max-width: 768px) 100vw, 600px" 
+                className="object-cover" 
               />
             </div>
           </div>
           {/* 4 مصغرات - 50% بالضبط */}
           <div className="grid grid-cols-2 grid-rows-2 gap-0 min-h-[300px] md:min-h-[400px]">
             {thumbs.map((t, i) => (
-                <div key={i} className="relative group cursor-zoom-in overflow-hidden bg-gray-50 dark:bg-gray-900" onClick={() => openAt(i + 1)}>
+                <div key={i} className="relative group cursor-zoom-in overflow-hidden" onClick={() => openAt(i + 1)}>
                   <Image 
-                    src={transformCloudinary(t.url, 600)} 
+                    src={t.url} 
                     alt={t.alt || "صورة"} 
                     fill 
                     sizes="(max-width: 768px) 50vw, 300px" 
-                    loading="lazy"
-                    decoding="async"
-                    className="object-cover object-center"
+                    className="object-cover"
                   />
                   {showMore && i === 3 && (
                     <div 

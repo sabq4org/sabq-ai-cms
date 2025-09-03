@@ -1,6 +1,7 @@
 "use client";
 
 import OptimizedImage from "@/components/ui/OptimizedImage";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import { getImageUrl } from "@/lib/image-utils";
 import {
@@ -19,7 +20,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface FeaturedArticle {
   id: string;
@@ -57,6 +57,7 @@ interface FeaturedNewsBlockProps {
 }
 
 const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
+  const { darkMode } = useDarkModeContext();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -65,7 +66,6 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const updateIsDesktop = () => {
-  const { darkMode } = useDarkMode();
         setIsDesktop(window.innerWidth >= 1024);
       };
       

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface LoyaltyInfo {
   points: number;
@@ -26,10 +26,10 @@ interface UserDropdownProps {
 }
 
 export default function UserDropdown({ user, onLogout, anchorElement, open = false, onClose }: UserDropdownProps) {
-  const { darkMode } = useDarkMode();
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [isVisible, setIsVisible] = useState<boolean>(!!open);
   const [loyaltyInfo, setLoyaltyInfo] = useState<LoyaltyInfo | null>(null);
+  const { darkMode } = useDarkModeContext();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 

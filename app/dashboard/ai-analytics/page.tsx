@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import {
   Activity,
   AlertCircle,
@@ -29,7 +30,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AIMetric {
   id: string;
@@ -83,7 +83,7 @@ interface PerformanceData {
 }
 
 export default function AIAnalyticsPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [timeRange, setTimeRange] = useState("7d");

@@ -4,11 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectOption } from "@/components/ui/select";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 import {
   DropdownMenu,
@@ -67,21 +67,10 @@ import {
   Trash2,
   TrendingUp,
 } from "lucide-react";
-
+// import { useDarkMode } from '@/hooks/useDarkMode';
 export default function DeepAnalysisPage() {
   const router = useRouter();
-  
-  // نظام الثيم مع حماية من SSR
-  const { darkMode } = useDarkMode();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // استخدام localStorage لتحديد الثيم
-    const theme = localStorage.getItem('sabq-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
-  }, []);
+  const { darkMode } = useDarkModeContext();
   const [analyses, setAnalyses] = useState<DeepAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -363,34 +352,6 @@ export default function DeepAnalysisPage() {
       bgColor: "bg-red-100",
     };
   };
-
-  // حماية من العرض قبل التهيئة
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse space-y-6 max-w-4xl mx-auto p-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow">
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-              </div>
-            ))}
-          </div>
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow">
-                <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       <link rel="stylesheet" href="/manus-ui.css" />

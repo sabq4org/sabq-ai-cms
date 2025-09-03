@@ -17,7 +17,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 interface Article {
   id: string;
   title: string;
@@ -40,7 +39,6 @@ interface Article {
   is_personalized?: boolean;
 }
 export default function ForYouPage() {
-  const { darkMode } = useDarkMode();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<any[]>([]);
@@ -49,7 +47,8 @@ export default function ForYouPage() {
     "relevant"
   );
   const [showFilter, setShowFilter] = useState(false);
-const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [interestCategoryIds, setInterestCategoryIds] = useState<Set<string>>(new Set());
   useEffect(() => {

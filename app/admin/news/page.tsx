@@ -1155,52 +1155,32 @@ function AdminNewsPageContent() {
                   />
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                {/* زر إنشاء خبر جديد - الأولوية الأولى */}
+              <div className="flex gap-3">
+                <Link href="/admin/news/smart-editor">
+                  <button
+                    className="btn"
+                    style={{
+                      background: 'hsl(var(--bg-card))',
+                      border: '1px solid hsl(var(--line))',
+                      color: 'hsl(var(--fg))'
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4 ml-2" />
+                    المحرر الذكي
+                  </button>
+                </Link>
                 <Link href="/admin/news/unified">
                   <button
                     className="btn btn-primary"
                     style={{
                       background: 'hsl(var(--accent))',
-                      color: 'white',
-                      minWidth: '140px'
+                      color: 'white'
                     }}
                   >
                     <Plus className="w-4 h-4 ml-2" />
-                    إنشاء خبر جديد
+                    خبر جديد
                   </button>
                 </Link>
-                
-                {/* أزرار إضافية */}
-                <div className="flex gap-2">
-                  <Link href="/admin/news/smart-editor">
-                    <button
-                      className="btn"
-                      style={{
-                        background: 'hsl(var(--bg-card))',
-                        border: '1px solid hsl(var(--line))',
-                        color: 'hsl(var(--fg))'
-                      }}
-                    >
-                      <Sparkles className="w-4 h-4 ml-2" />
-                      المحرر الذكي
-                    </button>
-                  </Link>
-                  
-                  <Link href="/admin/news/create">
-                    <button
-                      className="btn"
-                      style={{
-                        background: 'hsl(var(--bg-card))',
-                        border: '1px solid hsl(var(--accent) / 0.3)',
-                        color: 'hsl(var(--accent))'
-                      }}
-                    >
-                      <FileText className="w-4 h-4 ml-2" />
-                      محرر سريع
-                    </button>
-                  </Link>
-                </div>
               </div>
             </div>
           </div>

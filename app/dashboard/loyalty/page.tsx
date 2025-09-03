@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
 import { getMembershipLevel } from '@/lib/loyalty';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { Trophy, Gift, Users, TrendingUp, Crown, Award, Eye, 
          Settings, Target, Share2, Heart, 
          RefreshCw, BookOpen, Bookmark } from 'lucide-react';
@@ -92,7 +91,7 @@ interface LoyaltyStats {
   };
 }
 export default function LoyaltyPage() {
-  const { darkMode } = useDarkMode();
+  const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [loyaltyStats, setLoyaltyStats] = useState<LoyaltyStats | null>(null);
   const [loading, setLoading] = useState(true);

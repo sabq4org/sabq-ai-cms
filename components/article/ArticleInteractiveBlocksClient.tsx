@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import CommentsPanel from '@/components/article/CommentsPanel';
 import ArticleStatsBlock from '@/components/article/ArticleStatsBlock';
 import SmartPersonalizedContent from '@/components/article/SmartPersonalizedContent';
 import AIQuestions from '@/components/article/AIQuestions';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface CategoryLite {
   id?: string | number | null;
@@ -31,7 +31,7 @@ interface ArticleInteractiveProps {
 }
 
 export default function ArticleInteractiveBlocksClient({ article }: ArticleInteractiveProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
 
   const contentHtml = useMemo(() => {
     const raw = article?.content || '';

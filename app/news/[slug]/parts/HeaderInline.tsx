@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useTheme } from "next-themes";
 import { Bookmark, Share2, Moon, Sun, ChevronLeft } from "lucide-react";
 import Container from "./Container";
 
@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function HeaderInline({ article }: Props) {
-  const { darkMode, toggleDarkMode } = useDarkMode();
+  const { theme, setTheme } = useTheme();
 
   return (
     <header>
@@ -38,10 +38,10 @@ export default function HeaderInline({ article }: Props) {
           </button>
           <button
             aria-label="تبديل الوضع الليلي"
-            onClick={toggleDarkMode}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="inline-flex items-center gap-1 rounded-full border border-neutral-200 dark:border-neutral-800 px-3 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900"
           >
-            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             <span className="hidden sm:inline">الوضع</span>
           </button>
         </div>

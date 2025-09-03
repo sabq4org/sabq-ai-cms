@@ -16,7 +16,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
-import { useDarkMode } from "@/hooks/useDarkMode";
 import {
   AlertCircle,
   Calendar,
@@ -45,8 +44,8 @@ interface Category { id: string; name: string; name_ar?: string; slug: string; c
 interface Reporter { id: string; name: string; email?: string; avatar?: string | null; title?: string; slug?: string }
 
 export default function ModernCreateNewsPage() {
-  const { darkMode } = useDarkMode();
   const editorRef = useRef<any>(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

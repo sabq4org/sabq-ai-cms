@@ -41,7 +41,6 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useDarkMode } from "@/hooks/useDarkMode";
 // المكونات الجديدة
 interface UserProfile {
   id: string;
@@ -146,7 +145,6 @@ interface UserInsights {
   }>;
 }
 export default function ProfilePage() {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
   const { user: authUser, loading: authLoading, logout } = useAuth();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -169,7 +167,8 @@ export default function ProfilePage() {
   >("overview");
   const [realStats, setRealStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
-// منع تكرار الطلبات
+  const [darkMode, setDarkMode] = useState(false);
+  // منع تكرار الطلبات
   const fetchDataRef = useRef(false);
   const dataFetchedRef = useRef(false);
   const fetchingInterestsRef = useRef(false);

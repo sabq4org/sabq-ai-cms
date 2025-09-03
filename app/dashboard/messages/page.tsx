@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useDarkMode } from '@/hooks/useDarkMode';
-
 import { 
   Mail,
   Archive,

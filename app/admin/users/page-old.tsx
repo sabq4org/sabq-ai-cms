@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import {
   Users,
   Search,
@@ -75,7 +76,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface User {
   id: string;
@@ -93,7 +93,7 @@ interface User {
 }
 
 export default function AdminUsersPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
