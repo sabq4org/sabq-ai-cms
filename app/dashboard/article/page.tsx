@@ -78,7 +78,7 @@ export default function ArticlesListPage() {
   const fetchArticles = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/articles?limit=50&sort=created_at&order=desc');
+      const response = await fetch('/api/articles?pageSize=50&sort=created_at&order=desc&fields=id,title,excerpt,summary,status,author,category,created_at,published_at,views');
       
       if (response.ok) {
         const data = await response.json();
