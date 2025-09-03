@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Clock, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { getArticleLink } from '@/lib/utils';
 
 interface LightArticle {
   id: string;
@@ -55,62 +56,55 @@ const OptimizedImage = memo(({ src, alt, className }: { src?: string; alt: strin
   );
 });
 
-// مكون البطاقة المبسّط
-const LightNewsCard = memo(({ article, showExcerpt }: { article: LightArticle; showExcerpt: boolean }) => (
-  <Card className="group overflow-hidden border border-gray-100 hover:border-gray-200 transition-colors">
-    <div className="relative h-40 sm:h-44 md:h-48 overflow-hidden">
-      <OptimizedImage 
-        src={article.featured_image} 
-        alt={article.title}
-      />
-      
-      {/* شارة التصنيف على الصورة */}
-      {article.categories && (
-        <div className="absolute top-2 right-2">
-          <Badge 
-            className="text-white text-xs px-2 py-1 font-medium shadow-sm"
-            style={{ backgroundColor: article.categories.color || '#3B82F6' }}
-          >
-            {article.categories.name}
-          </Badge>
-        </div>
-      )}
-    </div>
+// صف مبسّط: صورة يمين، بجانبها ليبل جديد + التاريخ الميلادي، ثم العنوان، ثم المشاهدات ووقت القراءة
+const LightNewsRow = memo(({ article }: { article: LightArticle }) => {
+  const publishedDate = new Date(article.published_at);
+  const isNew = Date.now() - publishedDate.getTime() < 24 * 60 * 60 * 1000;
+  const gregDate = new Intl.DateTimeFormat('en-GB', {
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(publishedDate);
+  const readingTime = Math.max(1, Math.ceil(((article.excerpt?.length || 100) / 200)));
 
-    <CardContent className="p-3 sm:p-4">
-      {/* العنوان */}
-      <Link href={`/news/${article.slug}`} className="block group-hover:text-blue-600 transition-colors">
-        <h3 className="font-semibold text-sm sm:text-base leading-tight mb-2 line-clamp-2">
-          {article.title}
-        </h3>
-      </Link>
-
-      {/* المقتطف - يُخفى على الشاشات الصغيرة إذا لم يكن مطلوباً */}
-      {showExcerpt && article.excerpt && (
-        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-2 hidden sm:block">
-          {article.excerpt}
-        </p>
-      )}
-
-      {/* معلومات التوقيت والمشاهدات */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          <span className="truncate">
-            {formatDistanceToNow(new Date(article.published_at), { 
-              addSuffix: true, 
-              locale: ar 
-            })}
-          </span>
+  return (
+    <Card className="group overflow-hidden border border-gray-100 hover:border-gray-200 transition-colors">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-start gap-3">
+          {/* الصورة يمين */}
+          <div className="relative w-28 h-20 sm:w-32 sm:h-24 shrink-0 overflow-hidden rounded">
+            <OptimizedImage src={article.featured_image} alt={article.title} className="w-full h-full" />
+          </div>
+          {/* المحتوى يسار */}
+          <div className="flex-1 min-w-0 space-y-1">
+            {/* ليبل جديد + التاريخ الميلادي */}
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs text-muted-foreground">
+              {isNew && (
+                <Badge variant="secondary" className="px-2 py-0.5">جديد</Badge>
+              )}
+              <span>{gregDate}</span>
+            </div>
+            {/* العنوان */}
+            <Link href={getArticleLink(article)} className="block group-hover:text-blue-600 transition-colors">
+              <h3 className="font-semibold text-sm sm:text-base leading-tight line-clamp-2">
+                {article.title}
+              </h3>
+            </Link>
+            {/* عدد المشاهدات ووقت القراءة */}
+            <div className="flex items-center gap-3 text-[11px] sm:text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Eye className="h-3 w-3" />
+                {article.views > 1000 ? `${Math.round(article.views/1000)}ك` : article.views}
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {readingTime} دقائق
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-1 text-xs">
-          <Eye className="h-3 w-3" />
-          <span>{article.views > 1000 ? `${Math.round(article.views/1000)}ك` : article.views}</span>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-));
+      </CardContent>
+    </Card>
+  );
+});
 
 const LightRecentNews: React.FC<LightRecentNewsProps> = ({
   limit = 8,
@@ -192,12 +186,18 @@ const LightRecentNews: React.FC<LightRecentNewsProps> = ({
     return (
       <div className="space-y-4">
         <Skeleton className="h-6 w-32" />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="space-y-3">
           {Array.from({ length: skeletonCount }).map((_, i) => (
-            <div key={i} className="space-y-2">
-              <Skeleton className="h-32 sm:h-40 md:h-44 w-full rounded" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-3 w-3/4" />
+            <div key={i} className="flex items-start gap-3">
+              <Skeleton className="w-28 h-20 sm:w-32 sm:h-24 rounded" />
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-10" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
             </div>
           ))}
         </div>
@@ -234,14 +234,10 @@ const LightRecentNews: React.FC<LightRecentNewsProps> = ({
         </div>
       </div>
 
-      {/* شبكة الأخبار المحسّنة للهواتف */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* قائمة أفقية: صورة يمين ومحتوى يسار */}
+      <div className="space-y-3">
         {articles.map((article) => (
-          <LightNewsCard
-            key={article.id}
-            article={article}
-            showExcerpt={showExcerpt && priority !== 'speed'}
-          />
+          <LightNewsRow key={article.id} article={article} />
         ))}
       </div>
 
