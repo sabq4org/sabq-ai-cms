@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from "@/hooks/useAuth";
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useClientTheme } from '@/hooks/useClientTheme';
 import {
   Bell,
   Search,
@@ -29,6 +29,7 @@ import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface UserHeaderProps {
   onMenuClick?: () => void;
@@ -36,13 +37,12 @@ interface UserHeaderProps {
 }
 
 export default function UserHeader({ onMenuClick, showMenuButton = false }: UserHeaderProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode, setDarkMode, mounted } = useClientTheme();
   const { user, logout } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
-  const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
   // Added: track dark mode to avoid ReferenceError and react to changes

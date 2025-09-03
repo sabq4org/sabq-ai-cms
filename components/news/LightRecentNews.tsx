@@ -79,7 +79,7 @@ const LightNewsCard = memo(({ article, showExcerpt }: { article: LightArticle; s
 
     <CardContent className="p-3 sm:p-4">
       {/* العنوان */}
-      <Link href={`/${article.slug}`} className="block group-hover:text-blue-600 transition-colors">
+      <Link href={`/news/${article.slug}`} className="block group-hover:text-blue-600 transition-colors">
         <h3 className="font-semibold text-sm sm:text-base leading-tight mb-2 line-clamp-2">
           {article.title}
         </h3>

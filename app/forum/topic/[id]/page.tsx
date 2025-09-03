@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import TimelineReply from '@/components/forum/TimelineReply';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useClientTheme } from '@/hooks/useClientTheme';
+import LightHeader from '@/components/layout/LightHeader';
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -71,8 +72,8 @@ export default function TopicPage() {
   const router = useRouter();
   const topicId = params?.id as string;
   
-  // استخدام useDarkMode hook
-  const { darkMode, toggleDarkMode } = useDarkMode();
+  // استخدام hook الثيم الموحد
+  const { darkMode, toggleDarkMode, mounted } = useClientTheme();
   
   const [topic, setTopic] = useState<Topic | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -245,6 +246,7 @@ export default function TopicPage() {
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* الهيدر الرسمي للصحيفة */}
+      <LightHeader />
       
       {/* رأس الصفحة */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
