@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { getArticleLink } from '@/lib/utils';
 import Image from 'next/image';
 import { Clock, Eye, TrendingUp, Sparkles } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -241,7 +242,7 @@ const SmartContentBlock: React.FC<SmartContentBlockProps> = ({
 
             <CardContent className="p-4">
               {/* Title */}
-              <Link href={`/${article.slug}`} className="group-hover:text-blue-600 transition-colors">
+              <Link href={getArticleLink(article)} className="group-hover:text-blue-600 transition-colors">
                 <h3 className="font-semibold text-lg leading-tight mb-2 line-clamp-2">
                   {article.title}
                 </h3>
