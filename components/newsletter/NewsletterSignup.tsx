@@ -75,7 +75,7 @@ export default function NewsletterSignup({
   const fetchLatestArticles = async () => {
     try {
       setLoadingArticles(true);
-      const response = await fetch("/api/articles?limit=3&sort=latest");
+      const response = await fetch("/api/articles?pageSize=3&sort=published_at&order=desc&light=1");
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.articles) {

@@ -258,6 +258,7 @@ export default function NewsPage() {
           page: currentPage.toString(),
           sort: sortBy === "views" ? "views" : "published_at",
           order: "desc",
+          noCount: "1",
         });
 
         if (selectedCategory) {

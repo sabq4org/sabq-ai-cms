@@ -171,7 +171,7 @@ export default function PersonalizedContent() {
         }
       } else {
         // للزوار - جلب وتصفية المقالات يدوياً
-        const response = await fetch('/api/articles?status=published&limit=100&article_type=news');
+        const response = await fetch('/api/articles?status=published&pageSize=50&article_type=news&light=1');
         const data = await response.json();
 
         if (data.success && data.articles) {

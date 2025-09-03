@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     const sort = url.searchParams.get('sort') || 'published_at';
     const order = url.searchParams.get('order') === 'asc' ? 'asc' : 'desc';
     const noCount = url.searchParams.get('noCount') === '1';
+    const fieldsParam = url.searchParams.get('fields');
 
     const key = keyFromParams(limit, page, categoryId, `${sort}_${order}`);
 
@@ -61,12 +62,17 @@ export async function GET(request: NextRequest) {
     if (sort === 'views') orderBy.views = order;
     else orderBy.published_at = order;
 
-    const articles = await prisma.articles.findMany({
-      where,
-      take: limit,
-      skip,
-      orderBy,
-      select: {
+    // select ديناميكي لتقليص الحقول
+    let select: any;
+    if (fieldsParam) {
+      const allow = new Set(['id','title','slug','featured_image','published_at','views','reading_time','breaking','featured','category_id']);
+      select = {};
+      for (const f of fieldsParam.split(',').map(s => s.trim())) {
+        if (allow.has(f)) (select as any)[f] = true;
+      }
+      select.id = true; select.title = true; select.slug = true;
+    } else {
+      select = {
         id: true,
         title: true,
         slug: true,
@@ -77,7 +83,15 @@ export async function GET(request: NextRequest) {
         breaking: true,
         featured: true,
         category_id: true,
-      },
+      };
+    }
+
+    const articles = await prisma.articles.findMany({
+      where,
+      take: limit,
+      skip,
+      orderBy,
+      select,
     });
     const total = noCount ? undefined : await prisma.articles.count({ where });
 
