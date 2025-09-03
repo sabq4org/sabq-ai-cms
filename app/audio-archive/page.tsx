@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   Calendar,
@@ -17,7 +18,6 @@ import {
   Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AudioNewsletter {
   id: string;
@@ -33,7 +33,7 @@ interface AudioNewsletter {
 }
 
 export default function AudioArchivePage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [newsletters, setNewsletters] = useState<AudioNewsletter[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

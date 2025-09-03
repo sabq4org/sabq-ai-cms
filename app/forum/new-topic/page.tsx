@@ -10,8 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code, User, Shield } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "@/contexts/ThemeContext";
 import { toast } from "react-hot-toast";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Category {
   id: string;
@@ -30,17 +30,8 @@ interface AuthUser {
 
 export default function NewTopicPage() {
   const router = useRouter();
-  
-  // استخدام useDarkMode hook
-  const { darkMode } = useDarkMode();
-
-  useEffect(() => {
-    setMounted(true);
-    // استخدام localStorage لتحديد الثيم
-    const theme = localStorage.getItem('sabq-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
-  }, []);
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   
   const [formData, setFormData] = useState({
     title: '',
@@ -200,12 +191,12 @@ export default function NewTopicPage() {
   const selectedCategory = categories.find(cat => cat.id === formData.category_id);
 
   // عرض شاشة التحميل أثناء التحقق من المصادقة
-  if (authLoading || !mounted) {
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}>
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحقق من صلاحياتك...</p>
+          <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>جاري التحقق من صلاحياتك...</p>
         </div>
       </div>
     );

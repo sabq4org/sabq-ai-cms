@@ -1,5 +1,6 @@
 "use client";
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
@@ -12,7 +13,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface CleanupStats {
   totalArticles: number;
@@ -22,7 +22,7 @@ interface CleanupStats {
 }
 
 const AdminCleanupPage = () => {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<CleanupStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);

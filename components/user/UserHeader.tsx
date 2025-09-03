@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from "@/hooks/useAuth";
-import { useClientTheme } from '@/hooks/useClientTheme';
 import {
   Bell,
   Search,
@@ -27,9 +26,9 @@ import DarkModeToggle from '@/components/admin/modern-dashboard/DarkModeToggle';
 import Image from 'next/image';
 import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
-
+import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface UserHeaderProps {
   onMenuClick?: () => void;
@@ -37,17 +36,19 @@ interface UserHeaderProps {
 }
 
 export default function UserHeader({ onMenuClick, showMenuButton = false }: UserHeaderProps) {
-  const { darkMode, setDarkMode, mounted } = useClientTheme();
   const { user, logout } = useAuth();
   const { logoUrl, logoDarkUrl } = useSiteSettings();
+  const { darkMode } = useDarkModeContext();
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('blue');
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
-  // Added: track dark mode to avoid ReferenceError and react to changes
-// التحقق من حجم الشاشة ومنع مشاكل Hydration
+  
+  // التحقق من حجم الشاشة ومنع مشاكل Hydration
   React.useEffect(() => {
+    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -218,6 +219,8 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
 
   return (
     <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      
       <header style={{
         position: 'fixed',
         top: 0,
@@ -384,6 +387,7 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
             </div> */}
 
             {/* منتقي الألوان المتوسع */}
+            <CompactThemeSwitcher />
 
             {/* زر الوضع الداكن */}
             <DarkModeToggle />

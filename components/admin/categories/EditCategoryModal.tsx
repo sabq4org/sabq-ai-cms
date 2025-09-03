@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Save, Upload, X, Image as ImageIcon, Palette } from 'lucide-react';
 import toast from 'react-hot-toast';
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface Category {
   id: string;
@@ -43,7 +43,7 @@ export default function EditCategoryModal({
   onClose, 
   onSuccess 
 }: EditCategoryModalProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<Category>>({
     name: '',

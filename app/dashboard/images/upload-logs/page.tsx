@@ -15,9 +15,9 @@ import {
   Filter,
   Calendar
 } from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface UploadLog {
   id: string;
@@ -33,7 +33,7 @@ interface UploadLog {
 }
 
 export default function UploadLogsPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [logs, setLogs] = useState<UploadLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({

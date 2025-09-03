@@ -1,11 +1,12 @@
 "use client";
 
-import { cn, getArticleLink } from "@/lib/utils";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { cn } from "@/lib/utils";
 import { Calendar, Eye, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { linkTo } from "@/lib/url-builder";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Article {
   id: string;
@@ -35,7 +36,7 @@ export default function AuthorLatestArticles({
   currentArticleId,
   limit = 5,
 }: AuthorLatestArticlesProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -149,7 +150,7 @@ export default function AuthorLatestArticles({
           {articles.map((article) => (
             <Link
               key={article.id}
-              href={getArticleLink(article)}
+              href={linkTo({ slug: (article as any).slug || article.id, contentType: 'OPINION' })}
               className={cn(
                 "block p-4 rounded-xl transition-all duration-200 hover:shadow-md",
                 darkMode

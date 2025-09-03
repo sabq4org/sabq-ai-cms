@@ -3,7 +3,6 @@
 import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Users, Award, BookOpen, 
   Eye, Heart, Share2, MessageSquare, 
@@ -50,11 +49,11 @@ interface BehaviorInsights {
   };
 }
 export default function BehaviorInsightsPage() {
-  const { darkMode } = useDarkMode();
   const [insights, setInsights] = useState<BehaviorInsights | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [darkMode, setDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [filterUser, setFilterUser] = useState('');
   const [filterCategory, setFilterCategory] = useState('');

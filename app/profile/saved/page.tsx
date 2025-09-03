@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getArticleLink } from '@/lib/utils';
 import { 
   Bookmark, 
   Calendar, 
@@ -22,7 +21,7 @@ import {
 } from 'lucide-react';
 import { formatRelativeDate, formatFullDate } from '@/lib/date-utils';
 import { getImageUrl } from '@/lib/utils';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface SavedArticle {
   id: string;
@@ -61,8 +60,8 @@ interface ApiResponse {
 }
 
 export default function SavedArticlesPage() {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
+  const { darkMode } = useDarkModeContext();
   const [savedArticles, setSavedArticles] = useState<SavedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
@@ -430,7 +429,7 @@ export default function SavedArticlesPage() {
                   }`}
                 >
                   {/* صورة المقال */}
-                  <Link href={getArticleLink(article)} className="block relative h-48 overflow-hidden">
+                  <Link href={`/news/${article.slug || article.id}`} className="block relative h-48 overflow-hidden">
                     <Image
                       src={getImageUrl(article.featured_image)}
                       alt={article.title}
@@ -462,7 +461,7 @@ export default function SavedArticlesPage() {
 
                   {/* محتوى المقال */}
                   <div className="p-4">
-                    <Link href={getArticleLink(article)}>
+                    <Link href={`/news/${article.slug || article.id}`}>
                       <h3 className={`font-bold text-lg mb-2 line-clamp-2 hover:text-blue-500 transition-colors ${
                         darkMode ? 'text-white' : 'text-gray-900'
                       }`}>

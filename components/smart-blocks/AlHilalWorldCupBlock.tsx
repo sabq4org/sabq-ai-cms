@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link';
 import Image from 'next/image';
 import { Trophy, Clock, Eye, ChevronLeft, Sparkles } from 'lucide-react';
-import { getArticleLink } from '@/lib/utils';
 
 interface AlHilalArticle {
   id: string;
@@ -167,7 +166,7 @@ export function AlHilalWorldCupBlock({
         {displayArticles.map((article, index) => (
           <Link
             key={article.id}
-            href={getArticleLink(article)}
+            href={`/news/${article.id}`}
             className="block"
           >
             <div 

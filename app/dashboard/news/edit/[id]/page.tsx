@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { ArticleWizard } from '@/components/article/ArticleWizard';
 import { 
   FileText, Image as ImageIcon, Settings, Search, Sparkles, CheckCircle,
@@ -69,7 +70,6 @@ import { MediaStep } from '@/components/article/steps/MediaStep';
 import { PublishStep } from '@/components/article/steps/PublishStep';
 import { SEOStep } from '@/components/article/steps/SEOStep';
 import { ReviewStep } from '@/components/article/steps/ReviewStep';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Category {
   id: string;
@@ -90,9 +90,9 @@ interface UploadedImage {
 }
 
 export default function EditArticlePage() {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
   const params = useParams();
+  const { darkMode } = useDarkModeContext();
   const articleId = params?.id as string;
   
   // تحميل البيانات الأساسية

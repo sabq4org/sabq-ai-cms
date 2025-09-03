@@ -1,5 +1,6 @@
 'use client';
 
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { generatePlaceholderImage, getValidImageUrl } from '@/lib/cloudinary';
 import { getSmartArticleLink } from '@/lib/utils';
 import Image from 'next/image';
@@ -21,7 +22,6 @@ import {
     Zap
 } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 
 
@@ -65,7 +65,7 @@ interface UserPreference {
 }
 
 export default function PersonalizedContent() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [articles, setArticles] = useState<Article[]>([]);
   const [stats, setStats] = useState<PersonalizationStats | null>(null);
   const [loading, setLoading] = useState(true);

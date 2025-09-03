@@ -2,55 +2,30 @@
 
 import { useState, useEffect } from 'react';
 
-export function useDarkMode() {
-  const [darkMode, setDarkModeState] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // تحقق من الإعداد المحفوظ
-    const saved = localStorage.getItem('darkMode');
-    if (saved !== null) {
-      const isDark = JSON.parse(saved);
-      setDarkModeState(isDark);
-      document.documentElement.classList.toggle('dark', isDark);
-    } else {
-      // تحقق من تفضيل النظام
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const isDark = mediaQuery.matches;
-      setDarkModeState(isDark);
-      document.documentElement.classList.toggle('dark', isDark);
-    }
-  }, []);
-
-  // تجنب hydration mismatch
-  if (!mounted) {
-    return {
-      darkMode: false,
-      toggleDarkMode: () => {},
-      setDarkMode: () => {}
-    };
-  }
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkModeState(newDarkMode);
-    localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
-    document.documentElement.classList.toggle('dark', newDarkMode);
-  };
-
-  const setDarkMode = (isDark: boolean) => {
-    setDarkModeState(isDark);
-    localStorage.setItem('darkMode', JSON.stringify(isDark));
-    document.documentElement.classList.toggle('dark', isDark);
-  };
-
-  return {
-    darkMode,
-    toggleDarkMode,
-    setDarkMode
-  };
+interface UseDarkModeHook {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
-// للتوافق مع الكود القديم
-export default useDarkMode;
+// ملاحظة: هذا localStorage ضروري للـ theme/UI فقط
+// لا يحتوي على بيانات حساسة أو بيانات تطبيق
+export function useDarkMode(): UseDarkModeHook {
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+
+  // قراءة التفضيل من localStorage في الجانب العميل فقط
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('dark_mode');
+    if (stored) setDarkMode(stored === 'true');
+  }, []);
+
+  const toggleDarkMode = () => {
+    if (typeof window === 'undefined') return;
+    const next = !darkMode;
+    setDarkMode(next);
+    localStorage.setItem('dark_mode', String(next));
+    document.documentElement.classList.toggle('dark', next);
+  };
+
+  return { darkMode, toggleDarkMode };
+} 

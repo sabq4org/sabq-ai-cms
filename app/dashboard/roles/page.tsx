@@ -4,11 +4,10 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Shield, Plus, Users, Lock, X, Save, Trash2, Edit3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Role, SYSTEM_PERMISSIONS, PERMISSION_CATEGORIES } from '@/types/roles';
-import { useDarkMode } from "@/hooks/useDarkMode";
 export default function RolesPage() {
-  const { darkMode } = useDarkMode();
   console.log('RolesPage component loaded');
-const [roles, setRoles] = useState<Role[]>([]);
+  const [darkMode, setDarkMode] = useState(false);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);

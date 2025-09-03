@@ -1,10 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import React, {useState, useEffect} from 'react';
-import {useRouter} from 'next/navigation';
-import {useDarkMode} from '@/hooks/useDarkMode';
-import {Users, Eye, FileText, Heart, MessageSquare,
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import { Users, Eye, FileText, Heart, MessageSquare,
   Share2, Clock, Activity,
   ArrowUp, ArrowDown, Minus, BarChart3, PieChart,
   LineChart, Trophy
@@ -20,6 +20,7 @@ interface QuickStat {
 
 export default function InsightsPage() {
   const router = useRouter();
+  const { darkMode } = useDarkMode();
   const [timeRange, setTimeRange] = useState('week');
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -33,24 +34,24 @@ export default function InsightsPage() {
       const isSmallScreen = window.innerWidth <= 768;
       
       setIsMobile(isMobileUserAgent || isSmallScreen);
-   };
+    };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
- }, []);
+  }, []);
 
   // توجيه للموبايل
   useEffect(() => {
     if (isMobile) {
       router.replace('/dashboard/insights/mobile');
       return;
-   }
- }, [isMobile, router]);
+    }
+  }, [isMobile, router]);
   useEffect(() => {
     // محاكاة تحميل البيانات
     setTimeout(() => setLoading(false), 1000);
- }, [timeRange]);
+  }, [timeRange]);
   const quickStats: QuickStat[] = [
     {
       title: 'إجمالي المقالات',
@@ -58,48 +59,48 @@ export default function InsightsPage() {
       change: 12.5,
       icon: FileText,
       color: 'blue'
-   },
+    },
     {
       title: 'المستخدمون النشطون',
       value: '2,890',
       change: 8.3,
       icon: Users,
       color: 'green'
-   },
+    },
     {
       title: 'إجمالي المشاهدات',
       value: '125.6K',
       change: 15.2,
       icon: Eye,
       color: 'purple'
-   },
+    },
     {
       title: 'معدل التفاعل',
       value: '9.2%',
       change: 3.8,
       icon: Heart,
       color: 'pink'
-   }
+    }
   ];
   const engagementStats = [
-    {label: 'الإعجابات', value: '8,900', icon: Heart, color: 'red'},
-    {label: 'التعليقات', value: '2,340', icon: MessageSquare, color: 'blue'},
-    {label: 'المشاركات', value: '4,560', icon: Share2, color: 'green'},
-    {label: 'متوسط القراءة', value: '4.5 د', icon: Clock, color: 'purple'}
+    { label: 'الإعجابات', value: '8,900', icon: Heart, color: 'red' },
+    { label: 'التعليقات', value: '2,340', icon: MessageSquare, color: 'blue' },
+    { label: 'المشاركات', value: '4,560', icon: Share2, color: 'green' },
+    { label: 'متوسط القراءة', value: '4.5 د', icon: Clock, color: 'purple' }
   ];
   const topArticles = [
-    {title: 'تطورات مهمة في قطاع التقنية', views: '15.6K', engagement: 92},
-    {title: 'الاقتصاد السعودي ينمو بنسبة قياسية', views: '12.3K', engagement: 88},
-    {title: 'إنجازات رياضية جديدة للمنتخب', views: '10.8K', engagement: 85},
-    {title: 'معرض الكتاب يحقق أرقاماً قياسية', views: '9.2K', engagement: 82},
-    {title: 'ابتكارات صحية تغير المستقبل', views: '8.5K', engagement: 79}
+    { title: 'تطورات مهمة في قطاع التقنية', views: '15.6K', engagement: 92 },
+    { title: 'الاقتصاد السعودي ينمو بنسبة قياسية', views: '12.3K', engagement: 88 },
+    { title: 'إنجازات رياضية جديدة للمنتخب', views: '10.8K', engagement: 85 },
+    { title: 'معرض الكتاب يحقق أرقاماً قياسية', views: '9.2K', engagement: 82 },
+    { title: 'ابتكارات صحية تغير المستقبل', views: '8.5K', engagement: 79 }
   ];
   const topCategories = [
-    {name: 'تقنية', articles: 45, views: '38.9K', percentage: 31},
-    {name: 'اقتصاد', articles: 38, views: '32.1K', percentage: 25},
-    {name: 'رياضة', articles: 32, views: '28.7K', percentage: 23},
-    {name: 'ثقافة', articles: 28, views: '21.3K', percentage: 17},
-    {name: 'صحة', articles: 13, views: '4.6K', percentage: 4}
+    { name: 'تقنية', articles: 45, views: '38.9K', percentage: 31 },
+    { name: 'اقتصاد', articles: 38, views: '32.1K', percentage: 25 },
+    { name: 'رياضة', articles: 32, views: '28.7K', percentage: 23 },
+    { name: 'ثقافة', articles: 28, views: '21.3K', percentage: 17 },
+    { name: 'صحة', articles: 13, views: '4.6K', percentage: 4 }
   ];
   const getColorClasses = (color: string, type: 'bg' | 'text' | 'border' = 'bg') => {
     const colors = {
@@ -107,30 +108,30 @@ export default function InsightsPage() {
         bg: 'bg-blue-100 dark:bg-blue-900/30',
         text: 'text-blue-600 dark:text-blue-400',
         border: 'border-blue-500'
-     },
+      },
       green: {
         bg: 'bg-green-100 dark:bg-green-900/30',
         text: 'text-green-600 dark:text-green-400',
         border: 'border-green-500'
-     },
+      },
       purple: {
         bg: 'bg-purple-100 dark:bg-purple-900/30',
         text: 'text-purple-600 dark:text-purple-400',
         border: 'border-purple-500'
-     },
+      },
       pink: {
         bg: 'bg-pink-100 dark:bg-pink-900/30',
         text: 'text-pink-600 dark:text-pink-400',
         border: 'border-pink-500'
-     },
+      },
       red: {
         bg: 'bg-red-100 dark:bg-red-900/30',
         text: 'text-red-600 dark:text-red-400',
         border: 'border-red-500'
-     }
-   };
+      }
+    };
     return colors[color as keyof typeof colors]?.[type] || '';
- };
+  };
   if (loading) {
     return (
   <div className="flex items-center justify-center min-h-screen">
@@ -140,20 +141,20 @@ export default function InsightsPage() {
         </div>
       </div>
     );
- }
+  }
   return (
-  <div className={`p-8 transition-colors duration-300 ${''}`}>
+  <div className={`p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : ''}`}>
       {/* الهيدر */}
       <div className="mb-8">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className={`text-3xl font-bold mb-2 flex items-center gap-3 ${
-              'text-gray-800'
-           }`}>
+              darkMode ? 'text-white' : 'text-gray-800'
+            }`}>
               <BarChart3 className="w-8 h-8" />
               لوحة الإحصائيات الشاملة
             </h1>
-            <p className={'text-gray-600'}>
+            <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
               تحليل شامل لأداء المنصة والمحتوى
             </p>
           </div>
@@ -176,7 +177,7 @@ export default function InsightsPage() {
                 darkMode 
                   ? 'bg-gray-800 border-gray-700 text-white' 
                   : 'bg-white border-gray-300 text-gray-900'
-             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
             >
               <option value="today">اليوم</option>
               <option value="week">هذا الأسبوع</option>
@@ -194,26 +195,26 @@ export default function InsightsPage() {
   <div
               key={index}
               className={`p-6 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-lg ${
-                'bg-white'
-             }`}
+                darkMode ? 'bg-gray-800' : 'bg-white'
+              }`}
             >
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm font-medium ${
                     darkMode ? 'text-gray-400' : 'text-gray-600'
-                 }`}>
+                  }`}>
                     {stat.title}
                   </p>
                   <h3 className={`text-2xl font-bold mt-2 ${
                     darkMode ? 'text-white' : 'text-gray-900'
-                 }`}>
+                  }`}>
                     {typeof stat.value === 'number' ? stat.value.toLocaleString('ar-SA') : stat.value}
                   </h3>
                   {stat.change !== undefined && (
                     <div className={`flex items-center gap-1 mt-2 text-sm ${
                       stat.change > 0 ? 'text-green-500' : 
                       stat.change < 0 ? 'text-red-500' : 'text-gray-500'
-                   }`}>
+                    }`}>
                       {stat.change > 0 ? <ArrowUp className="w-4 h-4" /> : 
                        stat.change < 0 ? <ArrowDown className="w-4 h-4" /> : 
                        <Minus className="w-4 h-4" />}
@@ -227,15 +228,15 @@ export default function InsightsPage() {
               </div>
             </div>
           );
-       })}
+        })}
       </div>
       {/* الرسم البياني المبسط للأداء */}
       <div className={`p-6 rounded-2xl shadow-sm mb-8 ${
-        'bg-white'
-     }`}>
+        darkMode ? 'bg-gray-800' : 'bg-white'
+      }`}>
         <h3 className={`text-lg font-bold mb-6 flex items-center gap-2 ${
           darkMode ? 'text-white' : 'text-gray-900'
-       }`}>
+        }`}>
           <LineChart className="w-5 h-5" />
           أداء الأسبوع
         </h3>
@@ -249,25 +250,25 @@ export default function InsightsPage() {
                   <div className="relative h-32 flex items-end justify-center mb-2">
                     <div
                       className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-500"
-                      style={{height: `${height}%`}}
+                      style={{ height: `${height}%` }}
                     ></div>
                   </div>
-                  <p className={`text-xs}`}>
+                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {day}
                   </p>
                 </div>
               );
-           })}
+            })}
           </div>
         </div>
       </div>
       {/* إحصائيات التفاعل */}
       <div className={`p-6 rounded-2xl shadow-sm mb-8 ${
-        'bg-white'
-     }`}>
+        darkMode ? 'bg-gray-800' : 'bg-white'
+      }`}>
         <h3 className={`text-lg font-bold mb-6 flex items-center gap-2 ${
           darkMode ? 'text-white' : 'text-gray-900'
-       }`}>
+        }`}>
           <Activity className="w-5 h-5" />
           إحصائيات التفاعل
         </h3>
@@ -281,24 +282,24 @@ export default function InsightsPage() {
                     <Icon className={`w-6 h-6 ${getColorClasses(stat.color, 'text')}`} />
                   </div>
                 </div>
-                <p className={`text-2xl font-bold}`}>
+                <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   {stat.value}
                 </p>
-                <p className={`text-sm}`}>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   {stat.label}
                 </p>
               </div>
             );
-         })}
+          })}
         </div>
       </div>
       {/* شبكة من البطاقات */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* أفضل المقالات */}
-        <div className={`p-6 rounded-2xl shadow-sm ${'bg-white'}`}>
+        <div className={`p-6 rounded-2xl shadow-sm ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <h3 className={`text-lg font-bold mb-6 flex items-center gap-2 ${
             darkMode ? 'text-white' : 'text-gray-900'
-         }`}>
+          }`}>
             <Trophy className="w-5 h-5 text-yellow-500" />
             أفضل المقالات أداءً
           </h3>
@@ -311,16 +312,16 @@ export default function InsightsPage() {
                     index === 1 ? 'bg-gray-100 text-gray-700' :
                     index === 2 ? 'bg-orange-100 text-orange-700' :
                     'bg-gray-50 text-gray-600'
-                 }`}>
+                  }`}>
                     {index + 1}
                   </div>
                   <div className="flex-1">
                     <h4 className={`font-medium line-clamp-1 ${
                       darkMode ? 'text-white' : 'text-gray-900'
-                   }`}>
+                    }`}>
                       {article.title}
                     </h4>
-                    <p className={`text-sm}`}>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {article.views} مشاهدة
                     </p>
                   </div>
@@ -329,7 +330,7 @@ export default function InsightsPage() {
                   article.engagement > 90 ? 'bg-green-100 text-green-700' :
                   article.engagement > 80 ? 'bg-blue-100 text-blue-700' :
                   'bg-gray-100 text-gray-700'
-               }`}>
+                }`}>
                   {article.engagement}%
                 </div>
               </div>
@@ -337,10 +338,10 @@ export default function InsightsPage() {
           </div>
         </div>
         {/* أفضل التصنيفات */}
-        <div className={`p-6 rounded-2xl shadow-sm ${'bg-white'}`}>
+        <div className={`p-6 rounded-2xl shadow-sm ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <h3 className={`text-lg font-bold mb-6 flex items-center gap-2 ${
             darkMode ? 'text-white' : 'text-gray-900'
-         }`}>
+          }`}>
             <PieChart className="w-5 h-5 text-purple-500" />
             التصنيفات الأكثر نشاطاً
           </h3>
@@ -349,21 +350,21 @@ export default function InsightsPage() {
               <div key={index}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className={`font-medium}`}>
+                    <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {category.name}
                     </span>
-                    <span className={`text-sm}`}>
+                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       ({category.articles} مقال)
                     </span>
                   </div>
-                  <span className={`text-sm font-medium}`}>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     {category.views}
                   </span>
                 </div>
                 <div className="relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="absolute top-0 right-0 h-full bg-gradient-to-l from-purple-500 to-purple-400 rounded-full transition-all duration-500"
-                    style={{width: `${category.percentage}%`}}
+                    style={{ width: `${category.percentage}%` }}
                   ></div>
                 </div>
               </div>

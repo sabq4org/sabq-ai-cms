@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   TrendingUp, 
   Users, 
@@ -59,8 +58,8 @@ interface KPIData {
 }
 
 export default function NewsInsightsPage() {
-  const { darkMode } = useDarkMode();
-const [loading, setLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [articles, setArticles] = useState<Article[]>([]);
   const [kpiData, setKpiData] = useState<KPIData>({
     publishedThisWeek: 0,
@@ -74,7 +73,14 @@ const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('week');
 
   // استرجاع حالة الوضع الليلي
-// تحميل البيانات الحقيقية
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
+  }, []);
+
+  // تحميل البيانات الحقيقية
   useEffect(() => {
     const fetchData = async () => {
       try {

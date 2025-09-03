@@ -1,6 +1,7 @@
 "use client";
 
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { ArticleData } from "@/lib/article-api";
 import { formatFullDate } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface EnhancedOpinionLayoutProps {
   article: ArticleData;
@@ -29,7 +29,7 @@ interface EnhancedOpinionLayoutProps {
 export default function EnhancedOpinionLayout({
   article,
 }: EnhancedOpinionLayoutProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isFloatingVisible, setIsFloatingVisible] = useState(false);
 

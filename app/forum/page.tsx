@@ -10,10 +10,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, MessageSquare, ThumbsUp, Eye, Search, Plus, TrendingUp, MessageCircle, Users, Award, HelpCircle, Lightbulb, Hash, Clock, Pin, Bug, Megaphone } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useTheme } from "@/contexts/ThemeContext";
 import "./forum.css";
-
-// تم استبدال useTheme المحلي بـ useDarkMode hook
 
 // مكون إحصائيات المنتدى
 function ForumStats({ darkMode }: { darkMode: boolean }) {
@@ -213,12 +211,8 @@ export default function SabqForum() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [categories, setCategories] = useState([
-    { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' }
-  ]);
-  
-  const { darkMode } = useDarkMode();
-  
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   // جلب المواضيع من API
   useEffect(() => {
     const fetchTopics = async () => {
@@ -245,6 +239,9 @@ export default function SabqForum() {
     };
     fetchTopics();
   }, [selectedCategory]);
+  const [categories, setCategories] = useState([
+    { id: 'all', name: 'جميع المواضيع', icon: Hash, color: 'bg-gray-500' }
+  ]);
   
   // جلب الفئات من API
   useEffect(() => {
@@ -280,8 +277,6 @@ export default function SabqForum() {
     };
     fetchCategories();
   }, []);
-  
-  // تم إزالة فحص mounted لأنه لم يعد مطلوباً مع useDarkMode
   return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`} dir="rtl">
       {/* الهيدر الرسمي للصحيفة */}

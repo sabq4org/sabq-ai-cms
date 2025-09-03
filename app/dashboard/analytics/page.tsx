@@ -3,10 +3,9 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Database, Brain, TrendingUp, Target, Clock, Cpu } from 'lucide-react';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function AnalyticsPage() {
-  const { darkMode } = useDarkMode();
+  const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     dataPoints: 0,

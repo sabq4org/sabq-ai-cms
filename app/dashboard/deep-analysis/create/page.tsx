@@ -41,11 +41,10 @@ import {
   WifiOff
 } from 'lucide-react';
 import { useOpenAISettings } from '@/hooks/useOpenAISettings';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 const CreateDeepAnalysisPage = () => {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
+  const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [articles, setArticles] = useState<any[]>([]);

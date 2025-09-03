@@ -10,11 +10,11 @@ import {
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
 // تم إزالة DashboardLayout لأن الصفحة تستخدم layout.tsx في /admin
 import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 import AdvancedEditor from '@/components/ui/AdvancedEditor';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 // Types
 interface ArticleAuthor {
@@ -38,7 +38,7 @@ interface ArticleForm {
 }
 
 const EditArticlePage = () => {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const router = useRouter();
   const params = useParams();
   const articleId = params?.id as string;

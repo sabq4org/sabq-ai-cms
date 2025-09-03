@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import React, { useState } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { AIAction } from './types';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 import {
   GripVertical, ArrowUp, ArrowDown, Trash2, Plus,
@@ -37,9 +37,9 @@ export default function BlockToolbar({
   isDragging,
   dragHandleProps
 }: BlockToolbarProps) {
-  const { darkMode } = useDarkMode();
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const { darkMode } = useDarkModeContext();
 
   const aiActions = [
     { type: 'generate' as const, label: 'توليد محتوى', icon: Wand2 },

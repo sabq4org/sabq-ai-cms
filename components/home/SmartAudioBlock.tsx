@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import {
   Brain,
@@ -17,7 +18,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface AudioNewsletter {
   id: string;
@@ -35,6 +35,7 @@ function CompactPodcastSection({
 }: {
   layout?: "compact" | "sidebar";
 }) {
+  const { darkMode } = useDarkModeContext();
   const [newsletter, setNewsletter] = useState<AudioNewsletter | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -413,6 +414,7 @@ function CompactPodcastSection({
 
 // مكون الوحدة الذكية - محسن بناءً على ملاحظات المستخدم
 function SmartModule() {
+  const { darkMode } = useDarkModeContext();
   const [activeModule, setActiveModule] = useState<"sentiment" | "fact">(
     "sentiment"
   );
@@ -665,7 +667,7 @@ export default function SmartAudioBlock({
   variant = "default",
   className,
 }: SmartAudioBlockProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
 
   return (
     <div

@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { Clock3, Brain, Share2, Eye, TrendingUp, Award, BookOpen, ChevronLeft, Heart, BookmarkPlus, ExternalLink, User, ChevronRight, Plus, Bot, UserCheck, Users } from "lucide-react";
 import toast from 'react-hot-toast';
 import AnalysisTypeIcon from './deep-analysis/AnalysisTypeIcon';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useDarkMode } from '@/hooks/useDarkMode';
 import MobileDeepAnalysisCard from './mobile/MobileDeepAnalysisCard';
 
 interface DeepInsight {
@@ -59,7 +59,8 @@ interface DeepAnalysisWidgetProps {
 
 export default function DeepAnalysisWidget({ insights }: DeepAnalysisWidgetProps) {
   const [readItems, setReadItems] = useState<string[]>([]);
-  const { darkMode } = useDarkMode();
+  const { resolvedTheme, mounted } = useTheme();
+  const darkMode = resolvedTheme === 'dark';
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAllTags, setShowAllTags] = useState<{ [key: string]: boolean }>({});

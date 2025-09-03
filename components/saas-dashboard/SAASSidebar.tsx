@@ -1,5 +1,6 @@
 "use client";
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import {
   BarChart3,
   Bell,
@@ -16,7 +17,6 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SidebarItem {
   id: string;
@@ -36,8 +36,8 @@ export default function SAASSidebar({
   isCollapsed = false,
   onToggle,
 }: SAASSidebarProps) {
-  const { darkMode } = useDarkMode();
   const pathname = usePathname();
+  const { darkMode } = useDarkModeContext();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const sidebarItems: SidebarItem[] = [

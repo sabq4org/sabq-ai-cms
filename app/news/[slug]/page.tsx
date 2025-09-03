@@ -1,14 +1,37 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import prisma from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/url-builder";
 import ResponsiveArticle from "./parts/ResponsiveArticle";
-import { getArticleOptimized, type Article } from "./ArticleLoader";
 
-export const revalidate = 3600; // cache لمدة ساعة بدلاً من 5 دقائق
+export const revalidate = 300;
 export const runtime = "nodejs";
-export const fetchCache = 'force-cache';
 
-
+type Article = {
+  id: string;
+  title: string;
+  subtitle?: string | null;
+  summary?: string | null;
+  content: string | null;
+  featured_image: string | null;
+  published_at: Date | null;
+  updated_at?: Date | null;
+  readMinutes?: number | null;
+  views?: number;
+  images?: { url: string; alt?: string | null; width?: number | null; height?: number | null }[];
+  author?: { id: string; name: string | null; email?: string | null; avatar?: string | null; role?: string | null } | null;
+  article_author?: { 
+    id: string; 
+    full_name: string | null; 
+    slug: string | null; 
+    title?: string | null; 
+    avatar_url?: string | null;
+    specializations?: any;
+    bio?: string | null;
+  } | null;
+  categories?: { id: string; name: string; slug: string; color?: string | null; icon?: string | null } | null;
+  tags?: { id: string; name: string; slug: string }[];
+};
 
 type Insights = {
   views: number;
@@ -24,7 +47,114 @@ type Insights = {
   };
 };
 
+async function getArticle(slug: string) {
+  const article = await prisma.articles.findFirst({
+    where: { OR: [{ slug }, { id: slug }], status: "published" },
+    include: {
+      author: { select: { id: true, name: true, email: true, avatar: true, role: true } },
+      article_author: { 
+        select: { 
+          id: true, 
+          full_name: true, 
+          slug: true, 
+          title: true, 
+          avatar_url: true,
+          specializations: true,
+          bio: true
+        } 
+      },
+      categories: { select: { id: true, name: true, slug: true, color: true, icon: true } },
+      article_tags: {
+        include: {
+          tags: {
+            select: { id: true, name: true, slug: true }
+          }
+        }
+      },
+    },
+  });
 
+  if (!article) return null;
+
+  // جلب الصور من MediaAssets عبر NewsArticleAssets
+  const articleWithMedia = await prisma.articles.findUnique({
+    where: { id: article.id },
+    include: {
+      NewsArticleAssets: {
+        include: {
+          media_assets: true
+        }
+      }
+    }
+  });
+
+  const images: Article["images"] = [];
+  
+  // إضافة الصورة البارزة أولاً
+  if (article.featured_image) {
+    images.push({ url: article.featured_image, alt: article.title || undefined, width: 1600, height: 900 });
+  }
+  
+  // إضافة باقي الصور من MediaAssets
+  if (articleWithMedia?.NewsArticleAssets) {
+    articleWithMedia.NewsArticleAssets.forEach((relation) => {
+      const asset = relation.media_assets;
+      if (asset.cloudinaryUrl && !images.some(img => img.url === asset.cloudinaryUrl)) {
+        images.push({ 
+          url: asset.cloudinaryUrl, 
+          alt: article.title || undefined,
+          width: asset.width || 1600,
+          height: asset.height || 900
+        });
+      }
+    });
+  }
+
+  // إذا لم نجد صور إضافية، نستخرجها من المحتوى HTML
+  if (images.length <= 1 && article.content) {
+    const extractImageUrls = (html: string): string[] => {
+      try {
+        const matches = [...html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi)];
+        const urls = matches.map((m) => m[1]).filter(Boolean);
+        return Array.from(new Set(urls));
+      } catch {
+        return [];
+      }
+    };
+    
+    const contentImageUrls = extractImageUrls(article.content);
+    contentImageUrls.forEach(url => {
+      if (!images.some(img => img.url === url)) {
+        images.push({ 
+          url, 
+          alt: article.title || undefined,
+          width: 1600,
+          height: 900
+        });
+      }
+    });
+  }
+
+  const mapped: Article = {
+    id: article.id,
+    title: article.title || "",
+    subtitle: (article as any)?.metadata?.subtitle || null,
+    summary: (article as any).summary || (article as any).excerpt || null,
+    content: article.content || null,
+    featured_image: article.featured_image,
+    published_at: article.published_at,
+    updated_at: article.updated_at,
+    readMinutes: (article as any).reading_time || null,
+    views: article.views || 0,
+    images,
+    author: article.author,
+    article_author: (article as any).article_author,
+    categories: article.categories,
+    tags: (article as any).article_tags?.map((at: any) => at.tags) || [],
+  };
+
+  return mapped;
+}
 
 async function getInsights(articleId: string): Promise<Insights> {
   // بيانات افتراضية أولية - يمكن استبدالها لاحقاً بمصدر فعلي
@@ -45,11 +175,11 @@ async function getInsights(articleId: string): Promise<Insights> {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleOptimized(decodeURIComponent(slug));
+  const article = await getArticle(decodeURIComponent(slug));
   const SITE_URL = getSiteUrl();
 
   if (!article) {
-    return { title: "خبر غير موجود" };
+    return { title: "خبر تجريبي غير موجود" };
   }
 
   const image = article.featured_image ? (article.featured_image.startsWith("http") ? article.featured_image : `${SITE_URL}${article.featured_image}`) : `${SITE_URL}/images/sabq-logo-social.svg`;
@@ -65,7 +195,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ExperimentalNewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = await getArticleOptimized(decodeURIComponent(slug));
+  const article = await getArticle(decodeURIComponent(slug));
   if (!article) return notFound();
 
   const insights = await getInsights(article.id);

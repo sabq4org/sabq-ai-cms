@@ -93,12 +93,7 @@ function AdminLiteLayoutClient({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main style={{ 
-          paddingBottom: 72, 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '16px 16px 72px 16px' 
-        }}>{children}</main>
+        <main style={{ paddingBottom: 72 }}>{children}</main>
 
         {/* Bottom navigation */}
         <nav

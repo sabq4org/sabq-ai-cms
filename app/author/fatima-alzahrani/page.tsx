@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   User, Mail, Calendar, MapPin, Briefcase, BookOpen, 
   Eye, Heart, MessageCircle, Clock, Share2, Award,
@@ -11,11 +12,10 @@ import {
   Twitter, Facebook, Instagram, Linkedin, Globe,
   Users, Target, Zap, Activity, BarChart3
 } from 'lucide-react';
-import { cn, getArticleLink } from '@/lib/utils';
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { cn } from '@/lib/utils';
 
 export default function FatimaAlzahraniPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
 
   // بيانات تجريبية للكاتبة فاطمة الزهراني
   const author = {
@@ -417,9 +417,9 @@ export default function FatimaAlzahraniPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {articles.map((article) => (
-              <Link
+              <Link 
                 key={article.id}
-                href={getArticleLink(article)}
+                href={`/news/${article.slug || article.id}`}
                 className={cn(
                   "group block rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300",
                   darkMode ? "bg-gray-700 hover:bg-gray-650" : "bg-gray-50 hover:shadow-xl"

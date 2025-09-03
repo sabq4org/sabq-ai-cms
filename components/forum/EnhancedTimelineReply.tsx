@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { format, isToday, isYesterday, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Calendar, 
   Clock, 
@@ -17,7 +18,6 @@ import {
   Share2,
   MoreVertical
 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
 
 interface Reply {
   id: string;
@@ -68,18 +68,8 @@ export default function EnhancedTimelineReply({
   onReplyAction,
   currentUserId 
 }: EnhancedTimelineReplyProps) {
-  // نظام الثيم مع حماية من SSR
-  const { darkMode } = useDarkMode();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // استخدام localStorage لتحديد الثيم
-    const theme = localStorage.getItem('sabq-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(theme === 'dark' || (theme === null && systemPrefersDark));
-  }, []);
-  
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -211,35 +201,6 @@ export default function EnhancedTimelineReply({
       return newSet;
     });
   };
-
-  // حماية من العرض قبل التهيئة
-  if (!mounted) {
-    return (
-      <div className="flex gap-6 relative">
-        <div className="w-32 h-96 bg-gray-200 animate-pulse rounded-lg hidden lg:block"></div>
-        <div className="flex-1 space-y-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="animate-pulse space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/6"></div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex gap-6 relative">

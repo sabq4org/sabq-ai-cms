@@ -5,6 +5,7 @@
  * يحل مشاكل عدم تطابق حالة تسجيل الدخول
  */
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import {
@@ -33,10 +34,11 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ClientOnly from "../ClientOnly";
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
-
+import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
 
 export default function UnifiedHeader() {
   const router = useRouter();
+  const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
   
   // استخدام نظام المصادقة الموحد

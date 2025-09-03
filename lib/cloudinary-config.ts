@@ -45,15 +45,13 @@ export const getPublicCloudinaryConfig = () => {
   };
 };
 
-// دالة لإنشاء رابط صورة محسن مع تحسينات الأداء
+// دالة لإنشاء رابط صورة محسن
 export const generateImageUrl = (publicId: string, options: {
   width?: number;
   height?: number;
-  quality?: number | 'auto';
+  quality?: number;
   format?: string;
   crop?: string;
-  responsive?: boolean;
-  lazy?: boolean;
 } = {}) => {
   const { cloudName } = getPublicCloudinaryConfig();
   
@@ -64,35 +62,12 @@ export const generateImageUrl = (publicId: string, options: {
   const {
     width = 800,
     height = 600,
-    quality = 'auto',
+    quality = 80,
     format = 'auto',
-    crop = 'fill',
-    responsive = true,
-    lazy = true
+    crop = 'fill'
   } = options;
 
-  // بناء transformations محسنة للأداء
-  const transformations = [
-    `w_${width}`,
-    `h_${height}`,
-    `c_${crop}`,
-    `q_${quality}`, // استخدام q_auto للضغط التلقائي
-    `f_${format}`, // استخدام f_auto لتحويل تلقائي إلى WebP/AVIF
-    'fl_progressive', // تحميل تدريجي
-    'fl_immutable_cache' // تخزين مؤقت ثابت
-  ];
-
-  // إضافة تحسينات responsive
-  if (responsive) {
-    transformations.push('dpr_auto'); // كثافة البكسل التلقائية
-  }
-
-  // إضافة lazy loading للصور الكبيرة
-  if (lazy && (width > 400 || height > 300)) {
-    transformations.push('fl_lazy');
-  }
-
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformations.join(',')}/${publicId}`;
+  return `https://res.cloudinary.com/${cloudName}/image/upload/w_${width},h_${height},c_${crop},q_${quality},f_${format}/${publicId}`;
 };
 
 // دالة للتحقق من وجود الصورة
@@ -105,20 +80,14 @@ export const checkImageExists = async (url: string): Promise<boolean> => {
   }
 };
 
-// إعدادات افتراضية محسنة لرفع الصور
+// إعدادات افتراضية لرفع الصور
 export const getUploadOptions = (type: string = 'general') => {
   const baseOptions = {
     resource_type: 'image' as const,
-    quality: 'auto', // ضغط تلقائي ذكي
-    fetch_format: 'auto', // تحويل تلقائي إلى WebP/AVIF
-    flags: ['progressive', 'immutable_cache'], // تحميل تدريجي وتخزين ثابت
-    tags: ['sabq-cms'],
-    // إضافة responsive breakpoints
-    responsive_breakpoints: [
-      { max_width: 1920, max_images: 5 },
-      { max_width: 1200, max_images: 3 },
-      { max_width: 800, max_images: 2 }
-    ]
+    quality: 'auto',
+    fetch_format: 'auto',
+    flags: 'progressive',
+    tags: ['sabq-cms']
   };
 
   switch (type) {
@@ -127,9 +96,8 @@ export const getUploadOptions = (type: string = 'general') => {
         ...baseOptions,
         folder: 'sabq-cms/featured',
         transformation: [
-          { width: 1200, height: 630, crop: 'fill', quality: 'auto:good' },
-          { if: 'w_gt_1200', width: 1200, crop: 'scale' },
-          { format: 'auto' } // تحويل تلقائي للصيغة الأمثل
+          { width: 1200, height: 630, crop: 'fill', quality: 85 },
+          { if: 'w_gt_1200', width: 1200, crop: 'scale' }
         ]
       };
     
@@ -138,9 +106,8 @@ export const getUploadOptions = (type: string = 'general') => {
         ...baseOptions,
         folder: 'sabq-cms/avatars',
         transformation: [
-          { width: 400, height: 400, crop: 'fill', gravity: 'face', quality: 'auto:best' },
-          { radius: 'max' },
-          { format: 'auto' }
+          { width: 400, height: 400, crop: 'fill', gravity: 'face', quality: 90 },
+          { radius: 'max' }
         ]
       };
     
@@ -149,29 +116,14 @@ export const getUploadOptions = (type: string = 'general') => {
         ...baseOptions,
         folder: 'sabq-cms/gallery',
         transformation: [
-          { width: 1000, quality: 'auto:good', crop: 'scale' },
-          { format: 'auto' }
-        ]
-      };
-    
-    case 'thumbnail':
-      return {
-        ...baseOptions,
-        folder: 'sabq-cms/thumbnails',
-        transformation: [
-          { width: 300, height: 200, crop: 'fill', quality: 'auto:eco' },
-          { format: 'auto' }
+          { width: 1000, quality: 85, crop: 'scale' }
         ]
       };
     
     default:
       return {
         ...baseOptions,
-        folder: 'sabq-cms/general',
-        transformation: [
-          { quality: 'auto' },
-          { format: 'auto' }
-        ]
+        folder: 'sabq-cms/general'
       };
   }
 }; 

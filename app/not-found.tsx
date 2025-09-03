@@ -1,20 +1,15 @@
 "use client";
 
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function NotFoundPage() {
   const [emergencyArticles, setEmergencyArticles] = useState<any[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(true);
   const [dbConnected, setDbConnected] = useState<boolean | null>(null);
-  const { darkMode } = useDarkMode();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     // التحقق من حالة قاعدة البيانات
@@ -64,17 +59,10 @@ export default function NotFoundPage() {
     fetchEmergencyArticles();
   }, []);
 
-  // استخدام darkMode من useDarkMode hook
-
-  if (!isMounted) {
-    // Render a skeleton or null during server-side rendering & initial client-side render
-    return null;
-  }
-
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex flex-col`}>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-grow container mx-auto px-4 py-12">
-        <div className={`max-w-2xl mx-auto ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg rounded-lg overflow-hidden`}>
+        <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
           <div className="p-6 md:p-8 text-center">
             <div className="flex justify-center mb-6">
               <div className="relative w-24 h-24">
@@ -90,13 +78,13 @@ export default function NotFoundPage() {
               </div>
             </div>
 
-            <h1 className={`text-3xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+            <h1 className="text-3xl font-bold mb-4 text-gray-800">
               الصفحة غير موجودة
             </h1>
-            <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-8`}>
+            <p className="text-gray-600 mb-8">
               عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.
               {dbConnected === false && (
-                <span className="block mt-2 text-red-500">
+                <span className="block mt-2 text-red-600">
                   لاحظنا وجود مشكلة في الاتصال بقاعدة البيانات، قد تكون هذه هي
                   المشكلة.
                 </span>
@@ -122,17 +110,17 @@ export default function NotFoundPage() {
 
             {/* عرض المقالات الطارئة في حالة انقطاع الاتصال */}
             {dbConnected === false && emergencyArticles.length > 0 && (
-              <div className={`mb-8 text-right ${darkMode ? 'bg-yellow-900/20' : 'bg-yellow-50'} p-4 rounded-lg`}>
-                <h2 className={`text-lg font-semibold mb-3 ${darkMode ? 'text-yellow-300' : 'text-yellow-800'}`}>
+              <div className="mb-8 text-right bg-yellow-50 p-4 rounded-lg">
+                <h2 className="text-lg font-semibold mb-3 text-yellow-800">
                   المقالات المتاحة في وضع الطوارئ:
                 </h2>
                 <ul className="space-y-2">
                   {emergencyArticles.map((article) => (
                     <li
                       key={article.id}
-                      className={`${darkMode ? 'hover:bg-yellow-800/30' : 'hover:bg-yellow-100'} rounded-lg p-2 transition-colors`}
+                      className="hover:bg-yellow-100 rounded-lg p-2 transition-colors"
                     >
-                      <Link href={`/emergency/${article.id}`} className={`block ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700'}`}>
+                      <Link href={`/emergency/${article.id}`} className="block">
                         {article.title}
                       </Link>
                     </li>
@@ -160,7 +148,7 @@ export default function NotFoundPage() {
 
               <button
                 onClick={() => window.location.reload()}
-                className={`${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'} py-2 px-4 rounded-lg`}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg"
               >
                 تحديث الصفحة
               </button>

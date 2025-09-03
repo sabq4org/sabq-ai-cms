@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
-import { getArticleLink } from '@/lib/utils';
 
 // وظيفة تحديد الخبر الجديد (أقل من 12 ساعة)
 const isNewsRecent = (publishedAt: string | undefined): boolean => {
@@ -127,7 +126,7 @@ export default async function OldStyleNewsServerMarkup({
               </div>
             ))
           : articles.map((article) => {
-              const href = getArticleLink(article);
+              const href = article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
               const isRecent = isNewsRecent(article.published_at || article.created_at);
               
               return (

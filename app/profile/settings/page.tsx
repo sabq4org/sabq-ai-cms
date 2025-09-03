@@ -5,17 +5,16 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   ArrowLeft, Save, User, Mail, Lock, Bell,
   Shield, Globe, Moon, Sun, Check
 } from 'lucide-react';
 export default function ProfileSettingsPage() {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-const [formData, setFormData] = useState({
+  const [darkMode, setDarkMode] = useState(false);
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     currentPassword: '',

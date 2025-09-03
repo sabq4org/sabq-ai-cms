@@ -1,10 +1,6 @@
-// This file is deprecated. All articles now use /news/[slug] routing.
-// This component is kept for backwards compatibility but should be removed in future versions.
-
 "use client";
 
 import dynamic from "next/dynamic";
-import { useDarkMode } from "@/hooks/useDarkMode";
 import EnhancedOpinionLayout from "@/components/article/EnhancedOpinionLayout";
 import SmartReadingTracker from "@/components/article/SmartReadingTracker";
 import { ReadingProgressBar } from "@/components/article/ReadingProgressBar";
@@ -16,6 +12,7 @@ import { useReporterProfile } from "@/lib/hooks/useReporterProfile";
 import { isEmergencyArticleSupported } from "@/app/emergency-articles";
 import ReporterLink from "@/components/ReporterLink";
 import DbConnectionError from "@/components/db-connection-error";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArticleData } from "@/lib/article-api";
 import {
@@ -114,8 +111,8 @@ export default function ArticleClientComponent({
   initialArticle,
   articleId,
 }: ArticleClientComponentProps) {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
+  const { darkMode } = useDarkModeContext();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // معالجة metadata إذا كانت string

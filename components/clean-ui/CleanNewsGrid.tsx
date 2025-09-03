@@ -5,7 +5,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { getArticleLink } from "@/lib/utils";
 
 // بيانات تجريبية
 const sampleNews = [
@@ -63,7 +62,7 @@ export default function CleanNewsGrid() {
   return (
     <div className="clean-news-grid">
       {sampleNews.map((article) => (
-        <Link key={article.id} href={getArticleLink(article)} className="clean-news-card">
+        <Link key={article.id} href={`/news/${article.id}`} className="clean-news-card">
           {/* صورة الخبر */}
           <img
             src={article.image}

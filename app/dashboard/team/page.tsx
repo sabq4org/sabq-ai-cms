@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import { Users, Plus, Search, Download, Bell, Shield, CheckCircle, AlertCircle, UserPlus, Edit3, Trash2, X, Camera, Eye, EyeOff, Upload } from 'lucide-react';
 import { Role } from '@/types/roles';
 import { TeamMember } from '@/types/team';
-import { useDarkMode } from "@/hooks/useDarkMode";
 interface Notification {
   id: number;
   message: string;
@@ -13,10 +12,10 @@ interface Notification {
   timestamp: string;
 }
 export default function TeamPage() {
-  const { darkMode } = useDarkMode();
   // إضافة رسالة تشخيص
   console.log('TeamPage component loaded');
-const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [darkMode, setDarkMode] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);

@@ -203,17 +203,16 @@ export function getArticleLink(article: any): string {
       ? "OPINION"
       : "NEWS");
 
-  // Prioritize slug over ID for better SEO and user-friendly URLs
-  if (article.slug && typeof article.slug === 'string' && article.slug.length > 0) {
+  if (article.slug) {
     return linkTo({ slug: article.slug, contentType });
   }
 
-  // Only fallback to ID if slug is not available or invalid
+  // Fallback for older articles that might not have a slug
   if (article.id) {
     console.warn(
-      `getArticleLink: Using ID as fallback for article "${
+      `getArticleLink: Fallback to ID for article "${
         article.title || article.id
-      }". Consider adding a proper slug for better SEO.`
+      }".`
     );
     // This assumes old articles are news, adjust if necessary
     return linkTo({ slug: article.id, contentType: "NEWS" });
@@ -240,10 +239,8 @@ export function getSmartArticleLink(article: any): string {
     return "/";
   }
 
-  // Prioritize slug for better SEO, fallback to ID for compatibility
-  const identifier = article.slug && typeof article.slug === 'string' && article.slug.length > 0
-    ? article.slug
-    : getArticleIdentifier(article);
+  // استخدام ID فقط - منع مشاكل React #130 من الروابط العربية
+  const identifier = getArticleIdentifier(article);
 
   if (!identifier) {
     console.warn(

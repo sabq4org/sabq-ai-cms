@@ -4,11 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette, Bell } from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdown';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 // نظام الألوان المتغيرة المطور
 const themes = [
@@ -69,20 +69,14 @@ interface LightHeaderProps {
 }
 
 export default function LightHeader({ className = '' }: LightHeaderProps) {
-  const { darkMode, toggleDarkMode } = useDarkMode();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
+  const { darkMode, toggleDarkMode, mounted } = useDarkModeContext();
   const { logoUrl, logoDarkUrl, siteName, loading: settingsLoading } = useSiteSettings();
   const { user, isLoggedIn, logout } = useAuth();
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
-
-  // Handle client-side mounting
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // تحميل اللون المحفوظ عند التحميل
   useEffect(() => {

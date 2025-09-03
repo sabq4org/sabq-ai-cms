@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { Bookmark, Clock, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
-import { getArticleLink } from '@/lib/utils';
 
 interface SavedArticle {
   id: string;
@@ -89,7 +88,7 @@ export default function SavedArticles({ savedArticles, unfinishedArticles }: Pro
                     </div>
                   </div>
                   <Link
-                    href={getArticleLink(article)}
+                    href={`/news/${article.id}`}
                     className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium"
                   >
                     قراءة
@@ -169,7 +168,7 @@ export default function SavedArticles({ savedArticles, unfinishedArticles }: Pro
                     </div>
                   </div>
                   <Link
-                    href={getArticleLink(article)}
+                    href={`/news/${article.id}`}
                     className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 text-sm font-medium"
                   >
                     إكمال

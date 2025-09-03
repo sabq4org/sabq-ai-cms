@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTheme } from '@/contexts/ThemeContext';
 import TimelineReply from '@/components/forum/TimelineReply';
-import { useClientTheme } from '@/hooks/useClientTheme';
-import LightHeader from '@/components/layout/LightHeader';
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -70,10 +69,9 @@ interface Reply {
 export default function TopicPage() {
   const params = useParams();
   const router = useRouter();
+  const { theme } = useTheme();
+  const darkMode = theme === 'dark';
   const topicId = params?.id as string;
-  
-  // استخدام hook الثيم الموحد
-  const { darkMode, toggleDarkMode, mounted } = useClientTheme();
   
   const [topic, setTopic] = useState<Topic | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -222,7 +220,7 @@ export default function TopicPage() {
     }
   };
 
-  if (loading || !mounted) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -246,7 +244,6 @@ export default function TopicPage() {
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* الهيدر الرسمي للصحيفة */}
-      <LightHeader />
       
       {/* رأس الصفحة */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
@@ -327,13 +324,6 @@ export default function TopicPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button 
-                onClick={toggleDarkMode}
-                className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                title="تبديل الثيم"
-              >
-                {darkMode ? '☀️' : '🌙'}
-              </button>
               <button className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
                 <Share2 className="w-5 h-5" />
               </button>

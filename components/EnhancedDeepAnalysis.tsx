@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   Brain, 
   Eye, 
@@ -17,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface DeepAnalysisItem {
   id: string;
@@ -40,7 +40,7 @@ interface EnhancedDeepAnalysisProps {
 }
 
 export default function EnhancedDeepAnalysis({ className = '' }: EnhancedDeepAnalysisProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [analyses, setAnalyses] = useState<DeepAnalysisItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);

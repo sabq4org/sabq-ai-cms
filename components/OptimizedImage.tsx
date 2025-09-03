@@ -10,7 +10,6 @@ interface OptimizedImageProps {
   height?: number;
   className?: string;
   priority?: boolean;
-  fetchPriority?: 'high' | 'low' | 'auto';
   quality?: number;
   sizes?: string;
   fill?: boolean;
@@ -26,7 +25,6 @@ export default function OptimizedImage({
   height,
   className = "",
   priority = false,
-  fetchPriority,
   quality = 85,
   sizes,
   fill = false,
@@ -118,7 +116,6 @@ export default function OptimizedImage({
           isLoading ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}
         priority={priority}
-        fetchPriority={fetchPriority}
         quality={quality}
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

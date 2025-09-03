@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Download, Volume2, Headphones, Clock, Calendar, ChevronRight, Mic } from 'lucide-react';
 import Link from 'next/link';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface Episode {
   id: string;
@@ -30,6 +31,7 @@ export default function AudioProgramsWidget({ position = 'header' }: { position?
   const [playingEpisode, setPlayingEpisode] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const darkMode = useDarkModeContext();
 
   useEffect(() => {
     fetchPrograms();

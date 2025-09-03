@@ -2,6 +2,7 @@
 
 import CloudImage from "@/components/ui/CloudImage";
 import OptimizedImage from "@/components/ui/OptimizedImage";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import {
   ArrowLeft,
@@ -17,7 +18,6 @@ import {
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useFeaturedCarousel } from "@/components/featured/hooks/useFeaturedCarousel";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface FeaturedArticle {
   id: string;
@@ -70,15 +70,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   titleClassName,
   halfWidth = false,
 }) => {
+  const { darkMode } = useDarkModeContext();
   const hasAnyBreaking = articles.some((a) => (a as any).breaking || (a as any).is_breaking);
   const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
     length: articles.length,
     autoPlayInterval,
     paused: hasAnyBreaking,
   });
-
-  // استخدام darkMode hook
-  const { darkMode } = useDarkMode();
 
   // إيقاف التحريك التلقائي عند تحريك الماوس فوق المكون
   const handleMouseEnter = () => {/* يمكن لاحقاً تفعيل الإيقاف */};
@@ -209,7 +207,6 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   alt={currentArticle.title}
                   fill
                   priority
-                  fetchPriority="high"
                   sizes="(max-width:1024px) 100vw, 50vw"
                   className="object-cover object-center"
                 />

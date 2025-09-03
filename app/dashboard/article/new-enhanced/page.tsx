@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { ArticleWizardEnhanced } from '@/components/article/ArticleWizardEnhanced';
 import BasicInfoStepEnhanced from '@/components/article/steps/BasicInfoStepEnhanced';
 import ContentStepEnhanced from '@/components/article/steps/ContentStepEnhanced';
@@ -15,7 +16,6 @@ import {
   Calendar, Upload, Save, Send, Eye, AlertCircle, X, Plus, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 // تعريف خطوات الـ Wizard
 const WIZARD_STEPS = [
@@ -76,8 +76,8 @@ interface Author {
 }
 
 export default function NewArticleEnhancedPage() {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
+  const { darkMode } = useDarkModeContext();
   
   // حالات التحميل
   const [dataLoading, setDataLoading] = useState(true);

@@ -1,5 +1,6 @@
 "use client";
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatLikesCount, formatViewsCount } from "@/lib/format-utils";
 import { getArticleLink } from "@/lib/utils";
 import {
@@ -18,7 +19,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartRecommendationsProps {
   currentArticleId: string;
@@ -113,7 +113,7 @@ export default function SmartRecommendations({
   currentArticleId,
   recommendations,
 }: SmartRecommendationsProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [activeTab, setActiveTab] = useState<
     "highly_recommended" | "trending_now" | "reading_pattern"
   >("highly_recommended");

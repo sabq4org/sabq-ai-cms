@@ -2,12 +2,11 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { useDarkMode } from "@/hooks/useDarkMode";
-import { getArticleLink } from "@/lib/utils";
 import { 
   MessageCircle, 
   Check, 
@@ -70,7 +69,7 @@ interface Comment {
   };
 }
 export default function CommentsManagementPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -500,7 +499,7 @@ export default function CommentsManagementPage() {
                 {/* المقال */}
                 <div className="col-span-3">
                   <a
-                    href={getArticleLink(comment.article)}
+                    href={`/article/${comment.article.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-blue-600 hover:underline flex items-center gap-1"

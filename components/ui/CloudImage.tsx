@@ -19,7 +19,6 @@ interface CloudImageProps {
   quality?: number;
   onError?: () => void;
   unoptimized?: boolean;
-  fetchPriority?: "high" | "low";
 }
 
 export default function CloudImage({
@@ -35,7 +34,6 @@ export default function CloudImage({
   quality = 80,
   onError,
   unoptimized = false,
-  fetchPriority,
 }: CloudImageProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,18 +74,14 @@ export default function CloudImage({
         fallbackType,
       });
     } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.error("خطأ في معالجة رابط الصورة:", error);
-      }
+      console.error("خطأ في معالجة رابط الصورة:", error);
       // إرجاع الصورة الافتراضية عند حدوث خطأ
       return "/images/placeholder-featured.jpg";
     }
   }, [src, hasError, width, height, quality, fallbackType]);
 
   const handleError = () => {
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`❌ فشل تحميل الصورة: ${src} - التبديل إلى fallback`);
-    }
+    console.log(`❌ فشل تحميل الصورة: ${src} - التبديل إلى fallback`);
     
     // تجربة الصورة الافتراضية مباشرة
     setHasError(true);
@@ -95,16 +89,14 @@ export default function CloudImage({
     onError?.();
 
     // إضافة سجل تشخيصي مفصل
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`🔍 تشخيص الصورة:
-        - المصدر الأصلي: ${src}
-        - نوع البديل: ${fallbackType}
-        - العرض: ${width}
-        - الارتفاع: ${height}
-        - URL المعالج: ${imageUrl}
-        - hasError: ${hasError}
-      `);
-    }
+    console.log(`🔍 تشخيص الصورة:
+      - المصدر الأصلي: ${src}
+      - نوع البديل: ${fallbackType}
+      - العرض: ${width}
+      - الارتفاع: ${height}
+      - URL المعالج: ${imageUrl}
+      - hasError: ${hasError}
+    `);
   };
 
   const handleLoad = () => {
@@ -130,8 +122,6 @@ export default function CloudImage({
           quality={quality}
           priority={priority}
           unoptimized={unoptimized}
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={fetchPriority}
           className={`${className} object-cover object-center ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
@@ -164,12 +154,10 @@ export default function CloudImage({
         height={validHeight}
         quality={quality}
         priority={priority}
-        unoptimized={unoptimized}
-        loading={priority ? "eager" : "lazy"}
+        unoptimized={true}
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }
-        fetchPriority={fetchPriority}
         className={`object-cover object-center rounded-xl w-full h-full ${
           isLoading ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}

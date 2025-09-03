@@ -2,8 +2,6 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useDarkMode } from "@/hooks/useDarkMode";
-import { getArticleLink } from "@/lib/utils";
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Eye, Calendar, User, MessageSquare, TrendingUp, FileText } from 'lucide-react'
@@ -14,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
 import { useToast } from '@/hooks/use-toast'
+import { useDarkModeContext } from '@/contexts/DarkModeContext'
 import { Input } from '@/components/ui/input'
 import { Select, SelectOption } from '@/components/ui/select'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -41,7 +40,7 @@ interface Article {
   }
 }
 export default function OpinionsPage() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext()
   const { toast } = useToast()
   const router = useRouter()
   const [articles, setArticles] = useState<Article[]>([])
@@ -315,7 +314,7 @@ export default function OpinionsPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(article.status)}
-                      <Link href={getArticleLink(article)} target="_blank">
+                      <Link href={`/news/${article.slug || article.id}`} target="_blank">
                         <Button variant="ghost" size="sm">
                           <Eye className="w-4 h-4" />
                         </Button>

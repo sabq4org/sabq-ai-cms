@@ -15,8 +15,8 @@ import {
   Trash2, ExternalLink, Network, Users, MapPin, Calendar,
   Star, Brain, Target, Globe, Zap
 } from 'lucide-react';
+import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import toast from 'react-hot-toast';
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartEntity {
   id: string;
@@ -50,7 +50,7 @@ interface EntityStats {
 }
 
 export default function SmartEntitiesManagement() {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [entities, setEntities] = useState<SmartEntity[]>([]);
   const [entityTypes, setEntityTypes] = useState<any[]>([]);
   const [stats, setStats] = useState<EntityStats | null>(null);

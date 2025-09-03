@@ -1,14 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import React, {useState, useEffect} from 'react';
-
-import {format} from 'date-fns';
-import {ar} from 'date-fns/locale';
-import {getMembershipLevel} from '@/lib/loyalty';
-import {TabsEnhanced} from '@/components/ui/tabs-enhanced';
-import { useDarkMode } from "@/hooks/useDarkMode";
-import {
+import React, { useState, useEffect } from 'react';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import { format } from 'date-fns';
+import { ar } from 'date-fns/locale';
+import { getMembershipLevel } from '@/lib/loyalty';
+import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
+import { 
   Users,
   UserCheck,
   UserX,
@@ -87,42 +86,14 @@ export default function UsersPage() {
     role: 'regular',
     isVerified: false,
     newPassword: ''
- });
+  });
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
- } | null>(null);
-
-  // Added: darkMode state and observers
-useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const getDark = () =>
-      document.documentElement.classList.contains('dark') ||
-      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    setDarkMode(getDark());
-
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const mqListener = (e: MediaQueryListEvent) => setDarkMode(e.matches || document.documentElement.classList.contains('dark'));
-    // @ts-ignore
-    mq.addEventListener ? mq.addEventListener('change', mqListener) : mq.addListener(mqListener);
-
-    const observer = new MutationObserver(() => setDarkMode(getDark()));
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
-    const onToggle = () => setDarkMode(getDark());
-    window.addEventListener('dark-mode-toggle', onToggle as EventListener);
-
-    return () => {
-      // @ts-ignore
-      mq.removeEventListener ? mq.removeEventListener('change', mqListener) : mq.removeListener(mqListener);
-      observer.disconnect();
-      window.removeEventListener('dark-mode-toggle', onToggle as EventListener);
-    };
-  }, []);
-
+  } | null>(null);
   useEffect(() => {
     fetchUsers();
- }, []);
+  }, []);
   const fetchUsers = async () => {
     try {
       const response = await fetch('/api/users');
@@ -131,29 +102,29 @@ useEffect(() => {
         // معالجة البيانات بناءً على الشكل المُرجع من API
         if (data.success && Array.isArray(data.data)) {
           setUsers(data.data);
-       } else if (Array.isArray(data)) {
+        } else if (Array.isArray(data)) {
           setUsers(data);
-       } else if (data && Array.isArray(data.users)) {
+        } else if (data && Array.isArray(data.users)) {
           setUsers(data.users);
-       } else {
+        } else {
           console.error('Invalid users data format:', data);
           setUsers([]);
-       }
-     } else {
+        }
+      } else {
         console.error('Failed to fetch users');
         setUsers([]);
-     }
-   } catch (error) {
+      }
+    } catch (error) {
       console.error('Error fetching users:', error);
       setUsers([]);
-   } finally {
+    } finally {
       setLoading(false);
-   }
- };
+    }
+  };
   const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({type, message});
+    setNotification({ type, message });
     setTimeout(() => setNotification(null), 5000);
- };
+  };
   const handleEdit = (user: User) => {
     setSelectedUser(user);
     setEditFormData({
@@ -162,59 +133,59 @@ useEffect(() => {
       role: user.role || 'regular',
       isVerified: user.isVerified || false,
       newPassword: ''
-   });
+    });
     setShowEditModal(true);
- };
+  };
   const handleSaveEdit = async () => {
     if (!selectedUser) return;
     try {
       const response = await fetch(`/api/users/${selectedUser.id}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editFormData)
-     });
+      });
       if (response.ok) {
         showNotification('success', 'تم تحديث بيانات المستخدم بنجاح');
         setShowEditModal(false);
         fetchUsers();
-     } else {
+      } else {
         throw new Error('فشل في تحديث البيانات');
-     }
-   } catch (error) {
+      }
+    } catch (error) {
       showNotification('error', 'حدث خطأ أثناء تحديث البيانات');
-   }
- };
+    }
+  };
   const toggleUserStatus = async (user: User) => {
     const newStatus = user.status === 'active' ? 'suspended' : 'active';
     try {
       const response = await fetch(`/api/users/${user.id}/status`, {
         method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({status: newStatus})
-     });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
       if (response.ok) {
         showNotification('success', `تم ${newStatus === 'active' ? 'تفعيل' : 'إيقاف'} الحساب`);
         fetchUsers();
-     }
-   } catch (error) {
+      }
+    } catch (error) {
       showNotification('error', 'حدث خطأ أثناء تغيير حالة الحساب');
-   }
- };
+    }
+  };
   const handleDelete = async () => {
     if (!selectedUser) return;
     try {
       const response = await fetch(`/api/users/${selectedUser.id}`, {
         method: 'DELETE'
-     });
+      });
       if (response.ok) {
         showNotification('success', 'تم حذف المستخدم نهائياً');
         setShowDeleteConfirm(false);
         fetchUsers();
-     }
-   } catch (error) {
+      }
+    } catch (error) {
       showNotification('error', 'حدث خطأ أثناء حذف المستخدم');
-   }
- };
+    }
+  };
   const stats = {
     total: Array.isArray(users) ? users.length : 0,
     active: Array.isArray(users) ? users.filter(u => u.status === 'active').length : 0,
@@ -226,36 +197,36 @@ useEffect(() => {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       return joinDate >= weekAgo;
-   }).length : 0,
+    }).length : 0,
     activeNow: Array.isArray(users) ? users.filter(u => {
       if (!u.lastLogin) return false;
       const lastLoginDate = new Date(u.lastLogin);
       const hourAgo = new Date();
       hourAgo.setHours(hourAgo.getHours() - 1);
       return lastLoginDate >= hourAgo;
-   }).length : 0,
+    }).length : 0,
     suspendedPercentage: Array.isArray(users) && users.length > 0 
       ? Math.round((users.filter(u => u.status === 'suspended' || u.status === 'banned').length / users.length) * 100)
       : 0
- };
-  const StatsCard = ({
+  };
+  const StatsCard = ({ 
     title, 
     value, 
     subtitle, 
     icon: Icon, 
     bgColor,
     iconColor
- }: {
+  }: {
     title: string;
     value: string | number;
     subtitle: string;
     icon: any;
     bgColor: string;
     iconColor: string;
- }) => (
+  }) => (
     <div className={`p-6 rounded-2xl shadow-sm border transition-all duration-300 ${
       darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-   }`}>
+    }`}>
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-lg ${bgColor}`}>
           <Icon className={`w-6 h-6 ${iconColor}`} />
@@ -264,13 +235,13 @@ useEffect(() => {
       <div>
         <p className={`text-2xl font-bold transition-colors duration-300 ${
           darkMode ? 'text-white' : 'text-gray-900'
-       }`}>{value}</p>
+        }`}>{value}</p>
         <p className={`text-sm transition-colors duration-300 ${
           darkMode ? 'text-gray-400' : 'text-gray-600'
-       }`}>{subtitle}</p>
+        }`}>{subtitle}</p>
         <p className={`text-xs mt-1 transition-colors duration-300 ${
           darkMode ? 'text-gray-500' : 'text-gray-500'
-       }`}>{title}</p>
+        }`}>{title}</p>
       </div>
     </div>
   );
@@ -301,14 +272,14 @@ useEffect(() => {
           break;
         default:
           matchesTab = true;
-     }
+      }
       const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus;
       const matchesRole = selectedRole === 'all' || user.role === selectedRole;
       return matchesSearch && matchesTab && matchesStatus && matchesRole;
-   });
- };
+    });
+  };
   const filteredUsers = getFilteredUsers();
-  const UserRow = ({user}: {user: User}) => {
+  const UserRow = ({ user }: { user: User }) => {
     const loyaltyLevel = getMembershipLevel(user.loyaltyPoints || 0);
     const LoyaltyIcon = loyaltyIconMap[loyaltyLevel.name] || Users;
     const getStatusBadge = (status?: string) => {
@@ -323,20 +294,20 @@ useEffect(() => {
           return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">🟣 محذوف</span>;
         default:
           return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">غير محدد</span>;
-     }
-   };
+      }
+    };
     const getRoleBadge = (role?: string) => {
-      const roles: Record<string, {label: string; color: string}> = {
-        admin: {label: 'مسؤول', color: 'bg-red-100 text-red-700'},
-        editor: {label: 'محرر', color: 'bg-blue-100 text-blue-700'},
-        media: {label: 'إعلامي', color: 'bg-purple-100 text-purple-700'},
-        vip: {label: 'VIP', color: 'bg-yellow-100 text-yellow-700'},
-        trainee: {label: 'متدرب', color: 'bg-green-100 text-green-700'},
-        regular: {label: 'عادي', color: 'bg-gray-100 text-gray-700'}
-     };
+      const roles: Record<string, { label: string; color: string }> = {
+        admin: { label: 'مسؤول', color: 'bg-red-100 text-red-700' },
+        editor: { label: 'محرر', color: 'bg-blue-100 text-blue-700' },
+        media: { label: 'إعلامي', color: 'bg-purple-100 text-purple-700' },
+        vip: { label: 'VIP', color: 'bg-yellow-100 text-yellow-700' },
+        trainee: { label: 'متدرب', color: 'bg-green-100 text-green-700' },
+        regular: { label: 'عادي', color: 'bg-gray-100 text-gray-700' }
+      };
       const roleInfo = roles[role || 'regular'];
       return <span className={`px-2 py-1 text-xs font-medium rounded-full ${roleInfo.color}`}>{roleInfo.label}</span>;
-   };
+    };
     return (
       <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200`}>
         <td className="px-6 py-4">
@@ -350,14 +321,14 @@ useEffect(() => {
             )}
             <div className="mr-3">
               <div className="flex items-center gap-2">
-                <p className={`text-sm font-medium}`}>
+                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   {user.name}
                 </p>
                 {user.isVerified && (
                   <Shield className="w-4 h-4 text-blue-500" />
                 )}
               </div>
-              <p className={`text-sm ${'text-gray-500'}`}>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 {user.email}
               </p>
             </div>
@@ -372,16 +343,16 @@ useEffect(() => {
         <td className="px-6 py-4">
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${loyaltyLevel.bgColor}`}>
-              <LoyaltyIcon className={`w-4 h-4`} style={{color: loyaltyLevel.color}} />
+              <LoyaltyIcon className={`w-4 h-4`} style={{ color: loyaltyLevel.color }} />
             </div>
-            <span className={`text-sm font-medium}`}>
+            <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               {loyaltyLevel.name}
             </span>
           </div>
         </td>
         <td className="px-6 py-4">
-          <p className={`text-sm ${'text-gray-600'}`}>
-            {format(new Date(user.created_at), 'dd MMMM yyyy', {locale: ar})}
+          <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            {format(new Date(user.created_at), 'dd MMMM yyyy', { locale: ar })}
           </p>
         </td>
         <td className="px-6 py-4">
@@ -389,8 +360,8 @@ useEffect(() => {
             <button
               onClick={() => handleEdit(user)}
               className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                'text-gray-600'
-             }`}
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}
               title="تعديل"
             >
               <Edit className="w-4 h-4" />
@@ -399,7 +370,7 @@ useEffect(() => {
               onClick={() => toggleUserStatus(user)}
               className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
                 user.status === 'active' ? 'text-green-600' : 'text-gray-400'
-             }`}
+              }`}
               title={user.status === 'active' ? 'إيقاف' : 'تفعيل'}
             >
               {user.status === 'active' ? (
@@ -412,10 +383,10 @@ useEffect(() => {
               onClick={() => {
                 setSelectedUser(user);
                 setShowDetailsModal(true);
-             }}
+              }}
               className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                'text-gray-600'
-             }`}
+                darkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}
               title="عرض التفاصيل"
             >
               <Eye className="w-4 h-4" />
@@ -424,7 +395,7 @@ useEffect(() => {
               onClick={() => {
                 setSelectedUser(user);
                 setShowDeleteConfirm(true);
-             }}
+              }}
               className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-600"
               title="حذف"
             >
@@ -434,26 +405,26 @@ useEffect(() => {
         </td>
       </tr>
     );
- };
+  };
   if (loading) {
     return (
   <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
- }
+  }
   return (
   <div className={`p-8 transition-colors duration-300 ${
-      ''
-   }`}>
+      darkMode ? 'bg-gray-900' : ''
+    }`}>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${
-            'text-gray-800'
-         }`}>إدارة المستخدمين</h1>
+            darkMode ? 'text-white' : 'text-gray-800'
+          }`}>إدارة المستخدمين</h1>
           <p className={`transition-colors duration-300 ${
-            'text-gray-600'
-         }`}>إدارة شاملة للمستخدمين المسجلين في صحيفة سبق الإلكترونية</p>
+            darkMode ? 'text-gray-300' : 'text-gray-600'
+          }`}>إدارة شاملة للمستخدمين المسجلين في صحيفة سبق الإلكترونية</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -467,14 +438,14 @@ useEffect(() => {
             darkMode 
               ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
               : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-         }`}>
+          }`}>
             <Upload className="w-4 h-4" />
           </button>
           <button className={`p-2 rounded-lg border transition-colors duration-300 ${
             darkMode 
               ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
               : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-         }`}>
+          }`}>
             <Download className="w-4 h-4" />
           </button>
         </div>
@@ -532,11 +503,11 @@ useEffect(() => {
       {/* إضافة التابات المحسنة */}
       <TabsEnhanced
         tabs={[
-          {id: 'all', name: 'جميع المستخدمين', icon: Database, count: stats.total},
-          {id: 'active', name: 'النشطون', icon: UserCheck, count: stats.active},
-          {id: 'suspended', name: 'الموقوفون', icon: UserX, count: stats.suspended},
-          {id: 'verified', name: 'الموثقون', icon: Shield, count: stats.verified},
-          {id: 'new', name: 'الجدد', icon: UserPlus, count: stats.newThisWeek}
+          { id: 'all', name: 'جميع المستخدمين', icon: Database, count: stats.total },
+          { id: 'active', name: 'النشطون', icon: UserCheck, count: stats.active },
+          { id: 'suspended', name: 'الموقوفون', icon: UserX, count: stats.suspended },
+          { id: 'verified', name: 'الموثقون', icon: Shield, count: stats.verified },
+          { id: 'new', name: 'الجدد', icon: UserPlus, count: stats.newThisWeek }
         ]}
         activeTab={activeTab}
         onTabChange={(tabId) => {
@@ -559,21 +530,21 @@ useEffect(() => {
               break;
             default:
               setSelectedStatus('all');
-         }
-       }}
+          }
+        }}
       />
       <div className={`rounded-2xl shadow-sm border overflow-hidden transition-colors duration-300 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
-     }`}>
+      }`}>
         <div className={`px-6 py-4 border-b transition-colors duration-300 ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
-       }`}>
+        }`}>
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="flex items-center space-x-4 w-full lg:w-auto">
               <div className="relative flex-1 lg:w-96">
                 <Search className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${
                   darkMode ? 'text-gray-500' : 'text-gray-400'
-               }`} />
+                }`} />
                 <input
                   type="text"
                   placeholder="البحث بالاسم، البريد، العضوية أو رقم الجوال..."
@@ -583,7 +554,7 @@ useEffect(() => {
                                           darkMode 
                         ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500' 
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
-                   } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                    } focus:outline-none focus:ring-1 focus:ring-blue-500`}
                 />
               </div>
             </div>
@@ -595,7 +566,7 @@ useEffect(() => {
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
                     : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-               } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                } focus:outline-none focus:ring-1 focus:ring-blue-500`}
               >
                 <option value="all">جميع الحالات</option>
                 <option value="active">نشط</option>
@@ -609,7 +580,7 @@ useEffect(() => {
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-gray-200 focus:border-blue-500' 
                     : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-               } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                } focus:outline-none focus:ring-1 focus:ring-blue-500`}
               >
                 <option value="all">جميع الأنواع</option>
                 <option value="admin">مسؤول</option>
@@ -626,31 +597,31 @@ useEffect(() => {
           <table className="w-full">
             <thead className={`transition-colors duration-300 ${
               darkMode ? 'bg-gray-700' : 'bg-gray-50'
-           }`}>
+            }`}>
               <tr>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-500'
-               }`}>المستخدم</th>
+                }`}>المستخدم</th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-500'
-               }`}>الحالة</th>
+                }`}>الحالة</th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-500'
-               }`}>النوع</th>
+                }`}>النوع</th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-500'
-               }`}>فئة الولاء</th>
+                }`}>فئة الولاء</th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-500'
-               }`}>تاريخ التسجيل</th>
+                }`}>تاريخ التسجيل</th>
                 <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider transition-colors duration-300 ${
                   darkMode ? 'text-gray-300' : 'text-gray-500'
-               }`}>الإجراءات</th>
+                }`}>الإجراءات</th>
               </tr>
             </thead>
             <tbody className={`divide-y transition-colors duration-300 ${
               darkMode ? 'divide-gray-700' : 'divide-gray-200'
-           }`}>
+            }`}>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map(user => (
                   <UserRow key={user.id} user={user} />
@@ -658,8 +629,8 @@ useEffect(() => {
               ) : (
                 <tr>
                   <td colSpan={6} className={`px-6 py-8 text-center transition-colors duration-300 ${
-                    'text-gray-500'
-                 }`}>
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
                     {users.length === 0 ? 'لا يوجد مستخدمون مسجلون حتى الآن' : 'لا توجد نتائج مطابقة للبحث'}
                   </td>
                 </tr>
@@ -671,10 +642,10 @@ useEffect(() => {
       {showEditModal && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`w-full max-w-md p-6 rounded-2xl shadow-xl ${
-            'bg-white'
-         }`}>
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className={`text-xl font-bold}`}>
+              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 تعديل بيانات المستخدم
               </h3>
               <button
@@ -688,7 +659,7 @@ useEffect(() => {
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>الاسم الكامل</label>
+                }`}>الاسم الكامل</label>
                 <input
                   type="text"
                   value={editFormData.name}
@@ -697,13 +668,13 @@ useEffect(() => {
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
-                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>البريد الإلكتروني</label>
+                }`}>البريد الإلكتروني</label>
                 <input
                   type="email"
                   value={selectedUser.email}
@@ -712,13 +683,13 @@ useEffect(() => {
                     darkMode 
                       ? 'bg-gray-600 border-gray-600 text-gray-400' 
                       : 'bg-gray-100 border-gray-300 text-gray-500'
-                 }`}
+                  }`}
                 />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>نوع المستخدم</label>
+                }`}>نوع المستخدم</label>
                 <select
                   value={editFormData.role}
                   onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
@@ -726,7 +697,7 @@ useEffect(() => {
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
-                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 >
                   <option value="regular">عادي</option>
                   <option value="vip">VIP</option>
@@ -739,7 +710,7 @@ useEffect(() => {
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>الحالة</label>
+                }`}>الحالة</label>
                 <select
                   value={editFormData.status}
                   onChange={(e) => setEditFormData({...editFormData, status: e.target.value})}
@@ -747,7 +718,7 @@ useEffect(() => {
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
-                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 >
                   <option value="active">نشط</option>
                   <option value="suspended">موقوف</option>
@@ -764,12 +735,12 @@ useEffect(() => {
                 />
                 <label htmlFor="verified" className={`text-sm font-medium ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>حساب موثق</label>
+                }`}>حساب موثق</label>
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>كلمة المرور الجديدة (اختياري)</label>
+                }`}>كلمة المرور الجديدة (اختياري)</label>
                 <div className="relative">
                   <input
                     type="password"
@@ -780,11 +751,11 @@ useEffect(() => {
                                           darkMode 
                         ? 'bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-400 focus:border-blue-500' 
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
-                   } focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                    } focus:outline-none focus:ring-1 focus:ring-blue-500`}
                   />
                   <Key className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-                    'text-gray-500'
-                 }`} />
+                    darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`} />
                 </div>
               </div>
             </div>
@@ -802,7 +773,7 @@ useEffect(() => {
                   darkMode 
                     ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-               }`}
+                }`}
               >
                 إلغاء
               </button>
@@ -813,16 +784,16 @@ useEffect(() => {
       {showDeleteConfirm && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`w-full max-w-md p-6 rounded-2xl shadow-xl ${
-            'bg-white'
-         }`}>
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
               </div>
-              <h3 className={`text-xl font-bold mb-2}`}>
+              <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 تأكيد حذف المستخدم
               </h3>
-              <p className={`text-sm mb-6 ${'text-gray-600'}`}>
+              <p className={`text-sm mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 هل أنت متأكد من حذف العضوية نهائياً؟<br />
                 <strong>{selectedUser.name}</strong><br />
                 <span className="text-red-500">لا يمكن استعادة البيانات بعد الحذف!</span>
@@ -841,7 +812,7 @@ useEffect(() => {
                     darkMode 
                       ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
                       : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                 }`}
+                  }`}
                 >
                   إلغاء
                 </button>
@@ -853,10 +824,10 @@ useEffect(() => {
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`w-full max-w-md p-6 rounded-2xl shadow-xl ${
-            'bg-white'
-         }`}>
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className={`text-xl font-bold}`}>
+              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 إضافة مستخدم جديد
               </h3>
               <button
@@ -880,19 +851,19 @@ useEffect(() => {
                   isVerified: false,
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
-               };
+                };
                 setUsers([...users, newUser as User]);
                 setShowAddModal(false);
                 showNotification('success', 'تم إضافة المستخدم بنجاح');
                 e.currentTarget.reset();
-             } catch (error) {
+              } catch (error) {
                 showNotification('error', 'فشل في إضافة المستخدم');
-             }
-           }} className="space-y-4">
+              }
+            }} className="space-y-4">
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>الاسم الكامل <span className="text-red-500">*</span></label>
+                }`}>الاسم الكامل <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="name"
@@ -901,13 +872,13 @@ useEffect(() => {
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
-                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>البريد الإلكتروني <span className="text-red-500">*</span></label>
+                }`}>البريد الإلكتروني <span className="text-red-500">*</span></label>
                 <input
                   type="email"
                   name="email"
@@ -916,13 +887,13 @@ useEffect(() => {
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
-                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>كلمة المرور <span className="text-red-500">*</span></label>
+                }`}>كلمة المرور <span className="text-red-500">*</span></label>
                 <input
                   type="password"
                   name="password"
@@ -932,20 +903,20 @@ useEffect(() => {
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
-                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-2 ${
                   darkMode ? 'text-gray-300' : 'text-gray-700'
-               }`}>نوع المستخدم</label>
+                }`}>نوع المستخدم</label>
                 <select
                   name="role"
                   className={`w-full px-4 py-2 rounded-lg border ${
                     darkMode 
                       ? 'bg-gray-700 border-gray-600 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
-                 } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 >
                   <option value="regular">عادي</option>
                   <option value="vip">VIP</option>
@@ -970,7 +941,7 @@ useEffect(() => {
                     darkMode 
                       ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
                       : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                 }`}
+                  }`}
                 >
                   إلغاء
                 </button>
@@ -983,10 +954,10 @@ useEffect(() => {
       {showDetailsModal && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className={`w-full max-w-2xl p-6 rounded-2xl shadow-xl ${
-            'bg-white'
-         }`}>
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className={`text-xl font-bold}`}>
+              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 تفاصيل المستخدم
               </h3>
               <button
@@ -1009,14 +980,14 @@ useEffect(() => {
                   )}
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className={`text-xl font-bold}`}>
+                      <h4 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                         {selectedUser.name}
                       </h4>
                       {selectedUser.isVerified && (
                         <Shield className="w-5 h-5 text-blue-500" />
                       )}
                     </div>
-                    <p className={`}`}>
+                    <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {selectedUser.email}
                     </p>
                   </div>
@@ -1024,11 +995,11 @@ useEffect(() => {
               </div>
               {/* معلومات الحساب */}
               <div className="space-y-3">
-                <h5 className={`font-medium mb-3}`}>
+                <h5 className={`font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   معلومات الحساب
                 </h5>
                 <div className="flex justify-between">
-                  <span className={`text-sm}`}>الحالة:</span>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الحالة:</span>
                   {selectedUser.status === 'active' && (
                     <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">🟢 نشط</span>
                   )}
@@ -1040,8 +1011,8 @@ useEffect(() => {
                   )}
                 </div>
                 <div className="flex justify-between">
-                  <span className={`text-sm}`}>نوع الحساب:</span>
-                  <span className={`text-sm font-medium}`}>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>نوع الحساب:</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {selectedUser.role === 'admin' && 'مسؤول'}
                     {selectedUser.role === 'editor' && 'محرر'}
                     {selectedUser.role === 'media' && 'إعلامي'}
@@ -1051,19 +1022,19 @@ useEffect(() => {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className={`text-sm}`}>تاريخ التسجيل:</span>
-                  <span className={`text-sm font-medium}`}>
-                    {format(new Date(selectedUser.created_at), 'dd MMMM yyyy', {locale: ar})}
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>تاريخ التسجيل:</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {format(new Date(selectedUser.created_at), 'dd MMMM yyyy', { locale: ar })}
                   </span>
                 </div>
               </div>
               {/* معلومات الولاء */}
               <div className="space-y-3">
-                <h5 className={`font-medium mb-3}`}>
+                <h5 className={`font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   برنامج الولاء
                 </h5>
                 <div className="flex justify-between items-center">
-                  <span className={`text-sm}`}>الفئة:</span>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الفئة:</span>
                   <div className="flex items-center gap-2">
                     {(() => {
                       const loyalty = getMembershipLevel(selectedUser.loyaltyPoints || 0);
@@ -1071,27 +1042,27 @@ useEffect(() => {
                       return (
                         <>
                           <div className={`p-1.5 rounded-lg ${loyalty.bgColor}`}>
-                            <LoyaltyDetailIcon className={`w-4 h-4`} style={{color: loyalty.color}} />
+                            <LoyaltyDetailIcon className={`w-4 h-4`} style={{ color: loyalty.color }} />
                           </div>
-                          <span className={`text-sm font-medium}`}>
+                          <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                             {loyalty.name}
                           </span>
                         </>
                       );
-                   })()}
+                    })()}
                   </div>
                 </div>
                 <div className="flex justify-between">
-                  <span className={`text-sm}`}>النقاط:</span>
-                  <span className={`text-sm font-medium}`}>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>النقاط:</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {selectedUser.loyaltyPoints || 0} نقطة
                   </span>
                 </div>
                 {selectedUser.lastLogin && (
                   <div className="flex justify-between">
-                    <span className={`text-sm}`}>آخر دخول:</span>
-                    <span className={`text-sm font-medium}`}>
-                      {format(new Date(selectedUser.lastLogin), 'dd MMMM yyyy', {locale: ar})}
+                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>آخر دخول:</span>
+                    <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {format(new Date(selectedUser.lastLogin), 'dd MMMM yyyy', { locale: ar })}
                     </span>
                   </div>
                 )}
@@ -1099,30 +1070,30 @@ useEffect(() => {
               {/* معلومات الاتصال */}
               {(selectedUser.phone || selectedUser.country || selectedUser.city) && (
                 <div className="col-span-2 space-y-3">
-                  <h5 className={`font-medium mb-3}`}>
+                  <h5 className={`font-medium mb-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     معلومات الاتصال
                   </h5>
                   <div className="grid grid-cols-2 gap-4">
                     {selectedUser.phone && (
                       <div className="flex justify-between">
-                        <span className={`text-sm}`}>رقم الجوال:</span>
-                        <span className={`text-sm font-medium}`}>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>رقم الجوال:</span>
+                        <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                           {selectedUser.phone}
                         </span>
                       </div>
                     )}
                     {selectedUser.country && (
                       <div className="flex justify-between">
-                        <span className={`text-sm}`}>الدولة:</span>
-                        <span className={`text-sm font-medium}`}>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>الدولة:</span>
+                        <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                           {selectedUser.country}
                         </span>
                       </div>
                     )}
                     {selectedUser.city && (
                       <div className="flex justify-between">
-                        <span className={`text-sm}`}>المدينة:</span>
-                        <span className={`text-sm font-medium}`}>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>المدينة:</span>
+                        <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                           {selectedUser.city}
                         </span>
                       </div>
@@ -1137,7 +1108,7 @@ useEffect(() => {
                 onClick={() => {
                   setShowDetailsModal(false);
                   handleEdit(selectedUser);
-               }}
+                }}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 <Edit className="w-4 h-4" />
@@ -1149,7 +1120,7 @@ useEffect(() => {
                   darkMode 
                     ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-               }`}
+                }`}
               >
                 إغلاق
               </button>
@@ -1163,7 +1134,7 @@ useEffect(() => {
           notification.type === 'success' 
             ? 'bg-green-500 text-white' 
             : 'bg-red-500 text-white'
-       }`}>
+        }`}>
           {notification.type === 'success' ? (
             <CheckCircle className="w-5 h-5" />
           ) : (

@@ -8,11 +8,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { cn } from "@/lib/utils";
 import { ArrowRight, CheckCircle, Mail, Send, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface NewsletterBoxProps {
   title?: string;
@@ -29,7 +29,7 @@ export default function NewsletterBox({
   showFeatures = false,
   className = "",
 }: NewsletterBoxProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<

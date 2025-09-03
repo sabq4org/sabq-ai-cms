@@ -49,7 +49,16 @@ export default function DashboardLayout({
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   return (
-    <div>
+    <>
+      {/* تحميل CSS Manus UI */}
+      <link rel="stylesheet" href="/manus-ui.css" />
+      {/* تحميل تحسينات الموبايل */}
+      <link rel="stylesheet" href="/admin-modern-mobile.css" />
+      <link rel="stylesheet" href="/admin-modern-mobile-enhanced.css" />
+      
+      {/* الهيدر كامل العرض - ثابت في الأعلى */}
+      <ManusHeader onMenuClick={toggleSidebar} showMenuButton={isMobile} />
+      
       {/* التخطيط الرئيسي */}
       <div style={{
         minHeight: '100vh',
@@ -121,15 +130,14 @@ export default function DashboardLayout({
           {/* المحتوى الرئيسي */}
           <main className="admin-modern-main admin-dashboard-layout" style={{
             paddingTop: '80px',
-            paddingBottom: '32px',
+            paddingBottom: '16px',
             width: '100%',
-            minHeight: 'calc(100vh - 56px)',
             // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
             ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
           }}>
             <div className={cn("fade-in", className)} style={{ 
-              padding: isMobile ? '0 16px' : '0 32px',
-              maxWidth: isMobile ? '100%' : '1200px',
+              padding: '0 24px',
+              maxWidth: '1400px',
               margin: '0 auto',
               width: '100%'
             }}>
@@ -191,9 +199,6 @@ export default function DashboardLayout({
           </nav>
         )}
       </div>
-
-      {/* الهيدر كامل العرض - ثابت في الأعلى */}
-      <ManusHeader onMenuClick={toggleSidebar} showMenuButton={isMobile} />
-    </div>
+    </>
   );
 }

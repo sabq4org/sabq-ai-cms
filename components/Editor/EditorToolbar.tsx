@@ -1,5 +1,6 @@
 "use client";
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Editor } from "@tiptap/react";
 import { useRef, useState } from "react";
 import { uploadImageWithFallback } from "@/lib/safe-upload";
@@ -35,7 +36,6 @@ import {
 } from "lucide-react";
 
 import ImageUploadDialog from "./ImageUploadDialog";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface EditorToolbarProps {
   editor: Editor;
@@ -48,7 +48,7 @@ export default function EditorToolbar({
   enableAI = true,
   onAIAction,
 }: EditorToolbarProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [showImageUploadDialog, setShowImageUploadDialog] = useState(false);

@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { getArticleLink } from "@/lib/utils";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -422,6 +423,7 @@ const AuthorCard = ({
 export default function EnhancedTodayOpinionsSection({
   darkMode = false,
 }: TodayOpinionsSectionProps) {
+  const { darkMode: contextDarkMode } = useDarkModeContext();
   const isDark = darkMode || contextDarkMode;
 
   const [featuredArticles, setFeaturedArticles] = useState<OpinionArticle[]>(

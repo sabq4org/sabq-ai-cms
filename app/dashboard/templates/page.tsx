@@ -22,15 +22,14 @@ import {
 // import { TemplatesList } from './components/TemplatesList';
 // import { TemplateEditor } from './components/TemplateEditor';
 // import { Template, TemplateType } from '@/types/template';
-import { useDarkMode } from "@/hooks/useDarkMode";
 type TemplateType = 'header' | 'footer' | 'sidebar' | 'article' | 'category' | 'special';
 export default function TemplatesPage() {
-  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState<TemplateType>('header');
   const [showEditor, setShowEditor] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [mounted, setMounted] = useState(false);
-useEffect(() => {
+  const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
     setMounted(true);
     // التحقق من الوضع الليلي من localStorage
     const isDark = document.documentElement.classList.contains('dark');

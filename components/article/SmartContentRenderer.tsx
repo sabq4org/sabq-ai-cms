@@ -1,8 +1,8 @@
 "use client";
 
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useEffect, useRef, useState } from "react";
 import SmartQuoteCard from "./SmartQuoteCard";
-import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface SmartContentRendererProps {
   content: string;
@@ -39,7 +39,7 @@ export default function SmartContentRenderer({
   authorName,
   className = "",
 }: SmartContentRendererProps) {
-  const { darkMode } = useDarkMode();
+  const { darkMode } = useDarkModeContext();
   const [processedContent, setProcessedContent] = useState<ProcessedContent[]>(
     []
   );

@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useDarkMode } from "@/hooks/useDarkMode";
 import { 
   SmartRecommendations, 
   SmartDoses, 
@@ -72,7 +71,8 @@ interface Category {
 
 // مكون الهيدر العلوي
 const ModernHeader: React.FC = () => {
-const [searchOpen, setSearchOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
@@ -445,7 +445,6 @@ const ModernStatsBar: React.FC = () => {
 
 // الصفحة الرئيسية الجديدة
 export default function ModernDesignPage() {
-  const { darkMode } = useDarkMode();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

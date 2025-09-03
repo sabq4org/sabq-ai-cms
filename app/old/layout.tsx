@@ -52,7 +52,7 @@ import "../styles/saas-dashboard.css";
 import "../styles/scrollbar-hide.css";
 import "../styles/smart-recommendations.css";
 import "../styles/tailwind-overrides.css";
-
+import "../styles/theme-manager.css";
 import "../styles/mobile-layout-order.css";
 import "./globals.css";
 import { Providers } from "./providers";

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { getAuthHeaders } from "@/lib/utils/auth-headers";
 import { cn } from "@/lib/utils";
 import {
@@ -36,7 +37,6 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
-import { useDarkMode } from "@/hooks/useDarkMode";
 // تم إزالة DashboardLayout - تستخدم الصفحة layout.tsx الأساسي
 // تحميل المحرر بشكل ديناميكي
 const Editor = dynamic(() => import("@/components/Editor/Editor"), {
@@ -64,9 +64,9 @@ interface Reporter {
 }
 
 export default function UnifiedNewsCreatePageUltraEnhanced() {
-  const { darkMode } = useDarkMode();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { darkMode } = useDarkModeContext();
   const editorRef = useRef<any>(null);
 
   // الحصول على معرف المقال من URL
