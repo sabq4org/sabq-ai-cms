@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { ensureDbConnected } from '@/lib/prisma';
 import { unstable_cache } from 'next/cache';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
