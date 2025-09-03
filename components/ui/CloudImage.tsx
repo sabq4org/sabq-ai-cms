@@ -31,7 +31,7 @@ export default function CloudImage({
   fill = false,
   sizes,
   fallbackType = "default",
-  quality = 80,
+  quality = 70,
   onError,
   unoptimized = false,
 }: CloudImageProps) {
@@ -154,7 +154,7 @@ export default function CloudImage({
         height={validHeight}
         quality={quality}
         priority={priority}
-        unoptimized={true}
+        unoptimized={false}
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }

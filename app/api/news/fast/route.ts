@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
     const skip = (page - 1) * limit;
     const categoryId = url.searchParams.get('category_id');
+    const excludeId = url.searchParams.get('exclude');
     const sort = url.searchParams.get('sort') || 'published_at';
     const order = url.searchParams.get('order') === 'asc' ? 'asc' : 'desc';
     const noCount = url.searchParams.get('noCount') === '1';
@@ -54,6 +55,7 @@ export async function GET(request: NextRequest) {
       article_type: { notIn: ['opinion', 'analysis', 'interview'] },
     };
     if (categoryId && categoryId !== 'all') where.category_id = categoryId;
+    if (excludeId) where.id = { not: excludeId };
 
     const orderBy: any = {};
     if (sort === 'views') orderBy.views = order;
