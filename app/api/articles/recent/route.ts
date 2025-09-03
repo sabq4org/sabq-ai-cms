@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
       featured_image: true,
       published_at: true,
       views: true,
+      featured: true,
+      breaking: true,
       categories: {
         select: {
           id: true,
