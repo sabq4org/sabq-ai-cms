@@ -88,36 +88,37 @@ export default function SmartContentBlock({
 
   const fetchSmartContent = async () => {
     try {
-      console.log('🔄 جلب المحتوى الذكي السريع...');
+      console.log('⚡ جلب المحتوى الذكي الفائق...');
 
-      // كاش محلي قصير لتسريع إعادة الزيارة خلال دقيقة
-      const cacheKey = 'smart-content-fast-cache-v1';
+      // كاش محلي محسّن - 5 دقائق بدلاً من 60 ثانية
+      const cacheKey = 'smart-content-fast-cache-v2';
       const cached = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          if (parsed && Date.now() - parsed.ts < 60 * 1000 && Array.isArray(parsed.articles)) {
+          if (parsed && Date.now() - parsed.ts < 5 * 60 * 1000 && Array.isArray(parsed.articles)) {
             setArticles(parsed.articles);
             setIsLoading(false);
-            // بالتوازي، نقوم بالتحديث في الخلفية دون حجب الواجهة
+            // لا نجلب مرة أخرى إذا كان الكاش جديد
+            return;
           }
         } catch {}
       }
 
-      // إضافة timeout لحماية الواجهة من التعليق
+      // تقليل timeout إلى 5 ثواني للاستجابة السريعة
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 ثوانٍ
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 ثوانٍ
 
-      const response = await fetch('/api/smart-content/fast?limit=20', {
+      const response = await fetch('/api/smart-content/fast?limit=15', {
         signal: controller.signal,
-        cache: 'no-store',
+        cache: 'force-cache',
         headers: { 'Accept': 'application/json' }
       });
       clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
-        const base = (data.articles || []).slice(0, 20);
+        const base = (data.articles || []).slice(0, 15);
         const enriched: Article[] = base.map((article: any) => ({
           ...article,
           isPersonalized: Math.random() > 0.7,
@@ -137,7 +138,7 @@ export default function SmartContentBlock({
       console.error('❌ Error fetching smart content fast:', error);
       // إبقاء الكاش المحلي إن وجد، وإلا ففارغ
       try {
-        const cached = localStorage.getItem('smart-content-fast-cache-v1');
+        const cached = localStorage.getItem('smart-content-fast-cache-v2');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (parsed?.articles) setArticles(parsed.articles);

@@ -60,22 +60,14 @@ export async function generatePersonalizedRecommendations({
   limit?: number;
 }): Promise<RecommendedArticle[]> {
   try {
-    // 1. استراتيجية تحميل مبسطة وسريعة
-    console.log('🚀 توليد توصيات سريع...');
+    // 1. استدعاء واحد محسّن بدلاً من استدعاءين
+    console.log('⚡ توليد توصيات فائقة السرعة...');
     
-    // بدلاً من 5 استدعاءات متوازية، استدعاءان فقط
-    const [categoryArticles, recentArticles] = await Promise.all([
-      // استدعاء أساسي للتصنيف
-      currentCategory ? getCategoryBasedRecommendations(currentCategory, currentArticleId) : Promise.resolve([]),
-      // استدعاء للمقالات الحديثة الجيدة
-      fetchRecentQualityArticles(currentArticleId, limit * 2),
-    ]);
+    // استدعاء واحد مع exclude لتجنب التكرار
+    const recentArticles = await fetchRecentQualityArticles(currentArticleId, limit * 3);
 
-    // 2. دمج النتائج بذكاء
-    const allRecommendations = [
-      ...categoryArticles,
-      ...recentArticles,
-    ];
+    // 2. لا حاجة للدمج - نعمل مباشرة على النتائج
+    const allRecommendations = recentArticles;
 
     // 3. إزالة التكرار البسيط
     const seen = new Set([currentArticleId]);
@@ -406,9 +398,15 @@ async function fetchRecentQualityArticles(
     const baseUrl = typeof window !== 'undefined' 
       ? window.location.origin 
       : (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    
+    // استخدام smart-content/fast مع exclude لتجنب التكرار
     const response = await fetch(
-      `${baseUrl}/api/news/fast?limit=${limit * 2}&status=published&sort=published_at&order=desc&noCount=1`,
-      { next: { revalidate: 60 }, cache: 'force-cache' }
+      `${baseUrl}/api/smart-content/fast?limit=${limit}&exclude=${excludeId}`,
+      { 
+        next: { revalidate: 300 }, 
+        cache: 'force-cache',
+        signal: AbortSignal.timeout(5000) // timeout 5 ثواني
+      }
     );
 
     if (!response.ok) return [];
@@ -416,17 +414,10 @@ async function fetchRecentQualityArticles(
     const data = await response.json();
 
     if (data.success && data.articles) {
+      // تبسيط الفلترة - التأكد من البيانات الأساسية فقط
       const qualityArticles = data.articles.filter(
         (article: any) =>
-          article &&
-          article.id &&
-          article.title &&
-          article.title.trim() !== "" &&
-          !article.title.toLowerCase().includes("test") &&
-          !article.title.toLowerCase().includes("placeholder") &&
-          article.featured_image &&
-          !article.featured_image.includes("placeholder") &&
-          article.category_name
+          article && article.id && article.title
       );
 
       return qualityArticles.slice(0, limit).map((article: any) => ({
