@@ -72,6 +72,19 @@ export function middleware(req: NextRequest) {
     return response;
   }
   
+  // اكتشاف أجهزة الموبايل وإظهار النسخة الخفيفة لصفحة الأخبار مع الحفاظ على الرابط
+  // يتم استخدام rewrite وليس redirect حتى يبقى المسار /news ظاهرًا للمستخدم
+  const isMobileUA = (ua: string) => {
+    const pattern = /(iphone|ipod|ipad|android(?!.*tablet)|windows phone|blackberry|bb10|mobile|opera mini|opera mobi)/i;
+    return pattern.test(ua);
+  };
+
+  if (url.pathname === '/news' && isMobileUA(userAgent)) {
+    const rewriteUrl = req.nextUrl.clone();
+    rewriteUrl.pathname = '/news/light';
+    return NextResponse.rewrite(rewriteUrl);
+  }
+
   // Skip Next.js internal routes
   if (
     url.pathname.startsWith('/_next/') ||
