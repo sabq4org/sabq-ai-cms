@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getArticleLink } from '@/lib/utils';
 import { 
   Bookmark, 
   Calendar, 
@@ -429,7 +430,7 @@ export default function SavedArticlesPage() {
                   }`}
                 >
                   {/* صورة المقال */}
-                  <Link href={`/news/${article.slug || article.id}`} className="block relative h-48 overflow-hidden">
+                  <Link href={getArticleLink(article)} className="block relative h-48 overflow-hidden">
                     <Image
                       src={getImageUrl(article.featured_image)}
                       alt={article.title}
@@ -461,7 +462,7 @@ export default function SavedArticlesPage() {
 
                   {/* محتوى المقال */}
                   <div className="p-4">
-                    <Link href={`/news/${article.slug || article.id}`}>
+                    <Link href={getArticleLink(article)}>
                       <h3 className={`font-bold text-lg mb-2 line-clamp-2 hover:text-blue-500 transition-colors ${
                         darkMode ? 'text-white' : 'text-gray-900'
                       }`}>

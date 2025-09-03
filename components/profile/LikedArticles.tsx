@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Heart, Clock, ExternalLink, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { getArticleLink } from '@/lib/utils';
 
 interface LikedArticle {
   id: string;
@@ -164,7 +165,7 @@ export default function LikedArticles({ userId, darkMode = false }: LikedArticle
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
                   <Link
-                    href={`/news/${article.id}`}
+                    href={getArticleLink(article)}
                     className={`font-medium hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2 ${
                       darkMode ? 'text-white' : 'text-gray-800'
                     }`}

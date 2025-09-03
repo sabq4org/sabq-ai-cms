@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeDate } from '@/lib/date-utils';
+import { getArticleLink } from '@/lib/utils';
 import { 
   Clock, User, Eye, Brain, Edit, Newspaper, TrendingUp, 
   ChevronRight, Sparkles, BarChart3, MessageCircle 
@@ -63,7 +64,7 @@ const HorizontalCard: React.FC<{ article: SmartArticle; darkMode?: boolean }> = 
   article, 
   darkMode = false 
 }) => (
-  <Link href={`/news/${article.id}`} className="group block">
+  <Link href={getArticleLink(article)} className="group block">
     <div className={`flex gap-3 p-3 rounded-lg border transition-all duration-300 hover:shadow-md ${
       darkMode 
         ? 'bg-gray-800 border-gray-700 hover:border-gray-600' 

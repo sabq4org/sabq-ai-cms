@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import TimelineReply from '@/components/forum/TimelineReply';
-import { useClientTheme } from '@/hooks/useClientTheme';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -71,8 +71,8 @@ export default function TopicPage() {
   const router = useRouter();
   const topicId = params?.id as string;
   
-  // استخدام hook الثيم الموحد
-  const { darkMode, toggleDarkMode, mounted } = useClientTheme();
+  // استخدام useDarkMode hook
+  const { darkMode, toggleDarkMode } = useDarkMode();
   
   const [topic, setTopic] = useState<Topic | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);

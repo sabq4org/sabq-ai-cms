@@ -5,6 +5,7 @@ import useSWR from 'swr'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { getArticleLink } from '@/lib/utils'
 import { 
   Sparkles, 
   Clock, 
@@ -234,7 +235,7 @@ export default function PersonalizedPanel({ userId }: PersonalizedPanelProps) {
           {currentItems.slice(0, 5).map((article: PersonalizedArticle) => (
             <Card key={article.id} className="hover:shadow-md transition-shadow group">
               <CardContent className="p-4">
-                <Link href={`/news/${article.id}`} className="block">
+                <Link href={getArticleLink(article)} className="block">
                   <div className="flex gap-3">
                     {/* Article image */}
                     {article.imageUrl && (

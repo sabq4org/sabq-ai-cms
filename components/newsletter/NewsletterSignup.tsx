@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn, getArticleLink } from "@/lib/utils";
 import {
   ArrowRight,
   BookOpen,
@@ -354,7 +354,7 @@ export default function NewsletterSignup({
                 {latestArticles.map((article) => (
                   <Link
                     key={article.id}
-                    href={`/news/${article.id}`}
+                    href={getArticleLink(article)}
                     className="block group"
                   >
                     <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">

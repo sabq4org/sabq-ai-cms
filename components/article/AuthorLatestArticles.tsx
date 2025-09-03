@@ -1,10 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, getArticleLink } from "@/lib/utils";
 import { Calendar, Eye, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { linkTo } from "@/lib/url-builder";
 import { useEffect, useState } from "react";
 import { useDarkMode } from "@/hooks/useDarkMode";
 
@@ -150,7 +149,7 @@ export default function AuthorLatestArticles({
           {articles.map((article) => (
             <Link
               key={article.id}
-              href={linkTo({ slug: (article as any).slug || article.id, contentType: 'OPINION' })}
+              href={getArticleLink(article)}
               className={cn(
                 "block p-4 rounded-xl transition-all duration-200 hover:shadow-md",
                 darkMode

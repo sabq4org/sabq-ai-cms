@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { format, isToday, isYesterday, differenceInDays } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { useClientTheme } from '@/hooks/useClientTheme';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 interface Reply {
   id: string;
@@ -24,11 +24,12 @@ interface TimelineReplyProps {
 }
 
 export default function TimelineReply({ replies }: TimelineReplyProps) {
-  // استخدام hook الثيم الموحد
-  const { darkMode, mounted } = useClientTheme();
-  
+  // استخدام useDarkMode hook
+  const { darkMode } = useDarkMode();
+
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const repliesContainerRef = useRef<HTMLDivElement>(null);
 

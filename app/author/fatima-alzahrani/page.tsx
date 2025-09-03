@@ -11,7 +11,7 @@ import {
   Twitter, Facebook, Instagram, Linkedin, Globe,
   Users, Target, Zap, Activity, BarChart3
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getArticleLink } from '@/lib/utils';
 import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function FatimaAlzahraniPage() {
@@ -417,9 +417,9 @@ export default function FatimaAlzahraniPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {articles.map((article) => (
-              <Link 
+              <Link
                 key={article.id}
-                href={`/news/${article.slug || article.id}`}
+                href={getArticleLink(article)}
                 className={cn(
                   "group block rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300",
                   darkMode ? "bg-gray-700 hover:bg-gray-650" : "bg-gray-50 hover:shadow-xl"

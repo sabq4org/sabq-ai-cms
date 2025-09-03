@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useDarkMode } from "@/hooks/useDarkMode";
+import { getArticleLink } from "@/lib/utils";
 import { 
   MessageCircle, 
   Check, 
@@ -499,7 +500,7 @@ export default function CommentsManagementPage() {
                 {/* المقال */}
                 <div className="col-span-3">
                   <a
-                    href={`/article/${comment.article.id}`}
+                    href={getArticleLink(comment.article)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-blue-600 hover:underline flex items-center gap-1"

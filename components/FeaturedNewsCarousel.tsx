@@ -77,9 +77,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     paused: hasAnyBreaking,
   });
 
+  // استخدام darkMode hook
+  const { darkMode } = useDarkMode();
+
   // إيقاف التحريك التلقائي عند تحريك الماوس فوق المكون
-  const handleMouseEnter = () => {
-  const { darkMode } = useDarkMode();/* يمكن لاحقاً تفعيل الإيقاف */};
+  const handleMouseEnter = () => {/* يمكن لاحقاً تفعيل الإيقاف */};
   const handleMouseLeave = () => {/* يمكن لاحقاً إعادة التشغيل */};
 
   const getVerificationIcon = (badge: string) => {

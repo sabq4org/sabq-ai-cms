@@ -1,10 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, getArticleLink } from "@/lib/utils";
 import { Calendar, Eye, TrendingUp, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { linkTo } from "@/lib/url-builder";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDarkMode } from "@/hooks/useDarkMode";
@@ -229,7 +228,7 @@ export default function TrendingArticles({
           {articles.map((article, index) => (
             <motion.div key={article.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
             <Link
-              href={linkTo({ slug: (article as any).slug || article.id, contentType: 'NEWS' })}
+              href={getArticleLink(article)}
               className={cn(
                 "block p-4 rounded-xl transition-all duration-200 hover:shadow-md relative border",
                 darkMode
