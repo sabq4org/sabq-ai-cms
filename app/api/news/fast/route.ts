@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     const categoryId = url.searchParams.get('category_id');
     const sort = url.searchParams.get('sort') || 'published_at';
     const order = url.searchParams.get('order') === 'asc' ? 'asc' : 'desc';
+    const noCount = url.searchParams.get('noCount') === '1';
 
     const key = keyFromParams(limit, page, categoryId, `${sort}_${order}`);
 
@@ -58,27 +59,25 @@ export async function GET(request: NextRequest) {
     if (sort === 'views') orderBy.views = order;
     else orderBy.published_at = order;
 
-    const [articles, total] = await Promise.all([
-      prisma.articles.findMany({
-        where,
-        take: limit,
-        skip,
-        orderBy,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          featured_image: true,
-          published_at: true,
-          views: true,
-          reading_time: true,
-          breaking: true,
-          featured: true,
-          category_id: true,
-        },
-      }),
-      prisma.articles.count({ where }),
-    ]);
+    const articles = await prisma.articles.findMany({
+      where,
+      take: limit,
+      skip,
+      orderBy,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        featured_image: true,
+        published_at: true,
+        views: true,
+        reading_time: true,
+        breaking: true,
+        featured: true,
+        category_id: true,
+      },
+    });
+    const total = noCount ? undefined : await prisma.articles.count({ where });
 
     // مخرجات خفيفة ومتوافقة مع الواجهة الحالية
     const payload = {
@@ -96,14 +95,23 @@ export async function GET(request: NextRequest) {
         featured: a.featured,
         category_id: a.category_id,
       })),
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-        hasNext: skip + limit < total,
-        hasPrev: page > 1,
-      },
+      pagination: noCount
+        ? {
+            total: undefined,
+            page,
+            limit,
+            totalPages: undefined,
+            hasNext: articles.length === limit,
+            hasPrev: page > 1,
+          }
+        : {
+            total: total as number,
+            page,
+            limit,
+            totalPages: Math.ceil((total as number) / limit),
+            hasNext: skip + limit < (total as number),
+            hasPrev: page > 1,
+          },
     };
 
     // تخزين
