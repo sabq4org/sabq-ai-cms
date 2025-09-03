@@ -1,23 +1,18 @@
 import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
 import prisma from "@/lib/prisma";
-import { getSiteUrl } from "@/lib/url-builder";
 import { notFound, redirect } from "next/navigation";
-import "./mobile-styles.css";
 
-// ISR: تفاصيل الخبر (NEWS) تعاد التحقق كل 300 ثانية
-export const revalidate = 300;
-export const fetchCache = 'force-cache';
-export const runtime = "nodejs";
+// تفعيل ISR مع إعادة التحقق كل دقيقة
+export const revalidate = 60;
+// السماح بالتخزين المؤقت
+export const dynamic = "error";
 
 // جلب البيانات الكاملة من الخادم
 async function getCompleteArticle(slug: string) {
   try {
     const article = await prisma.articles.findFirst({
       where: {
-        OR: [
-          { slug: slug },
-          { id: slug }, // دعم البحث بالـ ID أيضاً للتوافق
-        ],
+        slug,
         status: "published", // فقط المقالات المنشورة
       },
       include: {
@@ -39,9 +34,7 @@ async function getCompleteArticle(slug: string) {
             title: true,
             avatar_url: true,
             specializations: true,
-            role: true,
-            ai_score: true,
-            bio: true,
+            is_verified: true,
           },
         },
         categories: {
@@ -70,8 +63,6 @@ async function getCompleteArticle(slug: string) {
       // إضافة حقول التوافق
       image: article.featured_image,
       image_url: article.featured_image,
-      // إضافة category للتوافق مع المكون
-      category: article.categories,
 
       // معلومات الكاتب المدمجة
       author_name:
@@ -92,10 +83,6 @@ async function getCompleteArticle(slug: string) {
       // التأكد من وجود المحتوى
       content: article.content || "",
 
-      // معلومات الصورة البارزة
-      featured_image_caption: null,
-      featured_image_metadata: null,
-
       // معلومات SEO
       seo: {
         title: article.seo_title || article.title,
@@ -115,10 +102,9 @@ async function getCompleteArticle(slug: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
-  const article = await getCompleteArticle(slug);
+  const article = await getCompleteArticle(params.slug);
 
   if (!article) {
     return {
@@ -127,8 +113,6 @@ export async function generateMetadata({
     };
   }
 
-  const SITE_URL = getSiteUrl();
-
   return {
     title: article.seo.title,
     description: article.seo.description,
@@ -136,30 +120,20 @@ export async function generateMetadata({
     openGraph: {
       title: article.title,
       description: article.seo.description,
-      images: article.featured_image ? [
-        article.featured_image.startsWith('http') ? article.featured_image : `${SITE_URL}${article.featured_image}`
-      ] : [
-        `${SITE_URL}/images/sabq-logo-social.svg`
-      ],
+      images: article.featured_image ? [article.featured_image] : [],
       type: "article",
       publishedTime: article.published_at?.toISOString(),
       authors: article.author_name ? [article.author_name] : [],
-      url: `${SITE_URL}/news/${slug}`,
-      siteName: "صحيفة سبق الإلكترونية",
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.seo.description,
-      images: article.featured_image ? [
-        article.featured_image.startsWith('http') ? article.featured_image : `${SITE_URL}${article.featured_image}`
-      ] : [
-        `${SITE_URL}/images/sabq-logo-social.svg`
-      ],
+      images: article.featured_image ? [article.featured_image] : [],
       creator: article.author_name,
     },
     alternates: {
-      canonical: `${SITE_URL}/news/${slug}`,
+      canonical: `https://sabq.io/news/${params.slug}`,
     },
   };
 }
@@ -167,17 +141,14 @@ export async function generateMetadata({
 export default async function NewsPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
-  const decodedSlug = decodeURIComponent(slug);
-  console.log("🚀 [Build: 2025-01-10-v4] Prisma is_verified field removed");
+  const decodedSlug = decodeURIComponent(params.slug);
 
   // جلب البيانات الكاملة من الخادم
   const article = await getCompleteArticle(decodedSlug);
 
   if (!article) {
-    console.error(`❌ لم يتم العثور على المقال: ${decodedSlug}`);
     return notFound();
   }
 
@@ -188,7 +159,7 @@ export default async function NewsPage({
 
   // إعادة توجيه إذا كان مقال رأي
   if (effectiveContentType !== "NEWS") {
-    return redirect(`/opinion/${decodedSlug}`);
+    return redirect(`/article/${decodedSlug}`);
   }
 
   // تحديث المشاهدات بشكل غير متزامن (لا ننتظر)
@@ -199,6 +170,11 @@ export default async function NewsPage({
     })
     .catch((err) => console.log("Failed to update views:", err));
 
-  // إعادة الاعتماد على المكوّن العميل المعتمد تاريخياً للحفاظ على التنسيق الكامل
-  return <ArticleClientComponent articleId={article.id} initialArticle={article as any} />;
+  // تمرير البيانات الكاملة للعميل - لا حاجة لـ fetch إضافي!
+  return (
+    <ArticleClientComponent
+      articleId={article.id}
+      initialArticle={article as any} // ✅ البيانات الكاملة
+    />
+  );
 }

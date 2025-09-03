@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 200);
+    const limit = Math.min(parseInt(searchParams.get("pageSize") || searchParams.get("limit") || "20"), 200);
     const status = searchParams.get("status") || "published";
     const category_id = searchParams.get("category_id");
     const search = searchParams.get("search");
@@ -49,6 +49,10 @@ export async function GET(request: NextRequest) {
     const types = searchParams.get("types"); // دعم معامل types الجديد
     const article_type = searchParams.get("article_type"); // فلتر نوع المقال الجديد
     const exclude = searchParams.get("exclude"); // استبعاد مقال معين
+    const fieldsParam = searchParams.get("fields");
+    const light = (searchParams.get("light") || "").toLowerCase() === "1" || (searchParams.get("light") || "").toLowerCase() === "true";
+    const includeParam = searchParams.get("include");
+    const includeContent = includeParam ? includeParam.split(",").includes("content") : false;
 
     console.log(
       `🔍 فلترة المقالات حسب category: ${category_id}, نوع المقال: ${article_type}`
@@ -133,51 +137,85 @@ export async function GET(request: NextRequest) {
       orderBy[sort] = order;
     }
 
-    // جلب المقالات أولاً (بدون content_type لتوافق قاعدة البيانات الحالية)
+    // بناء select ديناميكي لتقليل حجم الاستجابة
+    function buildSelectFromFields(): any {
+      if (fieldsParam) {
+        const fields = fieldsParam.split(",").map((f) => f.trim());
+        const select: any = {};
+        const allow = new Set([
+          "id","title","slug","excerpt","content","author_id","article_author_id","category_id","status","featured","breaking","featured_image","seo_title","seo_description","seo_keywords","created_at","updated_at","published_at","metadata","article_type","content_type","views","reading_time","summary","likes","saves","shares","allow_comments","social_image","audio_summary_url","author","categories"
+        ]);
+        for (const f of fields) {
+          if (!allow.has(f)) continue;
+          if (f === "author") select.author = { select: { id: true, name: true, avatar: true } };
+          else if (f === "categories" || f === "category") select.categories = { select: { id: true, name: true, slug: true, color: true } };
+          else select[f] = true;
+        }
+        // ضمان الحقول الأساسية
+        select.id = true; select.title = true; select.slug = true;
+        return select;
+      }
+      if (light) {
+        return {
+          id: true,
+          title: true,
+          slug: true,
+          featured_image: true,
+          published_at: true,
+          views: true,
+          reading_time: true,
+          featured: true,
+          breaking: true,
+          categories: { select: { id: true, name: true, slug: true } },
+        };
+      }
+      // الافتراضي: نفس السابق ولكن بدون content لتقليل الحجم
+      return {
+        id: true,
+        title: true,
+        slug: true,
+        content: includeContent ? true : false,
+        excerpt: true,
+        author_id: true,
+        article_author_id: true,
+        category_id: true,
+        status: true,
+        featured: true,
+        breaking: true,
+        featured_image: true,
+        seo_title: true,
+        seo_description: true,
+        seo_keywords: true,
+        created_at: true,
+        updated_at: true,
+        published_at: true,
+        metadata: true,
+        article_type: true,
+        content_type: true,
+        views: true,
+        reading_time: true,
+        summary: true,
+        likes: true,
+        saves: true,
+        shares: true,
+        allow_comments: true,
+        social_image: true,
+        audio_summary_url: true,
+        categories: { select: { id: true, name: true, slug: true, color: true } },
+        author: { select: { id: true, name: true, avatar: true } },
+      };
+    }
+
+    const selectFields = buildSelectFromFields();
+
+    // جلب المقالات أولاً
     const articles = await retryWithConnection(async () => {
       return await prisma.articles.findMany({
         where,
         skip,
         take: limit,
         orderBy,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          content: true,
-          excerpt: true,
-          author_id: true,
-          article_author_id: true,
-          category_id: true,
-          status: true,
-          featured: true,
-          breaking: true,
-          featured_image: true,
-          seo_title: true,
-          seo_description: true,
-          seo_keywords: true,
-          created_at: true,
-          updated_at: true,
-          published_at: true,
-          metadata: true,
-          article_type: true,
-          content_type: true, // Ensure this field is always fetched
-          views: true,
-          reading_time: true,
-          summary: true,
-          likes: true,
-          saves: true,
-          shares: true,
-          allow_comments: true,
-          social_image: true,
-          audio_summary_url: true,
-          categories: {
-            select: { id: true, name: true, slug: true, color: true },
-          },
-          author: {
-            select: { id: true, name: true, avatar: true },
-          },
-        },
+        select: selectFields,
       });
     });
 

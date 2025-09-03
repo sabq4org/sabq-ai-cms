@@ -242,7 +242,7 @@ export default function NewsPage() {
 
   // Fetch articles - محسن للأداء
   const fetchArticles = useCallback(
-    async (reset = false) => {
+    async (reset = false, customLimit?: number) => {
       try {
         if (reset) {
           setLoading(true);
@@ -252,12 +252,14 @@ export default function NewsPage() {
         setError(null);
 
         const currentPage = reset ? 1 : page;
+        const effectiveLimit = customLimit ?? ITEMS_PER_PAGE;
         const params = new URLSearchParams({
           status: "published",
-          limit: ITEMS_PER_PAGE.toString(),
+          limit: effectiveLimit.toString(),
           page: currentPage.toString(),
           sort: sortBy === "views" ? "views" : "published_at",
           order: "desc",
+          noCount: "1",
         });
 
         if (selectedCategory) {
@@ -269,7 +271,7 @@ export default function NewsPage() {
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
 
         try {
-          const response = await fetch(`/api/news?${params}`, {
+          const response = await fetch(`/api/news/fast?${params}`, {
             signal: controller.signal,
             cache: "no-store",
           });
@@ -293,7 +295,7 @@ export default function NewsPage() {
             setArticles((prev) => [...prev, ...articles]);
           }
 
-          setHasMore(articles.length === ITEMS_PER_PAGE);
+          setHasMore(articles.length === effectiveLimit);
         } catch (fetchError: any) {
           clearTimeout(timeoutId);
           if (fetchError.name === "AbortError") {
@@ -380,7 +382,8 @@ export default function NewsPage() {
   }, []);
 
   useEffect(() => {
-    fetchArticles(true);
+    // جلب سريع أولي لـ 8 عناصر لظهور فوري، ثم يمكن للمستخدم تحميل المزيد
+    fetchArticles(true, 8);
   }, [selectedCategory, sortBy]);
 
   useEffect(() => {

@@ -88,46 +88,67 @@ export default function SmartContentBlock({
 
   const fetchSmartContent = async () => {
     try {
-      console.log('🔄 جلب المحتوى الذكي (محسّن)...');
-      
-      // استراتيجية تحميل سريع: جلب بيانات أقل وأكثر فعالية
-      const response = await fetch('/api/articles?limit=20&sort=published_at&order=desc', {
-        headers: {
-          'Cache-Control': 'max-age=300' // 5 دقائق cache
-        }
+      console.log('🔄 جلب المحتوى الذكي السريع...');
+
+      // كاش محلي قصير لتسريع إعادة الزيارة خلال دقيقة
+      const cacheKey = 'smart-content-fast-cache-v1';
+      const cached = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (parsed && Date.now() - parsed.ts < 60 * 1000 && Array.isArray(parsed.articles)) {
+            setArticles(parsed.articles);
+            setIsLoading(false);
+            // بالتوازي، نقوم بالتحديث في الخلفية دون حجب الواجهة
+          }
+        } catch {}
+      }
+
+      // إضافة timeout لحماية الواجهة من التعليق
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 ثوانٍ
+
+      const response = await fetch('/api/smart-content/fast?limit=20', {
+        signal: controller.signal,
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' }
       });
-      
-      console.log('📡 حالة الاستجابة:', response.status);
-      
+      clearTimeout(timeoutId);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('📦 البيانات المستلمة:', data);
-        console.log('📊 عدد المقالات:', data.articles?.length || 0);
-        
-        // معالجة مبسطة وسريعة
-        const articles = (data.articles || []).slice(0, 20);
-        
-        // وسم بسيط للتخصيص بدلاً من المعالجة المعقدة
-        const enriched: Article[] = articles.map((article: any, index: number) => ({
+        const base = (data.articles || []).slice(0, 20);
+        const enriched: Article[] = base.map((article: any) => ({
           ...article,
-          // تخصيص عشوائي بسيط للأداء
-          isPersonalized: Math.random() > 0.7, // 30% مخصص
+          isPersonalized: Math.random() > 0.7,
           confidence: Math.random() > 0.5 ? Math.floor(Math.random() * 15) + 80 : undefined,
         }));
 
-        console.log('✅ تم تعيين المقالات (محسّن):', enriched.length);
         setArticles(enriched);
+        // حفظ في الكاش المحلي
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), articles: enriched }));
+        } catch {}
       } else {
-        console.error('❌ فشل في جلب المقالات:', response.status);
-        // fallback سريع
-        setArticles([]);
+        console.error('❌ فشل في جلب المحتوى السريع:', response.status);
+        if (!cached) setArticles([]);
       }
     } catch (error) {
-      console.error('❌ Error fetching smart content:', error);
-      // fallback سريع
-      setArticles([]);
+      console.error('❌ Error fetching smart content fast:', error);
+      // إبقاء الكاش المحلي إن وجد، وإلا ففارغ
+      try {
+        const cached = localStorage.getItem('smart-content-fast-cache-v1');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.articles) setArticles(parsed.articles);
+        } else {
+          setArticles([]);
+        }
+      } catch {
+        setArticles([]);
+      }
     } finally {
-      console.log('🏁 تم الانتهاء من التحميل (محسّن)');
+      console.log('🏁 تم الانتهاء من التحميل (fast)');
       setIsLoading(false);
     }
   };

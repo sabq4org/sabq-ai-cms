@@ -407,11 +407,8 @@ async function fetchRecentQualityArticles(
       ? window.location.origin 
       : (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
     const response = await fetch(
-      `${baseUrl}/api/news?limit=${limit * 2}&status=published&sort=published_at&order=desc`,
-      {
-        next: { revalidate: 60 },
-        cache: 'force-cache'
-      }
+      `${baseUrl}/api/news/fast?limit=${limit * 2}&status=published&sort=published_at&order=desc&noCount=1`,
+      { next: { revalidate: 60 }, cache: 'force-cache' }
     );
 
     if (!response.ok) return [];
@@ -832,11 +829,8 @@ async function fetchArticlesByCategories(
     // استخدام أول تصنيف فقط حالياً لأن API لا يدعم تصنيفات متعددة
     const categoryParam = categories[0] ? `&category=${encodeURIComponent(categories[0])}` : '';
     const response = await fetch(
-      `${baseUrl}/api/news?limit=15&status=published&sort=published_at&order=desc${categoryParam}`,
-      {
-        next: { revalidate: 60 },
-        cache: 'force-cache'
-      }
+      `${baseUrl}/api/news/fast?limit=15&status=published&sort=published_at&order=desc&noCount=1${categoryParam}`,
+      { next: { revalidate: 60 }, cache: 'force-cache' }
     );
 
     if (!response.ok) {
@@ -952,11 +946,8 @@ async function fetchTrendingArticles(
       ? window.location.origin 
       : (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
     const response = await fetch(
-      `${baseUrl}/api/news?limit=10&status=published&sort=published_at&order=desc&breaking=false&featured=false`,
-      {
-        next: { revalidate: 60 },
-        cache: 'force-cache'
-      }
+      `${baseUrl}/api/news/fast?limit=10&status=published&sort=published_at&order=desc&noCount=1&breaking=false&featured=false`,
+      { next: { revalidate: 60 }, cache: 'force-cache' }
     );
 
     if (!response.ok) return [];
