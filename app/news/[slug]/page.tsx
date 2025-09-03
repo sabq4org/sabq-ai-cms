@@ -1,204 +1,82 @@
-import ArticleClientComponent from "@/app/article/[id]/ArticleClientComponent";
-import prisma from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { getSiteUrl } from "@/lib/url-builder";
-import { notFound, redirect } from "next/navigation";
-import "./mobile-styles.css";
+import ResponsiveArticle from "./parts/ResponsiveArticle";
+import { getArticleOptimized, type Article } from "./ArticleLoader";
 
-// ISR: تفاصيل الخبر (NEWS) تعاد التحقق كل 300 ثانية
-export const revalidate = 300;
-export const fetchCache = 'force-cache';
+export const revalidate = 3600; // cache لمدة ساعة بدلاً من 5 دقائق
 export const runtime = "nodejs";
+export const fetchCache = 'force-cache';
 
-// جلب البيانات الكاملة من الخادم
-async function getCompleteArticle(slug: string) {
-  try {
-    const article = await prisma.articles.findFirst({
-      where: {
-        OR: [
-          { slug: slug },
-          { id: slug }, // دعم البحث بالـ ID أيضاً للتوافق
-        ],
-        status: "published", // فقط المقالات المنشورة
-      },
-      include: {
-        // جلب كل البيانات المطلوبة مرة واحدة
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            role: true,
-          },
-        },
-        article_author: {
-          select: {
-            id: true,
-            full_name: true,
-            slug: true,
-            title: true,
-            avatar_url: true,
-            specializations: true,
-            role: true,
-            ai_score: true,
-            bio: true,
-          },
-        },
-        categories: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            color: true,
-            icon: true,
-          },
-        },
-        // حقول إضافية للأداء
-        _count: {
-          select: {
-            interactions: true,
-          },
-        },
-      },
-    });
 
-    if (!article) return null;
 
-    // تحويل البيانات للشكل المتوقع
-    const formattedArticle = {
-      ...article,
-      // إضافة حقول التوافق
-      image: article.featured_image,
-      image_url: article.featured_image,
-      // إضافة category للتوافق مع المكون
-      category: article.categories,
+type Insights = {
+  views: number;
+  readsCompleted: number;
+  avgReadTimeSec: number;
+  interactions: { likes: number; comments: number; shares: number };
+  ai: {
+    shortSummary: string;
+    sentiment: "إيجابي" | "سلبي" | "محايد";
+    topic: string;
+    readerFitScore: number;
+    recommendations: { id: string; title: string; url: string }[];
+  };
+};
 
-      // معلومات الكاتب المدمجة
-      author_name:
-        article.article_author?.full_name || article.author?.name || null,
-      author_title: article.article_author?.title || null,
-      author_avatar:
-        article.article_author?.avatar_url || article.author?.avatar || null,
-      author_slug: article.article_author?.slug || null,
 
-      // إحصائيات التفاعل
-      stats: {
-        views: article.views || 0,
-        likes: article.likes || 0,
-        saves: article.saves || 0,
-        shares: article.shares || 0,
-      },
 
-      // التأكد من وجود المحتوى
-      content: article.content || "",
-
-      // معلومات الصورة البارزة
-      featured_image_caption: null,
-      featured_image_metadata: null,
-
-      // معلومات SEO
-      seo: {
-        title: article.seo_title || article.title,
-        description:
-          article.seo_description || article.excerpt || article.summary,
-        keywords: article.seo_keywords || article.tags,
-      },
-    };
-
-    return formattedArticle;
-  } catch (error) {
-    console.error("خطأ في جلب المقال:", error);
-    return null;
-  }
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-  const article = await getCompleteArticle(slug);
-
-  if (!article) {
-    return {
-      title: "الخبر غير موجود",
-      description: "عذراً، لم نتمكن من العثور على هذا الخبر",
-    };
-  }
-
-  const SITE_URL = getSiteUrl();
-
+async function getInsights(articleId: string): Promise<Insights> {
+  // بيانات افتراضية أولية - يمكن استبدالها لاحقاً بمصدر فعلي
   return {
-    title: article.seo.title,
-    description: article.seo.description,
-    keywords: article.seo.keywords,
-    openGraph: {
-      title: article.title,
-      description: article.seo.description,
-      images: article.featured_image ? [
-        article.featured_image.startsWith('http') ? article.featured_image : `${SITE_URL}${article.featured_image}`
-      ] : [
-        `${SITE_URL}/images/sabq-logo-social.svg`
-      ],
-      type: "article",
-      publishedTime: article.published_at?.toISOString(),
-      authors: article.author_name ? [article.author_name] : [],
-      url: `${SITE_URL}/news/${slug}`,
-      siteName: "صحيفة سبق الإلكترونية",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: article.title,
-      description: article.seo.description,
-      images: article.featured_image ? [
-        article.featured_image.startsWith('http') ? article.featured_image : `${SITE_URL}${article.featured_image}`
-      ] : [
-        `${SITE_URL}/images/sabq-logo-social.svg`
-      ],
-      creator: article.author_name,
-    },
-    alternates: {
-      canonical: `${SITE_URL}/news/${slug}`,
+    views: 0,
+    readsCompleted: 0,
+    avgReadTimeSec: Math.max(60, 60 *  (3)),
+    interactions: { likes: 0, comments: 0, shares: 0 },
+    ai: {
+      shortSummary: "ملخص تجريبي قصير سيتم توليده لاحقاً من خدمة الذكاء الاصطناعي.",
+      sentiment: "محايد",
+      topic: "أخبار عامة",
+      readerFitScore: 60,
+      recommendations: [],
     },
   };
 }
 
-export default async function NewsPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const decodedSlug = decodeURIComponent(slug);
-  console.log("🚀 [Build: 2025-01-10-v4] Prisma is_verified field removed");
-
-  // جلب البيانات الكاملة من الخادم
-  const article = await getCompleteArticle(decodedSlug);
+  const article = await getArticleOptimized(decodeURIComponent(slug));
+  const SITE_URL = getSiteUrl();
 
   if (!article) {
-    console.error(`❌ لم يتم العثور على المقال: ${decodedSlug}`);
-    return notFound();
+    return { title: "خبر غير موجود" };
   }
 
-  // التحقق من نوع المحتوى
-  const effectiveContentType =
-    article.content_type ||
-    (article.article_type === "news" ? "NEWS" : "OPINION");
+  const image = article.featured_image ? (article.featured_image.startsWith("http") ? article.featured_image : `${SITE_URL}${article.featured_image}`) : `${SITE_URL}/images/sabq-logo-social.svg`;
 
-  // إعادة توجيه إذا كان مقال رأي
-  if (effectiveContentType !== "NEWS") {
-    return redirect(`/opinion/${decodedSlug}`);
-  }
-
-  // تحديث المشاهدات بشكل غير متزامن (لا ننتظر)
-  prisma.articles
-    .update({
-      where: { id: article.id },
-      data: { views: { increment: 1 } },
-    })
-    .catch((err) => console.log("Failed to update views:", err));
-
-  // إعادة الاعتماد على المكوّن العميل المعتمد تاريخياً للحفاظ على التنسيق الكامل
-  return <ArticleClientComponent articleId={article.id} initialArticle={article as any} />;
+  return {
+    title: article.title,
+    description: article.summary || undefined,
+    openGraph: { title: article.title, description: article.summary || undefined, images: [image], type: "article" },
+    twitter: { card: "summary_large_image", title: article.title, description: article.summary || undefined, images: [image] },
+    alternates: { canonical: `${SITE_URL}/news/${slug}` },
+  };
 }
+
+export default async function ExperimentalNewsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article = await getArticleOptimized(decodeURIComponent(slug));
+  if (!article) return notFound();
+
+  const insights = await getInsights(article.id);
+
+  return (
+    <ResponsiveArticle 
+      article={article}
+      insights={insights}
+      slug={slug}
+    />
+  );
+}
+
+
