@@ -646,6 +646,20 @@ export default function ArticleClientComponent({
               <div className="hidden sm:block">
                 <div className="max-w-[110ch] mx-auto px-4 sm:px-6">
                   <div className="text-right">
+                    {/* الصورة البارزة أولاً (Hero) */}
+                    {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
+                      <div className="mb-5">
+                        <ArticleFeaturedImage
+                          imageUrl={article.featured_image}
+                          title={article.title}
+                          alt={article.featured_image_alt || article.title}
+                          caption={article.featured_image_caption}
+                          category={article.category}
+                          className="w-full rounded-2xl shadow-2xl"
+                        />
+                      </div>
+                    )}
+
                     {/* التصنيف */}
                     {article.category && (
                       <div className="flex items-center justify-end gap-2 mb-4">
@@ -705,20 +719,6 @@ export default function ArticleClientComponent({
                         </div>
                       )}
                     </div>
-
-                    {/* الصورة البارزة */}
-                    {article.featured_image && typeof article.featured_image === "string" && article.featured_image.length > 0 && !article.metadata?.emergency_mode && (
-                      <div className="mt-5">
-                        <ArticleFeaturedImage
-                          imageUrl={article.featured_image}
-                          title={article.title}
-                          alt={article.featured_image_alt || article.title}
-                          caption={article.featured_image_caption}
-                          category={article.category}
-                          className="w-full rounded-2xl shadow-2xl"
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -806,7 +806,7 @@ export default function ArticleClientComponent({
             </div>
           </article>
         </div>
-        {/* منطقة المحتوى - عرض أوسع للديسكتوب */}
+        {/* تخطيط بعمودين تحت الهيرو (ديسكتوب) */}
         <div className="w-full">
           <div className="max-w-[110ch] mx-auto px-4 sm:px-6 py-2">
             <div className="bg-transparent dark:bg-transparent rounded-xl">
@@ -836,107 +836,104 @@ export default function ArticleClientComponent({
               </div>
             </div>
 
-            {/* موجز الذكاء الاصطناعي للديسكتوب */}
-            <div className="hidden sm:block mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 180px" as any }}>
-              <div className="w-full">
-                <ArticleAISummary
-                  articleId={article.id}
-                  title={article.title || "مقال بدون عنوان"}
-                  content={article.content || ""}
-                  existingSummary={article.ai_summary || article.summary || article.excerpt || ""}
-                  className="shadow-lg w-full"
-                />
-                <div className="mt-4 flex justify-end">
-                  <SmartAudioButton
+            {/* شبكة عمودين: المحتوى + بانل جانبي (ديسكتوب) */}
+            <div className="hidden sm:grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* العمود الأيسر: النص (8 أعمدة) */}
+              <div className="lg:col-span-8">
+                {/* موجز الذكاء الاصطناعي */}
+                <div className="mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 180px" as any }}>
+                  <ArticleAISummary
                     articleId={article.id}
-                    title={article.title || ""}
+                    title={article.title || "مقال بدون عنوان"}
                     content={article.content || ""}
-                    variant="inline"
+                    existingSummary={article.ai_summary || article.summary || article.excerpt || ""}
+                    className="shadow-lg w-full"
+                  />
+                  <div className="mt-4 flex justify-end">
+                    <SmartAudioButton
+                      articleId={article.id}
+                      title={article.title || ""}
+                      content={article.content || ""}
+                      variant="inline"
+                    />
+                  </div>
+                </div>
+
+                {/* الكلمات المفتاحية */}
+                {keywords.length > 0 && (
+                  <div className="mb-6 sm:mb-8">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      {keywords.map((keyword, index) => (
+                        <Link
+                          key={index}
+                          href={`/tags/${encodeURIComponent(keyword)}`}
+                          className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
+                        >
+                          <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                          <span>{keyword}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* أزرار التفاعل + وضع القراءة */}
+                <div className="mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 64px" as any }}>
+                  <BasicLikeSave
+                    articleId={article.id}
+                    initialLikes={article.likes || article.stats?.likes || 0}
+                    initialSaves={article.saves || article.stats?.saves || 0}
+                    showReadingModeButton={true}
+                    isReading={isReading}
+                    onReadingModeToggle={() => {
+                      const next = !isReading;
+                      setIsReading(next);
+                      localStorage.setItem('reading-mode', next ? 'true' : 'false');
+                    }}
+                  />
+                </div>
+
+                {/* محتوى المقال */}
+                <div className="mb-12" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 900px" as any }}>
+                  <div
+                    className={`prose max-w-none dark:prose-invert arabic-article-content ${isReading ? "reading-only" : ""}`}
+                    dangerouslySetInnerHTML={{ __html: contentHtml }}
+                  />
+                </div>
+
+                {/* الأسئلة */}
+                {article?.content && (
+                  <div className="mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 120px" as any }}>
+                    <AIQuestions content={typeof article.content === "string" ? article.content : JSON.stringify(article.content)} />
+                  </div>
+                )}
+
+                {/* التعليقات */}
+                <div className="mt-4 sm:mt-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 200px" as any }}>
+                  <CommentsPanel articleId={article.id} initialCount={article.comments_count || 0} />
+                </div>
+
+                {/* إحصائيات المقال */}
+                <div className="mt-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 120px" as any }}>
+                  <ArticleStatsBlock
+                    views={article.views || 0}
+                    likes={article.likes || 0}
+                    saves={article.saves || 0}
+                    shares={article.shares || 0}
+                    category={article.category ? { name: article.category.name, color: (article.category as any).color, icon: (article.category as any).icon } : undefined}
                   />
                 </div>
               </div>
-            </div>
 
-            {/* الكلمات المفتاحية */}
-            {keywords.length > 0 && (
-              <div className="mb-6 sm:mb-8">
-                <div className="w-full">
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                    {keywords.map((keyword, index) => (
-                      <Link
-                        key={index}
-                        href={`/tags/${encodeURIComponent(keyword)}`}
-                        className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 hover:shadow-sm"
-                      >
-                        <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                        <span>{keyword}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* أزرار التفاعل وزر وضع القراءة */}
-            <div className="mb-6 sm:mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 64px" as any }}>
-              <div className="w-full">
-                <BasicLikeSave
+              {/* العمود الأيمن: بانل (4 أعمدة) */}
+              <aside className="lg:col-span-4 space-y-6">
+                <ArticleAISummary
                   articleId={article.id}
-                  initialLikes={article.likes || article.stats?.likes || 0}
-                  initialSaves={article.saves || article.stats?.saves || 0}
-                  showReadingModeButton={true}
-                  isReading={isReading}
-                  onReadingModeToggle={() => {
-                    const next = !isReading;
-                    setIsReading(next);
-                    localStorage.setItem('reading-mode', next ? 'true' : 'false');
-                  }}
+                  title={article.title || ""}
+                  content={article.content || ""}
+                  existingSummary={article.ai_summary || article.summary || article.excerpt || ""}
+                  className="shadow-lg"
                 />
-              </div>
-            </div>
-
-            {/* محتوى المقال */}
-            <div className="mb-12" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 900px" as any }}>
-              <div className="w-full">
-                <div
-                  className={`prose max-w-none dark:prose-invert arabic-article-content ${isReading ? "reading-only" : ""}`}
-                  dangerouslySetInnerHTML={{ __html: contentHtml }}
-                />
-              </div>
-            </div>
-
-            {/* الأسئلة */}
-            {article?.content && (
-              <div className="mb-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 120px" as any }}>
-                <div className="w-full">
-                  <AIQuestions content={typeof article.content === "string" ? article.content : JSON.stringify(article.content)} />
-                </div>
-              </div>
-            )}
-
-            {/* التعليقات */}
-            <div className="mt-4 sm:mt-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 200px" as any }}>
-              <div className="w-full">
-                <CommentsPanel articleId={article.id} initialCount={article.comments_count || 0} />
-              </div>
-            </div>
-
-            {/* إحصائيات المقال */}
-            <div className="mt-6" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 120px" as any }}>
-              <div className="w-full">
-                <ArticleStatsBlock
-                  views={article.views || 0}
-                  likes={article.likes || 0}
-                  saves={article.saves || 0}
-                  shares={article.shares || 0}
-                  category={article.category ? { name: article.category.name, color: (article.category as any).color, icon: (article.category as any).icon } : undefined}
-                />
-              </div>
-            </div>
-
-            {/* محتوى مخصص لك */}
-            <div className="mt-6 sm:mt-8" style={{ contentVisibility: "auto" as any, containIntrinsicSize: "100% 320px" as any }}>
-              <div className="w-full">
                 <SmartPersonalizedContent
                   articleId={article.id}
                   categoryId={article.category_id}
@@ -945,7 +942,8 @@ export default function ArticleClientComponent({
                   darkMode={darkMode}
                   userId="guest"
                 />
-              </div>
+                <AdBanner placement="article_side_panel" />
+              </aside>
             </div>
 
           </div>
