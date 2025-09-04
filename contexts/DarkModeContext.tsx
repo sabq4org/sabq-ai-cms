@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext } from 'react';
-import { useTheme } from './ThemeContext';
+// ThemeContext removed for performance
 
 interface DarkModeContextType {
   darkMode: boolean;
@@ -16,13 +16,32 @@ const DarkModeContext = createContext<DarkModeContextType>({
 });
 
 export function DarkModeProvider({ children }: { children: React.ReactNode }) {
-  const { resolvedTheme, toggleTheme, mounted } = useTheme();
+  const [darkMode, setDarkMode] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  
+  React.useEffect(() => {
+    setMounted(true);
+    const isDark = document.documentElement.classList.contains('dark');
+    setDarkMode(isDark);
+  }, []);
+  
+  const toggleDarkMode = React.useCallback(() => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
   
   return (
     <DarkModeContext.Provider value={{ 
-      darkMode: resolvedTheme === 'dark', 
+      darkMode, 
       mounted,
-      toggleDarkMode: toggleTheme 
+      toggleDarkMode 
     }}>
       {children}
     </DarkModeContext.Provider>

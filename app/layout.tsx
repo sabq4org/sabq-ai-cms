@@ -10,7 +10,7 @@ import "./globals.css";
 import "@/styles/unified-font-system.css";
 import "@/styles/force-arabic-font.css";
 import "@/app/old-style-demo/old-style.css";
-import "@/styles/color-softening.css";
+// color-softening.css removed for performance
 import "@/styles/notification-fixes.css";
 import "@/styles/notification-modern-ui.css";
 import "@/styles/notification-light-header.css";
