@@ -68,8 +68,7 @@ interface Reply {
 export default function TopicPage() {
   const params = useParams();
   const router = useRouter();
-  // Theme removed for performance
-  const darkMode = theme === 'dark';
+  const darkMode = false; // theme removed
   const topicId = params?.id as string;
   
   const [topic, setTopic] = useState<Topic | null>(null);

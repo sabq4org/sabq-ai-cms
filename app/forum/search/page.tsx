@@ -33,8 +33,7 @@ interface SearchResult {
 export default function ForumSearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  // Theme removed for performance
-  const darkMode = theme === 'dark';
+  const darkMode = false; // theme removed
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'all' | 'topics' | 'replies'>('all');

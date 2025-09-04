@@ -29,8 +29,7 @@ interface AuthUser {
 
 export default function NewTopicPage() {
   const router = useRouter();
-  // Theme removed for performance
-  const darkMode = theme === 'dark';
+  const darkMode = false; // theme removed
   
   const [formData, setFormData] = useState({
     title: '',

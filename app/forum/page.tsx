@@ -210,8 +210,7 @@ export default function SabqForum() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  // Theme removed for performance
-  const darkMode = theme === 'dark';
+  const darkMode = false; // theme removed
   // جلب المواضيع من API
   useEffect(() => {
     const fetchTopics = async () => {
