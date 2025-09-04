@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { format, isToday, isYesterday, differenceInDays } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { useTheme } from '@/contexts/ThemeContext';
+// Theme removed for performance
 
 interface Reply {
   id: string;
@@ -24,8 +24,7 @@ interface TimelineReplyProps {
 }
 
 export default function TimelineReply({ replies }: TimelineReplyProps) {
-  const { theme } = useTheme();
-  const darkMode = theme === 'dark';
+  const darkMode = false; // Theme removed for performance
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const timelineRef = useRef<HTMLDivElement>(null);

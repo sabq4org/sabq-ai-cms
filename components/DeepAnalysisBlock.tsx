@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "@/contexts/ThemeContext";
+// Theme removed for performance
 import {
   Award,
   BookOpen,
@@ -94,8 +94,7 @@ export default function DeepAnalysisBlock({
   maxItems = 3,
 }: DeepAnalysisBlockProps) {
   const [readItems, setReadItems] = useState<string[]>([]);
-  const { resolvedTheme, mounted } = useTheme();
-  const darkMode = resolvedTheme === "dark";
+  const darkMode = false; // Theme removed for performance
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAllTags, setShowAllTags] = useState<{ [key: string]: boolean }>(

@@ -34,7 +34,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ClientOnly from "../ClientOnly";
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
-import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
+// CompactThemeSwitcher removed for performance
 
 export default function UnifiedHeader() {
   const router = useRouter();
@@ -195,9 +195,6 @@ export default function UnifiedHeader() {
             {/* الأدوات والمستخدم */}
             <div className="flex items-center gap-3">
               
-              {/* مبدل الثيم */}
-              <CompactThemeSwitcher />
-
               {/* الإشعارات */}
               {isAuthenticated && user && (
                 <div className="relative">

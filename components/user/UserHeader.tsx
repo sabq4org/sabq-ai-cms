@@ -26,7 +26,7 @@ import DarkModeToggle from '@/components/admin/modern-dashboard/DarkModeToggle';
 import Image from 'next/image';
 import SabqLogo from '@/components/SabqLogo';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
-import CompactThemeSwitcher from '@/components/theme/CompactThemeSwitcher';
+// CompactThemeSwitcher removed for performance
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
@@ -385,9 +385,6 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
                 );
               })}
             </div> */}
-
-            {/* منتقي الألوان المتوسع */}
-            <CompactThemeSwitcher />
 
             {/* زر الوضع الداكن */}
             <DarkModeToggle />
