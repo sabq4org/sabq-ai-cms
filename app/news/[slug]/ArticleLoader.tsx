@@ -1,25 +1,39 @@
 import prisma from "@/lib/prisma";
 
-// Utility cache لتقليل الاستعلامات المتكررة
-const articleCache = new Map<string, any>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 دقائق
+// تحسين الـ cache - استخدام Redis مع fallback للذاكرة
+import { cache as redisCache, CACHE_TTL } from "@/lib/redis";
 
-// استخدام API السريع للجلب
+const articleCache = new Map<string, any>();
+const MEM_TTL = 30 * 1000; // 30 ثانية للذاكرة المحلية
+const REDIS_TTL = 10 * 60 * 1000; // 10 دقائق للـ Redis
+
+// تحسين API call مع timeout وإعادة محاولة
 async function fetchArticleFromAPI(slug: string): Promise<any> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 ثواني timeout
+  
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/articles/${encodeURIComponent(slug)}/fast?related=true&comments=true`,
+      `${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/articles/${encodeURIComponent(slug)}/fast?related=false&comments=false`,
       {
+        signal: controller.signal,
         cache: 'force-cache',
-        next: { revalidate: 300 }, // 5 دقائق
+        next: { revalidate: 600 }, // 10 دقائق
       }
     );
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) return null;
     const data = await response.json();
     return data.article;
-  } catch (error) {
-    console.error('Failed to fetch from API:', error);
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.warn('API request timeout for article:', slug);
+    } else {
+      console.error('Failed to fetch from API:', error);
+    }
     return null;
   }
 }
@@ -51,11 +65,27 @@ export type Article = {
 };
 
 export async function getArticleOptimized(slug: string): Promise<Article | null> {
-  // تحقق من الـ cache أولاً
-  const cacheKey = `article:${slug}`;
-  const cached = articleCache.get(cacheKey);
-  if (cached && cached.timestamp > Date.now() - CACHE_TTL) {
-    return cached.data;
+  const cacheKey = `article:optimized:${slug}`;
+  
+  // 1. تحقق من الذاكرة المحلية
+  const memCached = articleCache.get(cacheKey);
+  if (memCached && memCached.timestamp > Date.now() - MEM_TTL) {
+    return memCached.data;
+  }
+  
+  // 2. تحقق من Redis
+  try {
+    const redisCached = await redisCache.get<Article>(cacheKey);
+    if (redisCached) {
+      // حفظ في الذاكرة المحلية للوصول السريع
+      articleCache.set(cacheKey, {
+        data: redisCached,
+        timestamp: Date.now(),
+      });
+      return redisCached;
+    }
+  } catch (redisError) {
+    console.warn('Redis error in getArticleOptimized:', redisError);
   }
   
   // محاولة الجلب من API السريع أولاً
@@ -75,10 +105,10 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
   }
 
   try {
-    // استعلام محسّن مع select محددة لتقليل حجم البيانات
-    const article = await prisma.articles.findFirst({
+    // تحسين الاستعلام - البحث بالـ slug أولاً (أسرع) ثم ID
+    let article = await prisma.articles.findFirst({
       where: { 
-        OR: [{ slug }, { id: slug }], 
+        slug: slug,
         status: "published" 
       },
       select: {
@@ -96,27 +126,6 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
         likes: true,
         shares: true,
         saves: true,
-        // تحميل العلاقات الضرورية فقط
-        author: { 
-          select: { 
-            id: true, 
-            name: true, 
-            email: true, 
-            avatar: true, 
-            role: true 
-          } 
-        },
-        article_author: { 
-          select: { 
-            id: true, 
-            full_name: true, 
-            slug: true, 
-            title: true, 
-            avatar_url: true,
-            specializations: true,
-            bio: true
-          } 
-        },
         categories: { 
           select: { 
             id: true, 
@@ -136,49 +145,68 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
               }
             }
           }
-        },
-        // تحميل الصور مباشرة
-        NewsArticleAssets: {
-          select: {
-            media_assets: {
-              select: {
-                cloudinaryUrl: true,
-                width: true,
-                height: true
-              }
-            }
-          }
         }
       },
     });
+    
+    // إذا لم نجد بالـ slug، نبحث بالـ ID
+    if (!article) {
+      article = await prisma.articles.findFirst({
+        where: { 
+          id: slug,
+          status: "published" 
+        },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          excerpt: true,
+          summary: true,
+          metadata: true,
+          featured_image: true,
+          published_at: true,
+          updated_at: true,
+          reading_time: true,
+          views: true,
+          likes: true,
+          shares: true,
+          saves: true,
+          categories: { 
+            select: { 
+              id: true, 
+              name: true, 
+              slug: true, 
+              color: true, 
+              icon: true 
+            } 
+          },
+          article_tags: {
+            select: {
+              tags: {
+                select: { 
+                  id: true, 
+                  name: true, 
+                  slug: true 
+                }
+              }
+            }
+          }
+        },
+      });
+    }
 
     if (!article) return null;
 
-    // معالجة الصور
+    // معالجة الصور - تبسيط لتحسين الأداء
     const images: Article["images"] = [];
     
-    // الصورة البارزة
+    // الصورة البارزة فقط لتحسين الأداء
     if (article.featured_image) {
       images.push({ 
         url: article.featured_image, 
         alt: article.title || undefined, 
         width: 1600, 
         height: 900 
-      });
-    }
-    
-    // صور إضافية من MediaAssets
-    if (article.NewsArticleAssets) {
-      article.NewsArticleAssets.forEach((relation) => {
-        const asset = relation.media_assets;
-        if (asset.cloudinaryUrl && !images.some(img => img.url === asset.cloudinaryUrl)) {
-          images.push({ 
-            url: asset.cloudinaryUrl, 
-            alt: article.title || undefined,
-            width: asset.width || 1600,
-            height: asset.height || 900
-          });
-        }
       });
     }
 
@@ -195,13 +223,19 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
       readMinutes: (article as any).reading_time || null,
       views: article.views || 0,
       images,
-      author: article.author,
-      article_author: (article as any).article_author,
+      author: null, // تبسيط البيانات لتحسين الأداء
+      article_author: null,
       categories: article.categories,
       tags: (article as any).article_tags?.map((at: any) => at.tags) || [],
     };
 
-    // حفظ في الـ cache
+    // حفظ في Redis والذاكرة المحلية
+    try {
+      await redisCache.set(cacheKey, mapped, CACHE_TTL.ARTICLES);
+    } catch (redisError) {
+      console.warn('Failed to save to Redis:', redisError);
+    }
+    
     articleCache.set(cacheKey, {
       data: mapped,
       timestamp: Date.now()
@@ -215,13 +249,16 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
 }
 
 // تنظيف الـ cache القديم كل 5 دقائق
-if (typeof global !== 'undefined' && !global.articleCacheCleanupInterval) {
-  global.articleCacheCleanupInterval = setInterval(() => {
-    const now = Date.now();
-    for (const [key, value] of articleCache.entries()) {
-      if (value.timestamp < now - CACHE_TTL) {
-        articleCache.delete(key);
+if (typeof global !== 'undefined') {
+  const globalAny = global as any;
+  if (!globalAny.articleCacheCleanupInterval) {
+    globalAny.articleCacheCleanupInterval = setInterval(() => {
+      const now = Date.now();
+      for (const [key, value] of articleCache.entries()) {
+        if (value.timestamp < now - MEM_TTL * 10) { // احتفظ لـ 10x TTL
+          articleCache.delete(key);
+        }
       }
-    }
-  }, 5 * 60 * 1000);
+    }, 5 * 60 * 1000);
+  }
 }

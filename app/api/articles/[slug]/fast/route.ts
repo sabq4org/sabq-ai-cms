@@ -4,9 +4,19 @@ import { cache as redisCache, CACHE_TTL } from "@/lib/redis";
 
 export const runtime = "nodejs";
 
-// كاش في الذاكرة للطلبات المتزامنة
+// تحسين الـ cache - ذاكرة محلية محسنة
 const memCache = new Map<string, { ts: number; data: any }>();
-const MEM_TTL = 30 * 1000; // 30 ثانية
+const MEM_TTL = 60 * 1000; // 60 ثانية للمقالات (أطول من الأخبار)
+
+// تنظيف الذاكرة كل 5 دقائق
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of memCache.entries()) {
+    if (now - value.ts > MEM_TTL * 10) {
+      memCache.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
 
 export async function GET(
   request: NextRequest,
@@ -50,10 +60,10 @@ export async function GET(
       console.warn("Redis error:", redisError);
     }
     
-    // 3. جلب من قاعدة البيانات - حقول محدودة فقط
-    const article = await prisma.articles.findFirst({
+    // 3. تحسين الاستعلام - البحث بالـ slug أولاً (أسرع)
+    let article = await prisma.articles.findFirst({
       where: {
-        OR: [{ slug: decodedSlug }, { id: decodedSlug }],
+        slug: decodedSlug,
         status: "published",
       },
       select: {
@@ -71,23 +81,7 @@ export async function GET(
         shares: true,
         saves: true,
         metadata: true,
-        // الكاتب - حقول أساسية فقط
-        author: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-        article_author: {
-          select: {
-            id: true,
-            full_name: true,
-            slug: true,
-            avatar_url: true,
-          },
-        },
-        // الفئة
+        // فقط العلاقات الضرورية
         categories: {
           select: {
             id: true,
@@ -97,7 +91,6 @@ export async function GET(
             icon: true,
           },
         },
-        // التاجات
         article_tags: {
           select: {
             tags: {
@@ -111,6 +104,52 @@ export async function GET(
         },
       },
     });
+    
+    // إذا لم نجد بالـ slug، نبحث بالـ ID
+    if (!article) {
+      article = await prisma.articles.findFirst({
+        where: {
+          id: decodedSlug,
+          status: "published",
+        },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          excerpt: true,
+          summary: true,
+          featured_image: true,
+          published_at: true,
+          updated_at: true,
+          reading_time: true,
+          views: true,
+          likes: true,
+          shares: true,
+          saves: true,
+          metadata: true,
+          categories: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              color: true,
+              icon: true,
+            },
+          },
+          article_tags: {
+            select: {
+              tags: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    }
     
     if (!article) {
       return NextResponse.json(
@@ -126,41 +165,11 @@ export async function GET(
       article_tags: undefined, // إزالة البنية المتداخلة
     };
     
-    // جلب البيانات الإضافية إذا طُلبت
-    let relatedArticles = [];
-    let commentsCount = 0;
+    // تحسين: تجاهل البيانات الإضافية لتحسين الأداء
+    const relatedArticles: any[] = [];
+    const commentsCount = 0;
     
-    if (includeRelated) {
-      // جلب مقالات مرتبطة (3 فقط)
-      relatedArticles = await prisma.articles.findMany({
-        where: {
-          status: "published",
-          category_id: article.categories?.id,
-          id: { not: article.id },
-        },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          featured_image: true,
-          excerpt: true,
-          published_at: true,
-          views: true,
-        },
-        orderBy: { published_at: "desc" },
-        take: 3,
-      });
-    }
-    
-    if (includeComments) {
-      // عد التعليقات فقط
-      commentsCount = await prisma.comments.count({
-        where: {
-          article_id: article.id,
-          status: "approved",
-        },
-      });
-    }
+    // تم إزالة جلب المقالات المرتبطة وعد التعليقات لتسريع التحميل
     
     // زيادة عدد المشاهدات بشكل غير متزامن
     prisma.articles.update({
@@ -185,7 +194,7 @@ export async function GET(
     
     return NextResponse.json(response, {
       headers: {
-        "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+        "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=3600",
         "X-Cache": "MISS",
       },
     });

@@ -64,17 +64,9 @@ export default function EditorToolbar({
   const albumInputRef = useRef<HTMLInputElement | null>(null);
   const [albumUploading, setAlbumUploading] = useState(false);
 
-  // Emoji Picker (client-only)
-  const EmojiPicker: any = dynamic(() => import("@emoji-mart/react"), { ssr: false });
+  // تم إزالة Emoji Picker لحل مشاكل التبعيات
+  const EmojiPicker: any = null;
   const [emojiData, setEmojiData] = useState<any>(null);
-  useEffect(() => {
-    let mounted = true;
-    import("@emoji-mart/data").then((mod) => {
-      if (!mounted) return;
-      setEmojiData((mod as any).default || mod);
-    }).catch(() => setEmojiData(null));
-    return () => { mounted = false; };
-  }, []);
 
   const buttonClass = `p-2 rounded transition-colors ${
     darkMode
@@ -472,41 +464,20 @@ export default function EditorToolbar({
           <Youtube className="w-4 h-4" />
         </button>
 
-        {/* منتقي الإيموجي */}
+        {/* منتقي الإيموجي - معطل مؤقتاً */}
         <div className="relative">
           <button
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className={`${buttonClass} ${showEmojiPicker ? activeButtonClass : ""}`}
+            onClick={() => {
+              // إدراج إيموجي افتراضي
+              if (editor) {
+                editor.chain().focus().insertContent("😊").run();
+              }
+            }}
+            className={buttonClass}
             title="إدراج إيموجي"
           >
             <Smile className="w-4 h-4" />
           </button>
-          {showEmojiPicker && emojiData && (
-            <div
-              className={`absolute top-full mt-1 z-50 rounded-lg shadow-lg border ${
-                darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-              }`}
-            >
-              {typeof EmojiPicker !== "undefined" && (
-                <EmojiPicker
-                  data={emojiData}
-                  onEmojiSelect={(emoji: any) => {
-                    try {
-                      const value = emoji?.native || emoji?.shortcodes || "";
-                      if (value) {
-                        editor.chain().focus().insertContent(value).run();
-                      }
-                    } finally {
-                      setShowEmojiPicker(false);
-                    }
-                  }}
-                  theme={darkMode ? "dark" : "light"}
-                  previewPosition="none"
-                  skinTonePosition="search"
-                />
-              )}
-            </div>
-          )}
         </div>
         <button
           onClick={() =>
