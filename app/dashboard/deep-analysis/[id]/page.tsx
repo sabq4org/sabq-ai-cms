@@ -49,7 +49,7 @@ export default function ViewDeepAnalysisPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
-  const { theme: darkMode } = useTheme();
+  const darkMode = false; // theme removed
   
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<DeepAnalysis | null>(null);

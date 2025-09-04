@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { format, isToday, isYesterday, differenceInDays, differenceInHours, differenceInMinutes } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Calendar, 
   Clock, 
@@ -68,8 +67,7 @@ export default function EnhancedTimelineReply({
   onReplyAction,
   currentUserId 
 }: EnhancedTimelineReplyProps) {
-  const { theme } = useTheme();
-  const darkMode = theme === 'dark';
+  const darkMode = false; // theme removed
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showFilters, setShowFilters] = useState(false);

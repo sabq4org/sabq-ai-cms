@@ -39,7 +39,7 @@ export default function EditDeepAnalysisPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
-  const { theme: darkMode } = useTheme();
+  const darkMode = false; // theme removed
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

@@ -4,7 +4,7 @@ import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getCurrentUser, logActions } from '@/lib/log-activity'
-import { useTheme } from '@/contexts/ThemeContext'
+// ThemeContext removed
 // import { DashboardMobileLayout } from '@/components/mobile/MobileLayout'
 import { 
   Bell,
@@ -46,8 +46,9 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { resolvedTheme, mounted, toggleTheme } = useTheme();
-  const darkMode = resolvedTheme === 'dark';
+  const mounted = true;
+  const darkMode = false; // theme removed
+  const toggleTheme = (_: any) => {};
   const { user } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);

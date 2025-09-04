@@ -74,8 +74,7 @@ const personalityConfig: Record<string, {
 };
 export default function SmartProfilePage() {
   const router = useRouter();
-  const { theme } = useTheme();
-  const darkMode = theme === 'dark';
+  const darkMode = false; // theme removed
   const { profile, isLoading, error } = useReaderProfile();
   const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'achievements'>('overview');
   if (isLoading) {
