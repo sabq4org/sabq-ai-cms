@@ -35,9 +35,11 @@ function OptimizedImage({
     );
   }
 
+  // إصلاح المسارات النسبية لتصبح مطلقة على الإنتاج
+  const safeSrc = (src && (src.startsWith('http') || src.startsWith('/'))) ? src : `/${src}`;
   return (
     <Image
-      src={src}
+      src={safeSrc}
       alt={alt}
       width={width}
       height={height}
