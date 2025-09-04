@@ -148,6 +148,7 @@
     margin-bottom: 0.25rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -163,16 +164,10 @@
 
 /* ===== 6. إصلاح التمرير وبداية الصفحة ===== */
 @media (max-width: 768px) {
-  /* منع التمرير التلقائي عند تحميل الصفحة */
-  body.page-loaded {
+  /* السماح بالتمرير العادي */
+  body {
     overflow-x: hidden;
-  }
-  
-  /* JavaScript سيضيف هذا الكلاس بعد التحميل */
-  body:not(.page-loaded) {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
+    overflow-y: auto;
   }
   
   /* إصلاح anchor links */
