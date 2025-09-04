@@ -1,30 +1,47 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
-import { cache as redis } from "@/lib/redis";
+import { cache as redis, CACHE_TTL } from "@/lib/redis";
+
 export const runtime = "nodejs";
 
-// سياسة الكاش: تحديث كل 60 ثانية مع SWR 5 دقائق
-export const revalidate = 60;
-export const dynamic = "force-static";
-export const fetchCache = "default-cache";
+// كاش في الذاكرة للطلبات المتزامنة
+const memCache = new Map<string, { ts: number; data: any }>();
+const MEM_TTL = 15 * 1000; // 15 ثانية
 
 export async function GET(request: NextRequest) {
   try {
-    // bump cache key to invalidate previous cached payloads
-    const cacheKey = "featured-news:carousel:v4";
+    const cacheKey = "featured-news:carousel:v5";
 
-    // محاولة الجلب من Redis أولاً
-    const cached = await redis.get<any>(cacheKey);
-    if (cached) {
-      return NextResponse.json(cached, {
+    // 1. تحقق من كاش الذاكرة أولاً
+    const memCached = memCache.get(cacheKey);
+    if (memCached && Date.now() - memCached.ts < MEM_TTL) {
+      return NextResponse.json(memCached.data, {
         headers: {
-          "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+          "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
           "Content-Type": "application/json",
+          "X-Cache": "MEMORY",
         },
       });
     }
-    // جلب آخر 3 مقالات مميزة منشورة (أخبار فقط، بدون مقالات الرأي)
+
+    // 2. ثم Redis
+    try {
+      const cached = await redis.get<any>(cacheKey);
+      if (cached) {
+        memCache.set(cacheKey, { ts: Date.now(), data: cached });
+        return NextResponse.json(cached, {
+          headers: {
+            "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+            "Content-Type": "application/json",
+            "X-Cache": "REDIS",
+          },
+        });
+      }
+    } catch (redisError) {
+      console.warn('Redis error:', redisError);
+    }
+    // 3. جلب من قاعدة البيانات - حقول محدودة فقط
     const featuredArticles = await prisma.articles.findMany({
       where: {
         featured: true,
@@ -33,18 +50,37 @@ export async function GET(request: NextRequest) {
           notIn: ["opinion", "analysis", "interview"],
         },
       },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        featured_image: true,
+        excerpt: true,
+        published_at: true,
+        views: true,
+        breaking: true,
+        metadata: true,
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            color: true,
+            icon: true,
+          },
+        },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
       orderBy: {
         published_at: "desc",
       },
       take: 3,
-      include: {
-        categories: true,
-        author: {
-          include: {
-            reporter_profile: true,
-          },
-        },
-      },
     });
 
     // Helper: استبعاد الأخبار التجريبية/الوهمية من العرض العام
@@ -77,7 +113,7 @@ export async function GET(request: NextRequest) {
     let articlesToReturn = featuredArticles;
     
     if (!featuredArticles || featuredArticles.length === 0) {
-      // جلب آخر 3 مقالات منشورة كـ fallback
+      // جلب آخر مقالات منشورة كـ fallback
       articlesToReturn = await prisma.articles.findMany({
         where: {
           status: "published",
@@ -85,18 +121,37 @@ export async function GET(request: NextRequest) {
             notIn: ["opinion", "analysis", "interview"],
           },
         },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          featured_image: true,
+          excerpt: true,
+          published_at: true,
+          views: true,
+          breaking: true,
+          metadata: true,
+          categories: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              color: true,
+              icon: true,
+            },
+          },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
+          },
+        },
         orderBy: {
           published_at: "desc",
         },
         take: 10,
-        include: {
-          categories: true,
-          author: {
-            include: {
-              reporter_profile: true,
-            },
-          },
-        },
       });
       
       if (!articlesToReturn || articlesToReturn.length === 0) {
@@ -224,12 +279,21 @@ export async function GET(request: NextRequest) {
     };
 
     // حفظ في Redis لمدة 60 ثانية
-    await redis.set(cacheKey, responseData, 60);
+    // حفظ في Redis
+    try {
+      await redis.set(cacheKey, responseData, CACHE_TTL.ARTICLES);
+    } catch (redisError) {
+      console.warn('Failed to save to Redis:', redisError);
+    }
+    
+    // حفظ في كاش الذاكرة
+    memCache.set(cacheKey, { ts: Date.now(), data: responseData });
 
     return NextResponse.json(responseData, {
       headers: {
-        "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
+        "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
         "Content-Type": "application/json",
+        "X-Cache": "MISS",
       },
     });
   } catch (error: any) {
@@ -243,4 +307,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
 }
