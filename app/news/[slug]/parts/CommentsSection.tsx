@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import CommentsCallToAction from "./CommentsCallToAction";
 import CommentForm from "./CommentForm";
+
+// كاش لعدد التعليقات
+const commentsCountCache = new Map<string, { count: number; ts: number }>();
+const COUNT_CACHE_TTL = 5 * 60 * 1000; // 5 دقائق
 
 // تحميل كسول لقائمة التعليقات
 const LazyCommentsList = dynamic(() => import("./LazyCommentsList"), {

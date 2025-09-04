@@ -2,7 +2,27 @@ import prisma from "@/lib/prisma";
 
 // Utility cache لتقليل الاستعلامات المتكررة
 const articleCache = new Map<string, any>();
-const CACHE_TTL = 60 * 1000; // دقيقة واحدة
+const CACHE_TTL = 5 * 60 * 1000; // 5 دقائق
+
+// استخدام API السريع للجلب
+async function fetchArticleFromAPI(slug: string): Promise<any> {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/articles/${encodeURIComponent(slug)}/fast?related=true&comments=true`,
+      {
+        cache: 'force-cache',
+        next: { revalidate: 300 }, // 5 دقائق
+      }
+    );
+    
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.article;
+  } catch (error) {
+    console.error('Failed to fetch from API:', error);
+    return null;
+  }
+}
 
 export type Article = {
   id: string;
@@ -36,6 +56,22 @@ export async function getArticleOptimized(slug: string): Promise<Article | null>
   const cached = articleCache.get(cacheKey);
   if (cached && cached.timestamp > Date.now() - CACHE_TTL) {
     return cached.data;
+  }
+  
+  // محاولة الجلب من API السريع أولاً
+  if (typeof window === 'undefined') {
+    const apiArticle = await fetchArticleFromAPI(slug);
+    if (apiArticle) {
+      const formattedArticle = {
+        ...apiArticle,
+        readMinutes: apiArticle.reading_time,
+      };
+      articleCache.set(cacheKey, {
+        data: formattedArticle,
+        timestamp: Date.now(),
+      });
+      return formattedArticle;
+    }
   }
 
   try {
