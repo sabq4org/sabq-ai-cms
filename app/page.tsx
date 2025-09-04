@@ -30,7 +30,7 @@ const DeepAnalysisBlock = dynamic(
   }
 );
 
-// استيراد المؤشرات الذكية بشكل ديناميكي
+// استيراد المؤشرات الذكية بشكل ديناميكي مع تأخير التحميل
 const SmartInsightsWidget = dynamic(
   () => import("@/components/ai/SmartInsightsWidget"),
   {
@@ -86,7 +86,7 @@ export default function Page() {
     }
   }, [mounted]);
 
-  // محتوى الموبايل - نفس المحتوى لكن مُحسن للموبايل
+  // محتوى الموبايل - محسّن بتحميل متوازي
   const MobileContent = useMemo(() => (
     <>
       {/* شريط الإحصائيات للنسخة الخفيفة - ملاصق للهيدر */}
@@ -99,26 +99,25 @@ export default function Page() {
             <WelcomeMetaStrip />
           </Suspense>
         </div>
-        {/* الأخبار المميزة - النسخة الخفيفة */}
-        <Suspense fallback={<div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />}> 
+        
+        {/* تحميل متوازي للمكونات الثلاثة */}
+        <Suspense fallback={
+          <>
+            <div className="h-36 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />
+            <div className="h-48 bg-gray-200 rounded mt-6 animate-pulse" />
+          </>
+        }>
+          {/* الأخبار المميزة والمحتوى الذكي معاً */}
           <LightFeaturedLoader heading="الأخبار المميزة" limit={3} />
-        </Suspense>
-        {/* المؤشرات الذكية */}
-        <Suspense
-          fallback={
-            <div className="max-w-6xl mx-auto mt-8">
-              <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
-            </div>
-          }
-        > 
-          <div className="max-w-6xl mx-auto mt-12">
-            <SmartInsightsWidget variant="compact" />
+          <div className="max-w-6xl mx-auto">
+            <SmartContentBlock />
           </div>
         </Suspense>
         
-        <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
-          <div className="max-w-6xl mx-auto">
-            <SmartContentBlock />
+        {/* المؤشرات الذكية - تحميل كسول منفصل */}
+        <Suspense fallback={<div className="h-24 opacity-0" />}>
+          <div className="max-w-6xl mx-auto mt-12">
+            <SmartInsightsWidget variant="compact" />
           </div>
         </Suspense>
         
