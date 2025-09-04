@@ -6,11 +6,12 @@ export const runtime = "nodejs";
 
 export async function GET(
   request: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     console.log("🚀 بدء GET request - المرحلة 1");
-    const { id } = await context.params;
+    const { slug } = await context.params;
+    const id = slug; // اسم البارام يطابق اسم المجلد [slug]
     console.log(`📰 جلب المقال: ${id} - المرحلة 2`);
 
     if (!id) {
