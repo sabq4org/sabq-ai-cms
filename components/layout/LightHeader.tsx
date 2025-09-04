@@ -10,8 +10,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdown';
 
-// نظام الألوان المتغيرة المطور
-const themes = [
+// تم تعطيل نظام الألوان المتغيرة لأسباب أداء
+const themes: any[] = [
   { 
     id: 'default', 
     name: 'بلا لون', 
@@ -20,48 +20,7 @@ const themes = [
     gradient: 'from-blue-500 to-blue-600',
     isDefault: true 
   },
-  { 
-    id: 'blue', 
-    name: 'أزرق', 
-    color: '#3b82f6', 
-    rgb: '59 130 246',
-    gradient: 'from-blue-500 to-blue-600' 
-  },
-  { 
-    id: 'green', 
-    name: 'أخضر', 
-    color: '#10b981', 
-    rgb: '16 185 129',
-    gradient: 'from-green-500 to-green-600' 
-  },
-  { 
-    id: 'purple', 
-    name: 'بنفسجي', 
-    color: '#8b5cf6', 
-    rgb: '139 92 246',
-    gradient: 'from-purple-500 to-purple-600' 
-  },
-  { 
-    id: 'pink', 
-    name: 'وردي', 
-    color: '#ec4899', 
-    rgb: '236 72 153',
-    gradient: 'from-pink-500 to-pink-600' 
-  },
-  { 
-    id: 'orange', 
-    name: 'برتقالي', 
-    color: '#f59e0b', 
-    rgb: '245 158 11',
-    gradient: 'from-orange-500 to-orange-600' 
-  },
-  { 
-    id: 'red', 
-    name: 'أحمر', 
-    color: '#ef4444', 
-    rgb: '239 68 68',
-    gradient: 'from-red-500 to-red-600' 
-  },
+  // بقية الخيارات معطلة
 ];
 
 interface LightHeaderProps {
@@ -147,12 +106,12 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     };
   };
 
-  const setThemeVars = (theme: typeof themes[0]) => {
+  const setThemeVars = (_theme: any) => {
     const root = document.documentElement;
     // إزالة جميع data-theme attributes
-    themes.forEach(t => root.removeAttribute(`data-theme-${t.id}`));
+    themes.forEach((t: any) => root.removeAttribute(`data-theme-${t.id}`));
     
-    if (theme.isDefault) {
+    if (true) {
       // إذا كان "بلا لون"، إزالة جميع المتغيرات المخصصة
       root.removeAttribute('data-theme');
       root.style.removeProperty('--theme-primary');
@@ -162,37 +121,22 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
       root.style.removeProperty('--accent');
       root.style.removeProperty('--accent-hover');
       root.style.removeProperty('--accent-light');
-    } else {
-      // تطبيق theme الجديد
-      root.setAttribute('data-theme', theme.id);
-      root.style.setProperty('--theme-primary', theme.color);
-      root.style.setProperty('--theme-primary-rgb', theme.rgb);
-      root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
-      root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
-
-      // ضبط متغيرات النسخة الكاملة (--accent*) لضمان توافق البلوكات القديمة
-      const { h, s, l } = hexToHsl(theme.color);
-      const hoverL = Math.max(0, Math.min(100, l - 5));
-      const lightL = 96; // كما في النسخة الكاملة تقريباً
-      root.style.setProperty('--accent', `${h} ${s}% ${l}%`);
-      root.style.setProperty('--accent-hover', `${h} ${s}% ${hoverL}%`);
-      root.style.setProperty('--accent-light', `${h} ${s}% ${lightL}%`);
     }
   };
 
   // تطبيق اللون على DOM
-  const applyThemeToDOM = (theme: typeof themes[0]) => {
-    setThemeVars(theme);
+  const applyThemeToDOM = (_theme: any) => {
+    setThemeVars(_theme);
   };
 
   // تطبيق اللون المختار
-  const applyTheme = (theme: typeof themes[0]) => {
-    setCurrentTheme(theme);
-    setThemeVars(theme);
-    if (theme.isDefault) {
+  const applyTheme = (_theme: any) => {
+    setCurrentTheme(themes[0]);
+    setThemeVars(null);
+    if (true) {
       localStorage.removeItem('theme-color');
     } else {
-      localStorage.setItem('theme-color', theme.id);
+      // معطل
     }
     try { window.dispatchEvent(new Event('theme-color-change')); } catch {}
   };

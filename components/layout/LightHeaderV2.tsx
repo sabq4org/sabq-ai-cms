@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation';
 import { Menu, User, Moon, Sun, Home, Newspaper, Grid3X3, Sparkles, Brain, Palette } from 'lucide-react';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
-// نظام الألوان المتغيرة المطور
-const themes = [
+// تم تعطيل نظام الألوان المتغيرة
+const themes: any[] = [
   { 
     id: 'default', 
     name: 'بلا لون', 
@@ -72,14 +72,9 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
-  // تحميل اللون المحفوظ عند التحميل - معطل لتجنب التضارب مع CompactThemeSwitcher
+  // تعطيل التحميل من localStorage
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme-color');
-    if (savedTheme) {
-      const theme = themes.find(t => t.id === savedTheme) || themes[0];
-      setCurrentTheme(theme);
-      // applyThemeToDOM(theme); // معطل مؤقتاً
-    }
+    setCurrentTheme(themes[0]);
   }, []);
 
   // إغلاق القائمة الجانبية عند التنقل
@@ -90,11 +85,11 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   }, [pathname]);
 
   // تطبيق اللون على DOM
-  const applyThemeToDOM = (theme: typeof themes[0]) => {
+  const applyThemeToDOM = (_theme: any) => {
     const root = document.documentElement;
     
     // إزالة جميع data-theme attributes
-    themes.forEach(t => root.removeAttribute(`data-theme-${t.id}`));
+    themes.forEach((t: any) => root.removeAttribute(`data-theme-${t.id}`));
     
     if (theme.isDefault) {
       // إذا كان "بلا لون"، إزالة جميع المتغيرات المخصصة
@@ -104,20 +99,15 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
       root.style.removeProperty('--theme-primary-light');
       root.style.removeProperty('--theme-primary-lighter');
     } else {
-      // تطبيق theme الجديد
-      root.setAttribute('data-theme', theme.id);
-      root.style.setProperty('--theme-primary', theme.color);
-      root.style.setProperty('--theme-primary-rgb', theme.rgb);
-      root.style.setProperty('--theme-primary-light', `rgba(${theme.rgb}, 0.1)`);
-      root.style.setProperty('--theme-primary-lighter', `rgba(${theme.rgb}, 0.05)`);
+      // معطل
     }
   };
 
   // تطبيق اللون المختار
-  const applyTheme = (theme: typeof themes[0]) => {
-    setCurrentTheme(theme);
-    applyThemeToDOM(theme);
-    localStorage.setItem('theme-color', theme.id);
+  const applyTheme = (_theme: any) => {
+    setCurrentTheme(themes[0]);
+    applyThemeToDOM(null);
+    localStorage.removeItem('theme-color');
     setShowColorPicker(false);
   };
 

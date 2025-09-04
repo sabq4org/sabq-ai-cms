@@ -322,10 +322,11 @@ const sidebarItems: SidebarItem[] = [
     href: "/admin/performance-optimization",
   },
   {
-    id: "themes",
-    title: "السمات التكيفية",
+    // عنصر السمات التكيفية معطل لتحسين الأداء
+    id: "themes-disabled",
+    title: "السمات (معطل)",
     icon: Palette,
-    href: "/admin/modern/adaptive-themes",
+    href: "#",
   },
   {
     id: "external-data",

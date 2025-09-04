@@ -20,8 +20,7 @@ export default async function LightPage() {
           backgroundColor: 'rgba(var(--theme-primary-rgb, 59 130 246), 0.06)',
         }}
       >
-        <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--theme-primary, #3B82F6)' }}>نظام الألوان المتغيرة</h2>
-        <p className="text-gray-700 dark:text-gray-300">يتغير لون الواجهة بناءً على تفضيلاتك. جرب تغيير اللون من إعدادات الموقع!</p>
+        {/* نظام الألوان المتغيرة تم تعطيله لتحسين الأداء */}
       </div>
 
       <div className="mb-8">
