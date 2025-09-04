@@ -75,10 +75,6 @@ async function calculateSmartInsights(): Promise<ArticleInsight[]> {
   // إزالة استعلام التعليقات - غير ضروري للمؤشرات
   const commentMap = new Map<string, number>();
 
-  const commentMap = new Map(
-    commentCounts.map(c => [c.article_id, c._count.id])
-  );
-
   // تحليل ذكي للمقالات
   const smartInsights: ArticleInsight[] = articles.map((article, index) => {
     const totalViews = article.views || Math.floor(Math.random() * 5000) + 500;
