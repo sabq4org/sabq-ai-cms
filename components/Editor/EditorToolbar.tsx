@@ -3,6 +3,8 @@
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Editor } from "@tiptap/react";
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import { uploadImageWithFallback } from "@/lib/safe-upload";
 
 import {
@@ -33,6 +35,8 @@ import {
   Upload,
   Wand2,
   Youtube,
+  Palette,
+  Smile,
 } from "lucide-react";
 
 import ImageUploadDialog from "./ImageUploadDialog";
@@ -54,8 +58,23 @@ export default function EditorToolbar({
   const [showImageUploadDialog, setShowImageUploadDialog] = useState(false);
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [currentColor, setCurrentColor] = useState<string>("#000000");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const albumInputRef = useRef<HTMLInputElement | null>(null);
   const [albumUploading, setAlbumUploading] = useState(false);
+
+  // Emoji Picker (client-only)
+  const EmojiPicker: any = dynamic(() => import("@emoji-mart/react"), { ssr: false });
+  const [emojiData, setEmojiData] = useState<any>(null);
+  useEffect(() => {
+    let mounted = true;
+    import("@emoji-mart/data").then((mod) => {
+      if (!mounted) return;
+      setEmojiData((mod as any).default || mod);
+    }).catch(() => setEmojiData(null));
+    return () => { mounted = false; };
+  }, []);
 
   const buttonClass = `p-2 rounded transition-colors ${
     darkMode
@@ -301,6 +320,64 @@ export default function EditorToolbar({
         >
           <AlignJustify className="w-4 h-4" />
         </button>
+
+        <div className={dividerClass} />
+
+        {/* لون النص */}
+        <div className="relative">
+          <button
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            className={`${buttonClass} ${showColorPicker ? activeButtonClass : ""}`}
+            title="لون النص"
+          >
+            <Palette className="w-4 h-4" />
+          </button>
+          {showColorPicker && (
+            <div
+              className={`absolute top-full mt-1 z-50 min-w-[220px] rounded-lg shadow-lg border ${
+                darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+              } p-3`}
+            >
+              <div className="grid grid-cols-10 gap-1 mb-3">
+                {[
+                  "#000000","#3f3f46","#6b7280","#ef4444","#f97316","#f59e0b","#eab308","#84cc16","#22c55e","#06b6d4",
+                  "#0ea5e9","#3b82f6","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#111827","#ffffff"
+                ].map((hex) => (
+                  <button
+                    key={hex}
+                    onClick={() => {
+                      setCurrentColor(hex);
+                      editor.chain().focus().setColor(hex).run();
+                    }}
+                    className="w-5 h-5 rounded border"
+                    style={{ backgroundColor: hex, borderColor: darkMode ? "#374151" : "#e5e7eb" }}
+                    aria-label={hex}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={currentColor}
+                  onChange={(e) => {
+                    const hex = e.target.value;
+                    setCurrentColor(hex);
+                    editor.chain().focus().setColor(hex).run();
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    editor.chain().focus().unsetColor().run();
+                    setCurrentColor("#000000");
+                  }}
+                  className={`${buttonClass} text-xs`}
+                >
+                  مسح اللون
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* الصف الثاني - الوسائط والذكاء الاصطناعي */}
@@ -394,6 +471,43 @@ export default function EditorToolbar({
         >
           <Youtube className="w-4 h-4" />
         </button>
+
+        {/* منتقي الإيموجي */}
+        <div className="relative">
+          <button
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className={`${buttonClass} ${showEmojiPicker ? activeButtonClass : ""}`}
+            title="إدراج إيموجي"
+          >
+            <Smile className="w-4 h-4" />
+          </button>
+          {showEmojiPicker && emojiData && (
+            <div
+              className={`absolute top-full mt-1 z-50 rounded-lg shadow-lg border ${
+                darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+              }`}
+            >
+              {typeof EmojiPicker !== "undefined" && (
+                <EmojiPicker
+                  data={emojiData}
+                  onEmojiSelect={(emoji: any) => {
+                    try {
+                      const value = emoji?.native || emoji?.shortcodes || "";
+                      if (value) {
+                        editor.chain().focus().insertContent(value).run();
+                      }
+                    } finally {
+                      setShowEmojiPicker(false);
+                    }
+                  }}
+                  theme={darkMode ? "dark" : "light"}
+                  previewPosition="none"
+                  skinTonePosition="search"
+                />
+              )}
+            </div>
+          )}
+        </div>
         <button
           onClick={() =>
             editor
