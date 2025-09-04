@@ -382,11 +382,12 @@ export async function GET(
 // تحديث مقال موجود
 export async function PATCH(
   request: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     console.log("🚀 PATCH /api/articles/[id] - بداية معالجة طلب التحديث");
-    const { id } = await context.params;
+    const { slug } = await context.params;
+    const id = slug;
 
     if (!id) {
       return NextResponse.json(
@@ -471,7 +472,7 @@ export async function PATCH(
 // دعم PUT method (يستخدم نفس منطق PATCH)
 export async function PUT(
   request: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   return PATCH(request, context);
 }
@@ -479,9 +480,10 @@ export async function PUT(
 // حذف المقال (حذف فعلي نهائي)
 export async function DELETE(
   request: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
-  const { id } = await context.params;
+  const { slug } = await context.params;
+  const id = slug;
 
   try {
     console.log(`🗑️ بدء حذف المقال: ${id}`);
