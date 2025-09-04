@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, MessageCircle, Send, AlertCircle, Check, Bold, Italic, List, Link as LinkIcon, Code, User, Shield } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "@/contexts/ThemeContext";
 import { toast } from "react-hot-toast";
 
 interface Category {
@@ -30,7 +29,7 @@ interface AuthUser {
 
 export default function NewTopicPage() {
   const router = useRouter();
-  const { theme } = useTheme();
+  // Theme removed for performance
   const darkMode = theme === 'dark';
   
   const [formData, setFormData] = useState({

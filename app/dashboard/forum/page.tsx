@@ -26,7 +26,6 @@ import {
   Clock,
   Search
 } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
 import { toast } from 'react-hot-toast';
 
 interface ForumStats {
@@ -67,7 +66,7 @@ interface RecentTopic {
 }
 
 export default function ForumAdminPage() {
-  const { theme } = useTheme();
+  // Theme removed for performance
   const darkMode = theme === 'dark';
   
   const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'topics' | 'settings'>('overview');

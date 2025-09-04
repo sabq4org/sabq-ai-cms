@@ -10,7 +10,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, MessageSquare, ThumbsUp, Eye, Search, Plus, TrendingUp, MessageCircle, Users, Award, HelpCircle, Lightbulb, Hash, Clock, Pin, Bug, Megaphone } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useTheme } from "@/contexts/ThemeContext";
 import "./forum.css";
 
 // مكون إحصائيات المنتدى
@@ -211,7 +210,7 @@ export default function SabqForum() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const { theme } = useTheme();
+  // Theme removed for performance
   const darkMode = theme === 'dark';
   // جلب المواضيع من API
   useEffect(() => {

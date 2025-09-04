@@ -19,7 +19,6 @@ import { toast } from 'react-hot-toast';
 import { useToast } from '@/hooks/use-toast';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { TabsEnhanced } from '@/components/ui/tabs-enhanced';
-import { useTheme } from '@/contexts/ThemeContext';
 import Link from 'next/link';
 
 // تحميل المحرر بشكل ديناميكي

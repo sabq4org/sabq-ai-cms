@@ -14,7 +14,6 @@ import FeaturedImageUpload from '@/components/FeaturedImageUpload';
 import { toast } from 'react-hot-toast';
 import { ArrowRight, Save, Sparkles, X, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 
 interface DeepAnalysis {
   id: string;

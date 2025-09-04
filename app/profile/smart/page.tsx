@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useReaderProfile } from '@/hooks/useReaderProfile';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Brain, 
   TrendingUp, 
