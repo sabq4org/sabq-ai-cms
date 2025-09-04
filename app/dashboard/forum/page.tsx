@@ -66,8 +66,7 @@ interface RecentTopic {
 }
 
 export default function ForumAdminPage() {
-  // Theme removed for performance
-  const darkMode = theme === 'dark';
+  const darkMode = false; // theme removed
   
   const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'topics' | 'settings'>('overview');
   const [stats, setStats] = useState<ForumStats>({
