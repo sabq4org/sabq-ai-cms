@@ -71,16 +71,23 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   halfWidth = false,
 }) => {
   const { darkMode } = useDarkModeContext();
-  const hasAnyBreaking = articles.some((a) => (a as any).breaking || (a as any).is_breaking);
+  
+  // تحسين: حساب hasAnyBreaking مرة واحدة فقط باستخدام useMemo
+  const hasAnyBreaking = React.useMemo(() => 
+    articles.some((a) => (a as any).breaking || (a as any).is_breaking), 
+    [articles]
+  );
+  
   const { index: currentIndex, setIndex: setCurrentIndex, next: handleNext, prev: handlePrevious, isReducedMotion } = useFeaturedCarousel({
     length: articles.length,
     autoPlayInterval,
     paused: hasAnyBreaking,
   });
 
-  // إيقاف التحريك التلقائي عند تحريك الماوس فوق المكون
-  const handleMouseEnter = () => {/* يمكن لاحقاً تفعيل الإيقاف */};
-  const handleMouseLeave = () => {/* يمكن لاحقاً إعادة التشغيل */};
+  // تحسين: إيقاف التحريك التلقائي عند تحريك الماوس فوق المكون
+  const [isPaused, setIsPaused] = React.useState(false);
+  const handleMouseEnter = React.useCallback(() => setIsPaused(true), []);
+  const handleMouseLeave = React.useCallback(() => setIsPaused(false), []);
 
   const getVerificationIcon = (badge: string) => {
     switch (badge) {
@@ -93,10 +100,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     }
   };
 
-  // استخدام الروابط القصيرة المعتمدة (NEWS → /news/[slug]) مع fallback للـ id
-  const getArticleLink = (article: FeaturedArticle) => {
-    return article.slug ? `/news/${article.slug}` : `/news/${article.id}`;
-  };
+  // تحسين: حفظ روابط المقالات في useMemo لتجنب إعادة الحساب
+  const articleLinks = React.useMemo(() => 
+    articles.map(article => article.slug ? `/news/${article.slug}` : `/news/${article.id}`),
+    [articles]
+  );
+  
+  const getArticleLink = React.useCallback((index: number) => articleLinks[index], [articleLinks]);
 
   // وظيفة للتحقق من الأخبار الجديدة (آخر 12 ساعة)
   const isRecentNews = (publishedAt: string) => {
@@ -181,7 +191,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
       aria-roledescription="carousel"
       aria-label="الأخبار المميزة"
     >
-      <Link href={getArticleLink(currentArticle)} className="group block" aria-live="polite">
+      <Link href={getArticleLink(currentIndex)} className="block group" aria-live="polite">
         <div
           className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 transition-colors hover:border-gray-300 dark:hover:border-gray-600`}
           style={{
@@ -381,20 +391,18 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 aria-current={idx === currentIndex}
               >
                 {article.featured_image ? (
-                  <img
+                  <OptimizedImage
                     src={article.featured_image}
                     alt={article.title}
+                    width={48}
+                    height={36}
                     className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      target.nextElementSibling?.classList.remove('hidden');
-                    }}
                   />
-                ) : null}
-                {/* Fallback للصور المفقودة */}
-                <div className={`${article.featured_image ? 'hidden' : 'block'} w-full h-full bg-gray-200 dark:bg-gray-700`}></div>
+                ) : (
+                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-xs text-gray-500">لا توجد صورة</span>
+                  </div>
+                )}
                 {/* تدرج لوني ناعم */}
                 <div
                   className={`absolute inset-0 transition-opacity duration-300 ${

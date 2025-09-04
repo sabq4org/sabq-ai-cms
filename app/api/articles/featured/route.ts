@@ -4,10 +4,19 @@ import { retryWithConnection, ensureDbConnected } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-// ذاكرة تخزين مؤقت بسيطة
-const CACHE_KEY = 'featured_articles';
-const CACHE_TTL = 60 * 1000; // 60 ثانية
-let cache: { data: any; timestamp: number } | null = null;
+// ذاكرة تخزين مؤقت محسنة مع مفاتيح متعددة
+const CACHE_TTL = 30 * 1000; // 30 ثانية للاستجابة السريعة
+const cache = new Map<string, { data: any; timestamp: number }>();
+
+// تنظيف الذاكرة المؤقتة كل 5 دقائق
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of cache.entries()) {
+    if (now - value.timestamp > CACHE_TTL * 10) { // احتفظ لـ 10x TTL
+      cache.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,13 +24,17 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get("limit") || "6", 10), 24);
     const withCategories = searchParams.get("withCategories") === "true";
 
+    // مفتاح ذاكرة مؤقت فريد حسب المعاملات
+    const cacheKey = `featured:${limit}:${withCategories}`;
+    const cached = cache.get(cacheKey);
+    
     // التحقق من الذاكرة المؤقتة
-    if (cache && cache.timestamp > Date.now() - CACHE_TTL) {
-      const cachedData = cache.data.slice(0, limit);
-      const res = NextResponse.json({ ok: true, data: cachedData, count: cachedData.length, cached: true });
-      res.headers.set("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=300");
+    if (cached && cached.timestamp > Date.now() - CACHE_TTL) {
+      const res = NextResponse.json({ ok: true, data: cached.data, count: cached.data.length, cached: true });
+      res.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=300");
       res.headers.set("CDN-Cache-Control", "max-age=60");
       res.headers.set("Vercel-CDN-Cache-Control", "max-age=60");
+      res.headers.set("X-Cache-Status", "HIT");
       return res;
     }
 
@@ -46,26 +59,18 @@ export async function GET(request: NextRequest) {
       selectFields.categories = { select: { id: true, name: true, slug: true, color: true } };
     }
 
-    const featured = await retryWithConnection(async () =>
+    // تحسين الاستعلام - استعلام منفصل للأخبار المميزة أولاً (أسرع)
+    const featuredArticles = await retryWithConnection(async () =>
       await prisma.articles.findMany({
         where: {
           status: "published",
+          featured: true,
           OR: [
-            { featured: true },
-            { breaking: true },
-          ],
-          AND: [
-            {
-              OR: [
-                { published_at: { lte: now } },
-                { published_at: null },
-              ],
-            },
+            { published_at: { lte: now } },
+            { published_at: null },
           ],
         },
         orderBy: [
-          { breaking: "desc" },
-          { featured: "desc" },
           { published_at: "desc" },
           { views: "desc" }
         ],
@@ -74,13 +79,41 @@ export async function GET(request: NextRequest) {
       })
     );
 
+    // إذا لم نحصل على العدد المطلوب، نضيف الأخبار العاجلة
+    let featured = featuredArticles;
+    if (featured.length < limit) {
+      const breakingArticles = await retryWithConnection(async () =>
+        await prisma.articles.findMany({
+          where: {
+            status: "published",
+            breaking: true,
+            featured: false, // تجنب التكرار
+            OR: [
+              { published_at: { lte: now } },
+              { published_at: null },
+            ],
+          },
+          orderBy: [
+            { published_at: "desc" },
+            { views: "desc" }
+          ],
+          take: limit - featured.length,
+          select: selectFields,
+        })
+      );
+      
+      // دمج النتائج مع إعطاء الأولوية للمميزة
+      featured = [...featured, ...breakingArticles];
+    }
+
     // حفظ في الذاكرة المؤقتة
-    cache = { data: featured, timestamp: Date.now() };
+    cache.set(cacheKey, { data: featured, timestamp: Date.now() });
 
     const res = NextResponse.json({ ok: true, data: featured, count: featured.length });
-    res.headers.set("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=300");
+    res.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=300");
     res.headers.set("CDN-Cache-Control", "max-age=60");
     res.headers.set("Vercel-CDN-Cache-Control", "max-age=60");
+    res.headers.set("X-Cache-Status", "MISS");
     return res;
   } catch (error: any) {
     console.error("❌ [featured] خطأ في جلب المقالات المميزة:", error);

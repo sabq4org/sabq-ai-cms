@@ -27,35 +27,56 @@ export default function OldFeaturedHero() {
 
   useEffect(() => {
     let mounted = true;
+    const controller = new AbortController();
+    
     const load = async () => {
       try {
-        const res = await fetch('/api/articles/featured?limit=3', { cache: 'no-store' });
+        // استخدام API المحسن مع timeout
+        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 ثانية timeout
+        
+        const res = await fetch('/api/articles/featured-fast?limit=3', { 
+          signal: controller.signal,
+          cache: 'force-cache',
+          next: { revalidate: 60 } // إعادة التحقق كل دقيقة
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
+        
         const data = (json?.data || []).map((a: any) => ({
           id: a.id,
           title: a.title,
           slug: a.slug,
-          excerpt: a.excerpt,
+          excerpt: a.excerpt || '', // fallback للـ excerpt
           featured_image: a.featured_image,
           published_at: a.published_at,
-          views: a.views,
-          breaking: a.breaking || a.is_breaking || false,
+          views: a.views || 0,
+          breaking: a.breaking || false,
           category: a.categories
             ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color }
             : null,
         })) as FeaturedArticle[];
+        
         if (mounted) setArticles(data);
-      } catch (e) {
-        console.error('فشل جلب الأخبار المميزة:', e);
+      } catch (e: any) {
+        if (e.name === 'AbortError') {
+          console.warn('تم إلغاء طلب الأخبار المميزة بسبب انتهاء المهلة');
+        } else {
+          console.error('فشل جلب الأخبار المميزة:', e);
+        }
         if (mounted) setArticles([]);
       } finally {
         if (mounted) setLoading(false);
       }
     };
+    
     load();
+    
     return () => {
       mounted = false;
+      controller.abort();
     };
   }, []);
 
