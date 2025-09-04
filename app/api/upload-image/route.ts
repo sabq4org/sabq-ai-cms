@@ -114,8 +114,7 @@ export async function POST(request: NextRequest) {
             {
               resource_type: "auto",
               folder: `uploads/${type}`,
-              format: "auto",
-              quality: "auto:good",
+              // لا نمرر format/quality في المستوى الأعلى لتجنّب أخطاء Cloudinary
               public_id: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`,
               overwrite: false,
               tags: ["sabq-cms", "upload"],

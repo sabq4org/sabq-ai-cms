@@ -104,15 +104,14 @@ export async function POST(request: NextRequest) {
           {
             resource_type: "auto",
             folder: `sabq-cms/${type}`,
-            format: "auto",
-            quality: "auto:good",
+            // لا تستخدم format: "auto" في خيارات الرفع؛ استخدم fetch_format داخل التحويلات عند اللزوم
             public_id: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`,
             overwrite: false,
             tags: ["sabq-cms", "upload", type],
             transformation: [
               { width: 1200, height: 800, crop: "limit" },
               { quality: "auto:good" },
-              { format: "auto" }
+              { fetch_format: "auto" }
             ]
           },
           (error, result) => {

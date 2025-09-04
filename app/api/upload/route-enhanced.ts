@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
         folder: `sabq-cms/${type}`,
         transformation: [
           { width: 1200, height: 800, crop: 'limit', quality: 'auto:good' },
-          { format: 'auto' }
+          { fetch_format: 'auto' }
         ]
       });
       

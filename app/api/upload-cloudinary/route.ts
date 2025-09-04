@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
           invalidate: true,
           transformation: [
             { width: 1200, height: 800, crop: "limit", quality: "auto:good" },
-            { format: "auto" },
+            { fetch_format: "auto" },
           ],
         },
         (error, result) => {
