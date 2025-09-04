@@ -192,7 +192,7 @@ const DeepAnalysisCard = ({
   const cardContent =
     viewMode === "grid" ? (
       // Grid View - بطاقة عمودية محسنة
-      <div className="h-full flex flex-col group">
+      <div className="h-full flex flex-col group border" style={{ borderColor: '#f0f0ef' }}>
         {/* صورة التحليل */}
         <div className="relative h-44 w-full overflow-hidden">
           {analysis.featuredImage ? (
@@ -200,7 +200,7 @@ const DeepAnalysisCard = ({
               src={analysis.featuredImage}
               alt={analysis.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
@@ -230,7 +230,7 @@ const DeepAnalysisCard = ({
         </div>
 
         {/* المحتوى */}
-        <div className="p-4 flex flex-col flex-grow rounded-xl transition-colors group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20">
+        <div className="p-4 flex flex-col flex-grow rounded-xl">
           {/* Enhanced Category & AI Badges */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {analysis.categories && analysis.categories.length > 0 && (
@@ -262,7 +262,7 @@ const DeepAnalysisCard = ({
           </div>
 
           {/* العنوان */}
-          <h3 className="text-lg font-bold line-clamp-2 mb-2 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+          <h3 className="text-lg font-bold line-clamp-2 mb-2 text-gray-900 dark:text-white">
             {analysis.title}
           </h3>
 
@@ -322,7 +322,7 @@ const DeepAnalysisCard = ({
               src={analysis.featuredImage}
               alt={analysis.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
@@ -352,7 +352,7 @@ const DeepAnalysisCard = ({
         </div>
 
         {/* المحتوى */}
-        <div className="p-4 flex flex-col flex-grow rounded-xl transition-colors group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20">
+        <div className="p-4 flex flex-col flex-grow rounded-xl">
           {/* Enhanced Category & AI Badges */}
           <div className="flex items-center gap-1.5 mb-2 flex-wrap">
             {analysis.categories && analysis.categories.length > 0 && (
@@ -384,7 +384,7 @@ const DeepAnalysisCard = ({
           </div>
 
           {/* العنوان */}
-          <h3 className="text-base font-bold line-clamp-1 mb-1 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+          <h3 className="text-base font-bold line-clamp-1 mb-1 text-gray-900 dark:text-white">
             {analysis.title}
           </h3>
 
@@ -436,7 +436,7 @@ const DeepAnalysisCard = ({
         className={cn(
           "rounded-xl border border-gray-100 dark:border-gray-800",
           "bg-white dark:bg-gray-900 overflow-hidden",
-          "hover:shadow-xl hover:border-purple-200 dark:hover:border-purple-800",
+          "border", 
           "transition-all duration-300 cursor-pointer group relative h-full",
           isBreaking && "ring-2 ring-red-500 ring-opacity-50 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20",
           viewMode === "list" ? "flex" : "flex flex-col",
