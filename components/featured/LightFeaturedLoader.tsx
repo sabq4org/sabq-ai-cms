@@ -24,11 +24,18 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     let mounted = true;
     (async () => {
       try {
-        const isProd = process.env.NODE_ENV === 'production';
-        const endpoint = isProd
-          ? `/api/articles/featured?limit=${limit}`
-          : `/api/articles/featured-json?limit=${limit}`;
-        const res = await fetch(endpoint, { cache: "force-cache", next: { revalidate: 60 } });
+        // استخدام API المحسن الجديد
+        const endpoint = `/api/articles/featured-fast?limit=${limit}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // timeout 3 ثواني
+        
+        const res = await fetch(endpoint, { 
+          signal: controller.signal,
+          cache: "force-cache", 
+          next: { revalidate: 300 } 
+        });
+        clearTimeout(timeoutId);
+        
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const list: FeaturedArticleLite[] = (json?.data || []).map((a: any) => ({
