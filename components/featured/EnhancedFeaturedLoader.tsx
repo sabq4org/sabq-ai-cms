@@ -76,14 +76,14 @@ export default function EnhancedFeaturedLoader({
     
     const fetchEnhancedArticles = async () => {
       try {
-        const endpoint = `/api/articles/featured-fast?limit=${limit}&include_content=preview`;
+        const endpoint = `/api/articles/featured-fast?limit=${limit}`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
         
         const res = await fetch(endpoint, { 
           signal: controller.signal,
           cache: "force-cache", 
-          next: { revalidate: 180 } // 3 minutes cache
+          next: { revalidate: 300 } // 5 minutes cache
         });
         
         clearTimeout(timeoutId);
@@ -96,8 +96,8 @@ export default function EnhancedFeaturedLoader({
           title: a.title,
           slug: a.slug,
           excerpt: a.excerpt || a.summary || '',
-          content: a.preview_content || a.content?.substring(0, 500) || '', // Pre-loaded content
-          featured_image: a.featured_image || a.social_image || a.image_url,
+          content: a.excerpt || a.summary || '', // Use excerpt instead of full content for faster loading
+          featured_image: a.featured_image || a.social_image,
           social_image: a.social_image,
           metadata: a.metadata,
           published_at: a.published_at,
@@ -120,12 +120,8 @@ export default function EnhancedFeaturedLoader({
         if (mounted) {
           setArticles(enhancedArticles);
           
-          // Pre-load content for immediate display on click
-          enhancedArticles.forEach(article => {
-            if (article.slug) {
-              preloadArticleContent(article.id, article.slug);
-            }
-          });
+          // Skip pre-loading content for faster initial display
+          // Content will be loaded when user clicks on article
         }
       } catch (e) {
         console.error("Failed to fetch enhanced featured articles:", e);
@@ -221,14 +217,14 @@ export default function EnhancedFeaturedLoader({
               ? 'border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-950/20'
               : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
           }`}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 h-80 lg:h-96">
-              {/* Image Section */}
-              <div className="col-span-1 lg:col-span-7 xl:col-span-8 relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 h-80 lg:h-96">
+              {/* Image Section - 50% */}
+              <div className="col-span-1 relative overflow-hidden">
                 <SafeNewsImage
                   src={currentArticle.featured_image || '/images/news-placeholder.svg'}
                   alt={currentArticle.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  width={800}
+                  width={600}
                   height={400}
                   priority
                 />
@@ -249,8 +245,8 @@ export default function EnhancedFeaturedLoader({
                 </div>
               </div>
               
-              {/* Content Section */}
-              <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 p-6 flex-col justify-between">
+              {/* Content Section - 50% */}
+              <div className="hidden lg:flex col-span-1 p-6 flex-col justify-between">
                 {/* Category */}
                 {currentArticle.category && (
                   <div className="mb-3">
