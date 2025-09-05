@@ -6,7 +6,7 @@ import SafeNewsImage from "@/components/ui/SafeNewsImage";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { Clock, Eye, User, ArrowRight, Loader2 } from "lucide-react";
 
-interface ProgressiveArticleData {
+interface ArticleData {
   id: string;
   title: string;
   excerpt?: string;
@@ -25,92 +25,47 @@ interface ProgressiveArticleData {
   } | null;
   views?: number;
   reading_time?: number;
-  preloaded?: boolean;
-  timestamp?: number;
 }
 
-interface ProgressiveArticleLoaderProps {
+interface ArticleLoaderProps {
   slug: string;
   fallbackTitle?: string;
 }
 
-export default function ProgressiveArticleLoader({ 
+export default function ArticleLoader({ 
   slug, 
   fallbackTitle = "جاري التحميل..." 
-}: ProgressiveArticleLoaderProps) {
+}: ArticleLoaderProps) {
   const router = useRouter();
-  const [articleData, setArticleData] = useState<ProgressiveArticleData | null>(null);
-  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [articleData, setArticleData] = useState<ArticleData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadArticle = async () => {
       try {
-        // Step 1: Check for pre-loaded content in sessionStorage
-        const preloadedKey = sessionStorage.getItem('last_preloaded_article');
-        if (preloadedKey) {
-          const preloadedData = sessionStorage.getItem(`article_preview_${preloadedKey}`);
-          if (preloadedData) {
-            try {
-              const parsed = JSON.parse(preloadedData);
-              // Check if this matches our current slug
-              if (parsed.slug === slug || parsed.id === slug) {
-                setArticleData(parsed);
-                setLoadingProgress(30);
-                
-                // Clear the preloaded data to prevent stale content
-                sessionStorage.removeItem(`article_preview_${preloadedKey}`);
-                sessionStorage.removeItem('last_preloaded_article');
-              }
-            } catch (e) {
-              console.warn('Failed to parse preloaded data:', e);
-            }
-          }
-        }
-
-        // Step 2: Load complete article data in background
-        setLoadingProgress(50);
+        setIsLoading(true);
         
-        const response = await fetch(`/api/articles/${slug}`, {
-          cache: "force-cache",
-          next: { revalidate: 300 }
-        });
+        const response = await fetch(`/api/articles/${slug}`);
 
         if (!response.ok) {
           throw new Error(`Failed to load article: ${response.status}`);
         }
 
-        setLoadingProgress(80);
-        const fullArticleData = await response.json();
+        const data = await response.json();
+        setArticleData(data);
         
-        // Step 3: Update with complete data
-        setArticleData(fullArticleData);
-        setLoadingProgress(100);
-        setIsLoadingComplete(true);
-
       } catch (error) {
         console.error('Error loading article:', error);
-        
-        // Fallback: try to load from preview API
-        try {
-          const previewResponse = await fetch(`/api/articles/${slug}/preview`);
-          if (previewResponse.ok) {
-            const previewData = await previewResponse.json();
-            setArticleData(previewData);
-            setLoadingProgress(100);
-          }
-        } catch (previewError) {
-          console.error('Preview fallback failed:', previewError);
-          // Show error state or redirect
-          router.push('/news');
-        }
+        router.push('/news');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadArticle();
   }, [slug, router]);
 
-  if (!articleData) {
+  if (isLoading || !articleData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -125,16 +80,6 @@ export default function ProgressiveArticleLoader({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Progress indicator for background loading */}
-      {!isLoadingComplete && (
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <div 
-            className="h-1 bg-blue-500 transition-all duration-300 ease-out"
-            style={{ width: `${loadingProgress}%` }}
-          />
-        </div>
-      )}
-
       <article className="max-w-4xl mx-auto px-4 py-8">
         {/* Header Section */}
         <header className="mb-8">
@@ -244,23 +189,11 @@ export default function ProgressiveArticleLoader({
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
               <p className="text-center text-gray-500 dark:text-gray-400 py-8">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-                جاري تحميل المحتوى الكامل...
+                جاري تحميل المحتوى...
               </p>
             </div>
           )}
         </div>
-
-        {/* Loading indicator for content */}
-        {articleData.preloaded && !isLoadingComplete && (
-          <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <div className="flex items-center gap-3">
-              <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
-              <span className="text-blue-700 dark:text-blue-300 text-sm">
-                جاري تحميل المحتوى الإضافي والتعليقات...
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Back to News Button */}
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">

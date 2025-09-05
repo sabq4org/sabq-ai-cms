@@ -2,11 +2,10 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getSiteUrl } from "@/lib/url-builder";
 import ResponsiveArticle from "./parts/ResponsiveArticle";
-import { getArticleOptimized, type Article } from "./ArticleLoader";
+import prisma from "@/lib/prisma";
 
-export const revalidate = 3600; // cache لمدة ساعة بدلاً من 5 دقائق
+export const revalidate = 300;
 export const runtime = "nodejs";
-export const fetchCache = 'force-cache';
 
 
 
@@ -43,9 +42,31 @@ async function getInsights(articleId: string): Promise<Insights> {
   };
 }
 
+async function getArticle(slug: string) {
+  const decodedSlug = decodeURIComponent(slug);
+  
+  let article = await prisma.articles.findFirst({
+    where: {
+      slug: decodedSlug,
+      status: "published",
+    },
+  });
+  
+  if (!article) {
+    article = await prisma.articles.findFirst({
+      where: {
+        id: decodedSlug,
+        status: "published",
+      },
+    });
+  }
+  
+  return article;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleOptimized(decodeURIComponent(slug));
+  const article = await getArticle(slug);
   const SITE_URL = getSiteUrl();
 
   if (!article) {
@@ -63,9 +84,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function ExperimentalNewsPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function NewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = await getArticleOptimized(decodeURIComponent(slug));
+  const article = await getArticle(slug);
   if (!article) return notFound();
 
   const insights = await getInsights(article.id);
