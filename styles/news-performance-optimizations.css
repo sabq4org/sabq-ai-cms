@@ -1,0 +1,286 @@
+/* 🚀 تحسينات أداء مكونات الأخبار */
+/* News Performance Optimizations - تحسين سرعة التحميل وتجربة المستخدم */
+
+/* ===== 1. تحسين الصور ===== */
+.news-card img {
+  will-change: transform;
+  transition: transform 0.2s ease-out;
+}
+
+.news-card:hover img {
+  transform: scale(1.02); /* تقليل التكبير للأداء */
+}
+
+/* تحسين lazy loading للصور */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* ===== 2. تحسين أداء التمرير ===== */
+.news-grid {
+  contain: layout style paint;
+  transform: translateZ(0); /* فرض GPU acceleration */
+}
+
+/* تحسين scroll للمقالات الطويلة */
+.news-container {
+  overflow-anchor: none; /* منع تشويش التمرير */
+  scroll-behavior: smooth;
+}
+
+/* ===== 3. تحسين الانتقالات ===== */
+.news-card {
+  transition: box-shadow 0.15s ease-out, transform 0.15s ease-out;
+  will-change: box-shadow, transform;
+  backface-visibility: hidden; /* تحسين الأداء */
+}
+
+.news-card:hover {
+  transform: translateY(-2px);
+}
+
+/* إيقاف الانتقالات أثناء التمرير السريع */
+@media (prefers-reduced-motion: reduce) {
+  .news-card,
+  .news-card img {
+    transition: none !important;
+  }
+}
+
+/* ===== 4. تحسين النصوص ===== */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 5. تحسين Loading States ===== */
+.news-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== 6. تحسين أداء الموبايل ===== */
+@media (max-width: 768px) {
+  /* تقليل العقد DOM على الموبايل */
+  .news-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  /* تحسين Touch interactions */
+  .news-card {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* تحسين الخطوط على الموبايل */
+  .news-card h3 {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  .news-card p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+/* ===== 7. تحسين بطاقات الأداء ===== */
+.performance-badge {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  z-index: 1000;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.performance-badge:hover {
+  opacity: 1;
+}
+
+/* إخفاء performance badge في الإنتاج */
+body:not(.development) .performance-badge {
+  display: none;
+}
+
+/* ===== 8. تحسين Virtual Scrolling ===== */
+.virtual-list {
+  height: 400px;
+  overflow-y: auto;
+  contain: strict;
+}
+
+.virtual-item {
+  height: 200px;
+  contain: layout style paint;
+}
+
+/* ===== 9. تحسين إعادة التدوير ===== */
+.news-item {
+  contain: layout style;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
+}
+
+/* ===== 10. تحسين CSS Grid Performance ===== */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  grid-auto-rows: max-content;
+}
+
+@supports (grid-template-rows: masonry) {
+  .news-grid {
+    grid-template-rows: masonry;
+  }
+}
+
+/* ===== 11. تحسين اللودر ===== */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== 12. تحسين الذاكرة ===== */
+.news-container * {
+  box-sizing: border-box;
+}
+
+/* منع memory leaks في الصور */
+.news-image {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ===== 13. تحسين المحتوى المرئي ===== */
+.above-fold {
+  content-visibility: visible;
+}
+
+.below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 300px;
+}
+
+/* ===== 14. Critical CSS Inlining ===== */
+.critical-news {
+  font-display: swap;
+  font-synthesis: none;
+}
+
+/* ===== 15. تحسين Intersection Observer ===== */
+.lazy-load {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.lazy-load.loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== 16. تحسين Service Worker Cache ===== */
+.cached-content {
+  position: relative;
+}
+
+.cached-content::after {
+  content: "⚡";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+/* ===== 17. تحسين Dark Mode ===== */
+@media (prefers-color-scheme: dark) {
+  .news-card {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .news-skeleton {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  }
+}
+
+/* ===== 18. تحسين Print Styles ===== */
+@media print {
+  .news-card {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+  
+  .performance-badge,
+  .loading-spinner {
+    display: none !important;
+  }
+}
+
+/* ===== 19. تحسين Focus States ===== */
+.news-card:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* ===== 20. تحسين العناصر التفاعلية ===== */
+.interactive-element {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.interactive-element:active {
+  transform: scale(0.98);
+}
