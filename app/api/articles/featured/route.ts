@@ -5,8 +5,14 @@ import { retryWithConnection, ensureDbConnected } from "@/lib/prisma";
 export const runtime = "nodejs";
 
 // ذاكرة تخزين مؤقت محسنة مع مفاتيح متعددة
-const CACHE_TTL = 30 * 1000; // 30 ثانية للاستجابة السريعة
+const CACHE_TTL = 30 * 1000; // Cache محسن مع تنظيف تلقائي وإشعارات التحديث
 const cache = new Map<string, { data: any; timestamp: number }>();
+
+// تنظيف الكاش عند إضافة مقال جديد
+export function clearFeaturedCache() {
+  cache.clear();
+  console.log('🔄 تم مسح cache الأخبار المميزة');
+}
 
 // تنظيف الذاكرة المؤقتة كل 5 دقائق
 setInterval(() => {
@@ -30,12 +36,12 @@ export async function GET(request: NextRequest) {
     
     // التحقق من الذاكرة المؤقتة
     if (cached && cached.timestamp > Date.now() - CACHE_TTL) {
-      const res = NextResponse.json({ ok: true, data: cached.data, count: cached.data.length, cached: true });
-      res.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=300");
-      res.headers.set("CDN-Cache-Control", "max-age=60");
-      res.headers.set("Vercel-CDN-Cache-Control", "max-age=60");
-      res.headers.set("X-Cache-Status", "HIT");
-      return res;
+      return NextResponse.json({ ok: true, data: cached.data, count: cached.data.length, cached: true }, {
+        headers: {
+          "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=300",
+          "X-Cache": "MEMORY-HIT"
+        }
+      });
     }
 
     const now = new Date();

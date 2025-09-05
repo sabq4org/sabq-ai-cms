@@ -56,7 +56,7 @@ export default async function HomePage() {
             }
           >
             <OldStyleNewsServerMarkup
-              endpoint="/api/news?featured=true"
+              endpoint="/api/articles/featured-fast?limit=6"
               title="🔥 الأخبار المميزة"
               columns={3}
               showExcerpt={true}
@@ -89,7 +89,7 @@ export default async function HomePage() {
             }
           >
             <OldStyleNewsServerMarkup
-              endpoint="/api/news?sort=created_at&order=desc"
+              endpoint="/api/articles?sort=published_at&order=desc&limit=9"
               title="📰 آخر الأخبار"
               columns={3}
               showExcerpt={false}
@@ -122,7 +122,7 @@ export default async function HomePage() {
             }
           >
             <OldStyleNewsServerMarkup
-              endpoint="/api/news?sort=views&order=desc"
+              endpoint="/api/articles?sort=views&order=desc&limit=4"
               title="👁️ الأكثر قراءة"
               columns={2}
               showExcerpt={true}

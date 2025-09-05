@@ -8,10 +8,8 @@ interface LightFeaturedServerProps {
 
 // نسخة سيرفرية من شريط الأخبار المميزة لخفض الهيدرشن
 export default async function LightFeaturedServer({ heading = 'الأخبار المميزة', limit = 3, revalidateSeconds = 300 }: LightFeaturedServerProps) {
-  const isProd = process.env.NODE_ENV === 'production';
-  const endpoint = isProd
-    ? `/api/articles/featured?limit=${limit}`
-    : `/api/articles/featured-json?limit=${limit}`;
+  // استخدام نفس API المحسن المستخدم في النسخة الكاملة
+  const endpoint = `/api/articles/featured-fast?limit=${limit}`;
 
   let articles: any[] = [];
   try {

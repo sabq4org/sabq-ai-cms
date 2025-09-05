@@ -69,7 +69,7 @@ export default async function OldStyleNewsServerMarkup({
   let articles: ArticleItem[] = [];
   try {
     const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 3000); // Increased timeout
+    const t = setTimeout(() => controller.abort(), 3000);
     
     // إنشاء URL مطلق للعمل مع Server-Side
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -81,15 +81,29 @@ export default async function OldStyleNewsServerMarkup({
       signal: controller.signal 
     });
     clearTimeout(t);
-    console.log(`🔍 [OldStyleNews] Original URL: ${url}`);
-    console.log(`🔍 [OldStyleNews] Full URL: ${fullUrl}`);
+    console.log(`🔍 [OldStyleNews] Fetching from: ${fullUrl}`);
     console.log(`🔍 [OldStyleNews] Response Status: ${res.status}`);
     
     if (res.ok) {
       const data = await res.json();
-      console.log(`🔍 [OldStyleNews] Data received:`, typeof data, Array.isArray(data) ? `Array(${data.length})` : 'Object');
+      console.log(`🔍 [OldStyleNews] Data structure:`, Object.keys(data));
       
-      const list: ArticleItem[] = Array.isArray(data) ? data : Array.isArray((data as any)?.articles) ? (data as any).articles : [];
+      // دعم تنسيقات API متعددة
+      let list: ArticleItem[] = [];
+      
+      if (Array.isArray(data)) {
+        // تنسيق مصفوفة مباشرة
+        list = data;
+      } else if (data.data && Array.isArray(data.data)) {
+        // تنسيق featured API: { ok: true, data: [...] }
+        list = data.data;
+      } else if (data.articles && Array.isArray(data.articles)) {
+        // تنسيق articles API: { articles: [...], total: ... }
+        list = data.articles;
+      } else {
+        console.log(`⚠️ [OldStyleNews] Unknown data format:`, data);
+      }
+      
       console.log(`🔍 [OldStyleNews] Articles extracted:`, list.length);
       
       articles = (list || []).slice(0, Math.max(1, limit)).map((a) => ({
