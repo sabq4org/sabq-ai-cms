@@ -97,7 +97,7 @@ export default function EnhancedFeaturedLoader({
           slug: a.slug,
           excerpt: a.excerpt || a.summary || '',
           content: a.excerpt || a.summary || '', // Use excerpt instead of full content for faster loading
-          featured_image: a.featured_image || a.social_image,
+          featured_image: a.featured_image || a.social_image || '/images/news-placeholder.svg',
           social_image: a.social_image,
           metadata: a.metadata,
           published_at: a.published_at,

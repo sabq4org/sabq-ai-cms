@@ -31,10 +31,21 @@ export async function GET(request: NextRequest) {
       },
       take: limit,
     });
+
+    // Clean up large base64 images to prevent performance issues
+    const cleanedArticles = articles.map(article => ({
+      ...article,
+      featured_image: article.featured_image && article.featured_image.startsWith('data:') && article.featured_image.length > 10000
+        ? null // Remove large base64 images
+        : article.featured_image,
+      social_image: article.social_image && article.social_image.startsWith('data:') && article.social_image.length > 10000
+        ? null // Remove large base64 images  
+        : article.social_image,
+    }));
     
     const payload = {
       success: true,
-      data: articles,
+      data: cleanedArticles,
     };
     
     return NextResponse.json(payload, {
