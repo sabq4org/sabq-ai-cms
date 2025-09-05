@@ -50,6 +50,51 @@ async function getArticle(slug: string) {
       slug: decodedSlug,
       status: "published",
     },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      summary: true,
+      excerpt: true,
+      slug: true,
+      featured_image: true,
+      social_image: true,
+      published_at: true,
+      updated_at: true,
+      views: true,
+      likes: true,
+      shares: true,
+      saves: true,
+      tags: true,
+      status: true,
+      featured: true,
+      reading_time: true,
+      article_author: {
+        select: {
+          id: true,
+          full_name: true,
+          title: true,
+          bio: true,
+          avatar_url: true,
+          specializations: true,
+        }
+      },
+      author: {
+        select: {
+          id: true,
+          name: true,
+          role: true,
+          avatar: true,
+        }
+      },
+      categories: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        }
+      }
+    }
   });
   
   if (!article) {
@@ -58,6 +103,51 @@ async function getArticle(slug: string) {
         id: decodedSlug,
         status: "published",
       },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        summary: true,
+        excerpt: true,
+        slug: true,
+        featured_image: true,
+        social_image: true,
+        published_at: true,
+        updated_at: true,
+        views: true,
+        likes: true,
+        shares: true,
+        saves: true,
+        tags: true,
+        status: true,
+        featured: true,
+        reading_time: true,
+        article_author: {
+          select: {
+            id: true,
+            full_name: true,
+            title: true,
+            bio: true,
+            avatar_url: true,
+            specializations: true,
+          }
+        },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+            avatar: true,
+          }
+        },
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          }
+        }
+      }
     });
   }
   

@@ -15,7 +15,24 @@ interface ResponsiveArticleProps {
 }
 
 export default function ResponsiveArticle({ article, insights, slug }: ResponsiveArticleProps) {
-  const heroImages = useMemo(() => article.images || [], [article.images]);
+  const heroImages = useMemo(() => {
+    // Create images array from featured_image and social_image
+    const images = [];
+    if (article.featured_image) {
+      images.push({
+        url: article.featured_image,
+        alt: article.title || "صورة الخبر"
+      });
+    }
+    if (article.social_image && article.social_image !== article.featured_image) {
+      images.push({
+        url: article.social_image,
+        alt: article.title || "صورة الخبر"
+      });
+    }
+    return images;
+  }, [article.featured_image, article.social_image, article.title]);
+  
   const contentHtml = article.content || "";
   const hiddenImageUrls = heroImages.map((img: any) => img.url);
   
@@ -179,10 +196,10 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                       }).format(new Date(article.published_at))}</span>
                     </div>
                   )}
-                  {article.readMinutes && (
+                  {article.reading_time && (
                     <div className="flex items-center gap-1">
                       <BookOpen className="w-4 h-4" />
-                      <span>{article.readMinutes} دقيقة قراءة</span>
+                      <span>{article.reading_time} دقيقة قراءة</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1">
