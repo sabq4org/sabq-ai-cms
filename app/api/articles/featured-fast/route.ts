@@ -26,6 +26,21 @@ export async function GET(request: NextRequest) {
         status: true,
         published_at: true,
         views: true,
+        categories: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            color: true,
+          },
+        },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
       },
       orderBy: {
         published_at: 'desc',
