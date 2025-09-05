@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '3'), 10);
     
+    // تجربة بسيطة بدون العلاقات أولاً
     const articles = await prisma.articles.findMany({
       where: {
         status: 'published',
@@ -26,21 +27,6 @@ export async function GET(request: NextRequest) {
         status: true,
         published_at: true,
         views: true,
-        categories: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            color: true,
-          },
-        },
-        author: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
       },
       orderBy: {
         published_at: 'desc',
@@ -71,7 +57,12 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching featured articles:', error);
     return NextResponse.json(
-      { success: false, data: [], error: 'حدث خطأ في جلب الأخبار المميزة' },
+      { 
+        success: false, 
+        data: [], 
+        error: 'حدث خطأ في جلب الأخبار المميزة', 
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
