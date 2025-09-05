@@ -80,8 +80,8 @@ export async function GET(req: NextRequest) {
           reading_time: true,
           breaking: true,
           featured: true,
-          // إزالة metadata لتقليل الحمولة
-          categories: { select: { id: true, name: true, slug: true } },
+          // تقليل الحمولة - حقول أساسية فقط
+          categories: { select: { id: true, name: true } },
         },
       })
     );
@@ -90,16 +90,18 @@ export async function GET(req: NextRequest) {
       success: true,
       articles: articles.map((a: any) => ({
         id: a.id,
-        title: a.title,
+        title: a.title.length > 80 ? a.title.substring(0, 80) + '...' : a.title, // تقليل طول العنوان
         slug: a.slug,
         image: a.featured_image,
-        category: a.categories,
+        category: a.categories?.name || null, // تبسيط التصنيف
         published_at: a.published_at,
         views: a.views || 0,
         readTime: a.reading_time || null,
         breaking: a.breaking,
         featured: a.featured,
       })),
+      cached_at: new Date().toISOString(),
+      count: articles.length
     };
 
     // حفظ في Redis لمدة 5 دقائق

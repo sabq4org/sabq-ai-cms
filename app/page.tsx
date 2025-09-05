@@ -52,9 +52,9 @@ const OldFeaturedHero = dynamic(
   }
 );
 
-// استيراد شريط الأخبار المميزة للنسخة الخفيفة
-const LightFeaturedLoader = dynamic(
-  () => import("@/components/featured/LightFeaturedLoader"),
+// استيراد شريط الأخبار المميزة المحسن للنسخة الخفيفة
+const EnhancedFeaturedLoader = dynamic(
+  () => import("@/components/featured/EnhancedFeaturedLoader"),
   {
     ssr: false,
     loading: () => (
@@ -108,7 +108,7 @@ export default function Page() {
           </>
         }>
           {/* الأخبار المميزة والمحتوى الذكي معاً */}
-          <LightFeaturedLoader heading="الأخبار المميزة" limit={3} />
+          <EnhancedFeaturedLoader heading="الأخبار المميزة" limit={3} showCarousel={false} />
           <div className="max-w-6xl mx-auto">
             <SmartContentBlock />
           </div>
@@ -150,9 +150,9 @@ export default function Page() {
           <WelcomeMetaStrip />
         </Suspense>
       </div>
-      {/* الأخبار المميزة من النسخة القديمة - النسخة الكاملة فقط */}
+      {/* الأخبار المميزة المحسنة - النسخة الكاملة مع التحميل التدريجي */}
       <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
-        <OldFeaturedHero />
+        <EnhancedFeaturedLoader heading="الأخبار المميزة" limit={3} showCarousel={true} />
       </Suspense>
       <Suspense
         fallback={
