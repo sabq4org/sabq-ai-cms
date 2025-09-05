@@ -34,36 +34,16 @@ export async function GET(request: NextRequest) {
     const cacheKey = `featured:${limit}:${withCategories}`;
     const cached = cache.get(cacheKey);
     
-    // التحقق من الذاكرة المؤقتة
-    if (cached && cached.timestamp > Date.now() - CACHE_TTL) {
-      return NextResponse.json({ ok: true, data: cached.data, count: cached.data.length, cached: true }, {
-        headers: {
-          "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=300",
-          "X-Cache": "MEMORY-HIT"
-        }
-      });
-    }
+    // مسح جميع cache keys لحل مشكلة الحقول المفقودة
+    cache.clear();
+    console.log('🔄 تم مسح جميع cache keys');
 
     const now = new Date();
 
     await ensureDbConnected();
 
-    // بناء الحقول ديناميكياً لتجنّب join ثقيل عند عدم الحاجة
-    const selectFields: any = {
-      id: true,
-      title: true,
-      slug: true,
-      excerpt: true,
-      featured_image: true,
-      social_image: true,
-      metadata: true,
-      published_at: true,
-      views: true,
-      breaking: true,
-    };
-    if (withCategories) {
-      selectFields.categories = { select: { id: true, name: true, slug: true, color: true } };
-    }
+    // إزالة selectFields تماماً لجلب جميع الحقول من قاعدة البيانات
+    console.log('🔧 جلب جميع الحقول بدون تحديد select');
 
     // تحسين الاستعلام - استعلام منفصل للأخبار المميزة أولاً (أسرع)
     const featuredArticles = await retryWithConnection(async () =>
@@ -81,7 +61,7 @@ export async function GET(request: NextRequest) {
           { views: "desc" }
         ],
         take: limit,
-        select: selectFields,
+        // جلب جميع الحقول بدون تحديد select أو include
       })
     );
 
@@ -104,7 +84,7 @@ export async function GET(request: NextRequest) {
             { views: "desc" }
           ],
           take: limit - featured.length,
-          select: selectFields,
+          // إزالة select مؤقتاً لجلب جميع الحقول
         })
       );
       

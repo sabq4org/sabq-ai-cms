@@ -52,9 +52,12 @@ export async function GET(request: NextRequest) {
         id: true,
         title: true,
         slug: true,
+        excerpt: true,
         featured_image: true,
         social_image: true,
         breaking: true,
+        featured: true,  // ضروري لعرض الأخبار المميزة
+        status: true,    // ضروري للتحقق من حالة النشر
         published_at: true,
         views: true,
         categories: {
@@ -78,9 +81,12 @@ export async function GET(request: NextRequest) {
         id: article.id,
         title: article.title,
         slug: article.slug,
+        excerpt: article.excerpt,
         featured_image: article.featured_image,
         social_image: article.social_image,
         breaking: article.breaking,
+        featured: article.featured,
+        status: article.status,
         published_at: article.published_at,
         views: article.views || 0,
         categories: article.categories,
