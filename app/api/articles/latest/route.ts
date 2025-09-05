@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { retryWithConnection, ensureDbConnected } from "@/lib/prisma";
+import { processArticleImage, getSafeImageUrl } from '@/lib/image-utils';
 
 export const runtime = "nodejs";
 

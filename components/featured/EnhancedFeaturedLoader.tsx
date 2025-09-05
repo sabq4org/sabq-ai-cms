@@ -6,6 +6,7 @@ import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import SafeNewsImage from "@/components/ui/SafeNewsImage";
+import { getSafeImageUrl } from "@/lib/image-utils";
 import { Clock, Eye, ArrowLeft, Star } from "lucide-react";
 
 interface EnhancedFeaturedArticle {
@@ -97,8 +98,9 @@ export default function EnhancedFeaturedLoader({
           slug: a.slug,
           excerpt: a.excerpt || a.summary || '',
           content: a.excerpt || a.summary || '', // Use excerpt instead of full content for faster loading
-          featured_image: a.featured_image || a.social_image || '/images/news-placeholder.svg',
-          social_image: a.social_image,
+          // استخدام نظام الصور المُحسَّن مع fallback
+          featured_image: a.featured_image || getSafeImageUrl(null, 'featured'),
+          social_image: a.social_image || getSafeImageUrl(null, 'article'),
           metadata: a.metadata,
           published_at: a.published_at,
           breaking: a.breaking || a.is_breaking || false,
@@ -226,6 +228,7 @@ export default function EnhancedFeaturedLoader({
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   width={600}
                   height={400}
+                  imageType="featured"
                   priority
                 />
                 
@@ -321,6 +324,7 @@ export default function EnhancedFeaturedLoader({
                 width={64}
                 height={36}
                 className="w-full h-full object-cover"
+                imageType="featured"
               />
               {idx === currentIndex && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
@@ -359,6 +363,7 @@ export default function EnhancedFeaturedLoader({
                     priority={idx === 0}
                     width={400}
                     height={225}
+                    imageType="featured"
                   />
                   
                   {/* Badge */}

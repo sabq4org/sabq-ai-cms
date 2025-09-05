@@ -170,7 +170,9 @@ export default function ArticleLoader({
                 width={800}
                 height={450}
                 priority
-              />
+              /
+                imageType="article"
+                imageType="featured">
             </div>
           </div>
         )}

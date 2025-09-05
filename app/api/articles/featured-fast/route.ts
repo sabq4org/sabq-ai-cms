@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { processArticleImage, getSafeImageUrl } from '@/lib/image-utils';
 
 export const runtime = 'nodejs';
 
@@ -32,20 +33,19 @@ export async function GET(request: NextRequest) {
       take: limit,
     });
 
-    // Clean up large base64 images to prevent performance issues
-    const cleanedArticles = articles.map(article => ({
+    // معالجة شاملة للصور مع نظام fallback متقدم
+    const processedArticles = articles.map(article => ({
       ...article,
-      featured_image: article.featured_image && article.featured_image.startsWith('data:') && article.featured_image.length > 10000
-        ? null // Remove large base64 images
-        : article.featured_image,
-      social_image: article.social_image && article.social_image.startsWith('data:') && article.social_image.length > 10000
-        ? null // Remove large base64 images  
-        : article.social_image,
+      // معالجة الصورة المميزة مع fallback
+      featured_image: processArticleImage(article.featured_image, article.title, 'featured'),
+      // معالجة صورة المشاركة مع fallback
+      social_image: processArticleImage(article.social_image, article.title, 'article'),
     }));
     
     const payload = {
       success: true,
-      data: cleanedArticles,
+      data: processedArticles,
+      message: 'تم جلب الأخبار المميزة مع معالجة متقدمة للصور',
     };
     
     return NextResponse.json(payload, {
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching featured articles:', error);
     return NextResponse.json(
-      { success: false, data: [] },
+      { success: false, data: [], error: 'حدث خطأ في جلب الأخبار المميزة' },
       { status: 500 }
     );
   }

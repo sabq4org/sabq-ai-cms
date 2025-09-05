@@ -23,11 +23,15 @@ const S3_DOMAINS = [
 // Fallback images - روابط صحيحة وموثوقة
 const FALLBACK_IMAGES = {
   article:
-    "https://ui-avatars.com/api/?name=مقال&background=0D8ABC&color=fff&size=800&font-size=0.33&rounded=false",
+    "https://res.cloudinary.com/dybhezmvb/image/upload/v1700000000/sabq-cms/defaults/article-placeholder.jpg",
   author:
     "https://ui-avatars.com/api/?name=كاتب&background=0D8ABC&color=fff&size=200&font-size=0.33&rounded=true",
   category:
-    "https://ui-avatars.com/api/?name=تصنيف&background=00A86B&color=fff&size=800&font-size=0.33&rounded=false",
+    "https://res.cloudinary.com/dybhezmvb/image/upload/v1700000000/sabq-cms/defaults/category-placeholder.jpg",
+  news:
+    "https://res.cloudinary.com/dybhezmvb/image/upload/v1700000000/sabq-cms/defaults/news-placeholder.jpg",
+  featured:
+    "https://res.cloudinary.com/dybhezmvb/image/upload/v1700000000/sabq-cms/defaults/featured-placeholder.jpg",
   default:
     "https://ui-avatars.com/api/?name=سبق&background=1E40AF&color=fff&size=800&font-size=0.33&rounded=false",
 };
@@ -287,4 +291,94 @@ export function getOptimizedImageProps(
       bgColor: "E5E7EB",
     }),
   };
+}
+
+/**
+ * التحقق من صحة رابط الصورة وتوفر الصورة
+ */
+export function isValidImageUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  
+  // تجاهل الصور base64 الضخمة (أكبر من 100KB)
+  if (url.startsWith("data:image/") && url.length > 100000) {
+    return false;
+  }
+  
+  // قبول صور base64 الصغيرة المناسبة
+  if (url.startsWith("data:image/") && url.length <= 100000) {
+    return true;
+  }
+  
+  try {
+    const urlObj = new URL(url);
+    const validHosts = [
+      "res.cloudinary.com",
+      "cloudinary.com", 
+      "amazonaws.com",
+      "s3.amazonaws.com",
+      "cloudfront.net",
+      "ui-avatars.com",
+      "images.unsplash.com",
+      "sabq.org",
+      "www.sabq.org",
+      "sabq.io",
+      "www.sabq.io"
+    ];
+    
+    // التحقق من النطاقات الموثوقة
+    const isValidHost = validHosts.some(host => 
+      urlObj.hostname.includes(host) || urlObj.hostname.endsWith(host)
+    );
+    
+    if (!isValidHost) return false;
+    
+    // التحقق من امتدادات الصور الصحيحة
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif'];
+    const pathname = urlObj.pathname.toLowerCase();
+    const hasValidExtension = validExtensions.some(ext => pathname.includes(ext));
+    
+    // قبول روابط Cloudinary حتى لو لم تحتوي على امتداد واضح
+    const isCloudinary = urlObj.hostname.includes('cloudinary.com');
+    
+    return hasValidExtension || isCloudinary;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * إرجاع صورة آمنة - إما الصورة الأصلية أو بديل مناسب
+ */
+export function getSafeImageUrl(
+  imageUrl: string | null | undefined,
+  type: 'article' | 'author' | 'category' | 'news' | 'featured' | 'default' = 'default'
+): string {
+  // إذا كانت الصورة صحيحة، إرجعها كما هي
+  if (isValidImageUrl(imageUrl)) {
+    return imageUrl as string;
+  }
+  
+  // إرجاع الصورة البديلة المناسبة
+  return FALLBACK_IMAGES[type] || FALLBACK_IMAGES.default;
+}
+
+/**
+ * معالجة شاملة للصور مع نظام fallback متقدم
+ */
+export function processArticleImage(
+  imageUrl: string | null | undefined,
+  title: string,
+  type: 'featured' | 'article' | 'news' = 'article'
+): string {
+  // جرب الصورة الأصلية أولاً
+  if (isValidImageUrl(imageUrl)) {
+    return getImageUrl(imageUrl as string, {
+      width: type === 'featured' ? 1200 : 800,
+      height: type === 'featured' ? 675 : 450,
+      quality: 80
+    });
+  }
+  
+  // إذا فشلت، استخدم الصورة البديلة المناسبة
+  return getSafeImageUrl(null, type);
 }

@@ -3,6 +3,7 @@ import { ensureDbConnected, retryWithConnection, isPrismaNotConnectedError } fro
 import { ensureUniqueSlug, resolveContentType } from "@/lib/slug";
 import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
+import { processArticleImage, getSafeImageUrl } from '@/lib/image-utils';
 
 // Cache في الذاكرة
 const articleCache = new Map<string, { data: any; timestamp: number }>();

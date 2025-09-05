@@ -161,7 +161,8 @@ export default function OldStyleNewsBlock({
                 priority={index < columns}
                 width={300}
                 height={200}
-              />
+              /
+                imageType="article">
             </div>
 
             {/* محتوى المقال */}

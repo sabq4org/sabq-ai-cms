@@ -148,6 +148,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
                     className="absolute inset-0 w-full h-full object-cover"
                     loading={idx === 0 ? 'eager' : 'lazy'}
                     priority={idx === 0}
+                    imageType="featured"
                     width={400}
                     height={225}
                     decoding="async"

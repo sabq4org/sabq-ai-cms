@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { processArticleImage, getSafeImageUrl } from '@/lib/image-utils';
 
 // Proxy to /api/articles to avoid re-export build conflicts
 export async function GET(request: NextRequest) {

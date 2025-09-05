@@ -143,6 +143,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({
               alt={article.title}
               className="old-style-news-image"
               loading="eager"
+              imageType="featured"
               priority={true}
               width={400}
               height={250}
@@ -267,6 +268,7 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({
                   priority={true}
                   width={500}
                   height={400}
+                  imageType="featured"
                 />
                 
                 {/* تدرج لوني ناعم */}

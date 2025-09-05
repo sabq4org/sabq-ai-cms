@@ -3,6 +3,7 @@
 
 import React, { useState, CSSProperties } from 'react';
 import Image from 'next/image';
+import { getSafeImageUrl, isValidImageUrl } from '@/lib/image-utils';
 
 interface SafeNewsImageProps {
   src: string;
@@ -16,6 +17,7 @@ interface SafeNewsImageProps {
   decoding?: 'async' | 'sync' | 'auto';
   fetchPriority?: 'high' | 'low' | 'auto';
   style?: CSSProperties;
+  imageType?: 'featured' | 'article' | 'news' | 'author' | 'category' | 'default';
 }
 
 export default function SafeNewsImage({
@@ -30,17 +32,24 @@ export default function SafeNewsImage({
   decoding = 'async',
   fetchPriority,
   style,
+  imageType = 'default',
 }: SafeNewsImageProps) {
-  const [imageSrc, setImageSrc] = useState(src);
+  // استخدام نظام الصور المُحسَّن
+  const [imageSrc, setImageSrc] = useState(() => {
+    return isValidImageUrl(src) ? src : getSafeImageUrl(src, imageType);
+  });
   const [imageError, setImageError] = useState(false);
   
   // التحقق من نوع الصورة
-  const isDataUrl = src.startsWith('data:image/');
-  const isExternalUrl = src.startsWith('http') || src.includes('cloudinary.com') || src.includes('s3.amazonaws.com');
+  const isDataUrl = imageSrc.startsWith('data:image/');
+  const isExternalUrl = imageSrc.startsWith('http') || imageSrc.includes('cloudinary.com') || imageSrc.includes('s3.amazonaws.com');
   
   const handleError = () => {
-    setImageError(true);
-    setImageSrc('/images/placeholder-news.svg');
+    if (!imageError) {
+      setImageError(true);
+      // استخدام الصورة البديلة المناسبة عند حدوث خطأ
+      setImageSrc(getSafeImageUrl(null, imageType));
+    }
   };
 
   // استخدام img عادي للصور base64 أو في حالة وجود خطأ
