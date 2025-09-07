@@ -24,36 +24,43 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
     let mounted = true;
     (async () => {
       try {
-        // استخدام API المحسن الجديد
-        const endpoint = `/api/articles/featured-fast?limit=${limit}`;
+        // استخدام API الموحد الجديد بدلاً من featured-fast
+        const endpoint = `/api/unified-featured?limit=${limit}&format=lite`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // timeout 3 ثواني
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // timeout 5 ثواني
+        
+        console.log('🔄 [LightFeaturedLoader] Fetching from unified API');
         
         const res = await fetch(endpoint, { 
           signal: controller.signal,
           cache: "force-cache", 
-          next: { revalidate: 300 } 
+          next: { revalidate: 30 } // تقليل من 300 إلى 30 ثانية
         });
         clearTimeout(timeoutId);
         
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        const list: FeaturedArticleLite[] = (json?.data || []).map((a: any) => ({
+        
+        // التعامل مع البيانات من API الموحد
+        const articles: FeaturedArticleLite[] = (json?.data || json?.articles || []).map((a: any) => ({
           id: a.id,
           title: a.title,
           slug: a.slug,
-          // معالجة محسّنة للصورة - التحقق من عدة حقول محتملة والتأكد من صحة المسار
-          featured_image: a.featured_image || a.social_image || a.image_url || a.image || a.thumbnail || null,
+          // الصورة معالجة بالفعل في API الموحد
+          featured_image: a.featured_image,
           social_image: a.social_image,
           metadata: a.metadata,
           published_at: a.published_at,
-          breaking: a.breaking || a.is_breaking || false,
-          category: a.categories ? { id: a.categories.id, name: a.categories.name, slug: a.categories.slug, color: a.categories.color } : null,
-          views: a.views ?? a.views_count ?? 0,
+          breaking: a.breaking || false,
+          category: a.categories || a.category,
+          views: a.views ?? 0,
         }));
-        if (mounted) setArticles(list.slice(0, Math.max(1, Math.min(6, limit || 3))));
+        
+        console.log(`✅ [LightFeaturedLoader] Got ${articles.length} articles from unified API, source: ${json.source}`);
+        
+        if (mounted) setArticles(articles.slice(0, Math.max(1, Math.min(6, limit || 3))));
       } catch (e) {
-        console.error("فشل جلب الأخبار المميزة (Light):", e);
+        console.error("❌ [LightFeaturedLoader] Failed to fetch from unified API:", e);
         if (mounted) setArticles([]);
       } finally {
         if (mounted) setLoading(false);

@@ -24,57 +24,58 @@ function withCloudinaryThumb(src: string): string {
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔄 [Light News API] Redirecting to unified API');
+    
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "9", 10), 30);
-
-    // إرجاع من الكاش إذا صالح
-    if (MEMORY_CACHE && Date.now() - MEMORY_CACHE.ts < TTL_MS) {
-      const sliced = MEMORY_CACHE.data.slice(0, limit);
-      const res = NextResponse.json({ ok: true, articles: sliced, cached: true });
-      res.headers.set("Cache-Control", "public, max-age=0, s-maxage=120, stale-while-revalidate=600");
-      return res;
+    
+    // توجيه إلى API الموحد
+    const unifiedUrl = new URL('/api/unified-featured', request.url);
+    unifiedUrl.searchParams.set('limit', limit.toString());
+    unifiedUrl.searchParams.set('format', 'lite');
+    
+    const unifiedResponse = await fetch(unifiedUrl.toString(), {
+      headers: {
+        'X-Internal-Call': 'light-news',
+      },
+    });
+    
+    if (!unifiedResponse.ok) {
+      throw new Error(`Unified API error: ${unifiedResponse.status}`);
     }
-
-    await ensureDbConnected();
-    const now = new Date();
-
-    const rows = await retryWithConnection(async () =>
-      prisma.articles.findMany({
-        where: {
-          status: "published",
-          OR: [
-            { published_at: { lte: now } },
-            { published_at: null },
-          ],
-        },
-        orderBy: { published_at: "desc" },
-        take: limit,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          featured_image: true,
-          published_at: true,
-        },
-      })
-    );
-
-    const articles = (rows || []).map((a) => ({
-      id: a.id,
-      title: a.title,
-      slug: a.slug,
-      featured_image: a.featured_image ? withCloudinaryThumb(a.featured_image) : null,
-      published_at: a.published_at,
-    }));
-
-    MEMORY_CACHE = { data: articles, ts: Date.now() };
-
-    const res = NextResponse.json({ ok: true, articles, cached: false });
-    res.headers.set("Cache-Control", "public, max-age=0, s-maxage=120, stale-while-revalidate=600");
+    
+    const unifiedData = await unifiedResponse.json();
+    
+    // تحويل التنسيق للتوافق مع التوقعات القديمة
+    const responseData = {
+      ok: true,
+      articles: unifiedData.data || unifiedData.articles || [],
+      cached: unifiedData.cached || false,
+      source: unifiedData.source || 'unified',
+    };
+    
+    console.log(`✅ [Light News API] Got ${responseData.articles.length} articles from unified API`);
+    
+    const res = NextResponse.json(responseData);
+    res.headers.set("Cache-Control", "public, max-age=30, s-maxage=30, stale-while-revalidate=60");
+    res.headers.set("X-Unified-Redirect", "true");
     return res;
   } catch (error: any) {
-    console.error("❌ [light/news] error:", error);
-    return NextResponse.json({ ok: true, articles: [], fallback: true }, { status: 200 });
+    console.error("❌ [Light News API] Error:", error);
+    
+    // Fallback بتنسيق متوافق
+    return NextResponse.json({ 
+      ok: true, 
+      articles: [], 
+      fallback: true,
+      error: "حدث خطأ في جلب الأخبار",
+    }, { 
+      status: 200,
+      headers: {
+        "X-Unified-Redirect": "true",
+        "X-Error": "true",
+      }
+    });
   }
 }
 

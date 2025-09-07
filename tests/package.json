@@ -1,0 +1,14 @@
+{
+  "name": "sabq-sync-tests",
+  "version": "1.0.0",
+  "description": "اختبارات التزامن التلقائية لضمان تطابق النسختين الكاملة والخفيفة",
+  "scripts": {
+    "test:sync": "node test-sync.js",
+    "test:sync:watch": "watch 'npm run test:sync' --interval=30",
+    "test:sync:ci": "node test-sync.js --ci",
+    "monitor:sync": "while true; do npm run test:sync; sleep 60; done"
+  },
+  "devDependencies": {
+    "watch": "^1.0.2"
+  }
+}
