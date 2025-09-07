@@ -90,13 +90,13 @@ export default function SmartContentBlock({
     try {
       console.log('⚡ جلب المحتوى الذكي الفائق...');
 
-      // كاش محلي محسّن - 5 دقائق بدلاً من 60 ثانية
-      const cacheKey = 'smart-content-fast-cache-v2';
+      // كاش محلي محسّن - 30 ثانية فقط لإظهار الأخبار الجديدة بسرعة
+      const cacheKey = 'smart-content-fast-cache-v3';
       const cached = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          if (parsed && Date.now() - parsed.ts < 5 * 60 * 1000 && Array.isArray(parsed.articles)) {
+          if (parsed && Date.now() - parsed.ts < 30 * 1000 && Array.isArray(parsed.articles)) {
             setArticles(parsed.articles);
             setIsLoading(false);
             // لا نجلب مرة أخرى إذا كان الكاش جديد
@@ -138,7 +138,7 @@ export default function SmartContentBlock({
       console.error('❌ Error fetching smart content fast:', error);
       // إبقاء الكاش المحلي إن وجد، وإلا ففارغ
       try {
-        const cached = localStorage.getItem('smart-content-fast-cache-v2');
+        const cached = localStorage.getItem('smart-content-fast-cache-v3');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (parsed?.articles) setArticles(parsed.articles);

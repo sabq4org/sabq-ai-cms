@@ -5,7 +5,7 @@ import Link from "next/link";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
-import SafeNewsImage from "@/components/ui/SafeNewsImage";
+import CloudImage from "@/components/ui/CloudImage";
 import { getSafeImageUrl } from "@/lib/image-utils";
 import { Clock, Eye, ArrowLeft, Star } from "lucide-react";
 
@@ -222,14 +222,13 @@ export default function EnhancedFeaturedLoader({
             <div className="grid grid-cols-1 lg:grid-cols-2 h-80 lg:h-96">
               {/* Image Section - 50% */}
               <div className="col-span-1 relative overflow-hidden">
-                <SafeNewsImage
+                                <CloudImage
                   src={currentArticle.featured_image || '/images/news-placeholder.svg'}
                   alt={currentArticle.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  width={600}
-                  height={400}
-                  imageType="featured"
-                  priority
+                  fill
+                  className="object-cover"
+                  fallbackType="article"
+                  priority={false}
                 />
                 
                 {/* Breaking/New Badge */}
@@ -318,13 +317,13 @@ export default function EnhancedFeaturedLoader({
                   : "w-10 h-9 opacity-50 hover:opacity-70"
               }`}
             >
-              <SafeNewsImage
+              <CloudImage
                 src={article.featured_image || '/images/news-placeholder.svg'}
                 alt={article.title}
                 width={64}
                 height={36}
                 className="w-full h-full object-cover"
-                imageType="featured"
+                fallbackType="article"
               />
               {idx === currentIndex && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></div>
@@ -355,15 +354,13 @@ export default function EnhancedFeaturedLoader({
                   : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-400'
               }`}>
                 <div className="relative aspect-video w-full overflow-hidden">
-                  <SafeNewsImage
+                  <CloudImage
                     src={article.featured_image || '/images/news-placeholder.svg'}
                     alt={article.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                     priority={idx === 0}
-                    width={400}
-                    height={225}
-                    imageType="featured"
+                    fallbackType="article"
                   />
                   
                   {/* Badge */}

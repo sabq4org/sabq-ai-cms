@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 // كاش بالذاكرة لمدة قصيرة جداً للطلبات المتزامنة
 const memoryCache = new Map<string, { ts: number; data: any }>();
-const MEM_TTL = 5 * 1000; // 5 ثواني فقط للطلبات المتزامنة
+const MEM_TTL = 30 * 1000; // 30 ثانية فقط لإظهار الأخبار الجديدة
 
 function buildCacheKey(limit: number, categoryId?: string | null, excludeId?: string | null) {
   return `smart-content:v2|limit:${limit}|category:${categoryId || "all"}|exclude:${excludeId || "none"}`;
@@ -104,9 +104,9 @@ export async function GET(req: NextRequest) {
       count: articles.length
     };
 
-    // حفظ في Redis لمدة 5 دقائق
+    // حفظ في Redis لمدة دقيقة واحدة لإظهار الأخبار الجديدة بسرعة
     try {
-      await cache.set(key, payload, CACHE_TTL.ARTICLES);
+      await cache.set(key, payload, 60); // 60 ثانية
     } catch (redisError) {
       console.warn("Failed to save to Redis:", redisError);
     }

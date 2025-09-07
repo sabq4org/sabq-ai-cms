@@ -53,7 +53,7 @@ async function calculateSmartInsights(): Promise<ArticleInsight[]> {
       status: 'published',
       published_at: {
         not: null,
-        gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // آخر 24 ساعة فقط
+        gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // آخر 7 أيام بدلاً من 24 ساعة
       }
     },
     select: {
