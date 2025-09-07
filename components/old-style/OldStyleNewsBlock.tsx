@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Eye, Clock, Sliders } from 'lucide-react';
-import SafeNewsImage from '@/components/ui/SafeNewsImage';
+import CloudImage from '@/components/ui/CloudImage';
 import { processArticleImage } from '@/lib/image-utils';
 
 interface Article {
@@ -141,15 +141,14 @@ export default function OldStyleNewsBlock({
           >
             {/* صورة المقال */}
             <div className="old-style-news-image-container">
-              <SafeNewsImage
+              <CloudImage
                 src={getImageUrl(article)}
                 alt={article.title}
                 className="old-style-news-image"
-                loading={index < columns ? 'eager' : 'lazy'}
                 priority={index < columns}
                 width={300}
                 height={200}
-                imageType="article"
+                fallbackType="article"
               />
             </div>
 

@@ -4,7 +4,7 @@ import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Eye, Clock, Calendar } from "lucide-react";
-import OptimizedImage from "@/components/ui/OptimizedImage";
+import CloudImage from "@/components/ui/CloudImage";
 
 interface FeaturedArticle {
   id: string;
@@ -207,12 +207,13 @@ export default function FeaturedNewsBlockCompact({
                 {/* صورة مصغرة */}
                 <div className="w-12 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-800">
                   {article.featured_image ? (
-                    <OptimizedImage
+                    <CloudImage
                       src={article.featured_image}
                       alt={article.title}
                       width={48}
                       height={32}
                       className="w-full h-full object-cover"
+                      fallbackType="article"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-xs">

@@ -1,6 +1,6 @@
 "use client";
 
-import OptimizedImage from "@/components/ui/OptimizedImage";
+import CloudImage from "@/components/ui/CloudImage";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import { processArticleImage } from "@/lib/image-utils";
@@ -202,14 +202,14 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
             <div className="lg:col-span-6 relative overflow-hidden lg:rounded-r-2xl rounded-t-2xl lg:rounded-t-none">
               {/* الصورة */}
               <div className="relative w-full h-48 lg:h-full featured-news-image-container" style={{ minHeight: '280px' }}>
-                <OptimizedImage
+                <CloudImage
                   src={imageUrl}
                   alt={article.title}
                   fill
                   className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 group-hover:scale-105 featured-news-image"
                   priority={true}
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  quality={90}
+                  fallbackType="article"
                 />
 
                 {/* تدرج لوني ناعم فوق الصورة */}

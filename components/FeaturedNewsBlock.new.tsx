@@ -7,7 +7,7 @@ import {
   CheckCircle2, Award, Calendar, ExternalLink,
   Sparkles, Headphones, Sliders
 } from 'lucide-react';
-import SafeNewsImage from '@/components/ui/SafeNewsImage';
+import CloudImage from '@/components/ui/CloudImage';
 import { formatDateGregorian } from '@/lib/date-utils';
 import { processArticleImage } from '@/lib/image-utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
@@ -131,15 +131,14 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({
         <Link href={getArticleLink(article)} className="old-style-news-card block">
           {/* صورة المقال */}
           <div className="old-style-news-image-container">
-            <SafeNewsImage
+            <CloudImage
               src={getImageUrl(article)}
               alt={article.title}
               className="old-style-news-image"
-              loading="eager"
-              imageType="featured"
               priority={true}
               width={400}
               height={250}
+              fallbackType="article"
             />
           </div>
 
@@ -253,15 +252,14 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({
             {/* قسم الصورة - 5 أعمدة (40%) */}
             <div className="lg:col-span-5 relative overflow-hidden lg:rounded-r-2xl rounded-t-2xl lg:rounded-t-none">
               <div className="relative w-full h-56 lg:h-full overflow-hidden">
-                <SafeNewsImage
+                <CloudImage
                   src={getImageUrl(article)}
                   alt={article.title}
                   className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                  loading="eager"
                   priority={true}
                   width={500}
                   height={400}
-                  imageType="featured"
+                  fallbackType="article"
                 />
                 
                 {/* تدرج لوني ناعم */}

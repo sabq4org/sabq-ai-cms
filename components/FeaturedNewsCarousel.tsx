@@ -1,7 +1,6 @@
 "use client";
 
 import CloudImage from "@/components/ui/CloudImage";
-import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
 import {
@@ -212,13 +211,14 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               style={{ height: `${containerHeight}px` }}
             >
               {(currentArticle.featured_image) ? (
-                <OptimizedImage
+                <CloudImage
                   src={currentArticle.featured_image}
                   alt={currentArticle.title}
                   fill
                   priority
                   sizes="(max-width:1024px) 100vw, 50vw"
                   className="object-cover object-center"
+                  fallbackType="article"
                 />
               ) : (
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ background: darkMode ? '#1f2937' : '#f3f4f6' }}>
@@ -391,12 +391,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                 aria-current={idx === currentIndex}
               >
                 {article.featured_image ? (
-                  <OptimizedImage
+                  <CloudImage
                     src={article.featured_image}
                     alt={article.title}
                     width={48}
                     height={36}
                     className="w-full h-full object-cover"
+                    fallbackType="article"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">

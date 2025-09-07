@@ -6,7 +6,7 @@ import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 // replace Next/Image with robust SafeNewsImage for thumbnails
-import SafeNewsImage from "@/components/ui/SafeNewsImage";
+import CloudImage from "@/components/ui/CloudImage";
 
 interface LightFeaturedStripProps {
   articles: any[];
@@ -142,17 +142,14 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
               >
                 <div className={`relative aspect-video w-full overflow-hidden rounded-lg`}>
                   {/* SafeNewsImage handles base64/http/failures and swaps to a local placeholder automatically */}
-                  <SafeNewsImage
+                  <CloudImage
                     src={displaySrc}
                     alt={article.title || "صورة الخبر"}
                     className="absolute inset-0 w-full h-full object-cover"
-                    loading={idx === 0 ? 'eager' : 'lazy'}
                     priority={idx === 0}
-                    imageType="featured"
                     width={400}
                     height={225}
-                    decoding="async"
-                    fetchPriority={idx === 0 ? 'high' : 'low'}
+                    fallbackType="article"
                   />
                   {/* ليبل عاجل أو جديد أو التصنيف */}
                   <div className="absolute top-2 left-2">
