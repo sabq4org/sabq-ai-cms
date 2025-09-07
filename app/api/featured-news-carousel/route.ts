@@ -7,18 +7,18 @@ export const runtime = "nodejs";
 
 // كاش في الذاكرة للطلبات المتزامنة
 const memCache = new Map<string, { ts: number; data: any }>();
-const MEM_TTL = 15 * 1000; // 15 ثانية
+const MEM_TTL = 5 * 1000; // 5 ثواني
 
 export async function GET(request: NextRequest) {
   try {
-    const cacheKey = "featured-news:carousel:v5";
+    const cacheKey = "featured-news:carousel:v6"; // نسخة جديدة
 
     // 1. تحقق من كاش الذاكرة أولاً
     const memCached = memCache.get(cacheKey);
     if (memCached && Date.now() - memCached.ts < MEM_TTL) {
       return NextResponse.json(memCached.data, {
         headers: {
-          "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+          "Cache-Control": "public, max-age=30, s-maxage=30, stale-while-revalidate=60",
           "Content-Type": "application/json",
           "X-Cache": "MEMORY",
         },
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         memCache.set(cacheKey, { ts: Date.now(), data: cached });
         return NextResponse.json(cached, {
           headers: {
-            "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+            "Cache-Control": "public, max-age=30, s-maxage=30, stale-while-revalidate=60",
             "Content-Type": "application/json",
             "X-Cache": "REDIS",
           },
@@ -109,10 +109,18 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    // إذا لم توجد مقالات مميزة، جلب آخر المقالات المنشورة
+    // إذا لم توجد مقالات مميزة، أو كانت قديمة، جلب آخر المقالات المنشورة
     let articlesToReturn = featuredArticles;
     
-    if (!featuredArticles || featuredArticles.length === 0) {
+    // فحص إذا كانت المقالات المميزة قديمة (أكثر من 24 ساعة)
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const hasRecentFeatured = featuredArticles.some(article => 
+      article.published_at && new Date(article.published_at) > oneDayAgo
+    );
+    
+    if (!featuredArticles || featuredArticles.length === 0 || !hasRecentFeatured) {
+      console.log('🔄 [Featured API] No recent featured articles, fetching latest articles instead');
+      
       // جلب آخر مقالات منشورة كـ fallback
       articlesToReturn = await prisma.articles.findMany({
         where: {
@@ -151,7 +159,7 @@ export async function GET(request: NextRequest) {
         orderBy: {
           published_at: "desc",
         },
-        take: 10,
+        take: 6, // جلب 6 لضمان وجود 3 بعد التصفية
       });
       
       if (!articlesToReturn || articlesToReturn.length === 0) {
@@ -203,7 +211,6 @@ export async function GET(request: NextRequest) {
       if (articlesToReturn.length > 0) {
         console.log('🔍 [Featured API] First article image fields:', {
           featured_image: articlesToReturn[0]?.featured_image,
-          social_image: articlesToReturn[0]?.social_image,
           metadata: articlesToReturn[0]?.metadata,
           all_keys: Object.keys(articlesToReturn[0])
         });
@@ -214,7 +221,6 @@ export async function GET(request: NextRequest) {
     const formattedArticles = articlesToReturn.map((article) => {
       // 1. تجميع رابط الصورة الخام من مصادر متعددة
       const rawImageUrl = article.featured_image ||
-                          article.social_image ||
                           (article.metadata as any)?.featured_image ||
                           (article.metadata as any)?.image ||
                           null;
@@ -232,42 +238,25 @@ export async function GET(request: NextRequest) {
         title: article.title,
         slug: article.slug,
         excerpt: article.excerpt,
-        content: article.content,
         featured_image: finalImageUrl, // 3. استخدام الحقل الموحد والنهائي
         published_at: article.published_at,
-        reading_time: article.reading_time,
         views: article.views || 0,
-        likes: article.likes || 0,
-        shares: article.shares || 0,
+        breaking: article.breaking || false,
         category: article.categories
-        ? {
-            id: article.categories.id,
-            name: article.categories.name,
-            icon: article.categories.icon || "",
-            color: article.categories.color || "",
-          }
-        : null,
-      author: article.author
-        ? {
-            id: article.author.id,
-            name: article.author.name,
-            reporter: article.author.reporter_profile
-              ? {
-                  id: article.author.reporter_profile.id,
-                  full_name: article.author.reporter_profile.full_name,
-                  slug: article.author.reporter_profile.slug,
-                  title: article.author.reporter_profile.title,
-                  is_verified: article.author.reporter_profile.is_verified,
-                  verification_badge:
-                    article.author.reporter_profile.verification_badge ||
-                    "verified",
-                }
-              : null,
-          }
-        : null,
+          ? {
+              id: article.categories.id,
+              name: article.categories.name,
+              icon: article.categories.icon || "",
+              color: article.categories.color || "",
+            }
+          : null,
+        author: article.author
+          ? {
+              id: article.author.id,
+              name: article.author.name,
+            }
+          : null,
         metadata: article.metadata,
-        created_at: article.created_at,
-        updated_at: article.updated_at,
       };
     });
 
@@ -278,10 +267,10 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    // حفظ في Redis لمدة 60 ثانية
+    // حفظ في Redis لمدة 30 ثانية
     // حفظ في Redis
     try {
-      await redis.set(cacheKey, responseData, CACHE_TTL.ARTICLES);
+      await redis.set(cacheKey, responseData, 30); // تقليل من 60 إلى 30 ثانية
     } catch (redisError) {
       console.warn('Failed to save to Redis:', redisError);
     }
@@ -291,7 +280,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(responseData, {
       headers: {
-        "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+        "Cache-Control": "public, max-age=30, s-maxage=30, stale-while-revalidate=60",
         "Content-Type": "application/json",
         "X-Cache": "MISS",
       },

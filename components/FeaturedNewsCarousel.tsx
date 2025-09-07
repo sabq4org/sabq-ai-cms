@@ -107,13 +107,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   
   const getArticleLink = React.useCallback((index: number) => articleLinks[index], [articleLinks]);
 
-  // وظيفة للتحقق من الأخبار الجديدة (آخر 12 ساعة)
+  // وظيفة للتحقق من الأخبار الجديدة (آخر 48 ساعة)
   const isRecentNews = (publishedAt: string) => {
     try {
       const publishedDate = new Date(publishedAt);
       const currentDate = new Date();
       const diffInMinutes = (currentDate.getTime() - publishedDate.getTime()) / (1000 * 60);
-      return diffInMinutes <= 720.1; // أقل من أو يساوي 720 دقيقة (12 ساعة) مع هامش أمان صغير
+      return diffInMinutes <= 2880.1; // أقل من أو يساوي 2880 دقيقة (48 ساعة) مع هامش أمان صغير
     } catch (error) {
       return false;
     }
@@ -250,7 +250,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
                     </>
                   )}
-                  {/* ليبل "جديد" للأخبار في آخر 12 ساعة */}
+                  {/* ليبل "جديد" للأخبار في آخر 48 ساعة */}
                   {!isBreaking && isRecentNews(currentArticle.published_at) && (
                     <>
                       <span className="opacity-80">•</span>
