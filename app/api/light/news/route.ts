@@ -24,46 +24,131 @@ function withCloudinaryThumb(src: string): string {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔄 [Light News API] Redirecting to unified API');
-    
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "9", 10), 30);
     
-    // توجيه إلى API الموحد
-    const unifiedUrl = new URL('/api/unified-featured', request.url);
-    unifiedUrl.searchParams.set('limit', limit.toString());
-    unifiedUrl.searchParams.set('format', 'lite');
+    console.log(`🔄 [Light News API] Starting - requested ${limit} articles`);
     
-    const unifiedResponse = await fetch(unifiedUrl.toString(), {
-      headers: {
-        'X-Internal-Call': 'light-news',
-      },
-    });
-    
-    if (!unifiedResponse.ok) {
-      throw new Error(`Unified API error: ${unifiedResponse.status}`);
+    // محاولة استخدام API الموحد أولاً
+    try {
+      const unifiedUrl = new URL('/api/unified-featured', request.url);
+      unifiedUrl.searchParams.set('limit', limit.toString());
+      unifiedUrl.searchParams.set('format', 'lite');
+      
+      const unifiedResponse = await fetch(unifiedUrl.toString(), {
+        headers: { 'X-Internal-Call': 'light-news' },
+        signal: AbortSignal.timeout(3000), // timeout بعد 3 ثواني
+      });
+      
+      if (unifiedResponse.ok) {
+        const unifiedData = await unifiedResponse.json();
+        const responseData = {
+          ok: true,
+          articles: unifiedData.data || unifiedData.articles || [],
+          cached: unifiedData.cached || false,
+          source: 'unified',
+        };
+        
+        console.log(`✅ [Light News API] Unified API success: ${responseData.articles.length} articles`);
+        
+        const res = NextResponse.json(responseData);
+        res.headers.set("Cache-Control", "public, max-age=30, s-maxage=30, stale-while-revalidate=60");
+        res.headers.set("X-Unified-Redirect", "true");
+        return res;
+      }
+    } catch (unifiedError) {
+      console.log(`⚠️ [Light News API] Unified API failed, falling back to direct DB`);
     }
     
-    const unifiedData = await unifiedResponse.json();
+    // Fallback: استعلام مباشر من قاعدة البيانات
+    await ensureDbConnected();
     
-    // تحويل التنسيق للتوافق مع التوقعات القديمة
-    const responseData = {
-      ok: true,
-      articles: unifiedData.data || unifiedData.articles || [],
-      cached: unifiedData.cached || false,
-      source: unifiedData.source || 'unified',
+    // فحص الكاش أولاً
+    if (MEMORY_CACHE && Date.now() - MEMORY_CACHE.ts < TTL_MS) {
+      console.log('📦 [Light News API] Using memory cache');
+      return NextResponse.json({
+        ok: true,
+        articles: MEMORY_CACHE.data.slice(0, limit),
+        cached: true,
+        source: 'fallback-cache',
+      });
+    }
+    
+    console.log('🔍 [Light News API] Fetching from database');
+    
+    const articles = await retryWithConnection(async () => {
+      return await prisma.articles.findMany({
+        where: {
+          status: 'published',
+          published_at: { lte: new Date() },
+          // استثناء المقالات التجريبية
+          title: {
+            not: {
+              startsWith: "مقال تجريبي"
+            }
+          }
+        },
+        orderBy: [
+          { featured: 'desc' },
+          { published_at: 'desc' }
+        ],
+        take: Math.max(limit, 20), // جلب المزيد للكاش
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          featured_image: true,
+          published_at: true,
+          breaking: true,
+          categories: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              color: true,
+              icon: true
+            }
+          },
+          views: true
+        }
+      });
+    });
+    
+    // معالجة النتائج
+    const processedArticles = articles.map((article: any) => ({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      featured_image: withCloudinaryThumb(article.featured_image || ''),
+      published_at: article.published_at,
+      breaking: article.breaking || false,
+      categories: article.categories,
+      views: article.views || 0
+    }));
+    
+    // تحديث الكاش
+    MEMORY_CACHE = { 
+      data: processedArticles, 
+      ts: Date.now() 
     };
     
-    console.log(`✅ [Light News API] Got ${responseData.articles.length} articles from unified API`);
+    console.log(`✅ [Light News API] Database success: ${processedArticles.length} articles found`);
+    
+    const responseData = {
+      ok: true,
+      articles: processedArticles.slice(0, limit),
+      cached: false,
+      source: 'fallback-db',
+    };
     
     const res = NextResponse.json(responseData);
     res.headers.set("Cache-Control", "public, max-age=30, s-maxage=30, stale-while-revalidate=60");
-    res.headers.set("X-Unified-Redirect", "true");
+    res.headers.set("X-Source", "fallback");
     return res;
-  } catch (error: any) {
-    console.error("❌ [Light News API] Error:", error);
     
-    // Fallback بتنسيق متوافق
+  } catch (error: any) {
+    console.error("❌ [Light News API] Complete failure:", error);
+    
     return NextResponse.json({ 
       ok: true, 
       articles: [], 
@@ -72,7 +157,6 @@ export async function GET(request: NextRequest) {
     }, { 
       status: 200,
       headers: {
-        "X-Unified-Redirect": "true",
         "X-Error": "true",
       }
     });
