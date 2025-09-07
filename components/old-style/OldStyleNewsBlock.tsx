@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Eye, Clock, Sliders } from 'lucide-react';
 import SafeNewsImage from '@/components/ui/SafeNewsImage';
+import { processArticleImage } from '@/lib/image-utils';
 
 interface Article {
   id: number | string;
@@ -76,23 +77,10 @@ export default function OldStyleNewsBlock({
     }
   };
 
-  // تنسيق الصورة
+  // معالجة الصورة بنظام محسن
   const getImageUrl = (article: Article) => {
-    const candidate = article.featured_image || article.image || article.image_url || '';
-    if (candidate) {
-      // السماح بالروابط المطلقة
-      if (
-        candidate.startsWith('http') ||
-        candidate.includes('cloudinary.com') ||
-        candidate.includes('s3.amazonaws.com') ||
-        candidate.startsWith('data:image/')
-      ) {
-        return candidate;
-      }
-      // تطبيع الروابط النسبية لتبدأ بـ '/'
-      return candidate.startsWith('/') ? candidate : `/${candidate.replace(/^\/+/, '')}`;
-    }
-    return '/images/placeholder-news.svg';
+    const rawImageUrl = article.featured_image || article.image || article.image_url;
+    return processArticleImage(rawImageUrl, article.title || "مقال", 'article');
   };
 
   // رابط المقال

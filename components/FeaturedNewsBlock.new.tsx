@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import SafeNewsImage from '@/components/ui/SafeNewsImage';
 import { formatDateGregorian } from '@/lib/date-utils';
+import { processArticleImage } from '@/lib/image-utils';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 
 interface FeaturedArticle {
@@ -101,21 +102,13 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({
     }
   };
 
-  // تنسيق الصورة
+  // تنسيق الصورة بنظام معالجة محسن
   const getImageUrl = (article: FeaturedArticle) => {
-    const candidate = article.featured_image || '';
-    if (candidate) {
-      if (
-        candidate.startsWith('http') ||
-        candidate.includes('cloudinary.com') ||
-        candidate.includes('s3.amazonaws.com') ||
-        candidate.startsWith('data:image/')
-      ) {
-        return candidate;
-      }
-      return candidate.startsWith('/') ? candidate : `/${candidate.replace(/^\/+/, '')}`;
-    }
-    return '/images/placeholder-news.svg';
+    return processArticleImage(
+      article.featured_image, 
+      article.title, 
+      'featured'
+    );
   };
 
   // تنسيق المشاهدات

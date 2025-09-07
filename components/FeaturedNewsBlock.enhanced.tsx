@@ -3,7 +3,7 @@
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { formatDateGregorian } from "@/lib/date-utils";
-import { getImageUrl } from "@/lib/image-utils";
+import { processArticleImage } from "@/lib/image-utils";
 import {
   Award,
   Calendar,
@@ -81,12 +81,11 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   // تسجيل تفاصيل الصورة للتشخيص
   useEffect(() => {
     if (article && article.featured_image) {
-      const processedImageUrl = getImageUrl(article.featured_image, {
-        width: 800,
-        height: 600,
-        quality: 90,
-        fallbackType: 'article'
-      });
+      const processedImageUrl = processArticleImage(
+        article.featured_image,
+        article.title || "مقال مميز",
+        'featured'
+      );
       
       console.log('🖼️ FeaturedNewsBlock تفاصيل الصورة:', {
         originalUrl: article.featured_image,
@@ -180,12 +179,11 @@ const FeaturedNewsBlock: React.FC<FeaturedNewsBlockProps> = ({ article }) => {
   }
 
   // معالجة URL الصورة
-  const imageUrl = getImageUrl(article.featured_image, {
-    width: 800,
-    height: 600,
-    quality: 90,
-    fallbackType: 'article'
-  });
+  const imageUrl = processArticleImage(
+    article.featured_image,
+    article.title || "مقال مميز",
+    'featured'
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
