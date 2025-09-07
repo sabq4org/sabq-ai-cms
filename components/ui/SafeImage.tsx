@@ -1,7 +1,6 @@
 "use client";
 
-import { getImageUrl } from "@/lib/image-utils";
-import { getProductionImageUrl } from "@/lib/production-image-fix";
+import { getSafeImageUrl, isValidImageUrl } from "@/lib/image-utils";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -69,33 +68,24 @@ export default function SafeImage({
       return;
     }
 
-    // تحديد بيئة التشغيل
-    const isProduction =
-      process.env.NODE_ENV === "production" ||
-      (typeof window !== "undefined" &&
-        window.location.hostname !== "localhost");
-
-    // معالجة مسار الصورة
-    const processedSrc = isProduction
-      ? getProductionImageUrl(src, {
-          width,
-          height,
-          quality: 85,
-          fallbackType,
-        })
-      : getImageUrl(src, {
-          width,
-          height,
-          fallbackType,
-        });
-
-    // التأكد من أن processedSrc ليس فارغاً
-    if (processedSrc && processedSrc.trim() !== "") {
-      setImageSrc(processedSrc);
-      setIsError(false);
-      setIsLoading(true);
-      setFallbackAttempted(false); // إعادة تعيين عند تغيير المصدر
-    } else {
+    // استخدام نظام معالجة الصور المحسن
+    try {
+      const processedSrc = isValidImageUrl(src) 
+        ? src 
+        : getSafeImageUrl(src, fallbackType as any);
+      
+      if (processedSrc && processedSrc.trim() !== "") {
+        setImageSrc(processedSrc);
+        setIsError(false);
+        setIsLoading(true);
+        setFallbackAttempted(false);
+      } else {
+        setImageSrc(LOCAL_FALLBACK_IMAGES[fallbackType]);
+        setIsError(true);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.warn("Error processing image:", error);
       setImageSrc(LOCAL_FALLBACK_IMAGES[fallbackType]);
       setIsError(true);
       setIsLoading(false);

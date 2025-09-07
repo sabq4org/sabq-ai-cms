@@ -3,8 +3,7 @@
 import SafeImage from "@/components/ui/SafeImage";
 import { Badge } from "@/components/ui/badge";
 import { formatDateNumeric } from "@/lib/date-utils";
-import { getImageUrl } from "@/lib/image-utils";
-import { getProductionImageUrl } from "@/lib/production-image-fix";
+import { processArticleImage, getSafeImageUrl } from "@/lib/image-utils";
 import { cn } from "@/lib/utils";
 import { Calendar, Zap } from "lucide-react";
 import ArticleViews from '@/components/ui/ArticleViews';
@@ -59,35 +58,12 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
 
   const categoryStyle = getCategoryStyle(category);
 
-  // تحسين رابط الصورة - دعم جميع أشكال الصور
+  // تحسين رابط الصورة باستخدام النظام المُحسَّن
   const rawImageUrl =
     news.image_url || news.featured_image || news.image || metadata.image;
 
-  // استخدام معالج الإنتاج في بيئة الإنتاج - استخدام تحديد أكثر موثوقية للإنتاج
-  const isProduction =
-    process.env.NODE_ENV === "production" ||
-    (typeof window !== "undefined" &&
-      window.location.hostname !== "localhost" &&
-      window.location.hostname !== "127.0.0.1" &&
-      !window.location.hostname.includes("192.168.") &&
-      !window.location.hostname.includes("dev-"));
-
-  const imageUrl = rawImageUrl
-    ? isProduction
-      ? getProductionImageUrl(rawImageUrl, {
-          width: viewMode === "list" ? 400 : 800,
-          height: viewMode === "list" ? 300 : 600,
-          quality: 85,
-          fallbackType: "article",
-        })
-      : getImageUrl(rawImageUrl, {
-          width: viewMode === "list" ? 400 : 800,
-          height: viewMode === "list" ? 300 : 600,
-          quality: 85,
-          format: "webp",
-          fallbackType: "article",
-        })
-    : null;
+  // استخدام نظام معالجة الصور المُحسَّن مع fallback
+  const imageUrl = processArticleImage(rawImageUrl, news.title, 'article');
 
   // Article link
   const getArticleLink = (news: any) => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { logError } from "@/lib/services/error-logger";
+import { processArticleImage } from "@/lib/image-utils";
 import Image, { ImageProps } from "next/image";
 import { useEffect, useState } from "react";
 
@@ -28,45 +29,36 @@ const PROBLEMATIC_DOMAINS = [
   "res.cloudinary.com",
 ];
 
-// استخراج رابط الصورة من جميع المصادر المحتملة في المقال
+// استخراج رابط الصورة من المقال باستخدام نظام معالجة الصور المحسن
 const extractImageFromArticle = (article: any): string | null => {
   if (!article) return null;
 
-  // قائمة شاملة بجميع المسارات المحتملة للصور
-  const imagePaths = [
-    article.featured_image,
-    article.image_url,
-    article.image,
-    article.thumbnail,
-    article.cover,
-    article.media?.[0]?.url,
-    article.meta?.image,
-    article.metadata?.image,
-    article.images?.[0],
-    article.attachments?.[0]?.url,
-    // مسارات إضافية للأخبار المخصصة
-    article.customFields?.image,
-    article.seo?.image,
-    article.openGraph?.image,
-  ];
+  // استخدام نظام معالجة الصور المحسن
+  try {
+    // الحصول على رابط الصورة من المقال
+    const imageUrl = article.featured_image || 
+                    article.image_url || 
+                    article.image || 
+                    article.thumbnail || 
+                    article.cover || 
+                    article.media?.[0]?.url ||
+                    article.meta?.image ||
+                    article.metadata?.image ||
+                    article.images?.[0] ||
+                    article.attachments?.[0]?.url ||
+                    article.customFields?.image ||
+                    article.seo?.image ||
+                    article.openGraph?.image;
 
-  // البحث عن أول رابط صورة صالح
-  for (const path of imagePaths) {
-    if (path && typeof path === "string" && path.length > 5) {
-      // تجنب القيم الفارغة أو غير الصالحة
-      if (
-        path !== "undefined" &&
-        path !== "null" &&
-        !path.includes("undefined") &&
-        !path.includes("null") &&
-        path !== "/api/placeholder"
-      ) {
-        return path;
-      }
-    }
+    // الحصول على العنوان للاستخدام في fallback
+    const title = article.title || article.name || "مقال";
+    
+    // معالجة الصورة بنظام متقدم
+    return processArticleImage(imageUrl, title, 'article');
+  } catch (error) {
+    console.warn("Error processing article image:", error);
+    return null;
   }
-
-  return null;
 };
 
 export default function SmartImage({
