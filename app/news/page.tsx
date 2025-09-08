@@ -675,7 +675,7 @@ export default function NewsPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                   selectedCategory === null
                     ? "text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                 }`}
                 style={{
                   backgroundColor: selectedCategory === null ? 'var(--theme-primary)' : undefined,
@@ -691,7 +691,7 @@ export default function NewsPage() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
                     selectedCategory === category.id
                       ? "text-white"
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                   }`}
                   style={{
                     backgroundColor: selectedCategory === category.id ? 'var(--theme-primary)' : undefined,
@@ -744,7 +744,7 @@ export default function NewsPage() {
                       className={`p-2 rounded transition-colors ${
                         viewMode === "grid"
                           ? "border border-[#f0f0ef] dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400"
-                          : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                          : "text-gray-600 dark:text-gray-400"
                       }`}
                       style={{ backgroundColor: viewMode === "grid" ? 'transparent' : 'transparent' }}
                       title="عرض شبكي"
@@ -756,7 +756,7 @@ export default function NewsPage() {
                       className={`p-2 rounded transition-colors ${
                         viewMode === "list"
                           ? "border border-[#f0f0ef] dark:bg-gray-600 shadow-sm text-blue-600 dark:text-blue-400"
-                          : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                          : "text-gray-600 dark:text-gray-400"
                       }`}
                       style={{ backgroundColor: viewMode === "list" ? 'transparent' : 'transparent' }}
                       title="عرض قائمة"
@@ -836,12 +836,7 @@ export default function NewsPage() {
                     style={{
                       backgroundColor: 'var(--theme-primary)',
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.filter = 'brightness(0.9)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.filter = 'brightness(1)';
-                    }}
+                    // تم إزالة تأثيرات hover
                   >
                     {loading || isLoadingMore ? (
                       <>

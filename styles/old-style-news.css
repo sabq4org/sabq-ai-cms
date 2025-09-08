@@ -50,9 +50,7 @@
   position: relative;
 }
 
-.old-style-news-card:hover {
-  transform: translateY(-2px);
-}
+/* تم إزالة تأثير hover من بطاقة الأخبار */
 
 /* حاوي الصورة - زوايا منحنية قليلاً */
 .old-style-news-image-container {
@@ -74,9 +72,7 @@
   background-color: #fff; /* منع وميض الخلفية الرمادية قبل التحميل */
 }
 
-.old-style-news-card:hover .old-style-news-image {
-  transform: scale(1.05);
-}
+/* تم إزالة تأثير hover من صورة الخبر */
 
 /* محتوى البطاقة - بدون padding */
 .old-style-news-content {
@@ -191,9 +187,7 @@
   text-overflow: ellipsis;
 }
 
-.old-style-news-card:hover .old-style-news-card-title {
-  color: #3b82f6;
-}
+/* تم إزالة تأثير hover من عنوان الخبر */
 
 /* الشريط السفلي: المشاهدات ومدة القراءة */
 .old-style-news-bottom-bar {
@@ -297,9 +291,7 @@
   color: #f9fafb;
 }
 
-.dark .old-style-news-card:hover .old-style-news-card-title {
-  color: #60a5fa;
-}
+/* تم إزالة تأثير hover من عنوان الخبر في الوضع المظلم */
 
 /* تأثير النبضة للأخبار العاجلة */
 @keyframes pulse {
@@ -323,10 +315,7 @@
   transition: all 0.3s ease;
 }
 
-.soft-read-more-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-}
+/* تم إزالة تأثير hover من زر اقرأ المزيد */
 
 /* التجاوب مع الأجهزة المختلفة */
 @media (max-width: 1024px) {
@@ -409,9 +398,7 @@
     color: #f9fafb;
   }
   
-  .old-style-news-card:hover {
-    border: none;
-  }
+  /* تم إزالة تأثير hover من بطاقة الأخبار في الموبايل */
   
   .old-style-news-title {
     color: #f9fafb;
@@ -421,9 +408,7 @@
     color: #f9fafb;
   }
   
-  .old-style-news-card:hover .old-style-news-card-title {
-    color: #60a5fa;
-  }
+  /* تم إزالة تأثير hover من عنوان الخبر في الموبايل */
   
   .old-style-news-excerpt {
     color: #d1d5db;

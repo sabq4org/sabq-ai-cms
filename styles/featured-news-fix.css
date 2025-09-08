@@ -1,0 +1,141 @@
+/* ضبط الأخبار المميزة - تحسين تخطيط 50/50 مع الصور الثابتة */
+
+/* الصور الثابتة في بلوك الأخبار المميزة */
+.featured-image-fixed {
+  transform: none !important;
+  transition: none !important;
+}
+
+.featured-image-fixed img {
+  transform: none !important;
+  transition: none !important;
+}
+
+/* تحسين التخطيط للأخبار المميزة */
+.featured-news-container {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .featured-news-container {
+    grid-template-columns: 1fr 1fr; /* 50% 50% */
+  }
+}
+
+/* تثبيت أبعاد الصورة */
+.featured-news-image-section {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16/9; /* تثبيت النسبة */
+}
+
+.featured-news-image-section img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* منع hover effects على الصور */
+.featured-news-block:hover .featured-image-fixed,
+.featured-news-block:hover .featured-image-fixed img {
+  transform: none !important;
+  scale: 1 !important;
+}
+
+/* تحسين استجابة التخطيط */
+.featured-news-content-section {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 1023px) {
+  .featured-news-content-section {
+    padding: 1rem;
+  }
+}
+
+/* تحسين carousel للأخبار المميزة */
+.enhanced-featured-carousel .carousel-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.enhanced-featured-carousel .carousel-image-container img {
+  transform: none !important;
+  transition: none !important;
+}
+
+/* منع تأثيرات الحركة على الصور أثناء التنقل */
+.carousel-transition-active .featured-image-fixed,
+.carousel-transition-active .featured-image-fixed img {
+  transform: none !important;
+  transition: none !important;
+}
+
+/* تحسين أداء الصور */
+.featured-image-fixed {
+  will-change: auto;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* تحسين المؤشرات */
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.carousel-indicator {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.carousel-indicator img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: none !important;
+  transition: none !important;
+}
+
+.carousel-indicator.active {
+  width: 4rem;
+  height: 2.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 0 2px rgb(59 130 246);
+}
+
+.carousel-indicator:not(.active) {
+  width: 2.5rem;
+  height: 2.25rem;
+  opacity: 0.5;
+}
+
+/* تم إزالة تأثير hover من مؤشرات carousel */
+
+/* تحسين متجاوب للموبايل */
+@media (max-width: 640px) {
+  .featured-news-image-section {
+    aspect-ratio: 16/10;
+  }
+  
+  .carousel-indicator.active {
+    width: 3rem;
+    height: 1.75rem;
+  }
+  
+  .carousel-indicator:not(.active) {
+    width: 2rem;
+    height: 1.75rem;
+  }
+}
