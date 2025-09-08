@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Eye, Clock, Sliders } from 'lucide-react';
+import { Eye, Clock } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { processArticleImage } from '@/lib/image-utils';
 
@@ -27,7 +27,6 @@ interface Article {
   views?: number;
   reading_time?: number;
   slug: string;
-  is_custom?: boolean;
   breaking?: boolean;
   is_breaking?: boolean;
 }
@@ -169,12 +168,6 @@ export default function OldStyleNewsBlock({
                     <div className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
                       <span className="text-xs">🔥</span>
                       <span>جديد</span>
-                    </div>
-                  )}
-                  {article.is_custom && !(article.breaking || article.is_breaking) && (
-                    <div className="old-style-news-custom-badge">
-                      <Sliders className="old-style-icon" />
-                      <span>مخصص</span>
                     </div>
                   )}
                   {/* التاريخ يظهر دائمًا بجانب الشارات، وبحجم موحّد */}

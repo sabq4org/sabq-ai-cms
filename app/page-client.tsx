@@ -17,13 +17,10 @@ import PageWrapper from "@/components/PageWrapper";
 import { SmartSlot } from "@/components/home/SmartSlot";
 
 import UnifiedMobileNewsCard from "@/components/mobile/UnifiedMobileNewsCard";
-import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 
 import AdBanner from "@/components/ads/AdBanner";
 import CloudImage from "@/components/ui/CloudImage";
 import { useAuth } from "@/hooks/useAuth";
-import type { RecommendedArticle } from "@/lib/ai-recommendations";
-import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { SafeDate } from "@/lib/safe-date";
 import { getArticleLink } from "@/lib/utils";
@@ -116,7 +113,6 @@ import {
   ArrowLeft,
   Beaker,
   BookOpen,
-  Brain,
   Briefcase,
   CloudRain,
   Eye,
@@ -126,7 +122,6 @@ import {
   Palette,
   Plane,
   Settings,
-  Sparkles,
   Tag,
   Trophy,
   X,
@@ -234,9 +229,6 @@ function NewspaperHomePage({
   const [showPersonalized, setShowPersonalized] = useState<boolean>(false);
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [personalizedArticles, setPersonalizedArticles] = useState<any[]>([]);
-  const [smartRecommendations, setSmartRecommendations] = useState<
-    RecommendedArticle[]
-  >([]);
   const [featuredArticle, setFeaturedArticle] = useState<any[]>(initialFeaturedArticles);
   const [featuredLoading, setFeaturedLoading] = useState<boolean>(initialFeaturedArticles.length === 0);
 
@@ -578,104 +570,17 @@ function NewspaperHomePage({
   }, [initialFeaturedArticles]);
 
   useEffect(() => {
-    const fetchSmartRecommendations = async () => {
-      try {
-        // نحتاج مقال واحد على الأقل كمرجع
-        if (articles.length === 0) return;
-
-        const currentArticle = articles[0];
-        const recommendations = await generatePersonalizedRecommendations({
-          currentArticleId: currentArticle.id,
-          userId: user?.id || "anonymous",
-          currentCategory:
-            currentArticle.categories?.name || currentArticle.category,
-          currentTags: currentArticle.tags || [],
-          limit: 10,
-        });
-
-        setSmartRecommendations(recommendations.slice(0, 10)); // نحتاج 10 توصيات للتوزيع المتوازن
-      } catch (error) {
-        console.error("خطأ في جلب التوصيات الذكية:", error);
-      }
-    };
-
-    if (articles.length > 0) {
-      fetchSmartRecommendations();
-    }
-
-    // لا نحتاج تحديث مستمر كل 30 ثانية - يسبب بطء
-    // التحديث سيحدث عند تغيير المقالات أو المستخدم
   }, [articles, user]);
 
   // =============================
-  // دالة خلط البطاقات المخصصة مع بطاقات الأخبار
-  const renderMixedContent = useCallback(
+  // دالة عرض الأخبار العادية فقط بدون البطاقات المخصصة
+  const renderRegularContent = useCallback(
     (articlesToRender: any[]) => {
-      const mixedContent: JSX.Element[] = [];
-      let smartCardIndex = 0;
-
-      articlesToRender.forEach((article, index) => {
-        // إضافة بطاقة الخبر العادية
-        mixedContent.push(<NewsCard key={article.id} news={article} />);
-
-        // إضافة البطاقات المخصصة بتوزيع متوازن
-        // توزيع البطاقات المخصصة: بعد الأخبار 3، 6، 9، 13، 17
-        const smartCardPositions = [3, 6, 9, 13, 17];
-        const currentPosition = index + 1;
-
-        if (smartCardPositions.includes(currentPosition)) {
-          // إضافة 1-2 بطاقة مخصصة في كل موضع
-          const cardsToAdd = currentPosition === 9 ? 2 : 1; // إضافة 2 بطاقة في المنتصف
-
-          for (
-            let i = 0;
-            i < cardsToAdd && smartCardIndex < smartRecommendations.length;
-            i++
-          ) {
-            const recommendation = smartRecommendations[smartCardIndex];
-            if (recommendation) {
-              // تنويع العبارات التحفيزية
-              const excerpts = [
-                "اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك",
-                "محتوى مختار خصيصاً لك لإثراء تجربتك القرائية",
-                "قد يعجبك هذا المحتوى المميز المختار بذكاء",
-                "محتوى يتماشى مع ذوقك واهتماماتك",
-                "اقتراح ذكي يناسب قراءاتك السابقة",
-              ];
-
-              mixedContent.push(
-                <SmartContentNewsCard
-                  key={`smart-${recommendation.id}`}
-                  article={{
-                    ...recommendation,
-                    slug: recommendation.url.replace("/article/", ""),
-                    featured_image: recommendation.thumbnail,
-                    category_name: recommendation.category,
-                    excerpt: excerpts[smartCardIndex % excerpts.length],
-                    image_caption: `محتوى ${
-                      recommendation.type === "تحليل"
-                        ? "تحليلي عميق"
-                        : recommendation.type === "رأي"
-                        ? "رأي متخصص"
-                        : recommendation.type === "تقرير"
-                        ? "تقرير شامل"
-                        : "مميز"
-                    } - ${recommendation.readingTime} دقائق قراءة`,
-                  }}
-                  darkMode={darkMode}
-                  variant={isMobileView ? "full" : "desktop"}
-                  position={smartCardIndex}
-                />
-              );
-              smartCardIndex++;
-            }
-          }
-        }
-      });
-
-      return mixedContent;
+      return articlesToRender.map((article) => (
+        <NewsCard key={article.id} news={article} />
+      ));
     },
-    [smartRecommendations, darkMode, isMobileView]
+    []
   );
 
   // دالة اختيار التصنيف
@@ -1150,26 +1055,15 @@ function NewspaperHomePage({
                       <>
                         {/* للهواتف الصغيرة جداً: دمج النص التعريفي مع العنوان */}
                         <div className="block sm:hidden">
-                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 mb-3 smart-ai-label">
-                            <Brain className="w-3.5 h-3.5 text-blue-600" />
-                            <span
-                              className={`font-medium ${
-                                darkMode ? "text-gray-300" : "text-gray-700"
-                              } text-xs`}
-                            >
-                              ذكي ومخصص
-                            </span>
-                            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                          </div>
                           <h2
-                            className={`font-bold mb-2 smart-section-title ${
+                            className={`font-bold mb-2 ${
                               darkMode ? "text-white" : "text-gray-800"
                             } text-xl leading-tight`}
                           >
-                            أخبار تفهمك أولاً
+                            آخر الأخبار
                           </h2>
                           <p
-                            className={`smart-section-subtext ${
+                            className={`${
                               darkMode ? "text-gray-300" : "text-gray-600"
                             } text-xs mb-4`}
                           >
@@ -1179,33 +1073,8 @@ function NewspaperHomePage({
 
                         {/* للشاشات المتوسطة والكبيرة: التصميم الكامل */}
                         <div className="hidden sm:block">
-                          <div
-                            className={`inline-flex items-center gap-3 rounded-full bg-blue-50 border border-blue-100 mb-6 ${
-                              isMobileView
-                                ? "px-4 py-2 smart-ai-label"
-                                : "px-6 py-3"
-                            }`}
-                          >
-                            <Brain
-                              className={`${
-                                isMobileView ? "w-4 h-4" : "w-5 h-5"
-                              } text-blue-600`}
-                            />
-                            <span
-                              className={`font-semibold ${
-                                darkMode ? "text-gray-300" : "text-gray-700"
-                              } ${isMobileView ? "text-sm" : "text-base"}`}
-                            >
-                              نسخة مطورة بالذكاء الاصطناعي
-                            </span>
-                            <Sparkles
-                              className={`${
-                                isMobileView ? "w-4 h-4" : "w-5 h-5"
-                              } text-purple-600`}
-                            />
-                          </div>
                           <h2
-                            className={`font-bold mb-4 smart-section-title ${
+                            className={`font-bold mb-4 ${
                               darkMode ? "text-white" : "text-gray-800"
                             } ${
                               isMobileView
@@ -1213,10 +1082,10 @@ function NewspaperHomePage({
                                 : "text-4xl"
                             }`}
                           >
-                            أخبار تفهمك أولاً
+                            آخر الأخبار
                           </h2>
                           <p
-                            className={`max-w-2xl mx-auto smart-section-subtext ${
+                            className={`max-w-2xl mx-auto ${
                               darkMode ? "text-gray-300" : "text-gray-600"
                             } ${
                               isMobileView
@@ -1224,7 +1093,7 @@ function NewspaperHomePage({
                                 : "text-xl mb-8"
                             }`}
                           >
-                            مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك
+                            تابع آخر الأخبار والأحداث المهمة
                           </p>
                         </div>
                       </>
@@ -1298,54 +1167,6 @@ function NewspaperHomePage({
               </div>
             ) : (
               <>
-                {/* رسالة للمستخدمين المسجلين مع اهتمامات */}
-                {isLoggedIn && userInterests.length > 0 && showPersonalized && (
-                  <div
-                    className={`mb-6 p-4 rounded-xl flex items-center justify-between ${
-                      darkMode
-                        ? "bg-gray-800/30 border border-gray-700"
-                        : "bg-gray-50 border border-gray-200"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Sparkles
-                        className={`w-5 h-5 ${
-                          darkMode ? "text-purple-400" : "text-purple-600"
-                        }`}
-                      />
-                      <p
-                        className={`text-sm font-medium ${
-                          darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        يتم عرض المحتوى بناءً على اهتماماتك:{" "}
-                        {userInterests
-                          .map((interestId) => {
-                            // البحث عن اسم الفئة من قائمة الفئات المحملة
-                            const category = categories.find(
-                              (cat) => cat.id === interestId
-                            );
-                            return category
-                              ? category.name_ar || category.name
-                              : "";
-                          })
-                          .filter((name) => name)
-                          .join(" • ")}
-                      </p>
-                    </div>
-                    <Link
-                      href="/welcome/preferences"
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        darkMode
-                          ? "bg-purple-800/30 hover:bg-purple-700/40 text-purple-300"
-                          : "bg-purple-100 hover:bg-purple-200 text-purple-700"
-                      }`}
-                    >
-                      <Settings className="w-3 h-3" />
-                      تعديل
-                    </Link>
-                  </div>
-                )}
                 {/* رسالة للمستخدمين غير المسجلين */}
                 {!isLoggedIn && (
                   <div
@@ -1381,77 +1202,31 @@ function NewspaperHomePage({
                 {showPersonalized && personalizedArticles.length > 0 ? (
                   // عرض المقالات المخصصة للمستخدمين المسجلين مع البطاقات الذكية
                   isMobileView ? (
-                    // عرض الموبايل - قائمة عمودية مع البطاقات المخصصة
-                    <div className="space-y-3 smart-ai-list">
-                      {renderMixedContent(
+                    // عرض الموبايل - قائمة عمودية مع البطاقات الافتراضية
+                    <div className="space-y-3">
+                      {renderRegularContent(
                         personalizedArticles.slice(0, 15)
-                      ).map((element, idx) => {
-                        // إضافة شارة "مخصص" للبطاقات العادية فقط
-                        if (
-                          element.key &&
-                          !element.key.toString().includes("smart")
-                        ) {
-                          return (
-                            <div key={element.key} className="relative">
-                              {element}
-                              {/* شارة "مخصص لك" */}
-                              <div className="absolute top-2 left-2 z-10">
-                                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-bold bg-purple-500/90 text-white">
-                                  <Sparkles className="w-3 h-3" />
-                                  مخصص
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        }
-                        return element;
-                      })}
+                      )}
                     </div>
                   ) : (
-                    // عرض الديسكتوب - شبكة مع البطاقات المخصصة
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 smart-ai-grid">
-                      {renderMixedContent(
+                    // عرض الديسكتوب - شبكة مع البطاقات الافتراضية
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                      {renderRegularContent(
                         personalizedArticles.slice(0, 16)
-                      ).map((element, idx) => {
-                        // إضافة شارة "مخصص" للبطاقات العادية فقط
-                        if (
-                          element.key &&
-                          !element.key.toString().includes("smart")
-                        ) {
-                          return (
-                            <div key={element.key} className="relative">
-                              {/* شارة "مخصص لك" */}
-                              <div className="absolute top-2 left-2 z-10">
-                                <span
-                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
-                                    darkMode
-                                      ? "bg-purple-900/80 text-purple-200"
-                                      : "bg-purple-500/90 text-white"
-                                  }`}
-                                >
-                                  <Sparkles className="w-3 h-3" />
-                                  مخصص
-                                </span>
-                              </div>
-                              {element}
-                            </div>
-                          );
-                        }
-                        return element;
-                      })}
+                      )}
                     </div>
                   )
                 ) : articles.length > 0 ? (
-                  // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات - مع البطاقات المخصصة
+                  // عرض آخر المقالات للزوار أو المستخدمين بدون تفضيلات - مع البطاقات الافتراضية
                   isMobileView ? (
-                    // عرض الموبايل - قائمة عمودية مع البطاقات المخصصة
-                    <div className="space-y-3 smart-ai-list">
-                      {renderMixedContent(articles.slice(0, 15))}
+                    // عرض الموبايل - قائمة عمودية مع البطاقات الافتراضية
+                    <div className="space-y-3">
+                      {renderRegularContent(articles.slice(0, 15))}
                     </div>
                   ) : (
-                    // عرض الديسكتوب - شبكة مع البطاقات المخصصة
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 smart-ai-grid">
-                      {renderMixedContent(articles.slice(0, 16))}
+                    // عرض الديسكتوب - شبكة مع البطاقات الافتراضية
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                      {renderRegularContent(articles.slice(0, 16))}
                     </div>
                   )
                 ) : (

@@ -1,16 +1,12 @@
 "use client";
 
-import SmartContentNewsCard from "@/components/mobile/SmartContentNewsCard";
 import OldStyleNewsBlock from "@/components/old-style/OldStyleNewsBlock";
 import "@/components/mobile/mobile-news.css";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
-import type { RecommendedArticle } from "@/lib/ai-recommendations";
-import { generatePersonalizedRecommendations } from "@/lib/ai-recommendations";
 import CloudImage from "@/components/ui/CloudImage";
 import ArticleViews from "@/components/ui/ArticleViews";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
-import "@/styles/smart-content-cards.css";
 import "@/styles/unified-mobile-news.css";
 import {
   AlertTriangle,
@@ -103,9 +99,6 @@ export default function NewsPage() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [smartRecommendations, setSmartRecommendations] = useState<
-    RecommendedArticle[]
-  >([]);
 
   const ITEMS_PER_PAGE = 20;
 
@@ -319,50 +312,6 @@ export default function NewsPage() {
   );
 
   // جلب التوصيات الذكية
-  const fetchSmartRecommendations = useCallback(async () => {
-    try {
-      // جلب سلوك المستخدم من localStorage أو استخدام قيم افتراضية
-      const userBehavior = {
-        recentArticles: JSON.parse(
-          localStorage.getItem("recentArticles") || "[]"
-        ).slice(0, 10),
-        favoriteCategories: JSON.parse(
-          localStorage.getItem("favoriteCategories") || "[]"
-        ),
-        readingPatterns: {
-          timeOfDay: [new Date().getHours().toString()],
-          daysOfWeek: [new Date().getDay().toString()],
-          averageReadingTime: 5,
-        },
-        interactions: {
-          liked: JSON.parse(localStorage.getItem("likedArticles") || "[]"),
-          shared: JSON.parse(localStorage.getItem("sharedArticles") || "[]"),
-          saved: JSON.parse(localStorage.getItem("savedArticles") || "[]"),
-          commented: [],
-        },
-        searchHistory: JSON.parse(
-          localStorage.getItem("searchHistory") || "[]"
-        ),
-        deviceType: isMobile ? "mobile" : ("desktop" as "mobile" | "desktop"),
-      };
-
-      const recommendations = await generatePersonalizedRecommendations({
-        userBehavior,
-        currentCategory: selectedCategory
-          ? getCategoryName(selectedCategory)
-          : "",
-        currentArticleId: "",
-        limit: 10, // نحتاج 10 توصيات للتوزيع المتوازن
-      });
-
-      setSmartRecommendations(recommendations);
-    } catch (error) {
-      console.error("Error fetching smart recommendations:", error);
-      // استخدام توصيات احتياطية إذا فشل الجلب
-      setSmartRecommendations([]);
-    }
-  }, [selectedCategory, isMobile]);
-
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
@@ -389,9 +338,8 @@ export default function NewsPage() {
   useEffect(() => {
     if (articles.length > 0) {
       fetchStats();
-      fetchSmartRecommendations();
     }
-  }, [articles, fetchStats, fetchSmartRecommendations]);
+  }, [articles, fetchStats]);
 
   const loadMore = useCallback(() => {
     if (!loading && !isLoadingMore && hasMore) {
@@ -627,84 +575,18 @@ export default function NewsPage() {
     );
   };
 
-  // دمج البطاقات المخصصة مع بطاقات الأخبار
-  const renderMixedContent = useCallback(() => {
-    const mixedContent: JSX.Element[] = [];
-    let smartCardIndex = 0;
-
-    articles.forEach((article, index) => {
-      // إضافة بطاقة الخبر
-      if (isMobile) {
-        // سيتم استخدام OldStyleNewsBlock لعرض البطاقات بشكل مجمع
-      } else {
-        // استخدام NewsCard للديسكتوب
-        mixedContent.push(<NewsCard key={article.id} news={article} />);
-      }
-
-      // إضافة البطاقات المخصصة بتوزيع متوازن
-      const smartCardPositions = [3, 6, 9, 13, 17];
-      const currentPosition = index + 1;
-
-      if (smartCardPositions.includes(currentPosition)) {
-        // إضافة 1-2 بطاقة مخصصة في كل موضع
-        const cardsToAdd = currentPosition === 9 ? 2 : 1;
-
-        for (
-          let i = 0;
-          i < cardsToAdd && smartCardIndex < smartRecommendations.length;
-          i++
-        ) {
-          const recommendation = smartRecommendations[smartCardIndex];
-          if (recommendation) {
-            // تنويع العبارات التحفيزية
-            const excerpts = [
-              "اكتشف هذا المحتوى المميز الذي اخترناه لك بعناية بناءً على اهتماماتك",
-              "محتوى مختار خصيصاً لك لإثراء تجربتك القرائية",
-              "قد يعجبك هذا المحتوى المميز المختار بذكاء",
-              "محتوى يتماشى مع ذوقك واهتماماتك",
-              "اقتراح ذكي يناسب قراءاتك السابقة",
-            ];
-
-            mixedContent.push(
-              <SmartContentNewsCard
-                key={`smart-${recommendation.id}`}
-                article={{
-                  ...recommendation,
-                  slug: recommendation.url.replace("/article/", ""),
-                  featured_image: recommendation.thumbnail,
-                  category_name: recommendation.category,
-                  // إزالة excerpt لإخفاء النبذة
-                  image_caption: `محتوى ${
-                    recommendation.type === "تحليل"
-                      ? "تحليلي عميق"
-                      : recommendation.type === "رأي"
-                      ? "رأي متخصص"
-                      : recommendation.type === "تقرير"
-                      ? "تقرير شامل"
-                      : "مميز"
-                  } - ${recommendation.readingTime} دقائق قراءة`,
-                }}
-                darkMode={darkMode}
-                variant={isMobile ? "compact" : "desktop"}
-                position={smartCardIndex}
-              />
-            );
-            smartCardIndex++;
-          }
-        }
-      }
-    });
-
-    return mixedContent;
-  }, [
-    articles,
-    smartRecommendations,
-    darkMode,
-    isMobile,
-    viewMode,
-    getCategoryName,
-    getCategoryColor,
-  ]);
+  // عرض الأخبار العادية فقط بدون البطاقات المخصصة
+  const renderRegularContent = useCallback(() => {
+    if (isMobile) {
+      // للموبايل: استخدام OldStyleNewsBlock للأخبار العادية فقط
+      return null; // سيتم عرضه في القسم المخصص للموبايل
+    } else {
+      // للديسكتوب: استخدام NewsCard للأخبار العادية فقط
+      return articles.map((article) => (
+        <NewsCard key={article.id} news={article} />
+      ));
+    }
+  }, [articles, isMobile]);
 
   return (
     <>
@@ -950,32 +832,6 @@ export default function NewsPage() {
                     columns={1}
                     showExcerpt={false}
                   />
-                  
-                  {/* إضافة البطاقات المخصصة بنفس تنسيق البطاقات العادية */}
-                  {smartRecommendations.length > 0 && (
-                    <div className="mt-4">
-                      <OldStyleNewsBlock
-                        articles={smartRecommendations.map((recommendation) => ({
-                          id: recommendation.id,
-                          title: recommendation.title,
-                          slug: recommendation.url.replace("/article/", ""),
-                          featured_image: recommendation.thumbnail,
-                          image: recommendation.thumbnail,
-                          published_at: new Date().toISOString(),
-                          views: 0,
-                          is_custom: true,
-                          category: recommendation.category ? {
-                            id: 0,
-                            name: recommendation.category,
-                            slug: recommendation.category.toLowerCase()
-                          } : undefined
-                        }))}
-                        showTitle={false}
-                        columns={1}
-                        showExcerpt={false}
-                      />
-                    </div>
-                  )}
                 </div>
               ) : (
                 // عرض سطح المكتب - الشبكة
@@ -986,7 +842,7 @@ export default function NewsPage() {
                       : "space-y-4"
                   }
                 >
-                  {renderMixedContent()}
+                  {renderRegularContent()}
                 </div>
               )}
 

@@ -412,6 +412,7 @@ export async function PATCH(
     if (data.title !== undefined) updateData.title = data.title;
     if (data.content !== undefined) updateData.content = data.content;
     if (data.status !== undefined) updateData.status = data.status;
+    if (data.featured !== undefined) updateData.featured = data.featured;
     if (data.breaking !== undefined) updateData.breaking = data.breaking;
     if (data.featured_image !== undefined) updateData.featured_image = data.featured_image;
     if (data.featured_image_alt !== undefined) updateData.featured_image_alt = data.featured_image_alt;

@@ -42,6 +42,8 @@ interface ArticleData {
   featured_image: string | null;
   status: 'draft' | 'review' | 'published';
   category_id: string;
+  featured: boolean;
+  breaking: boolean;
   seo_title?: string;
   seo_description?: string;
   seo_keywords?: string;
@@ -60,6 +62,8 @@ export default function CreateArticlePage() {
     featured_image: null,
     status: 'draft',
     category_id: '',
+    featured: false,
+    breaking: false,
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
@@ -588,6 +592,35 @@ export default function CreateArticlePage() {
                       value={formData.published_at ? new Date(formData.published_at).toISOString().slice(0, 16) : ''}
                       onChange={(e) => setFormData(prev => ({ ...prev, published_at: new Date(e.target.value).toISOString() }))}
                     />
+                  </div>
+                </div>
+
+                {/* Featured and Breaking Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="featured"
+                      checked={formData.featured}
+                      onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                      className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
+                    />
+                    <Label htmlFor="featured" className="text-sm font-medium cursor-pointer">
+                      ⭐ مقال مميز
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="breaking"
+                      checked={formData.breaking}
+                      onChange={(e) => setFormData(prev => ({ ...prev, breaking: e.target.checked }))}
+                      className="w-4 h-4 text-red-500 rounded border-gray-300 focus:ring-red-500"
+                    />
+                    <Label htmlFor="breaking" className="text-sm font-medium cursor-pointer">
+                      🔥 خبر عاجل
+                    </Label>
                   </div>
                 </div>
               </CardContent>

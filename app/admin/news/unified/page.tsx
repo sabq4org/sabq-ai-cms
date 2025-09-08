@@ -1809,6 +1809,89 @@ export default function ManusNewsCreatePage() {
               </div>
             </div>
 
+            {/* إعدادات المقال */}
+            <div className="card card-accent">
+              <div className="card-header">
+                <div className="card-title" style={{ color: 'hsl(var(--accent))' }}>
+                  <Star className="w-4 h-4" />
+                  إعدادات المقال
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* مقال مميز */}
+                <label style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px', 
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: `2px solid ${formData.isFeatured ? '#f59e0b' : 'hsl(var(--line))'}`,
+                  background: formData.isFeatured ? 'rgba(245, 158, 11, 0.05)' : 'hsl(var(--bg-card))',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.isFeatured}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, isFeatured: e.target.checked }))}
+                    style={{ accentColor: '#f59e0b' }}
+                  />
+                  <Star className="w-5 h-5" style={{ color: formData.isFeatured ? '#f59e0b' : 'hsl(var(--muted))' }} />
+                  <div>
+                    <span style={{ fontWeight: '600' }}>مقال مميز</span>
+                    <p style={{ fontSize: '12px', color: 'hsl(var(--muted))', margin: '2px 0 0 0' }}>سيظهر في قسم الأخبار المميزة</p>
+                  </div>
+                </label>
+
+                {/* خبر عاجل */}
+                <label style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px', 
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: `2px solid ${formData.isBreaking ? '#ef4444' : 'hsl(var(--line))'}`,
+                  background: formData.isBreaking ? 'rgba(239, 68, 68, 0.05)' : 'hsl(var(--bg-card))',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.isBreaking}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, isBreaking: e.target.checked }))}
+                    style={{ accentColor: '#ef4444' }}
+                  />
+                  <Zap className="w-5 h-5" style={{ color: formData.isBreaking ? '#ef4444' : 'hsl(var(--muted))' }} />
+                  <div>
+                    <span style={{ fontWeight: '600' }}>خبر عاجل</span>
+                    <p style={{ fontSize: '12px', color: 'hsl(var(--muted))', margin: '2px 0 0 0' }}>سيظهر في الأخبار العاجلة</p>
+                  </div>
+                </label>
+
+                {/* معلومات إضافية */}
+                {(formData.isFeatured || formData.isBreaking) && (
+                  <div style={{
+                    padding: '12px',
+                    borderRadius: '8px',
+                    background: 'hsl(var(--bg) / 0.5)',
+                    border: '1px solid hsl(var(--line))'
+                  }}>
+                    {formData.isFeatured && (
+                      <p style={{ fontSize: '12px', color: '#f59e0b', margin: '0 0 4px 0' }}>
+                        ⭐ هذا المقال مميز وسيظهر في قسم الأخبار المميزة
+                      </p>
+                    )}
+                    {formData.isBreaking && (
+                      <p style={{ fontSize: '12px', color: '#ef4444', margin: '0' }}>
+                        🔥 هذا خبر عاجل وسيظهر في الأخبار العاجلة
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
           {/* الصورة المميزة */}
             <div className="card">
               <div className="card-header">

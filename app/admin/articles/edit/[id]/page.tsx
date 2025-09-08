@@ -35,6 +35,8 @@ interface ArticleForm {
   featured_image: string;
   tags: string[];
   status: 'draft' | 'published';
+  featured: boolean;
+  breaking: boolean;
 }
 
 const EditArticlePage = () => {
@@ -58,7 +60,9 @@ const EditArticlePage = () => {
     article_type: 'opinion',
     featured_image: '',
     tags: [],
-    status: 'draft'
+    status: 'draft',
+    featured: false,
+    breaking: false
   });
   
   const [aiContent, setAiContent] = useState({
@@ -117,7 +121,9 @@ const EditArticlePage = () => {
           article_type: data.article_type || 'opinion',
           featured_image: data.featured_image || '',
           tags: parsedTags,
-          status: data.status || 'draft'
+          status: data.status || 'draft',
+          featured: data.featured || false,
+          breaking: data.breaking || false
         });
 
         // تحديد البيانات الذكية إذا كانت متوفرة
@@ -195,7 +201,10 @@ const EditArticlePage = () => {
         ai_quotes: aiContent.quotes,
         reading_time: aiContent.reading_time,
         ai_score: aiContent.ai_score,
-        summary: form.excerpt || aiContent.summary
+        summary: form.excerpt || aiContent.summary,
+        // تأكد من إرسال featured و breaking
+        featured: form.featured,
+        breaking: form.breaking
       };
 
       const response = await fetch(`/api/articles/${articleId}`, {
@@ -682,6 +691,69 @@ const EditArticlePage = () => {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Settings Section */}
+            <div className={cn(
+              'p-6 rounded-xl border',
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            )}>
+              <h3 className={cn('font-semibold mb-4', darkMode ? 'text-white' : 'text-gray-900')}>
+                إعدادات المقال
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Featured Checkbox */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    checked={form.featured}
+                    onChange={(e) => setForm(prev => ({ ...prev, featured: e.target.checked }))}
+                    className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
+                  />
+                  <label htmlFor="featured" className={cn(
+                    'text-sm font-medium cursor-pointer',
+                    darkMode ? 'text-gray-300' : 'text-gray-700'
+                  )}>
+                    ⭐ مقال مميز
+                  </label>
+                </div>
+                
+                {/* Breaking Checkbox */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="breaking"
+                    checked={form.breaking}
+                    onChange={(e) => setForm(prev => ({ ...prev, breaking: e.target.checked }))}
+                    className="w-4 h-4 text-red-500 rounded border-gray-300 focus:ring-red-500"
+                  />
+                  <label htmlFor="breaking" className={cn(
+                    'text-sm font-medium cursor-pointer',
+                    darkMode ? 'text-gray-300' : 'text-gray-700'
+                  )}>
+                    🔥 خبر عاجل
+                  </label>
+                </div>
+              </div>
+
+              {/* Status Info */}
+              <div className="mt-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-700">
+                <p className={cn('text-sm', darkMode ? 'text-gray-300' : 'text-gray-600')}>
+                  <strong>الحالة:</strong> {form.status === 'published' ? 'منشور' : 'مسودة'}
+                </p>
+                {form.featured && (
+                  <p className={cn('text-sm mt-1', darkMode ? 'text-yellow-400' : 'text-yellow-600')}>
+                    ⭐ هذا المقال مميز وسيظهر في الأخبار المميزة
+                  </p>
+                )}
+                {form.breaking && (
+                  <p className={cn('text-sm mt-1', darkMode ? 'text-red-400' : 'text-red-600')}>
+                    🔥 هذا خبر عاجل وسيظهر في الأخبار العاجلة
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
