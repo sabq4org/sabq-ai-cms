@@ -96,10 +96,7 @@
   transition: opacity 0.3s ease;
 }
 
-.featured-carousel button:hover {
-  opacity: 1;
-  background-color: rgba(0, 0, 0, 0.7);
-}
+/* تم إزالة تأثير hover لأزرار carousel */
 
 /* إصلاح للجوال */
 @media (max-width: 768px) {
@@ -163,12 +160,7 @@
   background-size: 200% 100%;
 }
 
-/* ضمان أن الصور لا تختفي عند التحويم */
-.featured-carousel:hover .featured-news-image,
-.featured-carousel:hover .featured-news-image img {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
+/* تم إزالة تأثيرات hover - الصور ثابتة */
 
 /* إصلاح خاص لـ Safari */
 @supports (-webkit-appearance: none) {

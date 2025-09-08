@@ -39,12 +39,7 @@
   transition: none !important;
 }
 
-/* منع hover effects على الصور */
-.featured-news-block:hover .featured-image-fixed,
-.featured-news-block:hover .featured-image-fixed img {
-  transform: none !important;
-  scale: 1 !important;
-}
+/* منع hover effects على الصور - تم إزالة تأثيرات hover */
 
 /* تحسين استجابة التخطيط */
 .featured-news-content-section {

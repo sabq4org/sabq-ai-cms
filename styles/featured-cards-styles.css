@@ -41,10 +41,7 @@
   background: linear-gradient(135deg, #f59e0b, #d97706) !important;
 }
 
-.featured-badge:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
+/* تم إزالة تأثير hover للشارة المميزة */
 
 /* شارة التصنيف */
 .category-badge {
@@ -90,19 +87,7 @@
   margin-top: 0.125rem !important; /* مسافة أقل للبطاقات المميزة */
 }
 
-/* تأثيرات التحويم */
-.featured-news-card:hover .featured-news-title {
-  color: #2563eb;
-}
-
-.dark .featured-news-card:hover .featured-news-title {
-  color: #60a5fa;
-}
-
-.group:hover .hero-news-title {
-  transform: translateY(-1px);
-  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
-}
+/* تم إزالة تأثيرات التحويم */
 
 /* تحسين الصور */
 .featured-news-card .news-card-image-container {
@@ -110,10 +95,7 @@
   overflow: hidden;
 }
 
-.featured-news-card:hover .news-card-image-container img {
-  transform: scale(1.05);
-  filter: brightness(1.1);
-}
+/* تم إزالة تأثير hover للصور */
 
 /* تحسين التجاوب */
 @media (max-width: 640px) {
@@ -201,9 +183,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.dark .featured-news-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-}
+/* تم إزالة تأثير hover للوضع المظلم */
 
 .dark .news-excerpt {
   opacity: 0.85;
@@ -222,9 +202,7 @@
   transition: opacity 0.3s ease;
 }
 
-.featured-news-card:hover::before {
-  opacity: 1;
-}
+/* تم إزالة تأثير hover للإطار العلوي */
 
 /* تحسين إمكانية الوصول */
 .featured-news-card:focus-within {

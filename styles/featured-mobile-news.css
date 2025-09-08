@@ -12,7 +12,7 @@
 /* البنية الأساسية للخبر المميز */
 .featured-mobile-card {
   @apply relative w-full overflow-hidden rounded-xl shadow-lg;
-  @apply hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02];
+  @apply shadow-lg transition-all duration-300;
 }
 
 /* حاوي الصورة */
@@ -22,7 +22,7 @@
 
 /* الصورة الأساسية */
 .featured-mobile-card__image {
-  @apply object-cover transition-transform duration-500 hover:scale-105;
+  @apply object-cover;
 }
 
 /* الطبقة الضبابية السوداء */
@@ -89,18 +89,7 @@
   }
 }
 
-/* تأثيرات تفاعلية متقدمة */
-.featured-mobile-card:hover .featured-mobile-card__image {
-  @apply scale-105;
-}
-
-.featured-mobile-card:hover .featured-mobile-card__badge {
-  @apply shadow-lg;
-}
-
-.featured-mobile-card:hover .featured-mobile-card__title {
-  @apply text-gray-100;
-}
+/* تم إزالة التأثيرات التفاعلية */
 
 /* دعم الوضع الليلي */
 .dark .featured-mobile-card {
