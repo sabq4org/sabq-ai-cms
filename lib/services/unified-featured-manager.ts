@@ -113,11 +113,23 @@ class UnifiedFeaturedManager {
       },
     };
 
+    // استثناء المقالات التجريبية على مستوى الاستعلام
     const baseWhere = {
       status: "published" as const,
       article_type: {
         notIn: ["opinion", "analysis", "interview"],
       },
+      // استثناء المقالات التجريبية المحددة
+      NOT: {
+        OR: [
+          { id: { in: ['article_1755894642217_fko70rl3j', 'test-image-caption-2025', 'test_scheduled_1755339681064', '4ihzpplc'] } },
+          { slug: { in: ['pw8q760d', 'test-image-caption-2025', 'test-scheduled-1755339681065', '4ihzpplc'] } },
+          { title: { contains: "اختبار" } },
+          { title: { contains: "تجريبي" } },
+          { title: { contains: "مجدول" } },
+          { slug: { contains: "test" } },
+        ]
+      }
     };
 
     // جلب المقالات المميزة أولاً
@@ -185,7 +197,7 @@ class UnifiedFeaturedManager {
    * معالجة وتنسيق المقالات بشكل موحد
    */
   private async processArticles(articles: any[], limit: number, format: string = 'full'): Promise<UnifiedFeaturedArticle[]> {
-    // تصفية المقالات التجريبية
+    // تصفية المقالات التجريبية - محسنة لتشمل جميع المقالات التجريبية
     const TEST_PATTERNS = [
       /\btest\b/i,
       /\bdemo\b/i,
@@ -194,13 +206,37 @@ class UnifiedFeaturedManager {
       /تجريبي/i,
       /تجريبية/i,
       /اختبار/i,
+      /مجدول/i, // للمقالات المجدولة التجريبية
+    ];
+
+    // مقالات محددة يجب استثناؤها
+    const EXCLUDED_IDS = [
+      'article_1755894642217_fko70rl3j', // اختبار نظام الإشعارات المحسن
+      'test-image-caption-2025', // مقال تجريبي لاختبار ميزة تعريف الصورة
+      'test_scheduled_1755339681064', // خبر تجريبي مجدول
+      '4ihzpplc', // المقال التجريبي المحذوف (احتياطي)
+    ];
+
+    const EXCLUDED_SLUGS = [
+      'pw8q760d', // اختبار نظام الإشعارات المحسن
+      'test-image-caption-2025', // مقال تجريبي لاختبار ميزة تعريف الصورة
+      'test-scheduled-1755339681065', // خبر تجريبي مجدول
+      '4ihzpplc', // المقال التجريبي المحذوف (احتياطي)
     ];
 
     const isTestArticle = (article: any): boolean => {
       try {
         const title = article?.title || "";
         const slug = article?.slug || "";
+        const id = article?.id || "";
         const meta = JSON.stringify(article?.metadata || {});
+        
+        // فحص المعرفات والروابط المحددة
+        if (EXCLUDED_IDS.includes(id) || EXCLUDED_SLUGS.includes(slug)) {
+          return true;
+        }
+        
+        // فحص النمط العام
         const haystack = `${title}\n${slug}\n${meta}`;
         return TEST_PATTERNS.some((re) => re.test(haystack));
       } catch {
