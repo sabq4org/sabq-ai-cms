@@ -367,12 +367,12 @@ export default function NewsPage() {
 
 
 
-  // NewsCard component - من الصفحة الرئيسية
+  // NewsCard component - محسن للأخبار المميزة
   const NewsCard = ({ news }: { news: any }) => {
     const [imageLoading, setImageLoading] = useState(true);
     const isBreaking = Boolean(news.breaking || news.is_breaking || news?.metadata?.breaking);
+    const isFeatured = Boolean(news.featured || news.is_featured);
     const baseBg = isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))';
-    const hoverBg = isBreaking ? 'hsla(0, 78%, 55%, 0.22)' : 'hsl(var(--accent) / 0.06)';
     const baseBorder = isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))';
 
     // Category mapping for consistent styling
@@ -438,128 +438,101 @@ export default function NewsPage() {
       categoryName = news.categories;
     }
     
-    // Debug
-    if (isBreaking) {
-      console.log("Breaking news - no category shown");
-    } else if (!categoryName) {
-      console.log("No category found for:", news.title, {
-        category: news.category,
-        categories: news.categories,
-        category_name: news.category_name
-      });
-    }
     const rawCategorySlug =
       categoryName?.toLowerCase?.() || categoryName || "";
     const mappedCategory = categoryMap[rawCategorySlug] || rawCategorySlug;
 
     return (
-      <Link href={getArticleLink(news)} style={{ textDecoration: 'none' }}>
+      <div style={{
+        background: baseBg,
+        border: baseBorder,
+        borderRadius: '16px',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {/* صورة المقال */}
         <div style={{
-          background: baseBg,
-          border: baseBorder,
-          borderRadius: '16px',
-          overflow: 'hidden',
-          transition: 'all 0.3s ease',
-          cursor: 'pointer',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.background = hoverBg;
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.background = baseBg;
+          position: 'relative',
+          height: '180px',
+          width: '100%',
+          background: 'hsl(var(--bg))',
+          overflow: 'hidden'
         }}>
-          {/* صورة المقال */}
-          <div style={{
-            position: 'relative',
-            height: '180px',
-            width: '100%',
-            background: 'hsl(var(--bg))',
-            overflow: 'hidden'
-          }}>
-            <CloudImage
-              src={news?.image || news?.featured_image || news?.image_url || null}
-              alt={news?.title || "صورة المقال"}
-              fill
-              className="w-full h-full object-cover transition-transform duration-500"
-              fallbackType="article"
-              priority={false}
-            />
-            {/* ليبل عاجل يحل محل التصنيف عند العاجل */}
-            {isBreaking ? (
-              <div style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                background: 'hsl(0 72% 45%)',
-                color: 'white',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
-                zIndex: 10
-              }}>
-                <span style={{ animation: 'pulse 2s infinite' }}>⚡</span>
-                عاجل
-              </div>
-            ) : (
-              categoryName && (
-                <div style={{
-                  position: 'absolute',
-                  top: '12px',
-                  right: '12px',
-                  background: 'hsl(var(--accent))',
-                  color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  zIndex: 10
-                }}>
+          <CloudImage
+            src={news?.image || news?.featured_image || news?.image_url || null}
+            alt={news?.title || "صورة المقال"}
+            fill
+            className="w-full h-full object-cover"
+            fallbackType="article"
+            priority={false}
+          />
+        </div>
+
+        {/* محتوى البطاقة */}
+        <div style={{
+          padding: '16px',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          {/* ليبل مميز/عاجل فوق العنوان */}
+          {(isBreaking || isFeatured || categoryName) && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {isBreaking && (
+                <span className="featured-label breaking">
+                  <span className="icon">⚡</span>
+                  عاجل
+                </span>
+              )}
+              {isFeatured && !isBreaking && (
+                <span className="featured-label featured">
+                  <span className="icon">⭐</span>
+                  مميز
+                </span>
+              )}
+              {categoryName && !isBreaking && (
+                <span className="featured-label category">
                   {categoryName}
-                </div>
-              )
-            )}
-          </div>
+                </span>
+              )}
+            </div>
+          )}
 
-          {/* محتوى البطاقة */}
-          <div style={{
-            padding: '16px',
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column'
+          {/* العنوان */}
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '600',
+            color: isBreaking ? 'hsl(0 72% 45%)' : 'hsl(var(--fg))',
+            lineHeight: '1.5',
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            margin: 0
           }}>
-            {/* العنوان */}
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              color: isBreaking ? 'hsl(0 72% 45%)' : 'hsl(var(--fg))',
-              marginBottom: '12px',
-              lineHeight: '1.5',
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical'
-            }}>
-              {news.title}
-            </h3>
+            {news.title}
+          </h3>
 
-            {/* البيانات الوصفية */}
+          {/* البيانات الوصفية وزر اقرأ المزيد */}
+          <div style={{
+            marginTop: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px'
+          }}>
+            {/* معلومات التاريخ والمشاهدات */}
             <div style={{
-              marginTop: 'auto',
               display: 'flex',
               alignItems: 'center',
               gap: '16px',
               fontSize: '12px',
-              color: 'hsl(var(--muted))'
+              color: 'hsl(var(--muted))',
+              flex: 1
             }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Clock className="w-3 h-3" />
@@ -569,13 +542,20 @@ export default function NewsPage() {
                 count={news.views || news.views_count || 0}
               />
             </div>
+
+            {/* زر اقرأ المزيد */}
+            <Link 
+              href={getArticleLink(news)} 
+              className="read-more-btn"
+            >
+              اقرأ المزيد
+              <ArrowLeft className="w-3 h-3" />
+            </Link>
           </div>
         </div>
-      </Link>
+      </div>
     );
-  };
-
-  // عرض الأخبار العادية فقط بدون البطاقات المخصصة
+  };  // عرض الأخبار العادية فقط بدون البطاقات المخصصة
   const renderRegularContent = useCallback(() => {
     if (isMobile) {
       // للموبايل: استخدام OldStyleNewsBlock للأخبار العادية فقط

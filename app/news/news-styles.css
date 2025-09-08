@@ -26,9 +26,135 @@
   opacity: 0.9;
 }
 
-/* .news-grid تم حذفه لعدم الحاجة إليه */
+/* تحسينات البطاقات المميزة */
+.featured-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-/* تنسيقات البطاقات تم حذفها */
+.featured-label.breaking {
+  background: hsl(0 72% 45%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.featured-label.breaking .icon {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.featured-label.featured {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.featured-label.featured .icon {
+  animation: sparkle 2s infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+}
+
+.featured-label.category {
+  background: hsl(var(--accent));
+  color: white;
+}
+
+/* زر اقرأ المزيد محسن */
+.read-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--theme-primary);
+  color: white;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.read-more-btn:hover {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.read-more-btn:active {
+  transform: translateY(0);
+}
+
+/* تحسين تخطيط البطاقة */
+.news-card {
+  background: hsl(var(--bg-elevated));
+  border: 1px solid hsl(var(--line));
+  border-radius: 16px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-card.breaking {
+  background: hsla(0, 78%, 55%, 0.14);
+  border: 1px solid hsl(0 72% 45% / 0.45);
+}
+
+.news-card-content {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.news-card-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.news-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: hsl(var(--muted));
+  flex: 1;
+}
 
 .loading-shimmer {
   background: linear-gradient(
@@ -105,7 +231,13 @@
     font-size: 2rem;
   }
   
-
+  .news-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
   
-
+  .read-more-btn {
+    align-self: flex-end;
+  }
 }
