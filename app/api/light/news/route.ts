@@ -15,7 +15,8 @@ function withCloudinaryThumb(src: string): string {
     if (!src.includes("res.cloudinary.com") || !src.includes("/upload/")) return src;
     const [prefix, rest] = src.split("/upload/");
     if (/^(c_|w_|h_|f_|q_)/.test(rest)) return `${prefix}/upload/${rest}`;
-    const t = "c_fill,w_400,h_225,q_auto,f_auto";
+    // استخدام c_fit بدلاً من c_fill للنسخة الخفيفة لإظهار الصورة كاملة
+    const t = "c_fit,w_400,h_225,q_auto,f_auto";
     return `${prefix}/upload/${t}/${rest}`;
   } catch {
     return src;

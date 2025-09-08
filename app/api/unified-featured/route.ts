@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     console.log(`🔄 [UnifiedAPI] Fetching ${limit} articles in ${format} format`);
 
     // استخدام المدير الموحد
-    const result = await UnifiedFeaturedManager.getFeaturedArticles(limit);
+    const result = await UnifiedFeaturedManager.getFeaturedArticles(limit, format);
     
     // تنسيق الاستجابة حسب النوع المطلوب
     let responseData;

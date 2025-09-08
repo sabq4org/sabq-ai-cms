@@ -84,69 +84,15 @@ export function processS3Url(
 }
 
 // تحويل الصورة إلى رابط CDN
-export function getImageUrl(
-  imageUrl: string | null | undefined,
-  options: {
-    width?: number;
-    height?: number;
-    quality?: number;
-    format?: "auto" | "webp" | "jpg" | "png";
-    fallbackType?: keyof typeof FALLBACK_IMAGES;
-  } = {}
+export function optimizeImageUrl(
+  imageUrl: string,
+  width: number = 400,
+  height: number = 300,
+  quality: number = 80,
+  format: string = "auto",
+  cropMode: string = "fill" // جديد: دعم crop modes مختلفة
 ): string {
-  const {
-    width = 800,
-    height = 600,
-    quality = 80,
-    format = "auto",
-    fallbackType = "default",
-  } = options;
-
-  // إذا لم توجد صورة أو كانت فارغة أو undefined أو null
-  if (
-    !imageUrl ||
-    imageUrl === "" ||
-    imageUrl === "undefined" ||
-    imageUrl === "null" ||
-    imageUrl.includes("/api/placeholder") ||
-    imageUrl.includes("undefined") ||
-    imageUrl.includes("null")
-  ) {
-    console.log(`🖼️ استخدام fallback image للنوع: ${fallbackType}`);
-    return FALLBACK_IMAGES[fallbackType];
-  }
-
-  // معالجة روابط S3
-  if (
-    imageUrl.includes("s3.amazonaws.com") ||
-    imageUrl.includes("s3.us-east-1.amazonaws.com")
-  ) {
-    return processS3Url(imageUrl, { width, height });
-  }
-
-  // إذا كانت الصورة محلية (تبدأ بـ /)
-  if (imageUrl.startsWith("/")) {
-    // معالجة خاصة لمجلد uploads
-    if (imageUrl.startsWith("/uploads/")) {
-      // في بيئة الإنتاج، استخدم رابط مباشر
-      if (
-        typeof window !== "undefined" &&
-        window.location.hostname !== "localhost"
-      ) {
-        // إذا كان لدينا NEXT_PUBLIC_SITE_URL، استخدمه (افتراضي sabq.io)
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sabq.io";
-        return `${siteUrl}${imageUrl}`;
-      }
-    }
-
-    // في بيئة الإنتاج، أضف URL الأساسي
-    if (
-      process.env.NODE_ENV === "production" &&
-      process.env.NEXT_PUBLIC_SITE_URL
-    ) {
-      return `${process.env.NEXT_PUBLIC_SITE_URL}${imageUrl}`;
-    }
-    // في بيئة التطوير، إرجاع المسار المحلي كما هو
+  if (!imageUrl || typeof imageUrl !== "string") {
     return imageUrl;
   }
 
@@ -162,11 +108,11 @@ export function getImageUrl(
       return imageUrl;
     }
 
-    // إضافة transformations
+    // إضافة transformations مع دعم crop modes مختلفة
     const transformations = [
       `w_${width}`,
       `h_${height}`,
-      `c_fill`,
+      `c_${cropMode}`, // استخدام cropMode المُمرر
       `q_${quality}`,
       `f_${format}`,
     ].join(",");
@@ -179,32 +125,8 @@ export function getImageUrl(
     return imageUrl;
   }
 
-  // إذا كانت الصورة من Unsplash
-  if (imageUrl.includes("unsplash.com")) {
-    try {
-      const url = new URL(imageUrl);
-      // تنظيف المعاملات القديمة
-      url.search = "";
-      // إضافة معاملات جديدة
-      url.searchParams.set("w", width.toString());
-      url.searchParams.set("q", quality.toString());
-      url.searchParams.set("auto", "format");
-      url.searchParams.set("fit", "crop");
-      return url.toString();
-    } catch {
-      console.log(`❌ رابط Unsplash غير صحيح: ${imageUrl}`);
-      return FALLBACK_IMAGES[fallbackType];
-    }
-  }
-
-  // إذا كانت الصورة من مصدر آخر
-  // نحاول استخدامها مباشرة أو نستخدم fallback
-  try {
-    new URL(imageUrl);
-    return imageUrl;
-  } catch {
-    return FALLBACK_IMAGES[fallbackType];
-  }
+  // للـ CDNs الأخرى أو الصور العادية
+  return imageUrl;
 }
 
 // رفع صورة إلى Cloudinary (client-side)
@@ -273,9 +195,15 @@ export function generatePlaceholder(
 export function getOptimizedImageProps(
   src: string | null | undefined,
   alt: string,
-  options: Parameters<typeof getImageUrl>[1] = {}
+  options: {
+    width?: number;
+    height?: number;
+    quality?: number;
+    format?: string;
+    cropMode?: string;
+  } = {}
 ) {
-  const imageUrl = getImageUrl(src, options);
+  const imageUrl = optimizeImageUrl(src || '', options.width, options.height, options.quality, options.format, options.cropMode);
 
   return {
     src: imageUrl,
@@ -372,11 +300,11 @@ export function processArticleImage(
 ): string {
   // جرب الصورة الأصلية أولاً
   if (isValidImageUrl(imageUrl)) {
-    return getImageUrl(imageUrl as string, {
-      width: type === 'featured' ? 1200 : 800,
-      height: type === 'featured' ? 675 : 450,
-      quality: 80
-    });
+    return optimizeImageUrl(imageUrl as string, 
+      type === 'featured' ? 1200 : 800,
+      type === 'featured' ? 675 : 450,
+      80
+    );
   }
   
   // إذا فشلت، استخدم الصورة البديلة المناسبة

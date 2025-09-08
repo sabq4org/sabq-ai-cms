@@ -62,8 +62,8 @@ class UnifiedFeaturedManager {
   /**
    * منطق موحد لجلب الأخبار المميزة مع fallback ذكي
    */
-  async getFeaturedArticles(limit: number = 3): Promise<FeaturedResponse> {
-    const cacheKey = `unified-featured:v1:${limit}`;
+  async getFeaturedArticles(limit: number = 3, format: string = 'full'): Promise<FeaturedResponse> {
+    const cacheKey = `unified-featured:v1:${limit}:${format}`;
     
     // 1. فحص memory cache
     const memCached = this.memoryCache.get(cacheKey);
@@ -83,7 +83,7 @@ class UnifiedFeaturedManager {
     }
 
     // 3. جلب البيانات من قاعدة البيانات
-    console.log('🔄 [UnifiedFeaturedManager] Fetching fresh data from database');
+    console.log(`🔄 [UnifiedFeaturedManager] Fetching fresh data from database (${format} format)`);
     
     const baseSelect = {
       id: true,
@@ -158,7 +158,7 @@ class UnifiedFeaturedManager {
     }
 
     // تصفية وتنسيق البيانات
-    const processedArticles = await this.processArticles(articlesToReturn, limit);
+    const processedArticles = await this.processArticles(articlesToReturn, limit, format);
 
     const responseData: FeaturedResponse = {
       success: true,
@@ -184,7 +184,7 @@ class UnifiedFeaturedManager {
   /**
    * معالجة وتنسيق المقالات بشكل موحد
    */
-  private async processArticles(articles: any[], limit: number): Promise<UnifiedFeaturedArticle[]> {
+  private async processArticles(articles: any[], limit: number, format: string = 'full'): Promise<UnifiedFeaturedArticle[]> {
     // تصفية المقالات التجريبية
     const TEST_PATTERNS = [
       /\btest\b/i,
@@ -216,7 +216,7 @@ class UnifiedFeaturedManager {
       title: article.title,
       slug: article.slug,
       excerpt: article.excerpt,
-      featured_image: this.processImage(article),
+      featured_image: this.processImage(article, format),
       published_at: article.published_at,
       views: article.views || 0,
       breaking: article.breaking || false,
@@ -237,13 +237,18 @@ class UnifiedFeaturedManager {
   }
 
   /**
-   * معالجة موحدة للصور
+   * معالجة موحدة للصور مع دعم خاص للنسخة الخفيفة
    */
-  private processImage(article: any): string {
+  private processImage(article: any, format?: string): string {
     const rawImageUrl = article.featured_image ||
                         (article.metadata as any)?.featured_image ||
                         (article.metadata as any)?.image ||
                         null;
+
+    // إعدادات مختلفة للنسخة الخفيفة والكاملة
+    if (format === 'lite') {
+      return this.processLiteImage(rawImageUrl);
+    }
 
     return getProductionImageUrl(rawImageUrl, {
       width: 800,
@@ -254,12 +259,50 @@ class UnifiedFeaturedManager {
   }
 
   /**
+   * معالجة خاصة للصور في النسخة الخفيفة - تستخدم c_fit بدلاً من c_fill
+   */
+  private processLiteImage(rawImageUrl: string): string {
+    if (!rawImageUrl) {
+      return getProductionImageUrl(null, { fallbackType: "article" });
+    }
+
+    // معالجة Cloudinary خاصة للنسخة الخفيفة
+    if (rawImageUrl.includes("res.cloudinary.com") && rawImageUrl.includes("/upload/")) {
+      const [prefix, rest] = rawImageUrl.split("/upload/");
+      // تحقق إذا كان يحتوي على transformations بالفعل
+      if (/^(c_|w_|h_|f_|q_)/.test(rest)) {
+        return rawImageUrl;
+      }
+      // استخدام c_fit للنسخة الخفيفة لإظهار الصورة كاملة
+      const liteTransform = "c_fit,w_400,h_225,q_auto,f_auto";
+      return `${prefix}/upload/${liteTransform}/${rest}`;
+    }
+
+    // استخدام getProductionImageUrl مع إعدادات مناسبة للنسخة الخفيفة
+    return getProductionImageUrl(rawImageUrl, {
+      width: 400,
+      height: 225,
+      quality: 80,
+      fallbackType: "article"
+    });
+  }
+
+  /**
    * مسح Cache عند الحاجة
    */
   async clearCache(): Promise<void> {
     this.memoryCache.clear();
     try {
-      const keys = ['unified-featured:v1:3', 'unified-featured:v1:6', 'unified-featured:v1:9'];
+      const limits = [3, 6, 9];
+      const formats = ['full', 'lite'];
+      const keys = [];
+      
+      for (const limit of limits) {
+        for (const format of formats) {
+          keys.push(`unified-featured:v1:${limit}:${format}`);
+        }
+      }
+      
       for (const key of keys) {
         await redis.del(key);
       }
