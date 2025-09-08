@@ -10,6 +10,7 @@
 
 import prisma from "@/lib/prisma";
 import { getProductionImageUrl } from "@/lib/production-image-fix";
+import { optimizeImageUrl, getSafeImageUrl } from "@/lib/image-utils";
 import { cache as redis, CACHE_TTL } from "@/lib/redis";
 
 // Types موحدة
@@ -299,28 +300,20 @@ class UnifiedFeaturedManager {
    */
   private processLiteImage(rawImageUrl: string): string {
     if (!rawImageUrl) {
-      return getProductionImageUrl(null, { fallbackType: "article" });
+      return getSafeImageUrl(null, "article");
     }
 
-    // معالجة Cloudinary خاصة للنسخة الخفيفة
-    if (rawImageUrl.includes("res.cloudinary.com") && rawImageUrl.includes("/upload/")) {
-      const [prefix, rest] = rawImageUrl.split("/upload/");
-      // تحقق إذا كان يحتوي على transformations بالفعل
-      if (/^(c_|w_|h_|f_|q_)/.test(rest)) {
-        return rawImageUrl;
-      }
-      // استخدام c_fit للنسخة الخفيفة لإظهار الصورة كاملة
-      const liteTransform = "c_fit,w_400,h_225,q_auto,f_auto";
-      return `${prefix}/upload/${liteTransform}/${rest}`;
-    }
+    // معالجة Cloudinary خاصة للنسخة الخفيفة باستخدام optimizeImageUrl
+    const optimizedUrl = optimizeImageUrl(
+      rawImageUrl,
+      400,  // عرض مناسب للنسخة الخفيفة
+      225,  // ارتفاع بنسبة 16:9
+      80,   // جودة محسنة للسرعة
+      "auto", // تنسيق تلقائي
+      "fit"   // c_fit لإظهار الصورة كاملة بدون قص
+    );
 
-    // استخدام getProductionImageUrl مع إعدادات مناسبة للنسخة الخفيفة
-    return getProductionImageUrl(rawImageUrl, {
-      width: 400,
-      height: 225,
-      quality: 80,
-      fallbackType: "article"
-    });
+    return optimizedUrl || getSafeImageUrl(null, "article");
   }
 
   /**

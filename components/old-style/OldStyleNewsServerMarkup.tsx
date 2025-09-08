@@ -59,7 +59,8 @@ export default async function OldStyleNewsServerMarkup({
       try {
         const [prefix, rest] = fixed.split('/upload/');
         if (/^(c_|w_|h_|f_|q_)/.test(rest)) return `${prefix}/upload/${rest}`;
-        const t = 'c_fill,w_400,h_225,q_auto,f_auto';
+        // استخدام c_fit بدلاً من c_fill لإظهار الصورة كاملة بدون قص في النسخة الخفيفة
+        const t = 'c_fit,w_400,h_225,q_auto,f_auto';
         return `${prefix}/upload/${t}/${rest}`;
       } catch { /* ignore */ }
     }

@@ -42,11 +42,15 @@
     0 4px 6px -2px rgba(0, 0, 0, 0.3);
 }
 
-/* تأثيرات الصورة */
+/* تأثيرات الصورة - محسنة لـ c_fit */
 .smart-block-image {
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* إعدادات لدعم c_fit من Cloudinary */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .smart-block-image::before {
@@ -209,11 +213,17 @@
 
 .smart-block-image img {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* تحسينات لعرض الصور مع c_fit */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* fallback للمتصفحات التي لا تدعم c_fit */
+  object-position: center;
 }
 
-.smart-block-card:hover .smart-block-image img {
+/* إزالة تأثير hover للصور */
+/* .smart-block-card:hover .smart-block-image img {
   transform: scale(1.05);
-}
+} */
 
 /* تأثيرات الحركة */
 @keyframes fadeInUp {
@@ -243,6 +253,39 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسينات خاصة لصور النسخة الخفيفة مع c_fit */
+.light-version-image {
+  /* تأكد من أن الصور تعرض بالكامل مع c_fit */
+  background-color: #f8f9fa; /* خلفية خفيفة للمساحات الفارغة */
+  border-radius: 8px;
+}
+
+.dark .light-version-image {
+  background-color: #1f2937; /* خلفية داكنة للوضع المظلم */
+}
+
+/* تحسين عرض الصور في بطاقات الأخبار الخفيفة */
+.news-card-lite .news-image {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px; /* حد أدنى للارتفاع */
+}
+
+.dark .news-card-lite .news-image {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+}
+
+.news-card-lite .news-image img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* عرض كامل للصورة */
+  border-radius: 4px;
 }
 
 /* تحسينات للطباعة */
