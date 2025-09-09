@@ -47,6 +47,7 @@ export class CacheInvalidation {
       // مسح كاش الأخبار العام
       'articles:*',
       'news:fast:*',
+      'news:latest:*',
       
       // مسح كاش الإحصائيات
       'stats:*',
@@ -92,6 +93,8 @@ export class CacheInvalidation {
         '/news',          // صفحة الأخبار
         '/featured',      // الأخبار المميزة
         '/breaking',      // الأخبار العاجلة
+        '/light',         // النسخة الخفيفة
+        '/home-v2',       // الصفحة الرئيسية الثانية إن وجدت
       ];
       
       for (const path of pathsToRevalidate) {
@@ -105,7 +108,8 @@ export class CacheInvalidation {
         'articles',
         'featured-articles',
         'news-stats',
-        'homepage-news'
+        'homepage-news',
+        'light-news'
       ];
       
       for (const tag of tagsToRevalidate) {

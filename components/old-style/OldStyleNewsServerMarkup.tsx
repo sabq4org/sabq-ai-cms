@@ -77,8 +77,9 @@ export default async function OldStyleNewsServerMarkup({
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
     
     const res = await fetch(fullUrl, { 
-      next: { revalidate: revalidateSeconds }, 
-      cache: 'force-cache', 
+      // تقليل زمن التحديث للنسخة الخفيفة لضمان ظهور الخبر الجديد بسرعة
+      next: { revalidate: Math.min(revalidateSeconds, 30) }, 
+      cache: 'no-store', 
       signal: controller.signal 
     });
     clearTimeout(t);
