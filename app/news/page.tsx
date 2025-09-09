@@ -279,22 +279,57 @@ export default function NewsPage() {
               }
             }).catch(() => null),
             
-            // مسح كاش المتصفح المحلي
-            Promise.resolve().then(() => {
-              try {
-                if (typeof window !== 'undefined' && window.caches) {
-                  window.caches.keys().then(names => {
-                    names.forEach(name => {
-                      if (name.includes('news') || name.includes('articles')) {
-                        window.caches.delete(name);
-                      }
-                    });
-                  });
-                }
-              } catch (e) {}
-            }),
+      // مسح شامل لكاش المتصفح - قاتل الكاش المطلق!
+      Promise.resolve().then(() => {
+        try {
+          if (typeof window !== 'undefined') {
+            // مسح جميع cache storage
+            if (window.caches) {
+              window.caches.keys().then(names => {
+                names.forEach(name => {
+                  window.caches.delete(name);
+                });
+              });
+            }
             
-            // تأخير قصير لضمان المسح
+            // مسح localStorage و sessionStorage
+            if (window.localStorage) {
+              Object.keys(window.localStorage).forEach(key => {
+                if (key.includes('news') || key.includes('article') || key.includes('cache')) {
+                  window.localStorage.removeItem(key);
+                }
+              });
+            }
+            
+            if (window.sessionStorage) {
+              Object.keys(window.sessionStorage).forEach(key => {
+                if (key.includes('news') || key.includes('article') || key.includes('cache')) {
+                  window.sessionStorage.removeItem(key);
+                }
+              });
+            }
+            
+            // إجبار إعادة تحميل service worker إذا موجود
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(registration => {
+                  registration.unregister();
+                });
+              });
+            }
+            
+            // مسح أي متغيرات عامة في الذاكرة
+            const globalKeys = ['__newsCache', '__articlesCache', '__dashboardCache', '__pageCache'];
+            globalKeys.forEach(key => {
+              try {
+                delete (window as any)[key];
+              } catch (e) {}
+            });
+          }
+        } catch (e) {
+          console.log('Browser cache clear error:', e);
+        }
+      }),            // تأخير قصير لضمان المسح
             new Promise(resolve => setTimeout(resolve, 100))
           ]);
           
@@ -324,24 +359,29 @@ export default function NewsPage() {
 
         try {
           // جلب الأخبار مع كسر كاش قوي جداً
-          const fetchTimestamp = Date.now();
-          const fetchRandomId = Math.random().toString(36).substr(2, 15);
-          const ultraCacheBreaker = `&_force=${fetchTimestamp}&_rid=${fetchRandomId}&_bypass=${Date.now()}&_refresh=${Math.random()}`;
-          
-          const superStrongHeaders = {
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            'If-Modified-Since': '0',
-            'If-None-Match': '*',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Cache-Bust': fetchTimestamp.toString(),
-            'X-Random': fetchRandomId,
-            'X-Force-Refresh': 'true',
-            'Accept': 'application/json, text/plain, */*'
-          };
-          
-          const [regularResponse, featuredResponse] = await Promise.all([
+    // جلب البيانات مع إجبار المتصفح على التحديث
+    const fetchTimestamp = Date.now();
+    const fetchRandomId = Math.random().toString(36).substr(2, 15);
+    const sessionId = Math.random().toString(36).substr(2, 20);
+    const forceId = `${Date.now()}_${Math.random()}_${performance.now()}`;
+    
+    // معاملات قوية لكسر أي نوع من الكاش
+    const ultraCacheBreaker = `&_force=${fetchTimestamp}&_rid=${fetchRandomId}&_bypass=${Date.now()}&_refresh=${Math.random()}&_session=${sessionId}&_nocache=${forceId}&_t=${performance.now()}`;
+
+    const superStrongHeaders = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate, no-transform',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT',
+      'If-None-Match': '*',
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-Cache-Bust': fetchTimestamp.toString(),
+      'X-Random': fetchRandomId,
+      'X-Force-Refresh': 'true',
+      'X-Session-ID': sessionId,
+      'X-Force-ID': forceId,
+      'Accept': 'application/json, text/plain, */*'
+    };          const [regularResponse, featuredResponse] = await Promise.all([
             fetch(`/api/news/fast?${params}${ultraCacheBreaker}`, {
               signal: controller.signal,
               cache: "no-store",
@@ -397,6 +437,38 @@ export default function NewsPage() {
 
           console.log(`✅ تم جلب ${regularArticles.length} مقال إجمالي`);
 
+          // فحص إضافي: التحقق من البيانات الجديدة لمنع مشكلة كاش المتصفح
+          if (reset && regularArticles && regularArticles.length > 0) {
+            const latestArticleTime = new Date(regularArticles[0].published_at).getTime();
+            const tenMinutesAgo = Date.now() - (10 * 60 * 1000); // آخر 10 دقائق
+            
+            // إذا كان آخر خبر أقدم من 10 دقائق، أجبر إعادة التحميل القوي
+            if (latestArticleTime < tenMinutesAgo && !window.location.search.includes('_forced_reload')) {
+              console.warn('🔄 [News Page] البيانات قديمة جداً - إجبار إعادة التحميل القوي...');
+              
+              // مسح شامل أولاً
+              try {
+                if (typeof window !== 'undefined') {
+                  // مسح localStorage
+                  window.localStorage.clear();
+                  // مسح sessionStorage
+                  window.sessionStorage.clear();
+                  // مسح جميع cookies للدومين
+                  document.cookie.split(";").forEach(c => {
+                    const eqPos = c.indexOf("=");
+                    const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                  });
+                }
+              } catch (e) {}
+              
+              setTimeout(() => {
+                window.location.href = window.location.pathname + '?_forced_reload=' + Date.now() + '&_clear_all=1';
+              }, 500);
+              return;
+            }
+          }
+
           if (reset) {
             setArticles(regularArticles);
             setPage(1);
@@ -426,6 +498,77 @@ export default function NewsPage() {
     },
     [page, selectedCategory, sortBy, ITEMS_PER_PAGE]
   );
+
+  // قاتل الكاش المطلق - يعمل عند فتح الصفحة
+  useEffect(() => {
+    const destroyAllCache = async () => {
+      try {
+        console.log('🚨 [Cache Killer] تدمير شامل للكاش...');
+        
+        // 1. مسح جميع أنواع Web Storage
+        if (typeof window !== 'undefined') {
+          // localStorage
+          try {
+            window.localStorage.clear();
+          } catch (e) {}
+          
+          // sessionStorage  
+          try {
+            window.sessionStorage.clear();
+          } catch (e) {}
+          
+          // IndexedDB
+          try {
+            if (window.indexedDB) {
+              const dbs = ['news', 'articles', 'cache', 'keyval-store'];
+              for (const dbName of dbs) {
+                window.indexedDB.deleteDatabase(dbName);
+              }
+            }
+          } catch (e) {}
+          
+          // Service Workers
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.unregister();
+            }
+          }
+          
+          // Cache Storage
+          if ('caches' in window) {
+            const cacheNames = await window.caches.keys();
+            for (const cacheName of cacheNames) {
+              await window.caches.delete(cacheName);
+            }
+          }
+          
+          // إجبار المتصفح على عدم الكاش بتعيين headers
+          const metaElements = document.querySelectorAll('meta[http-equiv]');
+          metaElements.forEach(el => el.remove());
+          
+          const noCacheHeaders = [
+            ['Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0'],
+            ['Pragma', 'no-cache'], 
+            ['Expires', '0']
+          ];
+          
+          noCacheHeaders.forEach(([name, content]) => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('http-equiv', name);
+            meta.setAttribute('content', content);
+            document.head.appendChild(meta);
+          });
+          
+          console.log('✅ [Cache Killer] تم تدمير جميع أنواع الكاش!');
+        }
+      } catch (error) {
+        console.error('❌ [Cache Killer] خطأ في تدمير الكاش:', error);
+      }
+    };
+    
+    destroyAllCache();
+  }, []); // يعمل مرة واحدة عند تحميل الصفحة
 
   // جلب التوصيات الذكية
   useEffect(() => {

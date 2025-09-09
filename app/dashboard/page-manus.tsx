@@ -86,45 +86,79 @@ export default function DashboardPageManus() {
       try {
         setLoading(true);
 
-        // مسح كاش قوي للوحة التحكم
-        const timestamp = Date.now();
-        const randomId = Math.random().toString(36).substr(2, 15);
-        const ultraCacheBreaker = `?_force=${timestamp}&_rid=${randomId}&_bypass=${Date.now()}&_refresh=${Math.random()}`;
-        
-        try {
-          // مسح شامل للكاش
-          await Promise.all([
-            fetch('/api/cache/clear?force=1', { 
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'X-Cache-Bust': timestamp.toString(),
-                'X-Random': randomId
-              },
-              body: JSON.stringify({ type: 'all', force: true })
-            }).catch(() => null),
-            
-            // تأخير للتأكد من المسح
-            new Promise(resolve => setTimeout(resolve, 50))
-          ]);
-        } catch (cacheError) {
-          console.warn('Cache clearing failed:', cacheError);
-        }
+    // قاتل الكاش المطلق للوحة التحكم
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substr(2, 15);
+    const sessionId = Math.random().toString(36).substr(2, 20);
+    const forceId = `${Date.now()}_${Math.random()}_${performance.now()}`;
+    const ultraCacheBreaker = `?_force=${timestamp}&_rid=${randomId}&_bypass=${Date.now()}&_refresh=${Math.random()}&_session=${sessionId}&_nocache=${forceId}`;
 
-        // جلب الإحصائيات من API الجديد
-        const superStrongHeaders = {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'If-Modified-Since': '0',
-          'If-None-Match': '*',
-          'X-Cache-Bust': timestamp.toString(),
-          'X-Random': randomId,
-          'X-Force-Refresh': 'true'
-        };
+    try {
+      // تدمير شامل للكاش أولاً
+      if (typeof window !== 'undefined') {
+        // مسح كامل للـ storage
+        try { window.localStorage.clear(); } catch (e) {}
+        try { window.sessionStorage.clear(); } catch (e) {}
         
-        const statsRes = await fetch(`/api/dashboard/stats${ultraCacheBreaker}`, {
+        // مسح Cache Storage
+        if ('caches' in window) {
+          window.caches.keys().then(cacheNames => {
+            cacheNames.forEach(cacheName => {
+              window.caches.delete(cacheName);
+            });
+          });
+        }
+        
+        // إزالة service workers
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => {
+              registration.unregister();
+            });
+          });
+        }
+      }
+      
+      // مسح شامل للكاش عبر API
+      await Promise.all([
+        fetch('/api/cache/clear?force=1', { 
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT',
+            'X-Cache-Bust': timestamp.toString(),
+            'X-Random': randomId,
+            'X-Session-ID': sessionId,
+            'X-Force-ID': forceId
+          },
+          body: JSON.stringify({ type: 'all', force: true, auto: true })
+        }).catch(() => null),
+        
+        // تأخير للتأكد من المسح الكامل
+        new Promise(resolve => setTimeout(resolve, 100))
+      ]);
+    } catch (cacheError) {
+      console.error('❌ خطأ في مسح الكاش:', cacheError);
+    }
+    
+    // جلب الإحصائيات من API الجديد مع headers فائقة القوة
+    const superStrongHeaders = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate, no-transform',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT',
+      'If-None-Match': '*',
+      'X-Cache-Bust': timestamp.toString(),
+      'X-Random': randomId,
+      'X-Session-ID': sessionId,
+      'X-Force-ID': forceId,
+      'X-Force-Refresh': 'true',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json, text/plain, */*'
+    };        const statsRes = await fetch(`/api/dashboard/stats${ultraCacheBreaker}`, {
           cache: "no-store",
           headers: superStrongHeaders
         });

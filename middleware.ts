@@ -9,17 +9,38 @@ export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const hostname = req.headers.get('host') || '';
   
-  // تخطي في بيئة التطوير
+  // تخطي في بيئة التطوير مع إضافة قاتل الكاش
   if (process.env.NODE_ENV !== 'production') {
     const response = NextResponse.next();
-    // Add caching headers for development
-    if (url.pathname.startsWith('/api/')) {
+    
+    // قاتل الكاش للصفحات الحساسة حتى في التطوير
+    if (url.pathname.startsWith('/news') || 
+        url.pathname.startsWith('/dashboard') ||
+        url.pathname.startsWith('/api/news') ||
+        url.pathname.startsWith('/api/dashboard')) {
+      
+      // Headers قوية لمنع الكاش في التطوير
+      const noCacheHeaders = {
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Last-Modified': new Date(0).toUTCString(),
+        'ETag': `"no-cache-${Date.now()}"`,
+        'X-Cache-Killer': Date.now().toString(),
+        'X-Force-No-Cache': 'true',
+        'Clear-Site-Data': '"cache", "storage"'
+      };
+      
+      Object.entries(noCacheHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+    } else if (url.pathname.startsWith('/api/')) {
       response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     }
     return response;
   }
   
-  // تخطي طلبات API و static files
+  // تخطي طلبات API و static files مع إضافة قاتل الكاش للمناسب
   if (
     url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/_next/') ||
@@ -27,8 +48,25 @@ export function middleware(req: NextRequest) {
     url.pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|js|css|woff|woff2|ttf|eot)$/i)
   ) {
     const response = NextResponse.next();
-    // Add stronger caching for API routes
-    if (url.pathname.startsWith('/api/')) {
+    
+    // قاتل الكاش للـ APIs الحساسة في الإنتاج
+    if (url.pathname.startsWith('/api/news') || 
+        url.pathname.startsWith('/api/dashboard') ||
+        url.pathname.startsWith('/api/cache')) {
+      
+      const noCacheHeaders = {
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'X-Cache-Killer': Date.now().toString(),
+        'X-Force-No-Cache': 'true',
+        'Surrogate-Control': 'no-store'
+      };
+      
+      Object.entries(noCacheHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+    } else if (url.pathname.startsWith('/api/')) {
       response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=1800');
     }
     return response;
@@ -62,7 +100,31 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
   
-  return NextResponse.next();
+  // قاتل الكاش للصفحات الحساسة
+  const response = NextResponse.next();
+  
+  if (url.pathname.startsWith('/news') || 
+      url.pathname.startsWith('/dashboard')) {
+    
+    const noCacheHeaders = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate, no-transform',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'Last-Modified': new Date(0).toUTCString(),
+      'ETag': `"no-cache-${Date.now()}"`,
+      'Vary': '*',
+      'X-Cache-Killer': Date.now().toString(),
+      'X-Force-No-Cache': 'true',
+      'X-Random-ID': Math.random().toString(36).substr(2, 15),
+      'Clear-Site-Data': '"cache", "storage"'
+    };
+    
+    Object.entries(noCacheHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+  }
+  
+  return response;
 }
 
 export const config = {
