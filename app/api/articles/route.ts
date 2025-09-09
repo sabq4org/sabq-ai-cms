@@ -5,9 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 import { processArticleImage, getSafeImageUrl } from '@/lib/image-utils';
 
-// Cache في الذاكرة
+// تعطيل كاش الذاكرة لهذه النهاية لضمان نشر فوري
 const articleCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 60 * 1000; // 60 seconds for faster updates
+const CACHE_DURATION = 0;
 
 // دالة مسح الذاكرة المحلية
 function clearArticleCache() {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   // التحقق من الكاش أولاً
   const cached = articleCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+  if (cached && CACHE_DURATION > 0 && Date.now() - cached.timestamp < CACHE_DURATION) {
     if (process.env.NODE_ENV !== 'production') {
       console.log("✅ إرجاع المقالات من الكاش");
     }
@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
       headers: {
         "Content-Type": "application/json",
         "X-Cache": "HIT",
-        // كاش أقوى لتسريع الواجهة الكاملة
-        "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=1800",
+        // تعطيل الكاش
+        "Cache-Control": "no-store",
       },
     });
   }
@@ -292,8 +292,7 @@ export async function GET(request: NextRequest) {
       hasMore: skip + limit < totalCount,
     };
 
-    // حفظ في الكاش
-    articleCache.set(cacheKey, { data: response, timestamp: Date.now() });
+    // تعطيل الكتابة في كاش الذاكرة
 
     // تنظيف الكاش القديم
     if (articleCache.size > 100) {
@@ -303,9 +302,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response, {
       headers: {
-        "X-Cache": "MISS",
-        // نفس سياسة الكاش المُعجّلة
-        "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=1800",
+        "X-Cache": "BYPASS",
+        "Cache-Control": "no-store",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
   } catch (error: any) {

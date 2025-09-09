@@ -4,9 +4,9 @@ import { cache, CACHE_TTL } from '@/lib/redis';
 
 export const runtime = 'nodejs';
 
-// ذاكرة محلية قصيرة جداً كتأمين في حال تعطل Redis - تقليل الوقت
+// تعطيل الذاكرة المحلية تماماً
 const mem = new Map<string, { ts: number; data: any }>();
-const MEM_TTL = 20 * 1000; // تقليل من 45 ثانية إلى 20 ثانية
+const MEM_TTL = 0;
 
 // دالة مسح الذاكرة المحلية
 export function clearMemoryCache() {
@@ -79,26 +79,17 @@ export async function GET(request: NextRequest) {
 
     // 1) ذاكرة محلية
     const memHit = mem.get(key);
-    if (memHit && Date.now() - memHit.ts < MEM_TTL) {
+    if (memHit && MEM_TTL > 0 && Date.now() - memHit.ts < MEM_TTL) {
       return NextResponse.json(memHit.data, {
         headers: {
-          'Cache-Control': 'public, max-age=10, s-maxage=30, stale-while-revalidate=60',
+          'Cache-Control': 'no-store',
           'X-Cache': 'MEMORY',
         },
       });
     }
 
     // 2) Redis
-    const redisHit = await cache.get<any>(key);
-    if (redisHit) {
-      mem.set(key, { ts: Date.now(), data: redisHit });
-      return NextResponse.json(redisHit, {
-        headers: {
-          'Cache-Control': 'public, max-age=10, s-maxage=30, stale-while-revalidate=60',
-          'X-Cache': 'REDIS',
-        },
-      });
-    }
+    // تعطيل Redis cache: تخطي القراءة من Redis
 
     // 3) قاعدة البيانات - حقول خفيفة فقط
     const where: any = {
@@ -181,15 +172,14 @@ export async function GET(request: NextRequest) {
     };
 
     // تخزين
-    await cache.set(key, payload, CACHE_TTL.ARTICLES);
-    mem.set(key, { ts: Date.now(), data: payload });
+    // تعطيل الكتابة في Redis/Memory
 
     return NextResponse.json(payload, {
       headers: {
-        'Cache-Control': 'public, max-age=10, s-maxage=30, stale-while-revalidate=60', // تقليل أوقات الكاش
-        'CDN-Cache-Control': 'max-age=30',
-        'Vercel-CDN-Cache-Control': 'max-age=30',
-        'X-Cache': 'MISS',
+        'Cache-Control': 'no-store',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'X-Cache': 'BYPASS',
       },
     });
   } catch (error) {

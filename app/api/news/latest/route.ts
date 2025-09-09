@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma';
-import { cache } from '@/lib/redis'
-import { CACHE_TTL } from '@/lib/redis'
+// تعطيل Redis cache لهذه النهاية مؤقتاً لضمان نشر فوري
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,15 +16,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const skip = (page - 1) * limit
     
-    // إنشاء مفتاح التخزين المؤقت
-    const cacheKey = `news:latest:${limit}:${page}`
-    
-    // محاولة جلب البيانات من Redis
-    const cachedData = await cache.get(cacheKey)
-    if (cachedData) {
-      console.log('✅ تم جلب الأخبار من Redis cache')
-      return NextResponse.json(cachedData, { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } })
-    }
+    // تخطي Redis بالكامل (قراءة مباشرة من قاعدة البيانات)
     
     // جلب الأخبار فقط من قاعدة البيانات (بدون مقالات الرأي)
     const [articles, total] = await Promise.all([
@@ -117,10 +108,8 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // حفظ في Redis
-    await cache.set(cacheKey, responseData, CACHE_TTL.ARTICLES)
-    
-    return NextResponse.json(responseData, { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } })
+    // تعطيل الكتابة للكاش وإرجاع no-store
+    return NextResponse.json(responseData, { headers: { "Cache-Control": "no-store", "Pragma": "no-cache", "Expires": "0" } })
   } catch (error) {
     console.error('❌ خطأ في جلب الأخبار:', error)
     return NextResponse.json(
