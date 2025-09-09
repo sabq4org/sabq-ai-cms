@@ -385,14 +385,27 @@ export default function NewsPage() {
     }
   }, [articles, fetchStats]);
 
-  // تحديث تلقائي للأخبار كل دقيقة
+  // تحديث تلقائي للأخبار كل دقيقة + آلية كشف المحتوى الجديد
   useEffect(() => {
     const interval = setInterval(() => {
       // تحديث صامت للأخبار الجديدة فقط إذا لم يكن هناك تحميل جاري
       if (!loading && !isLoadingMore && page === 1) {
         console.log('🔄 تحديث تلقائي للأخبار...');
-        fetchArticles(true, 8);
-        setLastFetch(Date.now());
+        
+        // محاولة مسح الكاش قبل جلب الأخبار الجديدة
+        try {
+          // إرسال إشارة لمسح الكاش المحلي
+          fetch('/api/news/fast?_clear_cache=1', { method: 'HEAD' }).catch(() => {});
+          fetch('/api/articles/featured-fast?_clear_cache=1', { method: 'HEAD' }).catch(() => {});
+        } catch (error) {
+          console.warn('⚠️ فشل مسح الكاش المحلي:', error);
+        }
+        
+        // تأخير بسيط ثم جلب الأخبار الجديدة
+        setTimeout(() => {
+          fetchArticles(true, 8);
+          setLastFetch(Date.now());
+        }, 500); // نصف ثانية لضمان مسح الكاش
       }
     }, REFRESH_INTERVAL);
 

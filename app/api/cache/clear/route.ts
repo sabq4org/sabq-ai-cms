@@ -1,44 +1,127 @@
 import { cache } from "@/lib/redis";
 import { NextRequest, NextResponse } from "next/server";
+import { CacheInvalidation } from '@/lib/cache-invalidation';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { type, categoryId, articleId } = body;
+    const body = await request.json().catch(() => ({}));
+    const { 
+      type = 'all', 
+      categoryId, 
+      articleId, 
+      secret,
+      articleData,
+      immediate = true 
+    } = body;
 
+    // التحقق من السر الاختياري
+    const expectedSecret = process.env.CACHE_INVALIDATION_SECRET || process.env.REVALIDATION_SECRET;
+    if (expectedSecret && secret !== expectedSecret) {
+      return NextResponse.json(
+        { success: false, message: 'غير مخول' },
+        { status: 401 }
+      );
+    }
+
+    console.log(`🧹 طلب مسح كاش نوع: ${type}`);
     let clearedKeys = [];
 
     switch (type) {
+      case "news":
+        // استخدام النظام المطور
+        await CacheInvalidation.invalidateNewsCache(articleData);
+        clearedKeys.push("كاش الأخبار الشامل");
+        break;
+
       case "all":
-        // مسح جميع الكاش المتعلق بالمقالات
-        await cache.clearPattern("articles:*");
-        await cache.clearPattern("article:*");
-        clearedKeys.push("جميع كاش المقالات");
+        // مسح شامل متطور
+        await CacheInvalidation.clearAllCache();
+        clearedKeys.push("جميع أنواع الكاش");
         break;
 
       case "category":
         // مسح كاش تصنيف معين
         if (categoryId) {
-          await cache.clearPattern(`articles:*category_id*${categoryId}*`);
-          await cache.del(`category:${categoryId}`);
+          await CacheInvalidation.invalidateCategoryCache(categoryId);
           clearedKeys.push(`كاش التصنيف ${categoryId}`);
+        } else {
+          return NextResponse.json({
+            success: false,
+            message: "معرف التصنيف مطلوب"
+          }, { status: 400 });
         }
         break;
 
       case "article":
         // مسح كاش مقال معين
         if (articleId) {
-          await cache.del(`article:${articleId}`);
-          // مسح أيضا أي كاش يحتوي على هذا المقال
-          await cache.clearPattern("articles:*");
-          clearedKeys.push(`كاش المقال ${articleId} وجميع القوائم`);
+          await CacheInvalidation.invalidateArticleCache(articleId, articleData?.slug);
+          clearedKeys.push(`كاش المقال ${articleId}`);
+        } else {
+          return NextResponse.json({
+            success: false,
+            message: "معرف المقال مطلوب"
+          }, { status: 400 });
+        }
+        break;
+
+      case "featured":
+        // مسح كاش الأخبار المميزة
+        await CacheInvalidation.invalidateByArticleType('featured');
+        clearedKeys.push("كاش الأخبار المميزة");
+        break;
+
+      case "breaking":
+        // مسح كاش الأخبار العاجلة
+        await CacheInvalidation.invalidateByArticleType('breaking');
+        clearedKeys.push("كاش الأخبار العاجلة");
+        break;
+
+      case "publish":
+        // مسح خاص بالنشر الجديد
+        if (articleData && articleData.status === 'published') {
+          const { invalidateCacheOnPublish } = await import('@/lib/cache-invalidation');
+          await invalidateCacheOnPublish(articleData);
+          clearedKeys.push("كاش النشر الجديد");
+        } else {
+          await CacheInvalidation.invalidateNewsCache();
+          clearedKeys.push("كاش الأخبار العام");
+        }
+        break;
+
+      case "memory":
+        // مسح الذاكرة المحلية فقط
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+          await Promise.allSettled([
+            fetch(`${baseUrl}/api/news/fast?_clear_cache=1`, { method: 'HEAD' }),
+            fetch(`${baseUrl}/api/articles?_clear_cache=1`, { method: 'HEAD' })
+          ]);
+          clearedKeys.push("ذاكرة التخزين المحلية");
+        } catch (error) {
+          console.warn('⚠️ فشل مسح الذاكرة المحلية:', error);
         }
         break;
 
       default:
-        // مسح الكاش الافتراضي
+        // مسح الكاش الافتراضي (النظام القديم للتوافق)
         await cache.clearPattern("articles:*");
+        await cache.clearPattern("news:*");
         clearedKeys.push("كاش المقالات الافتراضي");
+    }
+
+    // مسح إضافي للذاكرة المحلية دائماً
+    if (immediate && type !== 'memory') {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        fetch(`${baseUrl}/api/cache/clear`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'memory' })
+        }).catch(() => {}); // تشغيل في الخلفية
+      } catch (error) {
+        console.warn('⚠️ فشل مسح الذاكرة التكميلية:', error);
+      }
     }
 
     console.log("✅ تم مسح الكاش:", clearedKeys);
@@ -47,13 +130,23 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "تم مسح الكاش بنجاح",
       cleared: clearedKeys,
+      type,
+      timestamp: new Date().toISOString(),
+      operations: clearedKeys.length
+    }, {
+      headers: {
+        'Cache-Control': 'no-store',
+        'X-Cache-Cleared': type
+      }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ خطأ في مسح الكاش:", error);
     return NextResponse.json(
       {
         success: false,
         error: "فشل مسح الكاش",
+        message: error.message || 'خطأ غير معروف',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     );
@@ -61,20 +154,35 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  // عرض حالة الكاش
+  // عرض حالة الكاش ومعلومات النظام
   try {
-    const isReady = cache.isReady();
+    // اختبار بسيط لـ Redis
+    let cacheReady = false;
+    try {
+      await cache.set('test-connection', 'ok', 5);
+      cacheReady = await cache.exists('test-connection');
+      await cache.del('test-connection');
+    } catch (error) {
+      cacheReady = false;
+    }
 
     return NextResponse.json({
       success: true,
-      cacheReady: isReady,
-      message: isReady ? "Redis متصل وجاهز" : "Redis غير متصل",
+      cacheReady,
+      message: cacheReady ? "Redis متصل وجاهز" : "Redis غير متصل",
+      availableTypes: [
+        'all', 'news', 'article', 'category', 
+        'featured', 'breaking', 'publish', 'memory'
+      ],
+      system: 'Enhanced Cache Invalidation v2.0',
+      timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
       {
         success: false,
         error: "خطأ في التحقق من حالة الكاش",
+        message: error.message || 'خطأ غير معروف'
       },
       { status: 500 }
     );

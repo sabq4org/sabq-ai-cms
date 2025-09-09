@@ -9,8 +9,22 @@ import { processArticleImage, getSafeImageUrl } from '@/lib/image-utils';
 const articleCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_DURATION = 60 * 1000; // 60 seconds for faster updates
 
+// دالة مسح الذاكرة المحلية
+function clearArticleCache() {
+  articleCache.clear();
+  console.log('💾 تم مسح ذاكرة التخزين المحلية في /api/articles');
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
+  
+  // فحص طلب مسح الكاش
+  const clearCache = searchParams.get('_clear_cache') === '1' || request.headers.get('X-Cache-Clear') === 'true';
+  if (clearCache) {
+    clearArticleCache();
+    return new Response('Cache cleared', { status: 200 });
+  }
+  
   const cacheKey = searchParams.toString();
 
   // التحقق من الكاش أولاً
@@ -743,6 +757,57 @@ export async function POST(request: NextRequest) {
 
     console.log("✅ تم إنشاء المقال بنجاح:", article.id);
 
+    // 🚀 مسح الكاش فوراً إذا كان المقال منشوراً
+    if (article.status === 'published') {
+      try {
+        console.log("🧹 مسح الكاش للمقال المنشور...");
+        
+        // استيراد نظام مسح الكاش
+        const { invalidateCacheOnPublish } = await import('@/lib/cache-invalidation');
+        
+        // بيانات المقال للكاش
+        const articleCacheData = {
+          id: article.id,
+          slug: article.slug,
+          categoryId: article.category_id || undefined,
+          status: article.status,
+          featured: article.featured || false,
+          breaking: article.breaking || false,
+        };
+        
+        // مسح الكاش فوراً بدون انتظار
+        setImmediate(() => {
+          invalidateCacheOnPublish(articleCacheData).catch((error) => {
+            console.warn('⚠️ فشل مسح الكاش المتقدم:', error);
+          });
+        });
+        
+        // مسح كاش إضافي عبر API
+        setImmediate(() => {
+          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+          const secret = process.env.CACHE_INVALIDATION_SECRET || process.env.REVALIDATION_SECRET;
+          
+          fetch(`${siteUrl}/api/cache/clear`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'publish',
+              articleData: articleCacheData,
+              secret,
+              immediate: true
+            })
+          }).catch((error) => {
+            console.warn('⚠️ فشل مسح الكاش عبر API:', error);
+          });
+        });
+        
+        console.log("✅ تم تشغيل مسح الكاش المتعدد في الخلفية");
+        
+      } catch (error) {
+        console.warn("⚠️ خطأ في تشغيل مسح الكاش:", error);
+      }
+    }
+
     // 🔔 إرسال إشعارات للمستخدمين المهتمين بالتصنيف (فقط للمقالات المنشورة)
     if (article.status === 'published' && article.category_id) {
       try {
@@ -957,6 +1022,16 @@ export async function POST(request: NextRequest) {
   } finally {
     // لا نقوم بإغلاق اتصال Prisma في بيئة سيرفرلس/Nodejs المشتركة
   }
+}
+
+// HEAD handler لمسح الكاش
+export async function HEAD(request: NextRequest) {
+  const clearCache = request.headers.get('X-Cache-Clear') === 'true';
+  if (clearCache) {
+    clearArticleCache();
+    return new Response(null, { status: 200, headers: { 'X-Cache-Cleared': 'true' } });
+  }
+  return new Response(null, { status: 200 });
 }
 
 // دالة مساعدة لتوليد ID

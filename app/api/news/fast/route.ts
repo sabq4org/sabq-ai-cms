@@ -8,13 +8,38 @@ export const runtime = 'nodejs';
 const mem = new Map<string, { ts: number; data: any }>();
 const MEM_TTL = 20 * 1000; // تقليل من 45 ثانية إلى 20 ثانية
 
+// دالة مسح الذاكرة المحلية
+export function clearMemoryCache() {
+  mem.clear();
+  console.log('💾 تم مسح ذاكرة التخزين المحلية في /api/news/fast');
+}
+
 function keyFromParams(limit: number, page: number, categoryId?: string | null, sort?: string) {
   return `news:fast:v1:${limit}:${page}:${categoryId || 'all'}:${sort || 'published_at_desc'}`;
+}
+
+// HEAD handler لمسح الكاش
+export async function HEAD(request: NextRequest) {
+  const url = new URL(request.url);
+  const clearCache = url.searchParams.get('_clear_cache') === '1' || request.headers.get('X-Cache-Clear') === 'true';
+  if (clearCache) {
+    clearMemoryCache();
+    return new Response('Cache cleared', { status: 200 });
+  }
+  return new Response('OK', { status: 200 });
 }
 
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
+    
+    // فحص طلب مسح الكاش
+    const clearCache = url.searchParams.get('_clear_cache') === '1' || request.headers.get('X-Cache-Clear') === 'true';
+    if (clearCache) {
+      clearMemoryCache();
+      return new Response('Cache cleared', { status: 200 });
+    }
+    
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '20'), 50);
     const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
     const skip = (page - 1) * limit;
