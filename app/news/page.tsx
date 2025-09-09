@@ -381,30 +381,18 @@ export default function NewsPage() {
       'X-Session-ID': sessionId,
       'X-Force-ID': forceId,
       'Accept': 'application/json, text/plain, */*'
-    };          const [regularResponse, featuredResponse] = await Promise.all([
-            fetch(`/api/news/fast?${params}${ultraCacheBreaker}`, {
-              signal: controller.signal,
-              cache: "no-store",
-              headers: superStrongHeaders
-            }),
-            // جلب الأخبار المميزة فقط في الصفحة الأولى وبدون فلترة تصنيف
-            reset && !selectedCategory ? fetch(`/api/articles/featured-fast?limit=5${ultraCacheBreaker}`, {
-              signal: controller.signal,
-              cache: "no-store",
-              headers: superStrongHeaders
-            }) : Promise.resolve(null)
-          ]);
+    };          const regularResponse = await fetch(`/api/news/fast?${params}${ultraCacheBreaker}`, {
+            signal: controller.signal,
+            cache: "no-store",
+            headers: superStrongHeaders
+          });
           
           clearTimeout(timeoutId);
 
           if (!regularResponse.ok) throw new Error("Failed to fetch articles");
 
           const regularData = await regularResponse.json();
-          let featuredData = null;
-          
-          if (featuredResponse && featuredResponse.ok) {
-            featuredData = await featuredResponse.json();
-          }
+          // لا ندمج أخباراً مميزة في صفحة قسم الأخبار لتفادي إزاحة أحدث العناصر
 
           console.log("📊 بيانات الأخبار العادية:", regularData);
           if (featuredData) {
@@ -412,28 +400,7 @@ export default function NewsPage() {
           }
 
           // دمج الأخبار مع التأكد من عدم التكرار
-          let regularArticles = regularData.articles || regularData.data || [];
-          const featuredArticles = featuredData?.data || [];
-          
-          // إذا كانت هناك أخبار مميزة، أدمجها مع العادية
-          if (featuredArticles.length > 0 && reset && !selectedCategory) {
-            // إزالة الأخبار المميزة من القائمة العادية لتجنب التكرار
-            const featuredIds = new Set(featuredArticles.map((a: any) => a.id));
-            regularArticles = regularArticles.filter((a: any) => !featuredIds.has(a.id));
-            
-            // دمج الأخبار المميزة في البداية
-            const mergedArticles = [
-              ...featuredArticles.map((a: any) => ({
-                ...a,
-                image: a.featured_image,
-                views_count: a.views
-              })),
-              ...regularArticles
-            ];
-            
-            console.log(`🔄 تم دمج ${featuredArticles.length} خبر مميز مع ${regularArticles.length} خبر عادي`);
-            regularArticles = mergedArticles.slice(0, effectiveLimit);
-          }
+          const regularArticles = regularData.articles || regularData.data || [];
 
           console.log(`✅ تم جلب ${regularArticles.length} مقال إجمالي`);
 
