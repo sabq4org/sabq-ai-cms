@@ -765,26 +765,12 @@ export default function NewsPage() {
           flexDirection: 'column',
           gap: '12px'
         }}>
-          {/* ليبل مميز/عاجل فوق العنوان */}
-          {(isBreaking || isFeatured || categoryName) && (
+          {/* ليبل التصنيف فوق العنوان */}
+          {categoryName && (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {isBreaking && (
-                <span className="featured-label breaking">
-                  <span className="icon">⚡</span>
-                  عاجل
-                </span>
-              )}
-              {isFeatured && !isBreaking && (
-                <span className="featured-label featured">
-                  <span className="icon">⭐</span>
-                  مميز
-                </span>
-              )}
-              {categoryName && !isBreaking && (
-                <span className="featured-label category">
-                  {categoryName}
-                </span>
-              )}
+              <span className="featured-label category">
+                {categoryName}
+              </span>
             </div>
           )}
 
@@ -802,6 +788,24 @@ export default function NewsPage() {
           }}>
             {news.title}
           </h3>
+
+          {/* ليبل مميز/عاجل بعد العنوان */}
+          {(isBreaking || isFeatured) && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {isBreaking && (
+                <span className="featured-label breaking">
+                  <span className="icon">⚡</span>
+                  عاجل
+                </span>
+              )}
+              {isFeatured && !isBreaking && (
+                <span className="featured-label featured">
+                  <span className="icon">⭐</span>
+                  مميز
+                </span>
+              )}
+            </div>
+          )}
 
           {/* البيانات الوصفية وزر اقرأ المزيد */}
           <div style={{
