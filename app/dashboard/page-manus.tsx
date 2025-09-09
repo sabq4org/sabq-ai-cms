@@ -86,32 +86,47 @@ export default function DashboardPageManus() {
       try {
         setLoading(true);
 
-        // مسح الكاش قبل جلب البيانات
+        // مسح كاش قوي للوحة التحكم
         const timestamp = Date.now();
-        const cacheBreaker = `?_t=${timestamp}&_r=${Math.random().toString(36).substr(2, 9)}`;
+        const randomId = Math.random().toString(36).substr(2, 15);
+        const ultraCacheBreaker = `?_force=${timestamp}&_rid=${randomId}&_bypass=${Date.now()}&_refresh=${Math.random()}`;
         
         try {
-          await fetch('/api/cache/clear', { 
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Cache-Bust': timestamp.toString()
-            },
-            body: JSON.stringify({ type: 'memory' })
-          });
+          // مسح شامل للكاش
+          await Promise.all([
+            fetch('/api/cache/clear?force=1', { 
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'X-Cache-Bust': timestamp.toString(),
+                'X-Random': randomId
+              },
+              body: JSON.stringify({ type: 'all', force: true })
+            }).catch(() => null),
+            
+            // تأخير للتأكد من المسح
+            new Promise(resolve => setTimeout(resolve, 50))
+          ]);
         } catch (cacheError) {
           console.warn('Cache clearing failed:', cacheError);
         }
 
         // جلب الإحصائيات من API الجديد
-        const statsRes = await fetch(`/api/dashboard/stats${cacheBreaker}`, {
+        const superStrongHeaders = {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'If-Modified-Since': '0',
+          'If-None-Match': '*',
+          'X-Cache-Bust': timestamp.toString(),
+          'X-Random': randomId,
+          'X-Force-Refresh': 'true'
+        };
+        
+        const statsRes = await fetch(`/api/dashboard/stats${ultraCacheBreaker}`, {
           cache: "no-store",
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            'X-Cache-Bust': timestamp.toString()
-          }
+          headers: superStrongHeaders
         });
         if (statsRes.ok) {
           const statsData = await statsRes.json();
@@ -122,14 +137,9 @@ export default function DashboardPageManus() {
           if (statsData.topArticles && statsData.topArticles.length > 0) {
             const articleIds = statsData.topArticles.map((a: any) => a.id);
             const articlesRes = await fetch(
-              `/api/articles?ids=${articleIds.join(",")}${cacheBreaker}`, {
+              `/api/articles?ids=${articleIds.join(",")}${ultraCacheBreaker}`, {
               cache: "no-store",
-              headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0',
-                'X-Cache-Bust': timestamp.toString()
-              }
+              headers: superStrongHeaders
             });
             if (articlesRes.ok) {
               const articlesData = await articlesRes.json();
@@ -192,31 +202,35 @@ export default function DashboardPageManus() {
     const interval = setInterval(() => {
       const fetchRealData = async () => {
         try {
-          // مسح الكاش قبل جلب البيانات
+          // مسح كاش قوي للتحديث الدوري
           const timestamp = Date.now();
-          const cacheBreaker = `?_t=${timestamp}&_r=${Math.random().toString(36).substr(2, 9)}`;
+          const randomId = Math.random().toString(36).substr(2, 15);
+          const ultraCacheBreaker = `?_force=${timestamp}&_rid=${randomId}&_auto_refresh=1`;
           
           try {
-            await fetch('/api/cache/clear', { 
+            await fetch('/api/cache/clear?auto=1', { 
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'X-Cache-Bust': timestamp.toString()
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'X-Cache-Bust': timestamp.toString(),
+                'X-Auto-Refresh': 'true'
               },
-              body: JSON.stringify({ type: 'memory' })
-            });
+              body: JSON.stringify({ type: 'memory', auto: true })
+            }).catch(() => null);
           } catch (cacheError) {
-            console.warn('Cache clearing failed:', cacheError);
+            console.warn('Auto cache clearing failed:', cacheError);
           }
 
           // جلب الإحصائيات المحدثة
-          const statsRes = await fetch(`/api/dashboard/stats${cacheBreaker}`, {
+          const statsRes = await fetch(`/api/dashboard/stats${ultraCacheBreaker}`, {
             cache: "no-store",
             headers: {
-              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
               'Pragma': 'no-cache',
               'Expires': '0',
-              'X-Cache-Bust': timestamp.toString()
+              'X-Cache-Bust': timestamp.toString(),
+              'X-Auto-Refresh': 'true'
             }
           });
           if (statsRes.ok) {
@@ -230,7 +244,7 @@ export default function DashboardPageManus() {
       };
 
       fetchRealData();
-    }, 60000); // كل دقيقة
+    }, 30000); // كل 30 ثانية (أسرع للحصول على أحدث البيانات)
 
     return () => clearInterval(interval);
   }, []);

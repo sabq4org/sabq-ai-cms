@@ -11,12 +11,14 @@ export async function POST(request: NextRequest) {
       articleId, 
       secret,
       articleData,
-      immediate = true 
+      immediate = true,
+      force = false,
+      auto = false
     } = body;
 
-    // التحقق من السر الاختياري
+    // التحقق من السر الاختياري - السماح بالمسح القوي والتلقائي بدون سر
     const expectedSecret = process.env.CACHE_INVALIDATION_SECRET || process.env.REVALIDATION_SECRET;
-    if (expectedSecret && secret !== expectedSecret) {
+    if (expectedSecret && secret !== expectedSecret && !force && !auto) {
       return NextResponse.json(
         { success: false, message: 'غير مخول' },
         { status: 401 }
@@ -33,10 +35,44 @@ export async function POST(request: NextRequest) {
         clearedKeys.push("كاش الأخبار الشامل");
         break;
 
+      case "memory":
+        // مسح الذاكرة المحلية فقط
+        try {
+          const { clearMemoryCache } = await import('@/app/api/news/fast/route');
+          clearMemoryCache();
+          clearedKeys.push("ذاكرة الأخبار المحلية");
+        } catch (e) {
+          clearedKeys.push("ذاكرة الأخبار (فشل المسح)");
+        }
+        break;
+
       case "all":
         // مسح شامل متطور
         await CacheInvalidation.clearAllCache();
-        clearedKeys.push("جميع أنواع الكاش");
+        
+        if (force || auto) {
+          // مسح إضافي قوي لجميع الكاش المحلي
+          try {
+            // مسح memory cache في جميع APIs
+            const { clearMemoryCache: clearNewsCache } = await import('@/app/api/news/fast/route');
+            clearNewsCache();
+            
+            // مسح أي كاش global
+            if (typeof global !== 'undefined') {
+              ['__newsCache', '__articlesCache', '__dashboardCache'].forEach(key => {
+                if ((global as any)[key]) {
+                  delete (global as any)[key];
+                }
+              });
+            }
+            
+            clearedKeys.push("جميع أنواع الكاش + مسح قوي");
+          } catch (e) {
+            clearedKeys.push("جميع أنواع الكاش (مسح عادي)");
+          }
+        } else {
+          clearedKeys.push("جميع أنواع الكاش");
+        }
         break;
 
       case "category":
@@ -135,8 +171,13 @@ export async function POST(request: NextRequest) {
       operations: clearedKeys.length
     }, {
       headers: {
-        'Cache-Control': 'no-store',
-        'X-Cache-Cleared': type
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'X-Cache-Cleared': type,
+        'X-Force-Cleared': force ? 'true' : 'false',
+        'X-Auto-Refresh': auto ? 'true' : 'false',
+        'X-Timestamp': Date.now().toString()
       }
     });
   } catch (error: any) {

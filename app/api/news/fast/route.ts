@@ -18,15 +18,40 @@ function keyFromParams(limit: number, page: number, categoryId?: string | null, 
   return `news:fast:v1:${limit}:${page}:${categoryId || 'all'}:${sort || 'published_at_desc'}`;
 }
 
-// HEAD handler لمسح الكاش
+// HEAD request لمسح الكاش بقوة
 export async function HEAD(request: NextRequest) {
-  const url = new URL(request.url);
-  const clearCache = url.searchParams.get('_clear_cache') === '1' || request.headers.get('X-Cache-Clear') === 'true';
-  if (clearCache) {
+  try {
+    console.log('🧹 [News Fast API] HEAD request - مسح الكاش بقوة');
+    
+    // مسح جميع أنواع الكاش
     clearMemoryCache();
-    return new Response('Cache cleared', { status: 200 });
+    
+    // مسح أي كاش إضافي في الذاكرة
+    if (typeof global !== 'undefined' && (global as any).__newsCache) {
+      delete (global as any).__newsCache;
+    }
+    
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'X-Cache-Cleared': 'true',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Content-Type': 'application/json',
+      }
+    });
+  } catch (error) {
+    console.error('❌ [News Fast API] HEAD error:', error);
+    return new NextResponse(null, { 
+      status: 500,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   }
-  return new Response('OK', { status: 200 });
 }
 
 export async function GET(request: NextRequest) {

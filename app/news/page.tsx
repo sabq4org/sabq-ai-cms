@@ -102,7 +102,7 @@ export default function NewsPage() {
   const [lastFetch, setLastFetch] = useState(Date.now());
 
   const ITEMS_PER_PAGE = 20;
-  const REFRESH_INTERVAL = 60000; // تحديث كل دقيقة
+  const REFRESH_INTERVAL = 20000; // تحديث كل 20 ثانية (أسرع لضمان ظهور الأخبار الجديدة)
 
   // تحسين جلب التصنيفات مع معالجة أفضل للأخطاء والكاش
   const fetchCategories = useCallback(async () => {
@@ -245,27 +245,60 @@ export default function NewsPage() {
         }
         setError(null);
 
-        // مسح كاش الخادم أولاً
+        // مسح كاش قوي جداً - إجباري
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substr(2, 15);
+        
         try {
-          const timestamp = Date.now();
+          // مسح جميع أنواع الكاش بقوة
           await Promise.all([
-            fetch('/api/cache/clear', { 
+            // مسح كاش الخادم
+            fetch('/api/cache/clear?force=1', { 
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'X-Cache-Bust': timestamp.toString()
+                'Cache-Control': 'no-cache, no-store, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'X-Cache-Bust': timestamp.toString(),
+                'X-Random': randomId
               },
-              body: JSON.stringify({ type: 'memory' })
-            }),
-            fetch('/api/news/fast', { 
+              body: JSON.stringify({ type: 'all', force: true })
+            }).catch(() => null),
+            
+            // إعادة تعيين كاش الأخبار
+            fetch(`/api/news/fast?_force_refresh=${timestamp}&_rid=${randomId}`, { 
               method: 'HEAD',
               cache: "no-store",
               headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'X-Cache-Bust': timestamp.toString()
+                'Cache-Control': 'no-cache, no-store, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'X-Cache-Bust': timestamp.toString(),
+                'X-Random': randomId
               }
-            })
+            }).catch(() => null),
+            
+            // مسح كاش المتصفح المحلي
+            Promise.resolve().then(() => {
+              try {
+                if (typeof window !== 'undefined' && window.caches) {
+                  window.caches.keys().then(names => {
+                    names.forEach(name => {
+                      if (name.includes('news') || name.includes('articles')) {
+                        window.caches.delete(name);
+                      }
+                    });
+                  });
+                }
+              } catch (e) {}
+            }),
+            
+            // تأخير قصير لضمان المسح
+            new Promise(resolve => setTimeout(resolve, 100))
           ]);
+          
+          console.log('🧹 تم مسح جميع أنواع الكاش بقوة');
         } catch (cacheError) {
           console.warn('Cache clearing failed:', cacheError);
         }
@@ -290,33 +323,35 @@ export default function NewsPage() {
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
 
         try {
-          // جلب الأخبار العادية والأخبار المميزة بشكل منفصل ثم دمجهما
-          // إضافة timestamp فريد لكسر cache المتصفح
-          const timestamp = Date.now();
-          const cacheBreaker = `&_t=${timestamp}&_r=${Math.random().toString(36).substr(2, 9)}`;
+          // جلب الأخبار مع كسر كاش قوي جداً
+          const fetchTimestamp = Date.now();
+          const fetchRandomId = Math.random().toString(36).substr(2, 15);
+          const ultraCacheBreaker = `&_force=${fetchTimestamp}&_rid=${fetchRandomId}&_bypass=${Date.now()}&_refresh=${Math.random()}`;
+          
+          const superStrongHeaders = {
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'If-Modified-Since': '0',
+            'If-None-Match': '*',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Cache-Bust': fetchTimestamp.toString(),
+            'X-Random': fetchRandomId,
+            'X-Force-Refresh': 'true',
+            'Accept': 'application/json, text/plain, */*'
+          };
           
           const [regularResponse, featuredResponse] = await Promise.all([
-            fetch(`/api/news/fast?${params}${cacheBreaker}`, {
+            fetch(`/api/news/fast?${params}${ultraCacheBreaker}`, {
               signal: controller.signal,
               cache: "no-store",
-              headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0',
-                'X-Requested-With': 'fetch',
-                'X-Cache-Bust': timestamp.toString()
-              }
+              headers: superStrongHeaders
             }),
             // جلب الأخبار المميزة فقط في الصفحة الأولى وبدون فلترة تصنيف
-            reset && !selectedCategory ? fetch(`/api/articles/featured-fast?limit=5${cacheBreaker}`, {
+            reset && !selectedCategory ? fetch(`/api/articles/featured-fast?limit=5${ultraCacheBreaker}`, {
               signal: controller.signal,
               cache: "no-store",
-              headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0',
-                'X-Cache-Bust': timestamp.toString()
-              }
+              headers: superStrongHeaders
             }) : Promise.resolve(null)
           ]);
           
