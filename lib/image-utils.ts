@@ -222,6 +222,29 @@ export function getOptimizedImageProps(
 }
 
 /**
+ * دالة توافقية لإرجاع رابط صورة محسّن (مطلوبة من بعض المكونات القديمة)
+ */
+export function getImageUrl(
+  src: string | null | undefined,
+  options: {
+    width?: number;
+    height?: number;
+    quality?: number;
+    fallbackType?: 'article' | 'author' | 'category' | 'news' | 'featured' | 'default';
+  } = {}
+) {
+  const { width = 800, height = 600, quality = 80, fallbackType = 'default' } = options;
+  try {
+    if (!src || !isValidImageUrl(src)) {
+      return getSafeImageUrl(null, fallbackType);
+    }
+    return optimizeImageUrl(src, width, height, quality, 'auto');
+  } catch {
+    return getSafeImageUrl(null, fallbackType);
+  }
+}
+
+/**
  * التحقق من صحة رابط الصورة وتوفر الصورة
  */
 export function isValidImageUrl(url: string | null | undefined): boolean {

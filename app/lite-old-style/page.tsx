@@ -1,6 +1,6 @@
 // Use ISR with longer cache for better performance
-export const revalidate = 300; // 5 minutes
-export const fetchCache = 'force-cache';
+// الصفحة قد تحتوي fetch no-store داخلي، فلا نفرض force-cache على مستوى الصفحة
+export const revalidate = 60; // دقيقة واحدة فقط لتقليل تعارض ISR
 
 import { Suspense } from 'react';
 import OldStyleNewsServerMarkup from '@/components/old-style/OldStyleNewsServerMarkup';
