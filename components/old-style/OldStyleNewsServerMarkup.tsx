@@ -156,7 +156,7 @@ export default async function OldStyleNewsServerMarkup({
                       loading="lazy"
                       decoding="async"
                       fetchPriority="low"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', backgroundColor: '#f3f4f6' }}
                     />
                     
                     {/* علامة جديد فوق الصورة */}
