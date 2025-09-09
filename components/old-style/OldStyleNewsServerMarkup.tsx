@@ -59,8 +59,9 @@ export default async function OldStyleNewsServerMarkup({
       try {
         const [prefix, rest] = fixed.split('/upload/');
         if (/^(c_|w_|h_|f_|q_)/.test(rest)) return `${prefix}/upload/${rest}`;
-        // استخدام c_fit بدلاً من c_fill لإظهار الصورة كاملة بدون قص في النسخة الخفيفة
-        const t = 'c_fit,w_400,h_225,q_auto,f_auto';
+        // توحيد المصغرات ومعالجتها: تعبئة الإطار مع الحفاظ على بؤرة المحتوى
+        // c_fill + g_auto + q_auto + f_auto لضمان جودة وأبعاد ثابتة
+        const t = 'c_fill,g_auto,w_400,h_225,q_auto,f_auto';
         return `${prefix}/upload/${t}/${rest}`;
       } catch { /* ignore */ }
     }
@@ -156,7 +157,7 @@ export default async function OldStyleNewsServerMarkup({
                       loading="lazy"
                       decoding="async"
                       fetchPriority="low"
-                      style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', backgroundColor: '#f3f4f6' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', backgroundColor: '#f3f4f6' }}
                     />
                     
                     {/* علامة جديد فوق الصورة */}
