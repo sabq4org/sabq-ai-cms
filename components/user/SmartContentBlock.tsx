@@ -8,6 +8,7 @@ import ArticleViews from '@/components/ui/ArticleViews';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
 import { useUserInterests } from '@/hooks/useUserInterests';
 import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
+import { getSafeImageUrl } from '@/lib/image-utils';
 
 interface Article {
   id: string;
@@ -120,11 +121,22 @@ export default function SmartContentBlock({
       if (response.ok) {
         const data = await response.json();
         const base = (data.articles || data.data || []).slice(0, 15);
-        const enriched: Article[] = base.map((article: any) => ({
-          ...article,
-          isPersonalized: false, // إزالة اللابل المخصص
-          confidence: undefined, // إزالة نسبة الثقة
-        }));
+        const enriched: Article[] = base.map((article: any) => {
+          const rawImage = (
+            article.image ||
+            article.featured_image ||
+            article.image_url ||
+            article.social_image ||
+            (article.metadata && (article.metadata.image || article.metadata.image_url)) ||
+            null
+          );
+          return {
+            ...article,
+            image: getSafeImageUrl(rawImage, 'news'),
+            isPersonalized: false,
+            confidence: undefined,
+          } as Article;
+        });
 
         setArticles(enriched);
         // حفظ في الكاش المحلي
