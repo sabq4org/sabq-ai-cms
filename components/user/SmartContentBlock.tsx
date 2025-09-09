@@ -111,7 +111,7 @@ export default function SmartContentBlock({
 
       const response = await fetch('/api/smart-content/fast?limit=15', {
         signal: controller.signal,
-        cache: 'force-cache',
+        cache: 'no-store',
         headers: { 'Accept': 'application/json' }
       });
       clearTimeout(timeoutId);

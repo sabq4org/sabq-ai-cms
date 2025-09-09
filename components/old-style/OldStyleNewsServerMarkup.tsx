@@ -72,18 +72,15 @@ export default async function OldStyleNewsServerMarkup({
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), 3000);
     
-    // إنشاء URL مطلق للعمل مع Server-Side
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-    
-    const res = await fetch(fullUrl, { 
+    // استخدام المسار النسبي مباشرة ليقوم Next بتوجيهه للهوست الصحيح في الإنتاج
+    const res = await fetch(url, { 
       // تقليل زمن التحديث للنسخة الخفيفة لضمان ظهور الخبر الجديد بسرعة
       next: { revalidate: Math.min(revalidateSeconds, 30) }, 
       cache: 'no-store', 
       signal: controller.signal 
     });
     clearTimeout(t);
-    console.log(`🔍 [OldStyleNews] Fetching from: ${fullUrl}`);
+    console.log(`🔍 [OldStyleNews] Fetching from: ${url}`);
     console.log(`🔍 [OldStyleNews] Response Status: ${res.status}`);
     
     if (res.ok) {
