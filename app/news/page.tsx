@@ -234,7 +234,7 @@ export default function NewsPage() {
     }
   }, [selectedCategory, articles]);
 
-  // Fetch articles - محسن للأداء
+  // Fetch articles - محسن للأداء مع دمج الأخبار المميزة
   const fetchArticles = useCallback(
     async (reset = false, customLimit?: number) => {
       try {
@@ -265,36 +265,74 @@ export default function NewsPage() {
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني
 
         try {
-          const response = await fetch(`/api/news/fast?${params}`, {
-            signal: controller.signal,
-            cache: "no-store",
-            headers: {
-              'Cache-Control': 'no-cache, no-store, must-revalidate',
-              'Pragma': 'no-cache',
-              'Expires': '0'
-            }
-          });
+          // جلب الأخبار العادية والأخبار المميزة بشكل منفصل ثم دمجهما
+          const [regularResponse, featuredResponse] = await Promise.all([
+            fetch(`/api/news/fast?${params}`, {
+              signal: controller.signal,
+              cache: "no-store",
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+              }
+            }),
+            // جلب الأخبار المميزة فقط في الصفحة الأولى وبدون فلترة تصنيف
+            reset && !selectedCategory ? fetch('/api/articles/featured-fast?limit=5', {
+              signal: controller.signal,
+              cache: "no-store",
+            }) : Promise.resolve(null)
+          ]);
+          
           clearTimeout(timeoutId);
 
-          if (!response.ok) throw new Error("Failed to fetch articles");
+          if (!regularResponse.ok) throw new Error("Failed to fetch articles");
 
-          const data = await response.json();
-
-          console.log("📊 بيانات الاستجابة:", data);
-
-          // إصلاح مشكلة عدم ظهور الأخبار - API يعيد البيانات في articles مباشرة
-          const articles = data.articles || data.data || [];
-
-          console.log(`✅ تم جلب ${articles.length} مقال`);
-
-          if (reset) {
-            setArticles(articles);
-            setPage(1);
-          } else {
-            setArticles((prev) => [...prev, ...articles]);
+          const regularData = await regularResponse.json();
+          let featuredData = null;
+          
+          if (featuredResponse && featuredResponse.ok) {
+            featuredData = await featuredResponse.json();
           }
 
-          setHasMore(articles.length === effectiveLimit);
+          console.log("📊 بيانات الأخبار العادية:", regularData);
+          if (featuredData) {
+            console.log("⭐ بيانات الأخبار المميزة:", featuredData);
+          }
+
+          // دمج الأخبار مع التأكد من عدم التكرار
+          let regularArticles = regularData.articles || regularData.data || [];
+          const featuredArticles = featuredData?.data || [];
+          
+          // إذا كانت هناك أخبار مميزة، أدمجها مع العادية
+          if (featuredArticles.length > 0 && reset && !selectedCategory) {
+            // إزالة الأخبار المميزة من القائمة العادية لتجنب التكرار
+            const featuredIds = new Set(featuredArticles.map((a: any) => a.id));
+            regularArticles = regularArticles.filter((a: any) => !featuredIds.has(a.id));
+            
+            // دمج الأخبار المميزة في البداية
+            const mergedArticles = [
+              ...featuredArticles.map((a: any) => ({
+                ...a,
+                image: a.featured_image,
+                views_count: a.views
+              })),
+              ...regularArticles
+            ];
+            
+            console.log(`🔄 تم دمج ${featuredArticles.length} خبر مميز مع ${regularArticles.length} خبر عادي`);
+            regularArticles = mergedArticles.slice(0, effectiveLimit);
+          }
+
+          console.log(`✅ تم جلب ${regularArticles.length} مقال إجمالي`);
+
+          if (reset) {
+            setArticles(regularArticles);
+            setPage(1);
+          } else {
+            setArticles((prev) => [...prev, ...regularArticles]);
+          }
+
+          setHasMore(regularArticles.length === effectiveLimit);
         } catch (fetchError: any) {
           clearTimeout(timeoutId);
           if (fetchError.name === "AbortError") {
