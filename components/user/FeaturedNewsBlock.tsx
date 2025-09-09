@@ -275,7 +275,7 @@ export default function FeaturedNewsBlock({
                     marginBottom: '8px',
                     lineHeight: '1.4',
                     display: '-webkit-box',
-                    WebkitLineClamp: 2,
+                    WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden'
                   }}>
