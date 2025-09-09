@@ -145,10 +145,9 @@ export default function OldStyleNewsBlock({
                 alt={article.title}
                 className="old-style-news-image"
                 priority={index < columns}
-                width={300}
-                height={200}
+                fill
                 fallbackType="article"
-                fit="contain"
+                fit="cover"
                 objectPosition="center"
                 bgColor="#f3f4f6"
               />
