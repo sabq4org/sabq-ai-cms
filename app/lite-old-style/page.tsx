@@ -1,5 +1,6 @@
 // Use ISR with longer cache for better performance
 // الصفحة قد تحتوي fetch no-store داخلي، فلا نفرض force-cache على مستوى الصفحة
+export const dynamic = 'force-dynamic'; // منع SSG لتفادي Dynamic server usage
 export const revalidate = 60; // دقيقة واحدة فقط لتقليل تعارض ISR
 
 import { Suspense } from 'react';
