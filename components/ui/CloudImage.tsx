@@ -19,6 +19,9 @@ interface CloudImageProps {
   quality?: number;
   onError?: () => void;
   unoptimized?: boolean;
+  fit?: "cover" | "contain" | "fill" | "none" | "scale-down";
+  objectPosition?: string;
+  bgColor?: string;
 }
 
 export default function CloudImage({
@@ -34,6 +37,9 @@ export default function CloudImage({
   quality = 70,
   onError,
   unoptimized = false,
+  fit = "cover",
+  objectPosition = "center",
+  bgColor = "transparent",
 }: CloudImageProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,14 +128,14 @@ export default function CloudImage({
           quality={quality}
           priority={priority}
           unoptimized={unoptimized}
-          className={`${className} object-cover object-center ${
+          className={`${className} ${
             isLoading ? "opacity-0" : "opacity-100"
           } transition-opacity duration-300`}
           onError={handleError}
           onLoad={handleLoad}
           // onLoadingComplete أكثر اعتمادية خاصة مع الصور المحملة مسبقاً و SSR
           onLoadingComplete={() => setIsLoading(false)}
-          style={{ objectFit: "cover", width: "100%", height: "100%" }}
+          style={{ objectFit: fit as any, objectPosition, width: "100%", height: "100%", backgroundColor: bgColor }}
         />
       </>
     );
@@ -158,13 +164,13 @@ export default function CloudImage({
         sizes={
           sizes || "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         }
-        className={`object-cover object-center rounded-xl w-full h-full ${
+        className={`rounded-xl w-full h-full ${
           isLoading ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}
         onError={handleError}
         onLoad={handleLoad}
         onLoadingComplete={() => setIsLoading(false)}
-        style={{ objectFit: "cover", width: "100%", height: "100%" }}
+        style={{ objectFit: fit as any, objectPosition, width: "100%", height: "100%", backgroundColor: bgColor }}
       />
     </div>
   );

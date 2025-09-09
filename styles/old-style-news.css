@@ -176,9 +176,9 @@
 /* عنوان المقال */
 .old-style-news-card-title {
   font-size: 16px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: #1f2937;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #111827; /* نص داكن واضح */
   margin: 0 0 12px 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -288,8 +288,16 @@
   color: #9ca3af;
 }
 
-.dark .old-style-news-card-title {
-  color: #f9fafb;
+.dark .old-style-news-card-title { color: #f9fafb; }
+
+/* تثبيت لون الروابط داخل بطاقات الأخبار وعدم تغييرها بتأثيرات عامة */
+.old-style-news-card,
+.old-style-news-card:link,
+.old-style-news-card:visited,
+.old-style-news-card:hover,
+.old-style-news-card:active {
+  color: inherit; /* لا تغيّر لون النص/العنوان */
+  text-decoration: none; /* بدون خطوط تحتية */
 }
 
 /* تم إزالة تأثير hover من عنوان الخبر في الوضع المظلم */

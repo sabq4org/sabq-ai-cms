@@ -148,6 +148,9 @@ export default function OldStyleNewsBlock({
                 width={300}
                 height={200}
                 fallbackType="article"
+                fit="contain"
+                objectPosition="center"
+                bgColor="#f3f4f6"
               />
             </div>
 
