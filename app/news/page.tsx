@@ -395,9 +395,6 @@ export default function NewsPage() {
           // لا ندمج أخباراً مميزة في صفحة قسم الأخبار لتفادي إزاحة أحدث العناصر
 
           console.log("📊 بيانات الأخبار العادية:", regularData);
-          if (featuredData) {
-            console.log("⭐ بيانات الأخبار المميزة:", featuredData);
-          }
 
           // دمج الأخبار مع التأكد من عدم التكرار
           const regularArticles = regularData.articles || regularData.data || [];
