@@ -109,7 +109,8 @@ export default function SmartContentBlock({
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 ثوانٍ
 
-      const response = await fetch('/api/smart-content/fast?limit=15', {
+      // توحيد المصدر مع النسخة الكاملة/الخفيفة لضمان نفس القائمة
+      const response = await fetch('/api/news/latest?limit=15', {
         signal: controller.signal,
         cache: 'no-store',
         headers: { 'Accept': 'application/json' }
@@ -118,7 +119,7 @@ export default function SmartContentBlock({
 
       if (response.ok) {
         const data = await response.json();
-        const base = (data.articles || []).slice(0, 15);
+        const base = (data.articles || data.data || []).slice(0, 15);
         const enriched: Article[] = base.map((article: any) => ({
           ...article,
           isPersonalized: false, // إزالة اللابل المخصص
