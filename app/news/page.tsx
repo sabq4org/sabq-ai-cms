@@ -708,14 +708,17 @@ export default function NewsPage() {
           position: 'relative',
           height: '180px',
           width: '100%',
-          background: 'hsl(var(--bg))',
+          background: '#f3f4f6',
           overflow: 'hidden'
         }}>
           <CloudImage
             src={news?.image || news?.featured_image || news?.image_url || null}
             alt={news?.title || "صورة المقال"}
             fill
-            className="w-full h-full object-cover"
+            className="w-full h-full"
+            fit="cover"
+            objectPosition="center"
+            bgColor="#f3f4f6"
             fallbackType="article"
             priority={false}
           />
