@@ -428,13 +428,13 @@ export default function SmartContentBlock({
               <Link
                 key={article.id}
                 href={`/news/${article.slug}`}
-                style={{ textDecoration: 'none' }}
+                style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 {(() => {
                   const isBreaking = Boolean((article as any).breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking);
-                  const baseBg = isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))';
-                  const hoverBg = isBreaking ? 'hsla(0, 78%, 55%, 0.22)' : 'hsl(var(--accent) / 0.06)';
-                  const baseBorder = isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))';
+                  const baseBg = '#ffffff';
+                  const hoverBg = '#f9fafb';
+                  const baseBorder = '1px solid #e5e7eb';
                   return (
                     <div style={{
                       background: baseBg,
@@ -460,7 +460,7 @@ export default function SmartContentBlock({
                     position: 'relative',
                     height: '180px',
                     width: '100%',
-                    background: 'hsl(var(--bg))',
+                    background: '#f3f4f6',
                     overflow: 'hidden'
                   }}>
                     {article.image ? (
@@ -468,7 +468,7 @@ export default function SmartContentBlock({
                         src={article.image}
                         alt={article.title}
                         fill
-                        style={{ objectFit: 'cover' }}
+                        style={{ objectFit: 'contain', background: '#f3f4f6' }}
                       />
                     ) : (
                       <div style={{
