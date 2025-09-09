@@ -74,3 +74,24 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// HEAD request لمسح الكاش
+export async function HEAD(request: NextRequest) {
+  try {
+    console.log('🧹 [Featured Fast API] HEAD request - مسح الكاش');
+    
+    // مسح الكاش في النظام الموحد
+    await UnifiedFeaturedManager.clearCache();
+    
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'X-Cache-Cleared': 'true',
+        'Content-Type': 'application/json',
+      }
+    });
+  } catch (error) {
+    console.error('❌ [Featured Fast API] HEAD error:', error);
+    return new NextResponse(null, { status: 500 });
+  }
+}

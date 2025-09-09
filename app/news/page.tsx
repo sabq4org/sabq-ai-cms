@@ -245,6 +245,31 @@ export default function NewsPage() {
         }
         setError(null);
 
+        // مسح كاش الخادم أولاً
+        try {
+          const timestamp = Date.now();
+          await Promise.all([
+            fetch('/api/cache/clear', { 
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Cache-Bust': timestamp.toString()
+              },
+              body: JSON.stringify({ type: 'memory' })
+            }),
+            fetch('/api/news/fast', { 
+              method: 'HEAD',
+              cache: "no-store",
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'X-Cache-Bust': timestamp.toString()
+              }
+            })
+          ]);
+        } catch (cacheError) {
+          console.warn('Cache clearing failed:', cacheError);
+        }
+
         const currentPage = reset ? 1 : page;
         const effectiveLimit = customLimit ?? ITEMS_PER_PAGE;
         const params = new URLSearchParams({
@@ -266,20 +291,32 @@ export default function NewsPage() {
 
         try {
           // جلب الأخبار العادية والأخبار المميزة بشكل منفصل ثم دمجهما
+          // إضافة timestamp فريد لكسر cache المتصفح
+          const timestamp = Date.now();
+          const cacheBreaker = `&_t=${timestamp}&_r=${Math.random().toString(36).substr(2, 9)}`;
+          
           const [regularResponse, featuredResponse] = await Promise.all([
-            fetch(`/api/news/fast?${params}`, {
+            fetch(`/api/news/fast?${params}${cacheBreaker}`, {
               signal: controller.signal,
               cache: "no-store",
               headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
-                'Expires': '0'
+                'Expires': '0',
+                'X-Requested-With': 'fetch',
+                'X-Cache-Bust': timestamp.toString()
               }
             }),
             // جلب الأخبار المميزة فقط في الصفحة الأولى وبدون فلترة تصنيف
-            reset && !selectedCategory ? fetch('/api/articles/featured-fast?limit=5', {
+            reset && !selectedCategory ? fetch(`/api/articles/featured-fast?limit=5${cacheBreaker}`, {
               signal: controller.signal,
               cache: "no-store",
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'X-Cache-Bust': timestamp.toString()
+              }
             }) : Promise.resolve(null)
           ]);
           

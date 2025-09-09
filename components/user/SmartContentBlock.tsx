@@ -48,9 +48,9 @@ export default function SmartContentBlock({
   // تحديد النصوص الموحدة للجميع
   const getContentByAuthStatus = () => {
     return {
-      title: "أخبار تفهمك أولاً",
-      subtitle: "🎯 مقالات مختارة بعناية لتناسب اهتماماتك وتوفر وقتك",
-      description: "تتابع أهم ما يهمك من أخبار ومقالات مختارة خصيصاً بناءً على تفضيلاتك"
+      title: "آخر الأخبار",
+      subtitle: "📰 مقالات مختارة بعناية من أحدث الأخبار والمقالات",
+      description: "تابع أهم الأخبار والمقالات المختارة من مصادر موثوقة"
     };
   };
 
@@ -121,8 +121,8 @@ export default function SmartContentBlock({
         const base = (data.articles || []).slice(0, 15);
         const enriched: Article[] = base.map((article: any) => ({
           ...article,
-          isPersonalized: Math.random() > 0.7,
-          confidence: Math.random() > 0.5 ? Math.floor(Math.random() * 15) + 80 : undefined,
+          isPersonalized: false, // إزالة اللابل المخصص
+          confidence: undefined, // إزالة نسبة الثقة
         }));
 
         setArticles(enriched);
@@ -202,10 +202,10 @@ export default function SmartContentBlock({
         </div>
       );
     }
-    // تمرير is_custom فقط للعناصر المخصصة فعلاً
+    // تمرير البيانات للبطاقات العادية
     const oldStyleArticles = (articles as any[]).map((a: any) => ({
       ...a,
-      is_custom: a.isPersonalized === true,
+      is_custom: false, // إزالة اللابل المخصص
       published_at: a.published_at || a.publishedAt || a.created_at || a.createdAt,
       reading_time: a.readTime || a.reading_time,
     }));
@@ -263,7 +263,6 @@ export default function SmartContentBlock({
           </p>
         </div>
         <OldStyleNewsBlock
-          // تمرير is_custom الحقيقي فقط للمقالات المخصصة
           articles={oldStyleArticles as unknown as any[]}
           title={content.title}
           showTitle={false}
@@ -515,47 +514,7 @@ export default function SmartContentBlock({
                       return null;
                     })()}
                     
-                    {/* ليبل مخصص لك */}
-                    {article.isPersonalized && (
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '12px',
-                        right: '12px',
-                        background: 'linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%)',
-                        color: '#4C1D95',
-                        padding: '4px 10px',
-                        borderRadius: '6px',
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        border: '1px solid #C7D2FE',
-                        backdropFilter: 'blur(8px)'
-                      }}>
-                        <Sparkles style={{ width: '12px', height: '12px' }} />
-                        مخصص لك
-                      </div>
-                    )}
                     
-                    {/* نسبة الثقة */}
-                    {article.confidence && (
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '12px',
-                        left: '12px',
-                        background: '#F5F3FF',
-                        border: '2px solid #E0E7FF',
-                        color: '#6B21A8',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        backdropFilter: 'blur(8px)'
-                      }}>
-                        {article.confidence}%
-                      </div>
-                    )}
                   </div>
 
                   {/* محتوى البطاقة */}
@@ -644,7 +603,7 @@ export default function SmartContentBlock({
               e.currentTarget.style.background = 'linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%)';
               e.currentTarget.style.borderColor = '#E0E7FF';
             }}>
-              استكشف المحتوى الذكي
+              عرض المزيد من الأخبار
               <Sparkles className="w-4 h-4" />
             </button>
           </Link>

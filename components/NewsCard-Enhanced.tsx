@@ -186,12 +186,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
                   عاجل
                 </Badge>
               )}
-              {isPersonalized && (
-                <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 ml-1" />
-                  مخصص | {personalizedScore}%
-                </Badge>
-              )}
+
               {isTrending && (
                 <Badge className="text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
                   <TrendingUp className="w-3 h-3 ml-1" />
@@ -299,12 +294,7 @@ export default function NewsCard({ news, viewMode = "grid" }: NewsCardProps) {
                 {category.name}
               </Badge>
             )}
-            {isPersonalized && (
-              <Badge className="text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white inline-flex items-center gap-1">
-                <Sparkles className="w-3 h-3 ml-1" />
-                مخصص | {personalizedScore}%
-              </Badge>
-            )}
+
             {isTrending && (
               <Badge className="text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white">
                 <TrendingUp className="w-3 h-3 ml-1" />

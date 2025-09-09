@@ -86,8 +86,33 @@ export default function DashboardPageManus() {
       try {
         setLoading(true);
 
+        // مسح الكاش قبل جلب البيانات
+        const timestamp = Date.now();
+        const cacheBreaker = `?_t=${timestamp}&_r=${Math.random().toString(36).substr(2, 9)}`;
+        
+        try {
+          await fetch('/api/cache/clear', { 
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Cache-Bust': timestamp.toString()
+            },
+            body: JSON.stringify({ type: 'memory' })
+          });
+        } catch (cacheError) {
+          console.warn('Cache clearing failed:', cacheError);
+        }
+
         // جلب الإحصائيات من API الجديد
-        const statsRes = await fetch("/api/dashboard/stats");
+        const statsRes = await fetch(`/api/dashboard/stats${cacheBreaker}`, {
+          cache: "no-store",
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'X-Cache-Bust': timestamp.toString()
+          }
+        });
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats(statsData.stats);
@@ -97,8 +122,15 @@ export default function DashboardPageManus() {
           if (statsData.topArticles && statsData.topArticles.length > 0) {
             const articleIds = statsData.topArticles.map((a: any) => a.id);
             const articlesRes = await fetch(
-              "/api/articles?ids=" + articleIds.join(",")
-            );
+              `/api/articles?ids=${articleIds.join(",")}${cacheBreaker}`, {
+              cache: "no-store",
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'X-Cache-Bust': timestamp.toString()
+              }
+            });
             if (articlesRes.ok) {
               const articlesData = await articlesRes.json();
               const articlesMap = new Map(
@@ -153,6 +185,54 @@ export default function DashboardPageManus() {
     };
 
     fetchRealData();
+  }, []);
+
+  // تحديث دوري للبيانات كل دقيقة
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const fetchRealData = async () => {
+        try {
+          // مسح الكاش قبل جلب البيانات
+          const timestamp = Date.now();
+          const cacheBreaker = `?_t=${timestamp}&_r=${Math.random().toString(36).substr(2, 9)}`;
+          
+          try {
+            await fetch('/api/cache/clear', { 
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Cache-Bust': timestamp.toString()
+              },
+              body: JSON.stringify({ type: 'memory' })
+            });
+          } catch (cacheError) {
+            console.warn('Cache clearing failed:', cacheError);
+          }
+
+          // جلب الإحصائيات المحدثة
+          const statsRes = await fetch(`/api/dashboard/stats${cacheBreaker}`, {
+            cache: "no-store",
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              'X-Cache-Bust': timestamp.toString()
+            }
+          });
+          if (statsRes.ok) {
+            const statsData = await statsRes.json();
+            setStats(statsData.stats);
+            setWeeklyActivity(statsData.weeklyActivity);
+          }
+        } catch (error) {
+          console.warn('Auto-refresh failed:', error);
+        }
+      };
+
+      fetchRealData();
+    }, 60000); // كل دقيقة
+
+    return () => clearInterval(interval);
   }, []);
 
   // مكون الإحصائيات بتصميم Manus UI

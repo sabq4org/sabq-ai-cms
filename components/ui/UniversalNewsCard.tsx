@@ -397,15 +397,7 @@ export default function UniversalNewsCard({
             )}
           </div>
           
-          {/* ليبل مخصص على اليسار */}
-          {isPersonalized && (
-            <div className="absolute top-3 left-3 z-10">
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1">
-                <Sparkles className="w-3 h-3 mr-1" />
-                مخصص
-              </Badge>
-            </div>
-          )}
+
         </div>
 
         {/* المحتوى */}
