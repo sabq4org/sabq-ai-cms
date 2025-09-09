@@ -4,9 +4,9 @@ import { cache, CACHE_TTL } from '@/lib/redis';
 
 export const runtime = 'nodejs';
 
-// ذاكرة محلية قصيرة جداً كتأمين في حال تعطل Redis
+// ذاكرة محلية قصيرة جداً كتأمين في حال تعطل Redis - تقليل الوقت
 const mem = new Map<string, { ts: number; data: any }>();
-const MEM_TTL = 45 * 1000;
+const MEM_TTL = 20 * 1000; // تقليل من 45 ثانية إلى 20 ثانية
 
 function keyFromParams(limit: number, page: number, categoryId?: string | null, sort?: string) {
   return `news:fast:v1:${limit}:${page}:${categoryId || 'all'}:${sort || 'published_at_desc'}`;
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     if (memHit && Date.now() - memHit.ts < MEM_TTL) {
       return NextResponse.json(memHit.data, {
         headers: {
-          'Cache-Control': 'public, max-age=20, s-maxage=60, stale-while-revalidate=300',
+          'Cache-Control': 'public, max-age=10, s-maxage=30, stale-while-revalidate=60',
           'X-Cache': 'MEMORY',
         },
       });
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       mem.set(key, { ts: Date.now(), data: redisHit });
       return NextResponse.json(redisHit, {
         headers: {
-          'Cache-Control': 'public, max-age=20, s-maxage=60, stale-while-revalidate=300',
+          'Cache-Control': 'public, max-age=10, s-maxage=30, stale-while-revalidate=60',
           'X-Cache': 'REDIS',
         },
       });
@@ -136,9 +136,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(payload, {
       headers: {
-        'Cache-Control': 'public, max-age=20, s-maxage=60, stale-while-revalidate=300',
-        'CDN-Cache-Control': 'max-age=60',
-        'Vercel-CDN-Cache-Control': 'max-age=60',
+        'Cache-Control': 'public, max-age=10, s-maxage=30, stale-while-revalidate=60', // تقليل أوقات الكاش
+        'CDN-Cache-Control': 'max-age=30',
+        'Vercel-CDN-Cache-Control': 'max-age=30',
         'X-Cache': 'MISS',
       },
     });

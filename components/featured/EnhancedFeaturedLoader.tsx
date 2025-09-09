@@ -58,8 +58,7 @@ export default function EnhancedFeaturedLoader({
 
     try {
       const response = await fetch(`/api/articles/${slug}/preview`, {
-        cache: "force-cache",
-        next: { revalidate: 300 }
+        cache: "no-store", // إزالة الكاش لمحتوى المقال
       });
       
       if (response.ok) {
@@ -83,8 +82,7 @@ export default function EnhancedFeaturedLoader({
         
         const res = await fetch(endpoint, { 
           signal: controller.signal,
-          cache: "force-cache", 
-          next: { revalidate: 300 } // 5 minutes cache
+          cache: "no-store", // إزالة الكاش للحصول على أحدث الأخبار
         });
         
         clearTimeout(timeoutId);

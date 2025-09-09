@@ -33,8 +33,7 @@ export default function LightFeaturedLoader({ heading = "الأخبار المم
         
         const res = await fetch(endpoint, { 
           signal: controller.signal,
-          cache: "force-cache", 
-          next: { revalidate: 30 } // تقليل من 300 إلى 30 ثانية
+          cache: "no-store", // إزالة الكاش تماماً للحصول على أحدث الأخبار
         });
         clearTimeout(timeoutId);
         

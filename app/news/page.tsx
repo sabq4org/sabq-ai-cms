@@ -99,16 +99,18 @@ export default function NewsPage() {
   const [statsLoading, setStatsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [lastFetch, setLastFetch] = useState(Date.now());
 
   const ITEMS_PER_PAGE = 20;
+  const REFRESH_INTERVAL = 60000; // تحديث كل دقيقة
 
   // تحسين جلب التصنيفات مع معالجة أفضل للأخطاء والكاش
   const fetchCategories = useCallback(async () => {
-    // تحقق من الكاش أولاً
+    // تحقق من الكاش أولاً - تقليل وقت الكاش
     const cacheKey = "categories";
     const cached = categoriesCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
-      // 5 دقائق
+    if (cached && Date.now() - cached.timestamp < 2 * 60 * 1000) {
+      // تقليل من 5 دقائق إلى دقيقتين
       setCategories(cached.data);
       return;
     }
@@ -120,11 +122,10 @@ export default function NewsPage() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 ثواني كحد أقصى
 
-      // محاولة جلب البيانات
+      // محاولة جلب البيانات - تقليل الكاش للحصول على بيانات جديدة
       const response = await fetch("/api/categories?is_active=true", {
         signal: controller.signal,
-        cache: "force-cache",
-        next: { revalidate: 300 },
+        cache: "no-store", // إزالة الكاش للحصول على أحدث التصنيفات
       });
 
       clearTimeout(timeoutId);
@@ -197,8 +198,8 @@ export default function NewsPage() {
   const fetchStats = useCallback(async () => {
     const cacheKey = `stats-${selectedCategory || "all"}`;
     const cached = statsCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
-      // 5 دقائق
+    if (cached && Date.now() - cached.timestamp < 1 * 60 * 1000) {
+      // تقليل من 5 دقائق إلى دقيقة واحدة
       setStats(cached.data);
       return;
     }
@@ -206,7 +207,7 @@ export default function NewsPage() {
     try {
       setStatsLoading(true);
       const params = selectedCategory ? `?category_id=${selectedCategory}` : "";
-      const response = await fetch(`/api/news/stats${params}`, { cache: "force-cache", next: { revalidate: 120 } });
+      const response = await fetch(`/api/news/stats${params}`, { cache: "no-store" }); // إزالة الكاش للإحصائيات
       if (!response.ok) throw new Error("Failed to fetch stats");
       const data = await response.json();
       if (data.success) {
@@ -267,6 +268,11 @@ export default function NewsPage() {
           const response = await fetch(`/api/news/fast?${params}`, {
             signal: controller.signal,
             cache: "no-store",
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
           });
           clearTimeout(timeoutId);
 
@@ -340,6 +346,20 @@ export default function NewsPage() {
       fetchStats();
     }
   }, [articles, fetchStats]);
+
+  // تحديث تلقائي للأخبار كل دقيقة
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // تحديث صامت للأخبار الجديدة فقط إذا لم يكن هناك تحميل جاري
+      if (!loading && !isLoadingMore && page === 1) {
+        console.log('🔄 تحديث تلقائي للأخبار...');
+        fetchArticles(true, 8);
+        setLastFetch(Date.now());
+      }
+    }, REFRESH_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [loading, isLoadingMore, page, fetchArticles]);
 
   const loadMore = useCallback(() => {
     if (!loading && !isLoadingMore && hasMore) {
@@ -719,6 +739,11 @@ export default function NewsPage() {
                     ? `${articles.length} خبر`
                     : "لا توجد أخبار"}
                 </span>
+                {articles.length > 0 && (
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    • آخر تحديث: {new Date(lastFetch).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-3">
