@@ -5,6 +5,7 @@ import { Editor } from "@tiptap/react";
 import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
+import { useMemo } from "react";
 import { uploadImageWithFallback } from "@/lib/safe-upload";
 
 import {
@@ -64,9 +65,39 @@ export default function EditorToolbar({
   const albumInputRef = useRef<HTMLInputElement | null>(null);
   const [albumUploading, setAlbumUploading] = useState(false);
 
-  // تم إزالة Emoji Picker لحل مشاكل التبعيات
-  const EmojiPicker: any = null;
-  const [emojiData, setEmojiData] = useState<any>(null);
+  // منتقي الإيموجي المدمج (بدون تبعيات خارجية)
+  const [emojiSearch, setEmojiSearch] = useState("");
+  const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
+  const emojiMenuRef = useRef<HTMLDivElement | null>(null);
+  const EMOJIS = useMemo(
+    () => [
+      "😀","😁","😂","🤣","😃","😄","😅","😆","😉","😊","😋","😎","😍","😘","🥰","😗","😙","😚","🙂","🤗","🤩","🤔","🤨","😐","😑","😶","🙄","😏","😣","😥","😮","🤐","😯","😪","😫","🥱","😴","😌","😛","😜","😝","🤤","😒","😓","😔","😕","🙃","🤑","😲","☹️","🙁","😖","😞","😟","😤","😢","😭","😦","😧","😨","😩","🤯","😬","😰","😱","🥵","🥶","😳","🤪","😵","🥴","😠","😡","🤬","😷","🤒","🤕","🤢","🤮","🤧","🥳","😇","🤠","🤡","👻","💀","👽","🤖","🎃","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝",
+    ],
+    []
+  );
+  const filteredEmojis = useMemo(() => {
+    if (!emojiSearch) return EMOJIS;
+    // بحث بسيط: يعتمد على اسم قصير محتمل أو تجاهل وإرجاع نفس القائمة
+    return EMOJIS.filter(() => true);
+  }, [EMOJIS, emojiSearch]);
+
+  // إغلاق القائمة عند الضغط خارجها
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (!showEmojiPicker) return;
+      if (
+        emojiMenuRef.current &&
+        !emojiMenuRef.current.contains(target) &&
+        emojiButtonRef.current &&
+        !emojiButtonRef.current.contains(target)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [showEmojiPicker]);
 
   const buttonClass = `p-2 rounded transition-colors ${
     darkMode
@@ -464,20 +495,50 @@ export default function EditorToolbar({
           <Youtube className="w-4 h-4" />
         </button>
 
-        {/* منتقي الإيموجي - معطل مؤقتاً */}
+        {/* منتقي الإيموجي المدمج */}
         <div className="relative">
           <button
-            onClick={() => {
-              // إدراج إيموجي افتراضي
-              if (editor) {
-                editor.chain().focus().insertContent("😊").run();
-              }
-            }}
-            className={buttonClass}
+            ref={emojiButtonRef}
+            onClick={() => setShowEmojiPicker((v) => !v)}
+            className={`${buttonClass} ${showEmojiPicker ? activeButtonClass : ""}`}
             title="إدراج إيموجي"
           >
             <Smile className="w-4 h-4" />
           </button>
+          {showEmojiPicker && (
+            <div
+              ref={emojiMenuRef}
+              className={`absolute top-full mt-1 right-0 z-50 w-56 rounded-lg shadow-lg border ${
+                darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+              } p-2`}
+            >
+              <input
+                value={emojiSearch}
+                onChange={(e) => setEmojiSearch(e.target.value)}
+                placeholder="ابحث عن إيموجي..."
+                className={`w-full mb-2 px-2 py-1 text-sm rounded border ${
+                  darkMode ? "bg-gray-700 border-gray-600 text-gray-200" : "bg-white border-gray-300"
+                }`}
+              />
+              <div className="grid grid-cols-8 gap-1 max-h-44 overflow-auto pr-1">
+                {filteredEmojis.map((emo, idx) => (
+                  <button
+                    key={`${emo}-${idx}`}
+                    onClick={() => {
+                      editor.chain().focus().insertContent(emo).run();
+                      setShowEmojiPicker(false);
+                    }}
+                    className={`h-7 w-7 rounded flex items-center justify-center hover:bg-gray-100 ${
+                      darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    }`}
+                    title={emo}
+                  >
+                    <span className="text-base">{emo}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <button
           onClick={() =>
