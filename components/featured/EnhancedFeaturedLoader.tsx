@@ -247,19 +247,27 @@ export default function EnhancedFeaturedLoader({
               
               {/* Content Section - 50% */}
               <div className="hidden lg:flex col-span-1 p-6 flex-col justify-between">
-                {/* Category */}
-                {currentArticle.category && (
-                  <div className="mb-3">
-                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-                      darkMode 
-                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                        : 'bg-blue-50 text-blue-700 border border-blue-200'
-                    }`}>
-                      {currentArticle.category.icon && (
-                        <span className="text-sm">{currentArticle.category.icon}</span>
-                      )}
-                      {currentArticle.category.name}
-                    </span>
+                {/* Category + New label (beside) */}
+                {(currentArticle.category || isRecentNews(currentArticle.published_at || '')) && (
+                  <div className="mb-3 flex items-center gap-2 flex-wrap">
+                    {currentArticle.category && (
+                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
+                        darkMode 
+                          ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+                      }`}>
+                        {currentArticle.category.icon && (
+                          <span className="text-sm">{currentArticle.category.icon}</span>
+                        )}
+                        {currentArticle.category.name}
+                      </span>
+                    )}
+                    {(!isBreaking) && isRecentNews(currentArticle.published_at || '') && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-500 text-white">
+                        <span className="text-sm">🔥</span>
+                        جديد
+                      </span>
+                    )}
                   </div>
                 )}
                 
@@ -292,8 +300,8 @@ export default function EnhancedFeaturedLoader({
                     </div>
                   </div>
                   
-                  {/* Read More Button */}
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white transition-all duration-300 transform hover:-translate-y-0.5">
+                  {/* Read More Button - aligned left */}
+                  <div className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 shadow-sm">
                     <span>اقرأ المزيد</span>
                     <ArrowLeft className="w-4 h-4" />
                   </div>
