@@ -66,9 +66,9 @@ export default function EditorToolbar({
   const albumInputRef = useRef<HTMLInputElement | null>(null);
   const [albumUploading, setAlbumUploading] = useState(false);
 
-  // منتقي الإيموجي الكامل عبر emoji-mart
+  // منتقي الإيموجي الكامل عبر @emoji-mart/react
   const EmojiPicker = useMemo(
-    () => dynamic(() => import("emoji-mart").then((m: any) => m.Picker), { ssr: false }),
+    () => dynamic(() => import("@emoji-mart/react").then((m: any) => m.default), { ssr: false }),
     []
   );
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
