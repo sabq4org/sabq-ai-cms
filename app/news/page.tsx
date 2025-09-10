@@ -235,7 +235,7 @@ export default function NewsPage() {
 
   // Fetch articles - محسن للأداء مع دمج الأخبار المميزة
   const fetchArticles = useCallback(
-    async (reset = false, customLimit?: number) => {
+    async (reset = false, customLimit?: number, customPage?: number) => {
       try {
         if (reset) {
           setLoading(true);
@@ -337,7 +337,7 @@ export default function NewsPage() {
           console.warn('Cache clearing failed:', cacheError);
         }
 
-        const currentPage = reset ? 1 : page;
+        const currentPage = typeof customPage === 'number' ? customPage : (reset ? 1 : page);
         const effectiveLimit = customLimit ?? ITEMS_PER_PAGE;
         const params = new URLSearchParams({
           status: "published",
@@ -404,7 +404,7 @@ export default function NewsPage() {
 
           if (reset) {
             setArticles(regularArticles);
-            setPage(1);
+            setPage(currentPage);
           } else {
             setArticles((prev) => [...prev, ...regularArticles]);
           }
@@ -524,7 +524,7 @@ export default function NewsPage() {
 
   useEffect(() => {
     // جلب سريع أولي لـ 16 عنصر لظهور فوري، ثم يمكن للمستخدم تحميل المزيد
-    fetchArticles(true, 16);
+    fetchArticles(true, 16, 1);
   }, [selectedCategory, sortBy]);
 
   useEffect(() => {
@@ -551,7 +551,8 @@ export default function NewsPage() {
         
         // تأخير بسيط ثم جلب الأخبار الجديدة
         setTimeout(() => {
-          fetchArticles(true, 16);
+          // حدّث الصفحة الحالية بدلًا من الرجوع للصفحة الأولى
+          fetchArticles(true, 16, page);
           setLastFetch(Date.now());
         }, 500); // نصف ثانية لضمان مسح الكاش
       }
@@ -562,16 +563,18 @@ export default function NewsPage() {
 
   const loadMore = useCallback(() => {
     if (!loading && !isLoadingMore && hasMore) {
-      setPage((prev) => prev + 1);
-      fetchArticles(false);
+      const nextPage = page + 1;
+      fetchArticles(false, undefined, nextPage);
+      setPage(nextPage);
     }
-  }, [loading, isLoadingMore, hasMore, fetchArticles]);
+  }, [loading, isLoadingMore, hasMore, page, fetchArticles]);
 
   const goToPage = useCallback((p: number) => {
     const target = Math.max(1, p);
+    // اجلب الصفحة المطلوبة مباشرة وتحدّث الحالة
+    fetchArticles(true, ITEMS_PER_PAGE, target);
     setPage(target);
-    fetchArticles(true);
-  }, [fetchArticles]);
+  }, [fetchArticles, ITEMS_PER_PAGE]);
 
   // محسنة مع useMemo
   const getCategoryName = useMemo(
