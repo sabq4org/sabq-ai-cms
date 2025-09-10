@@ -153,7 +153,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   // منع التحميل قبل mount للتجنب hydration errors
   if (!mounted || settingsLoading) {
     return (
-      <header className={`sticky top-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md supports-[backdrop-filter]:bg-transparent ${className}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md supports-[backdrop-filter]:bg-transparent ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
@@ -176,7 +176,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     <>
       {/* الهيدر الرئيسي */}
       <header 
-        className={`sticky top-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md ${className}`}
+        className={`fixed top-0 left-0 right-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md ${className}`}
         style={{
           backgroundColor: 'transparent',
           borderColor: 'transparent',
