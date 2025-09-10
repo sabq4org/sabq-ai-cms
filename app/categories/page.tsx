@@ -315,8 +315,7 @@ export default function CategoriesPage() {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        cache: "force-cache",
-        next: { revalidate: 300 },
+        cache: "no-store",
       });
 
       console.log("📄 استجابة API:", {
@@ -847,7 +846,7 @@ export default function CategoriesPage() {
                             href={`/categories/${categorySlug}`}
                             className="group"
                           >
-                            <div className="relative bg-gray-800 dark:bg-gray-800 rounded-xl shadow-md overflow-hidden h-64">
+                            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden h-64 border border-[#f0f0ef]">
                               {/* Background Image */}
                               <div className="absolute inset-0 bg-gray-700">
                                 <SafeImage
@@ -858,8 +857,8 @@ export default function CategoriesPage() {
                                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                   fallbackType="category"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/30 backdrop-blur-[2px]"></div>
-                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/60 to-transparent pointer-events-none"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"></div>
+                                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 via-black/20 to-transparent pointer-events-none"></div>
                               </div>
 
                               {/* Content */}
