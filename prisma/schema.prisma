@@ -188,6 +188,7 @@ model articles {
   @@index([article_type])
   @@index([content_type])
   @@index([tags])
+  @@index([slug, status], map: "idx_articles_slug_status")
 }
 
 model audio_episodes {

@@ -57,6 +57,25 @@ export default function ArticleBody({ html, article, hiddenImageUrls = [] }: Pro
         }
       }
     }
+    // تحويل صور المحتوى: Cloudinary f_auto,q_auto:eco,w_1200 للصور الكبيرة، وإضافة lazy
+    try {
+      // إضافة loading="lazy" لكل img بلا loading
+      c = c.replace(/<img(?![^>]*\bloading=)[^>]*>/gi, (tag) => {
+        return tag.replace(/<img/i, '<img loading="lazy" decoding="async"');
+      });
+      // حقن تحويل Cloudinary بسيط إذا لم توجد تحويلات
+      c = c.replace(/<img([^>]+)src=["']([^"']+)["']([^>]*)>/gi, (m, pre, src, post) => {
+        try {
+          if (!src.includes('res.cloudinary.com') || !src.includes('/upload/')) return m;
+          if(/\/upload\/(c_|w_|f_|q_|g_)/.test(src)) return m;
+          const parts = src.split('/upload/');
+          if (parts.length !== 2) return m;
+          const tx = 'f_auto,q_auto:eco,w_1200';
+          const newSrc = `${parts[0]}/upload/${tx}/${parts[1]}`;
+          return `<img${pre}src="${newSrc}"${post}>`;
+        } catch { return m; }
+      });
+    } catch {}
     return c;
   }, [html, hiddenImageUrls]);
   

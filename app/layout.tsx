@@ -106,6 +106,7 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         {/* تمت إزالة سكربتات إصلاحات الإنتاج لمنع أخطاء التنفيذ في المتصفح */}
         {/* تمرير بيانات المستخدم إلى العميل */}
         {initialUser && (

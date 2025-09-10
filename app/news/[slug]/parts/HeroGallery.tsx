@@ -16,7 +16,8 @@ function transformCloudinary(url: string, width: number): string {
     if (parts.length !== 2) return url;
     // إذا كانت التحويلات موجودة بالفعل، نعيد الرابط كما هو
     if (/\/upload\/(c_|w_|f_|q_|g_)/.test(url)) return url;
-    const tx = `f_auto,q_auto,w_${width}`;
+    const quality = width <= 800 ? 'q_auto:eco' : 'q_auto';
+    const tx = `f_auto,${quality},w_${width}`;
     return `${parts[0]}/upload/${tx}/${parts[1]}`;
   } catch { return url; }
 }
@@ -43,7 +44,7 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
           isPortrait && "bg-gray-50 dark:bg-gray-900"
         )}>
           <Image
-            src={transformCloudinary(img.url, 1600)}
+            src={transformCloudinary(img.url, 1280)}
             alt={img.alt || "صورة الخبر"}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1200px"
