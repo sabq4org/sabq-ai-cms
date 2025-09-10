@@ -153,7 +153,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   // منع التحميل قبل mount للتجنب hydration errors
   if (!mounted || settingsLoading) {
     return (
-      <header className={`sticky top-0 z-50 w-full border-b border-white/30 dark:border-white/10 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md supports-[backdrop-filter]:bg-white/40 dark:supports-[backdrop-filter]:bg-gray-900/40 ${className}`}>
+      <header className={`sticky top-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md supports-[backdrop-filter]:bg-transparent ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
@@ -176,14 +176,10 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     <>
       {/* الهيدر الرئيسي */}
       <header 
-        className={`sticky top-0 z-50 w-full border-b backdrop-blur ${className}`}
+        className={`sticky top-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md ${className}`}
         style={{
-          backgroundColor: currentTheme.isDefault 
-            ? (darkMode ? 'rgba(17, 24, 39, 0.85)' : 'rgba(229, 231, 235, 0.95)') 
-            : `${currentTheme.color}15`,
-          borderColor: currentTheme.isDefault 
-            ? (darkMode ? 'rgb(55, 65, 81)' : 'rgb(229, 231, 235)') 
-            : `${currentTheme.color}30`,
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
           backdropFilter: 'blur(8px)'
         }}
       >
