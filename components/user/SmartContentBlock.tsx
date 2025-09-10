@@ -111,7 +111,7 @@ export default function SmartContentBlock({
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 ثوانٍ
 
       // توحيد المصدر مع النسخة الكاملة/الخفيفة لضمان نفس القائمة
-      const response = await fetch('/api/news/latest?limit=15', {
+      const response = await fetch('/api/news/latest?limit=20', {
         signal: controller.signal,
         cache: 'no-store',
         headers: { 'Accept': 'application/json' }
@@ -120,7 +120,7 @@ export default function SmartContentBlock({
 
       if (response.ok) {
         const data = await response.json();
-        const base = (data.articles || data.data || []).slice(0, 15);
+        const base = (data.articles || data.data || []).slice(0, 20);
         const enriched: Article[] = base.map((article: any) => {
           const rawImage = (
             article.image ||
@@ -383,10 +383,10 @@ export default function SmartContentBlock({
         {isLoading ? (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '20px'
           }}>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {Array.from({ length: 20 }).map((_, i) => (
               <div key={i} style={{
                 background: 'hsl(var(--bg-elevated))',
                 border: '1px solid hsl(var(--line) / 0.6)',
@@ -421,7 +421,7 @@ export default function SmartContentBlock({
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '20px'
           }}>
             {articles.slice(0, 20).map((article) => (
