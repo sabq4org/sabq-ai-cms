@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { useMemo } from "react";
+import data from "@emoji-mart/data";
 import { uploadImageWithFallback } from "@/lib/safe-upload";
 
 import {
@@ -65,21 +66,13 @@ export default function EditorToolbar({
   const albumInputRef = useRef<HTMLInputElement | null>(null);
   const [albumUploading, setAlbumUploading] = useState(false);
 
-  // منتقي الإيموجي المدمج (بدون تبعيات خارجية)
-  const [emojiSearch, setEmojiSearch] = useState("");
-  const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
-  const emojiMenuRef = useRef<HTMLDivElement | null>(null);
-  const EMOJIS = useMemo(
-    () => [
-      "😀","😁","😂","🤣","😃","😄","😅","😆","😉","😊","😋","😎","😍","😘","🥰","😗","😙","😚","🙂","🤗","🤩","🤔","🤨","😐","😑","😶","🙄","😏","😣","😥","😮","🤐","😯","😪","😫","🥱","😴","😌","😛","😜","😝","🤤","😒","😓","😔","😕","🙃","🤑","😲","☹️","🙁","😖","😞","😟","😤","😢","😭","😦","😧","😨","😩","🤯","😬","😰","😱","🥵","🥶","😳","🤪","😵","🥴","😠","😡","🤬","😷","🤒","🤕","🤢","🤮","🤧","🥳","😇","🤠","🤡","👻","💀","👽","🤖","🎃","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝",
-    ],
+  // منتقي الإيموجي الكامل عبر emoji-mart
+  const EmojiPicker = useMemo(
+    () => dynamic(() => import("emoji-mart").then((m: any) => m.Picker), { ssr: false }),
     []
   );
-  const filteredEmojis = useMemo(() => {
-    if (!emojiSearch) return EMOJIS;
-    // بحث بسيط: يعتمد على اسم قصير محتمل أو تجاهل وإرجاع نفس القائمة
-    return EMOJIS.filter(() => true);
-  }, [EMOJIS, emojiSearch]);
+  const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
+  const emojiMenuRef = useRef<HTMLDivElement | null>(null);
 
   // إغلاق القائمة عند الضغط خارجها
   useEffect(() => {
@@ -508,35 +501,26 @@ export default function EditorToolbar({
           {showEmojiPicker && (
             <div
               ref={emojiMenuRef}
-              className={`absolute top-full mt-1 right-0 z-50 w-56 rounded-lg shadow-lg border ${
-                darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-              } p-2`}
+              className="absolute top-full mt-1 right-0 z-50"
+              style={{ width: 320 }}
             >
-              <input
-                value={emojiSearch}
-                onChange={(e) => setEmojiSearch(e.target.value)}
-                placeholder="ابحث عن إيموجي..."
-                className={`w-full mb-2 px-2 py-1 text-sm rounded border ${
-                  darkMode ? "bg-gray-700 border-gray-600 text-gray-200" : "bg-white border-gray-300"
-                }`}
+              {/* @ts-ignore */}
+              <EmojiPicker
+                data={data as any}
+                onEmojiSelect={(e: any) => {
+                  const value = e?.native || e?.shortcodes || e?.id;
+                  if (value) {
+                    editor.chain().focus().insertContent(value).run();
+                  }
+                  setShowEmojiPicker(false);
+                }}
+                locale="ar"
+                theme={darkMode ? "dark" : "light"}
+                navPosition="top"
+                previewPosition="none"
+                skinTonePosition="none"
+                searchPosition="sticky"
               />
-              <div className="grid grid-cols-8 gap-1 max-h-44 overflow-auto pr-1">
-                {filteredEmojis.map((emo, idx) => (
-                  <button
-                    key={`${emo}-${idx}`}
-                    onClick={() => {
-                      editor.chain().focus().insertContent(emo).run();
-                      setShowEmojiPicker(false);
-                    }}
-                    className={`h-7 w-7 rounded flex items-center justify-center hover:bg-gray-100 ${
-                      darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                    }`}
-                    title={emo}
-                  >
-                    <span className="text-base">{emo}</span>
-                  </button>
-                ))}
-              </div>
             </div>
           )}
         </div>
