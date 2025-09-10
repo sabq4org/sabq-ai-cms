@@ -63,24 +63,34 @@ class UnifiedFeaturedManager {
   /**
    * منطق موحد لجلب الأخبار المميزة مع fallback ذكي
    */
-  async getFeaturedArticles(limit: number = 3, format: string = 'full'): Promise<FeaturedResponse> {
-    const cacheKey = `unified-featured:v1:${limit}:${format}`;
+  async getFeaturedArticles(
+    limit: number = 3,
+    format: string = 'full',
+    options?: { strictOnlyFeatured?: boolean; noCache?: boolean }
+  ): Promise<FeaturedResponse> {
+    const strict = Boolean(options?.strictOnlyFeatured);
+    const noCache = Boolean(options?.noCache);
+    const cacheKey = `unified-featured:v1:${limit}:${format}:${strict ? 'strict' : 'auto'}`;
     
-    // 1. فحص memory cache
-    const memCached = this.memoryCache.get(cacheKey);
-    if (memCached && Date.now() - memCached.timestamp < this.MEMORY_TTL) {
-      return { ...memCached.data, cached: true };
+    // 1. فحص memory cache (إلا إذا تم طلب noCache)
+    if (!noCache) {
+      const memCached = this.memoryCache.get(cacheKey);
+      if (memCached && Date.now() - memCached.timestamp < this.MEMORY_TTL) {
+        return { ...memCached.data, cached: true };
+      }
     }
 
-    // 2. فحص Redis cache
-    try {
-      const redisCached = await redis.get<FeaturedResponse>(cacheKey);
-      if (redisCached) {
-        this.memoryCache.set(cacheKey, { data: redisCached, timestamp: Date.now() });
-        return { ...redisCached, cached: true };
+    // 2. فحص Redis cache (إلا إذا تم طلب noCache)
+    if (!noCache) {
+      try {
+        const redisCached = await redis.get<FeaturedResponse>(cacheKey);
+        if (redisCached) {
+          this.memoryCache.set(cacheKey, { data: redisCached, timestamp: Date.now() });
+          return { ...redisCached, cached: true };
+        }
+      } catch (error) {
+        console.warn('Redis cache error in UnifiedFeaturedManager:', error);
       }
-    } catch (error) {
-      console.warn('Redis cache error in UnifiedFeaturedManager:', error);
     }
 
     // 3. جلب البيانات من قاعدة البيانات
@@ -133,7 +143,7 @@ class UnifiedFeaturedManager {
       }
     };
 
-    // جلب المقالات المميزة أولاً
+    // جلب المقالات المميزة أولاً (دائمًا)
     const featuredArticles = await prisma.articles.findMany({
       where: {
         ...baseWhere,
@@ -155,19 +165,21 @@ class UnifiedFeaturedManager {
     let articlesToReturn = featuredArticles;
     let source: 'featured' | 'latest' = 'featured';
 
-    // إذا لم توجد مقالات مميزة حديثة، استخدم آخر المقالات
-    if (!featuredArticles.length || !hasRecentFeatured) {
-      console.log('🔄 [UnifiedFeaturedManager] No recent featured articles, using latest articles');
-      
-      articlesToReturn = await prisma.articles.findMany({
-        where: baseWhere,
-        select: baseSelect,
-        orderBy: {
-          published_at: "desc",
-        },
-        take: limit * 2,
-      });
-      source = 'latest';
+    // إذا طُلِب strictOnlyFeatured نتجاهل fallback إلى latest ونُبقي فقط المميزة (حتى لو قديمة)
+    if (!strict) {
+      // وضع تلقائي: fallback إلى آخر الأخبار إذا لا توجد مميزة حديثة
+      if (!featuredArticles.length || !hasRecentFeatured) {
+        console.log('🔄 [UnifiedFeaturedManager] No recent featured articles, using latest articles');
+        articlesToReturn = await prisma.articles.findMany({
+          where: baseWhere,
+          select: baseSelect,
+          orderBy: {
+            published_at: "desc",
+          },
+          take: limit * 2,
+        });
+        source = 'latest';
+      }
     }
 
     // تصفية وتنسيق البيانات
@@ -182,14 +194,15 @@ class UnifiedFeaturedManager {
       cached: false,
     };
 
-    // حفظ في Cache
-    try {
-      await redis.set(cacheKey, responseData, this.REDIS_TTL);
-    } catch (error) {
-      console.warn('Failed to save to Redis cache:', error);
+    // حفظ في Cache ما لم يُطلب noCache
+    if (!noCache) {
+      try {
+        await redis.set(cacheKey, responseData, this.REDIS_TTL);
+      } catch (error) {
+        console.warn('Failed to save to Redis cache:', error);
+      }
+      this.memoryCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
     }
-    
-    this.memoryCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
 
     return responseData;
   }

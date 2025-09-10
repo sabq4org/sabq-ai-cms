@@ -79,11 +79,16 @@ export default function EnhancedFeaturedLoader({
         // اطلب مقالات مميزة فقط في النسخة الكاملة
         const endpoint = `/api/articles/featured-fast?limit=${limit}&onlyFeatured=1`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
         
         const res = await fetch(endpoint, { 
           signal: controller.signal,
           cache: "no-store", // إزالة الكاش للحصول على أحدث الأخبار
+          headers: {
+            'Cache-Control': 'no-store',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
         });
         
         clearTimeout(timeoutId);

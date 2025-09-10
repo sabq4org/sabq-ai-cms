@@ -9,11 +9,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '3'), 10);
     const onlyFeatured = searchParams.get('onlyFeatured') === '1' || searchParams.get('onlyFeatured') === 'true';
+    const strict = onlyFeatured; // إذا طلب العميل onlyFeatured نفعل الوضع الصارم
+    const noCache = true; // إجبار عدم الكاش لتفادي التذبذب
     
     console.log(`🔄 [Featured Fast API] Using unified system - requested ${limit} articles`);
     
     // استخدام النظام الموحد
-    const result = await UnifiedFeaturedManager.getFeaturedArticles(limit, 'full');
+    const result = await UnifiedFeaturedManager.getFeaturedArticles(limit, 'full', { strictOnlyFeatured: strict, noCache });
     
     // تحويل البيانات لتتوافق مع featured-fast API
     // تصفية اختيارية: إرجاع المميزة فقط عند الطلب
@@ -48,11 +50,11 @@ export async function GET(request: NextRequest) {
     
     // Headers موحدة للتحكم في Cache
     const headers = {
-      "Cache-Control": result.cached 
-        ? "public, max-age=300, s-maxage=600, stale-while-revalidate=1800"
-        : "public, max-age=60, s-maxage=60, stale-while-revalidate=300",
+      "Cache-Control": "no-store",
+      "Pragma": "no-cache",
+      "Expires": "0",
       "Content-Type": "application/json",
-      "X-Cache": result.cached ? "HIT" : "MISS",
+      "X-Cache": "BYPASS",
       "X-Source": result.source,
       "X-Unified-API": "v1",
       "X-Featured-Fast": "true",
