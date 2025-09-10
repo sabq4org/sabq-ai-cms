@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '3'), 10);
+    const onlyFeatured = searchParams.get('onlyFeatured') === '1' || searchParams.get('onlyFeatured') === 'true';
     
     console.log(`🔄 [Featured Fast API] Using unified system - requested ${limit} articles`);
     
@@ -15,7 +16,12 @@ export async function GET(request: NextRequest) {
     const result = await UnifiedFeaturedManager.getFeaturedArticles(limit, 'full');
     
     // تحويل البيانات لتتوافق مع featured-fast API
-    const processedArticles = result.articles.map(article => ({
+    // تصفية اختيارية: إرجاع المميزة فقط عند الطلب
+    const sourceArticles = onlyFeatured
+      ? result.articles.filter(a => a.featured === true)
+      : result.articles;
+
+    const processedArticles = sourceArticles.map(article => ({
       id: article.id,
       title: article.title,
       slug: article.slug,

@@ -76,7 +76,8 @@ export default function EnhancedFeaturedLoader({
     
     const fetchEnhancedArticles = async () => {
       try {
-        const endpoint = `/api/articles/featured-fast?limit=${limit}`;
+        // اطلب مقالات مميزة فقط في النسخة الكاملة
+        const endpoint = `/api/articles/featured-fast?limit=${limit}&onlyFeatured=1`;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 2000);
         
