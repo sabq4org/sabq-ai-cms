@@ -199,7 +199,15 @@ export default function EnhancedFeaturedLoader({
     );
   }
 
-  if (!articles.length) return null;
+  if (!articles.length) {
+    return (
+      <div className="max-w-6xl mx-auto mb-6 px-4 sm:px-6">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-center text-sm text-gray-600 dark:text-gray-300">
+          لا توجد أخبار مميزة حالياً
+        </div>
+      </div>
+    );
+  }
 
   if (showCarousel && articles.length > 1) {
     // Carousel mode for desktop
