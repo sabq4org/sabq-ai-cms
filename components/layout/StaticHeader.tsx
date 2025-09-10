@@ -81,7 +81,7 @@ export function StaticHeader() {
               )}
             </div>
             <div className="text-gray-600 dark:text-gray-400 hidden sm:block">
-              {new Date().toLocaleDateString('ar-SA', {
+              {new Date().toLocaleDateString('ar-SA-u-ca-gregory', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',

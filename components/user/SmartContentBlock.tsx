@@ -173,9 +173,11 @@ export default function SmartContentBlock({
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      calendar: 'gregory',
+      numberingSystem: 'latn'
     };
-    return date.toLocaleDateString('ar-SA', options);
+    return date.toLocaleDateString('ar-SA-u-ca-gregory', options);
   };
 
   const formatViews = (views?: number) => {

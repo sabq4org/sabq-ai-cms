@@ -262,9 +262,11 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   )}
                   <span className="opacity-80">•</span>
                   <span className="opacity-90">
-                    {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA', {
+                    {new Date(currentArticle.published_at || new Date()).toLocaleDateString('ar-SA-u-ca-gregory', {
                       month: 'short',
-                      day: 'numeric'
+                      day: 'numeric',
+                      calendar: 'gregory',
+                      numberingSystem: 'latn'
                     })}
                   </span>
                 </div>

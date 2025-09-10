@@ -50,7 +50,7 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
           {article.published_at && (
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>{new Date(article.published_at).toLocaleDateString('ar-SA')}</span>
+              <span>{new Date(article.published_at).toLocaleDateString('ar-SA-u-ca-gregory', { year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory', numberingSystem: 'latn' })}</span>
             </div>
           )}
           

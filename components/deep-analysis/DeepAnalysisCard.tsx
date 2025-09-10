@@ -43,7 +43,7 @@ interface DeepAnalysisCardProps {
 const formatDate = (dateString?: string) => {
   if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleDateString("ar-SA", {
+  return date.toLocaleDateString("ar-SA-u-ca-gregory", {
     year: "numeric",
     month: "long",
     day: "numeric",

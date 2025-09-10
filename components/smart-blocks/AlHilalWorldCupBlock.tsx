@@ -80,7 +80,7 @@ export function AlHilalWorldCupBlock({
       return `منذ ${hours} ${hours === 1 ? 'ساعة' : 'ساعات'}`;
     }
     
-    return articleDate.toLocaleDateString('ar-SA', {
+    return articleDate.toLocaleDateString('ar-SA-u-ca-gregory', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
