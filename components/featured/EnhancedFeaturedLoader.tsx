@@ -294,11 +294,7 @@ export default function EnhancedFeaturedLoader({
                     </div>
                   </div>
                   
-                  {/* Read More Button - aligned left */}
-                  <div className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 shadow-sm">
-                    <span>اقرأ المزيد</span>
-                    <ArrowLeft className="w-4 h-4" />
-                  </div>
+                  {/* تمت إزالة زر اقرأ المزيد وفقا للطلب */}
                 </div>
               </div>
             </div>

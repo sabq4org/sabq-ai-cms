@@ -10,7 +10,6 @@ import { getArticleLink } from "@/lib/utils";
 import "@/styles/unified-mobile-news.css";
 import {
   AlertTriangle,
-  ArrowLeft,
   Bookmark,
   Clock,
   Eye,
@@ -806,14 +805,7 @@ export default function NewsPage() {
               />
             </div>
 
-            {/* زر اقرأ المزيد */}
-            <Link 
-              href={getArticleLink(news)} 
-              className="read-more-btn"
-            >
-              اقرأ المزيد
-              <ArrowLeft className="w-3 h-3" />
-            </Link>
+            {/* تمت إزالة زر اقرأ المزيد */}
           </div>
         </div>
       </div>
