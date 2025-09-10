@@ -569,7 +569,7 @@ export default function SmartContentBlock({
 
                       {/* المشاهدات (موحّدة مع شعلة >300) */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <ArticleViews count={article.views ?? 0} showLabel={false} size="sm" />
+                        <ArticleViews count={(article as any).views ?? (article as any).views_count ?? 0} showLabel={true} size="sm" />
                       </div>
 
                       {/* وقت القراءة */}
