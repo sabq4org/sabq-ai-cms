@@ -100,7 +100,7 @@ export default function NewsPage() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lastFetch, setLastFetch] = useState(Date.now());
 
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 16;
   const REFRESH_INTERVAL = 20000; // تحديث كل 20 ثانية (أسرع لضمان ظهور الأخبار الجديدة)
 
   // تحسين جلب التصنيفات مع معالجة أفضل للأخطاء والكاش
@@ -523,8 +523,8 @@ export default function NewsPage() {
   }, []);
 
   useEffect(() => {
-    // جلب سريع أولي لـ 8 عناصر لظهور فوري، ثم يمكن للمستخدم تحميل المزيد
-    fetchArticles(true, 8);
+    // جلب سريع أولي لـ 16 عنصر لظهور فوري، ثم يمكن للمستخدم تحميل المزيد
+    fetchArticles(true, 16);
   }, [selectedCategory, sortBy]);
 
   useEffect(() => {
@@ -551,7 +551,7 @@ export default function NewsPage() {
         
         // تأخير بسيط ثم جلب الأخبار الجديدة
         setTimeout(() => {
-          fetchArticles(true, 8);
+          fetchArticles(true, 16);
           setLastFetch(Date.now());
         }, 500); // نصف ثانية لضمان مسح الكاش
       }
@@ -596,7 +596,6 @@ export default function NewsPage() {
   const NewsCard = ({ news }: { news: any }) => {
     const [imageLoading, setImageLoading] = useState(true);
     const isBreaking = Boolean(news.breaking || news.is_breaking || news?.metadata?.breaking);
-    const isFeatured = Boolean(news.featured || news.is_featured);
     const baseBg = isBreaking ? 'hsla(0, 78%, 55%, 0.14)' : 'hsl(var(--bg-elevated))';
     const baseBorder = isBreaking ? '1px solid hsl(0 72% 45% / 0.45)' : '1px solid hsl(var(--line))';
 
@@ -731,21 +730,13 @@ export default function NewsPage() {
             {news.title}
           </h3>
 
-          {/* ليبل مميز/عاجل بعد العنوان */}
-          {(isBreaking || isFeatured) && (
+          {/* ليبل عاجل فقط */}
+          {isBreaking && (
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {isBreaking && (
-                <span className="featured-label breaking">
-                  <span className="icon">⚡</span>
-                  عاجل
-                </span>
-              )}
-              {isFeatured && !isBreaking && (
-                <span className="featured-label featured">
-                  <span className="icon">⭐</span>
-                  مميز
-                </span>
-              )}
+              <span className="featured-label breaking">
+                <span className="icon">⚡</span>
+                عاجل
+              </span>
             </div>
           )}
 
