@@ -400,37 +400,7 @@ export default function NewsPage() {
 
           console.log(`✅ تم جلب ${regularArticles.length} مقال إجمالي`);
 
-          // فحص إضافي: التحقق من البيانات الجديدة لمنع مشكلة كاش المتصفح
-          if (reset && regularArticles && regularArticles.length > 0) {
-            const latestArticleTime = new Date(regularArticles[0].published_at).getTime();
-            const tenMinutesAgo = Date.now() - (10 * 60 * 1000); // آخر 10 دقائق
-            
-            // إذا كان آخر خبر أقدم من 10 دقائق، أجبر إعادة التحميل القوي
-            if (latestArticleTime < tenMinutesAgo && !window.location.search.includes('_forced_reload')) {
-              console.warn('🔄 [News Page] البيانات قديمة جداً - إجبار إعادة التحميل القوي...');
-              
-              // مسح شامل أولاً
-              try {
-                if (typeof window !== 'undefined') {
-                  // مسح localStorage
-                  window.localStorage.clear();
-                  // مسح sessionStorage
-                  window.sessionStorage.clear();
-                  // مسح جميع cookies للدومين
-                  document.cookie.split(";").forEach(c => {
-                    const eqPos = c.indexOf("=");
-                    const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                  });
-                }
-              } catch (e) {}
-              
-              setTimeout(() => {
-                window.location.href = window.location.pathname + '?_forced_reload=' + Date.now() + '&_clear_all=1';
-              }, 500);
-              return;
-            }
-          }
+          // تمت إزالة أي إعادة توجيه لإضافة بارامترات forced_reload/clear_all نهائيًا
 
           if (reset) {
             setArticles(regularArticles);
