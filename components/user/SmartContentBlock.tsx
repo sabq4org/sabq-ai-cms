@@ -468,7 +468,7 @@ export default function SmartContentBlock({
                         src={article.image}
                         alt={article.title}
                         fill
-                        style={{ objectFit: 'contain', background: '#f3f4f6' }}
+                        style={{ objectFit: 'cover', objectPosition: 'center', background: '#f3f4f6' }}
                       />
                     ) : (
                       <div style={{
