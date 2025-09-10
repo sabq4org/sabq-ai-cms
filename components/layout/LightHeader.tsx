@@ -36,6 +36,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   const { user, isLoggedIn, logout } = useAuth();
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   // تحميل اللون المحفوظ عند التحميل
   useEffect(() => {
@@ -45,6 +46,19 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
       setCurrentTheme(theme);
       applyThemeToDOM(theme);
     }
+  }, []);
+
+  // قياس ارتفاع الهيدر وحقنه كمتغير CSS لاستخدامه كإزاحة للمحتوى/الستاتس بار
+  useEffect(() => {
+    const setHeaderHeightVar = () => {
+      try {
+        const h = headerRef.current?.offsetHeight || 56;
+        document.documentElement.style.setProperty('--light-header-height', `${h}px`);
+      } catch {}
+    };
+    setHeaderHeightVar();
+    window.addEventListener('resize', setHeaderHeightVar, { passive: true } as any);
+    return () => window.removeEventListener('resize', setHeaderHeightVar as any);
   }, []);
 
   // إغلاق القوائم عند تغيّر المسار
@@ -153,7 +167,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
   // منع التحميل قبل mount للتجنب hydration errors
   if (!mounted || settingsLoading) {
     return (
-      <header className={`fixed top-0 left-0 right-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md supports-[backdrop-filter]:bg-transparent ${className}`}>
+      <header ref={headerRef} className={`fixed top-0 left-0 right-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md supports-[backdrop-filter]:bg-transparent ${className}`}>
         <div className="container flex h-14 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 animate-pulse" />
@@ -176,6 +190,7 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
     <>
       {/* الهيدر الرئيسي */}
       <header 
+        ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md ${className}`}
         style={{
           backgroundColor: 'transparent',

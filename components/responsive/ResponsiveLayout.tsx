@@ -115,7 +115,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
   // النسخة الخفيفة للهواتف والتابلت
   if (isMobile) {
     return (
-      <div className="min-h-screen" style={{ paddingTop: 'calc(56px + env(safe-area-inset-top, 0px))' }}>
+      <div className="min-h-screen" style={{ paddingTop: 'calc(var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
         {DevIndicator}
         <LightHeader />
         <main 
@@ -124,7 +124,7 @@ export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
             maxWidth: isCategoryPage ? '1400px' : '72rem'
           }}
         >
-          <div data-device="mobile">
+          <div data-device="mobile" className="mobile-content-wrapper">
             {children}
           </div>
         </main>
