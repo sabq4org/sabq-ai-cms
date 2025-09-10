@@ -598,6 +598,12 @@ export default function NewsPage() {
     }
   }, [loading, isLoadingMore, hasMore, fetchArticles]);
 
+  const goToPage = useCallback((p: number) => {
+    const target = Math.max(1, p);
+    setPage(target);
+    fetchArticles(true);
+  }, [fetchArticles]);
+
   // محسنة مع useMemo
   const getCategoryName = useMemo(
     () => (categoryId: number) => {
@@ -1088,32 +1094,24 @@ export default function NewsPage() {
                 </div>
               )}
 
-              {/* Load More */}
-              {hasMore && (
-                <div className="mt-12 text-center">
-                  <button
-                    onClick={loadMore}
-                    disabled={loading || isLoadingMore}
-                    className="inline-flex items-center gap-2 px-8 py-3 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{
-                      backgroundColor: 'var(--theme-primary)',
-                    }}
-                    // تم إزالة تأثيرات hover
-                  >
-                    {loading || isLoadingMore ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        جاري التحميل...
-                      </>
-                    ) : (
-                      <>
-                        عرض المزيد
-                        <ArrowLeft className="w-5 h-5" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
+              {/* Pagination */}
+              <div className="mt-12 flex items-center justify-center gap-2">
+                <button
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page <= 1 || loading}
+                  className="px-4 py-2 rounded border text-sm disabled:opacity-50"
+                >
+                  السابق
+                </button>
+                <span className="px-3 py-2 text-sm text-gray-600 dark:text-gray-300">صفحة {page}</span>
+                <button
+                  onClick={() => goToPage(page + 1)}
+                  disabled={!hasMore || loading}
+                  className="px-4 py-2 rounded border text-sm disabled:opacity-50"
+                >
+                  التالي
+                </button>
+              </div>
             </>
           )}
         </div>
