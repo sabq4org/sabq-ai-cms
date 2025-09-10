@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { Calendar, Clock, User, Eye } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +14,32 @@ interface SimpleArticleClientProps {
 export default function SimpleArticleClient({ article }: SimpleArticleClientProps) {
   const { darkMode } = useDarkModeContext();
   const [imageError, setImageError] = useState(false);
+
+  // تتبع مشاهدة صفحة المقال عند الفتح
+  useEffect(() => {
+    if (!article?.id) return;
+    const controller = new AbortController();
+    const track = async () => {
+      try {
+        await fetch('/api/interactions/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: 'guest',
+            articleId: String(article.id),
+            interactionType: 'view',
+            source: 'article-page'
+          }),
+          keepalive: true,
+          signal: controller.signal
+        });
+      } catch (e) {
+        // تجاهل أخطاء الشبكة المؤقتة
+      }
+    };
+    track();
+    return () => controller.abort();
+  }, [article?.id]);
 
   if (!article) {
     return (

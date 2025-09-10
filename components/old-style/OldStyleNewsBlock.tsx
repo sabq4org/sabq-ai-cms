@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Eye, Clock } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
@@ -48,6 +48,47 @@ export default function OldStyleNewsBlock({
   showExcerpt = false,
   className = ""
 }: OldStyleNewsBlockProps) {
+  // تتبع ظهور البطاقات وإرسال مشاهدة واحدة لكل عنصر
+  const viewedRef = useRef<Set<string>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+
+  const trackView = async (articleId: string) => {
+    try {
+      await fetch('/api/interactions/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 'guest',
+          articleId: String(articleId),
+          interactionType: 'view',
+          source: 'lite-latest-news'
+        })
+      });
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (!articles || articles.length === 0) return;
+    if (observerRef.current) observerRef.current.disconnect();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const el = entry.target as HTMLElement;
+          const id = el.getAttribute('data-article-id');
+          if (id && !viewedRef.current.has(id)) {
+            viewedRef.current.add(id);
+            trackView(id);
+            observer.unobserve(el);
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+    observerRef.current = observer;
+    const nodes = (gridRef.current || document).querySelectorAll('[data-track-view="1"]');
+    nodes.forEach(n => observer.observe(n));
+    return () => observer.disconnect();
+  }, [articles]);
   
   // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
   const isNewsNew = (dateString: string) => {
@@ -129,6 +170,7 @@ export default function OldStyleNewsBlock({
           gridTemplateColumns: `repeat(${columns}, 1fr)`,
           gap: '20px'
         }}
+        ref={gridRef}
       >
         {articles.map((article, index) => (
           <Link
@@ -137,6 +179,8 @@ export default function OldStyleNewsBlock({
             prefetch={false}
             className="old-style-news-card"
             style={{ contentVisibility: 'auto', containIntrinsicSize: '300px 220px' as any }}
+            data-track-view="1"
+            data-article-id={String(article.id)}
           >
             {/* صورة المقال */}
             <div className="old-style-news-image-container">

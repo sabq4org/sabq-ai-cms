@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
@@ -45,6 +45,24 @@ export default function SmartContentBlock({
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const { interests, hasInterests } = useUserInterests();
   const { isLoggedIn } = useAuth();
+  const rootGridRef = useRef<HTMLDivElement | null>(null);
+  const viewedRef = useRef<Set<string>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const trackView = async (articleId: string) => {
+    try {
+      await fetch('/api/interactions/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 'guest',
+          articleId: String(articleId),
+          interactionType: 'view',
+          source: 'latest-news-grid'
+        })
+      });
+    } catch {}
+  };
 
   // تحديد النصوص الموحدة للجميع
   const getContentByAuthStatus = () => {
@@ -166,6 +184,28 @@ export default function SmartContentBlock({
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!articles || articles.length === 0) return;
+    if (observerRef.current) observerRef.current.disconnect();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const el = entry.target as HTMLElement;
+          const id = el.getAttribute('data-article-id');
+          if (id && !viewedRef.current.has(id)) {
+            viewedRef.current.add(id);
+            trackView(id);
+            observer.unobserve(el);
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+    observerRef.current = observer;
+    const nodes = (rootGridRef.current || document).querySelectorAll('[data-track-view="1"]');
+    nodes.forEach(n => observer.observe(n));
+    return () => observer.disconnect();
+  }, [articles]);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
@@ -383,7 +423,7 @@ export default function SmartContentBlock({
 
         {/* بطاقات الأخبار */}
         {isLoading ? (
-          <div style={{
+          <div ref={rootGridRef} style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '20px'
@@ -438,7 +478,7 @@ export default function SmartContentBlock({
                   const hoverBg = '#f9fafb';
                   const baseBorder = '1px solid #e5e7eb';
                   return (
-                    <div style={{
+                    <div data-track-view="1" data-article-id={String((article as any).id)} style={{
                       background: baseBg,
                       border: baseBorder,
                       borderRadius: '16px',
