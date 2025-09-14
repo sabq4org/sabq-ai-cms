@@ -260,7 +260,7 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
   return (
     <div className={`max-w-6xl mx-auto ${isCompact ? 'mb-6' : 'mb-8'} ${className}`}>
       <div
-        className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} transition-all duration-300 h-full flex flex-col hover:border-[hsl(var(--accent))]`}
+        className={`relative overflow-hidden border rounded-xl border-[#f0f0ef] dark:border-gray-700 ${isCompact ? 'p-3' : 'p-5'} h-full flex flex-col`}
         style={{ background: darkMode ? 'hsl(var(--bg-elevated))' : (accentActive ? 'hsl(var(--accent) / 0.06)' : '#ffffff') }}
       >
       {/* خط جانبي ملون ديناميكي */}
@@ -303,13 +303,13 @@ export default function SmartInsightsWidget({ variant = 'default', className = '
 
       {/* المؤشر الحالي - flex-1 ليملأ المساحة */}
       <div className="flex-1 flex flex-col">
-        <Link href={`/news/${currentInsight.slug}`} className="block group flex-1">
+        <Link href={`/news/${currentInsight.slug}`} className="block flex-1">
           <div className="space-y-3 h-full flex flex-col">
             {/* العنوان مع المؤشر */}
             <div className="flex items-start gap-3">
               <span className={`${isCompact ? 'text-xl' : 'text-2xl'} leading-none`}>{config.icon}</span>
               <div className="flex-1 min-w-0">
-                <h3 className={`${isCompact ? 'text-sm' : 'text-base'} font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-3 transition-colors leading-relaxed`}>
+                <h3 className={`${isCompact ? 'text-sm' : 'text-base'} font-semibold text-slate-800 dark:text-slate-200 line-clamp-3 leading-relaxed`}>
                   {currentInsight.title}
                 </h3>
               </div>
