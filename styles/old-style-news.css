@@ -189,6 +189,23 @@
   text-overflow: ellipsis;
 }
 
+/* فرض لون العنوان داخل روابط البطاقة إن وجدت */
+.old-style-news-card a .old-style-news-card-title,
+.old-style-news-card:link .old-style-news-card-title,
+.old-style-news-card:visited .old-style-news-card-title,
+.old-style-news-card:hover .old-style-news-card-title,
+.old-style-news-card:active .old-style-news-card-title {
+  color: #111827 !important;
+}
+
+.dark .old-style-news-card a .old-style-news-card-title,
+.dark .old-style-news-card:link .old-style-news-card-title,
+.dark .old-style-news-card:visited .old-style-news-card-title,
+.dark .old-style-news-card:hover .old-style-news-card-title,
+.dark .old-style-news-card:active .old-style-news-card-title {
+  color: #f9fafb !important;
+}
+
 /* تم إزالة تأثير hover من عنوان الخبر */
 
 /* الشريط السفلي: المشاهدات ومدة القراءة */
