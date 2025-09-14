@@ -142,11 +142,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   {article.published_at && (
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      <span>{new Intl.DateTimeFormat('ar-SA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      }).format(new Date(article.published_at))}</span>
+                      <span>{new Date(article.published_at).toLocaleDateString('ar-SA-u-ca-gregory', { year: 'numeric', month: 'long', day: 'numeric', calendar: 'gregory', numberingSystem: 'latn' })}</span>
                     </div>
                   )}
                   {/* إخفاء الوقت على الموبايل */}
