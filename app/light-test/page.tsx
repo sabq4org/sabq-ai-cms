@@ -3,7 +3,7 @@ import EnhancedMuqtarabBlock from '@/components/home/EnhancedMuqtarabBlock';
 
 export default function LightTestPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{ paddingTop: 'calc(var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
       {/* الهيدر الخفيف */}
       <LightHeader />
       

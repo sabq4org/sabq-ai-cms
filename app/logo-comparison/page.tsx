@@ -3,7 +3,7 @@ import LightHeader from '@/components/layout/LightHeader';
 
 export default function LogoComparisonPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" style={{ paddingTop: 'calc(var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
       {/* مقارنة الهيدر */}
       <div className="mb-8">
         <div className="mb-4 p-4 bg-white dark:bg-gray-800 border-b">

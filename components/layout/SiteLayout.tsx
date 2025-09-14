@@ -75,27 +75,37 @@ export default function SiteLayout({
   return (
     <div style={{ backgroundColor: '#f8f8f7', minHeight: '100vh' }}>
       <Providers>
-        {/* الهيدر حسب نوع الجهاز */}
-        {isMobile ? <LightHeader /> : (
-          <div style={{ paddingTop: '72px', position: 'relative' }}>
-            <UserHeader />
+        {/* الهيدر + إزاحة المحتوى حسب نوع الجهاز */}
+        {isMobile ? (
+          <div style={{ paddingTop: 'calc(var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
+            <LightHeader />
+            {/* المحتوى الرئيسي للموبايل مع الإزاحة الصحيحة */}
+            <main style={{
+              maxWidth: isExperimentalArticle ? '100%' : (isCategoryPage ? '1400px' : '72rem'),
+              margin: '0 auto',
+              padding: isExperimentalArticle ? '0' : (isCategoryPage ? '4px' : '16px 24px 24px 24px'),
+              minHeight: 'calc(100vh - 200px)'
+            }}>
+              {children}
+            </main>
           </div>
+        ) : (
+          <>
+            <div style={{ paddingTop: '72px', position: 'relative' }}>
+              <UserHeader />
+            </div>
+            {/* المحتوى الرئيسي للديسكتوب */}
+            <main style={{
+              maxWidth: isExperimentalArticle ? '100%' : (isCategoryPage ? '1400px' : '72rem'),
+              margin: '0 auto',
+              padding: isExperimentalArticle ? '0' : (isCategoryPage ? '0 8px' : '16px 24px'),
+              minHeight: 'calc(100vh - 200px)',
+              paddingTop: '16px'
+            }}>
+              {children}
+            </main>
+          </>
         )}
-        
-        {/* المحتوى الرئيسي */}
-        <main style={{
-          maxWidth: isExperimentalArticle ? '100%' : (isCategoryPage ? '1400px' : '72rem'),
-          margin: '0 auto',
-          padding: isExperimentalArticle
-            ? (isMobile ? '0' : '0')
-            : (isMobile 
-                ? (isCategoryPage ? '4px' : '16px 24px 24px 24px')
-                : (isCategoryPage ? '0 8px' : '16px 24px')),
-          minHeight: 'calc(100vh - 200px)',
-          ...(isMobile || isExperimentalArticle ? {} : { paddingTop: '16px' })
-        }}>
-          {children}
-        </main>
         
         {/* فوتر واحد فقط */}
         <FooterGate>
