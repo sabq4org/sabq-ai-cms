@@ -2,6 +2,7 @@
 import { useMemo, useRef, useState } from "react";
 import { BarChart, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2, Tag, Heart } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useAuth } from "@/hooks/useAuth";
 
 const PersonalizedForYou = dynamic(() => import("./PersonalizedForYou"), {
   ssr: false,
@@ -26,6 +27,7 @@ type Insights = {
 
 export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; categories?: { name: string } | null; tags?: any[]; likes?: number; shares?: number; saves?: number } }) {
   const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
+  const { user, isLoggedIn } = useAuth();
   
   // تسجيل للتحقق من البيانات
   // تعطيل سجلات المتصفح في الإنتاج
@@ -37,6 +39,69 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // حالات التفاعل: إعجاب/حفظ/مشاركة
+  const [likeCount, setLikeCount] = useState<number>(article.likes || 0);
+  const [saveCount, setSaveCount] = useState<number>(article.saves || 0);
+  const [shareCount, setShareCount] = useState<number>(article.shares || 0);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [saved, setSaved] = useState<boolean>(false);
+  const [likeLoading, setLikeLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+
+  const trackInteraction = async (type: 'like' | 'unlike' | 'save' | 'unsave' | 'share') => {
+    try {
+      await fetch('/api/interactions/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: isLoggedIn ? (user?.id || 'guest') : 'guest',
+          articleId: String(article.id),
+          interactionType: type,
+          source: 'sticky-insights-panel'
+        }),
+        keepalive: true
+      });
+    } catch {}
+  };
+
+  const onToggleLike = async () => {
+    if (likeLoading) return;
+    setLikeLoading(true);
+    const next = !liked;
+    setLiked(next);
+    setLikeCount((c) => c + (next ? 1 : -1));
+    await trackInteraction(next ? 'like' : 'unlike');
+    setLikeLoading(false);
+  };
+
+  const onToggleSave = async () => {
+    if (saveLoading) return;
+    setSaveLoading(true);
+    const next = !saved;
+    setSaved(next);
+    setSaveCount((c) => c + (next ? 1 : -1));
+    await trackInteraction(next ? 'save' : 'unsave');
+    setSaveLoading(false);
+  };
+
+  const onShare = async () => {
+    if (shareLoading) return;
+    setShareLoading(true);
+    try {
+      const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+      const title = typeof document !== 'undefined' ? document.title : 'سبق';
+      if (navigator.share) {
+        await navigator.share({ title, url: shareUrl });
+      } else if (navigator.clipboard && shareUrl) {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+    } catch {}
+    await trackInteraction('share');
+    setShareCount((c) => c + 1);
+    setShareLoading(false);
+  };
 
   const loadOrToggleAudio = async () => {
     // إذا كان لدينا رابط بالفعل، بدّل التشغيل/الإيقاف
@@ -130,9 +195,26 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       {/* إجراءات */}
       <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
         <div className="grid grid-cols-3 gap-2">
-          <ActionBtn icon={<Heart className="w-4 h-4" />} label="إعجاب" />
-          <ActionBtn icon={<Bookmark className="w-4 h-4" />} label="حفظ" />
-          <ActionBtn icon={<Share2 className="w-4 h-4" />} label="مشاركة" />
+          <ActionBtn 
+            icon={<Heart className="w-4 h-4" />} 
+            label={`إعجاب${likeCount ? ` · ${likeCount}` : ''}`} 
+            active={liked}
+            disabled={likeLoading}
+            onClick={onToggleLike}
+          />
+          <ActionBtn 
+            icon={<Bookmark className="w-4 h-4" />} 
+            label={`حفظ${saveCount ? ` · ${saveCount}` : ''}`} 
+            active={saved}
+            disabled={saveLoading}
+            onClick={onToggleSave}
+          />
+          <ActionBtn 
+            icon={<Share2 className="w-4 h-4" />} 
+            label={`مشاركة${shareCount ? ` · ${shareCount}` : ''}`} 
+            disabled={shareLoading}
+            onClick={onShare}
+          />
         </div>
       </div>
       
@@ -210,10 +292,18 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ActionBtn({ icon, label }: { icon: React.ReactNode; label: string }) {
+function ActionBtn({ icon, label, onClick, active, disabled }: { icon: React.ReactNode; label: string; onClick?: () => void; active?: boolean; disabled?: boolean }) {
+  const base = "inline-flex items-center justify-center gap-1 rounded-xl border px-3 py-2 text-sm transition-all hover:scale-105";
+  const theme = active
+    ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
+    : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 hover:bg-blue-50 dark:hover:bg-blue-900/20";
+  const disabledCls = disabled ? "opacity-60 cursor-not-allowed hover:scale-100" : "";
   return (
     <button 
-      className="inline-flex items-center justify-center gap-1 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm transition-all hover:scale-105 text-neutral-900 dark:text-neutral-100 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+      onClick={disabled ? undefined : onClick}
+      className={`${base} ${theme} ${disabledCls}`}
+      disabled={disabled}
+      type="button"
     >
       {icon}
       <span>{label}</span>
