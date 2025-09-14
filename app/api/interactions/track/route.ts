@@ -197,25 +197,71 @@ export async function POST(request: NextRequest) {
     // في بيئة الإنتاج، استخدم قاعدة البيانات
     if (process.env.NODE_ENV === 'production' || process.env.USE_DATABASE === 'true') {
       try {
-        // تسجيل التفاعل في قاعدة البيانات
-        const interaction = await prisma.interactions.upsert({
-          where: {
-            user_id_article_id_type: {
-              user_id: userId,
-              article_id: articleId,
-              type: interactionType
+        // معالجة أنواع un* بإزالة التفاعل المقابل
+        if (interactionType === 'unlike' || interactionType === 'unsave') {
+          const baseType = interactionType === 'unlike' ? 'like' : 'save';
+          const del = await prisma.interactions.deleteMany({
+            where: { user_id: userId, article_id: articleId, type: baseType as any }
+          });
+          // تقليل العدادات إذا كان هناك حذف فعلي
+          if (del.count > 0) {
+            if (baseType === 'like') {
+              await prisma.articles.update({
+                where: { id: articleId },
+                data: { likes: { decrement: 1 } }
+              });
+            } else if (baseType === 'save') {
+              await prisma.articles.update({
+                where: { id: articleId },
+                data: { saves: { decrement: 1 } }
+              });
             }
-          },
-          update: {
-            created_at: new Date()
-          },
-          create: {
-            id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            user_id: userId,
-            article_id: articleId,
-            type: interactionType
           }
-        });
+        } else {
+          // تسجيل التفاعل (مع منع التكرار لlike/save)
+          if (interactionType === 'like' || interactionType === 'save') {
+            const exists = await prisma.interactions.findFirst({
+              where: { user_id: userId, article_id: articleId, type: interactionType as any }
+            });
+            if (!exists) {
+              await prisma.interactions.create({
+                data: {
+                  id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                  user_id: userId,
+                  article_id: articleId,
+                  type: interactionType as any
+                }
+              });
+              if (interactionType === 'like') {
+                await prisma.articles.update({ where: { id: articleId }, data: { likes: { increment: 1 } } });
+              } else if (interactionType === 'save') {
+                await prisma.articles.update({ where: { id: articleId }, data: { saves: { increment: 1 } } });
+              }
+            }
+          } else if (interactionType === 'share') {
+            await prisma.interactions.create({
+              data: {
+                id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                user_id: userId,
+                article_id: articleId,
+                type: interactionType as any
+              }
+            });
+            await prisma.articles.update({ where: { id: articleId }, data: { shares: { increment: 1 } } });
+          } else if (interactionType === 'view') {
+            // سيتم تحديث المشاهدات لاحقًا في الأسفل (موجود مسبقًا)
+          } else {
+            // أنواع أخرى (comment/read ...)
+            await prisma.interactions.create({
+              data: {
+                id: `interaction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                user_id: userId,
+                article_id: articleId,
+                type: interactionType as any
+              }
+            });
+          }
+        }
         
         // حساب النقاط
         const pointsMap: Record<string, number> = {

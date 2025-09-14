@@ -67,6 +67,12 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
   };
 
   const onToggleLike = async () => {
+    if (!isLoggedIn) {
+      try {
+        window.location.href = `/login?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname + window.location.search + window.location.hash : '/')}`;
+      } catch {}
+      return;
+    }
     if (likeLoading) return;
     setLikeLoading(true);
     const next = !liked;
@@ -77,6 +83,12 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
   };
 
   const onToggleSave = async () => {
+    if (!isLoggedIn) {
+      try {
+        window.location.href = `/login?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname + window.location.search + window.location.hash : '/')}`;
+      } catch {}
+      return;
+    }
     if (saveLoading) return;
     setSaveLoading(true);
     const next = !saved;
