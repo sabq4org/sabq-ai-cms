@@ -2,9 +2,10 @@
 
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Eye, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import CloudImage from '@/components/ui/CloudImage';
 import { processArticleImage } from '@/lib/image-utils';
+import ArticleViews from '@/components/ui/ArticleViews';
 
 interface Article {
   id: number | string;
@@ -228,13 +229,13 @@ export default function OldStyleNewsBlock({
 
               {/* شريط المعلومات السفلي: المشاهدات ومدة القراءة */}
               <div className="old-style-news-bottom-bar">
-                {article.views && (
-                  <div className="old-style-news-meta-item">
-                    <Eye className="old-style-icon" />
-                    <span>{formatViews(article.views)} مشاهدة</span>
-                    {article.views > 300 && <span className="ml-1">🔥</span>}
-                  </div>
-                )}
+                <div className="old-style-news-meta-item">
+                  <ArticleViews 
+                    count={(article as any).views ?? (article as any).views_count ?? (article as any).view_count ?? 0} 
+                    showLabel={true} 
+                    size="xs" 
+                  />
+                </div>
                 
                 {article.reading_time && (
                   <div className="old-style-news-meta-item">
