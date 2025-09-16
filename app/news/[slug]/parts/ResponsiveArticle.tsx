@@ -4,7 +4,6 @@ import Container from "./Container";
 import ArticleBody from "./ArticleBody";
 import FloatingReadButton from "./FloatingReadButton";
 import dynamic from "next/dynamic";
-import CommentsSection from "./CommentsSection";
 import { Calendar, Clock, BookOpen, Eye, Loader2 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -95,6 +94,21 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
   const SmartQuestions = useMemo(() => dynamic(() => import("./SmartQuestions"), {
     ssr: false,
     loading: () => <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 h-40 animate-pulse" />
+  }), []);
+
+  // تحميل قسم التعليقات بشكل كسول لتقليل زمن العرض الأولي
+  const LazyCommentsSection = useMemo(() => dynamic(() => import("./CommentsSection"), {
+    ssr: false,
+    loading: () => (
+      <div className="mt-8">
+        <div className="h-6 w-40 bg-neutral-200 dark:bg-neutral-800 rounded mb-4 animate-pulse" />
+        <div className="space-y-3">
+          <div className="h-20 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+          <div className="h-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+          <div className="h-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+        </div>
+      </div>
+    )
   }), []);
 
   // الصور البارزة فقط للموبايل
@@ -239,8 +253,8 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                 />
               )}
               
-              {/* قسم التعليقات */}
-              <CommentsSection articleId={article.id} articleSlug={slug} />
+              {/* قسم التعليقات (تحميل كسول) */}
+              <LazyCommentsSection articleId={article.id} articleSlug={slug} />
             </section>
             
             {/* البانل الجانبي للشاشات الكبيرة */}
