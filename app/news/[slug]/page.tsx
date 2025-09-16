@@ -3,7 +3,8 @@ import { Metadata } from "next";
 import { getSiteUrl } from "@/lib/url-builder";
 import ResponsiveArticle from "./parts/ResponsiveArticle";
 import prisma from "@/lib/prisma";
-import { Suspense, cache } from "react";
+import { Suspense } from "react";
+import { unstable_cache } from "next/cache";
 import ArticleSkeleton from "./components/ArticleSkeleton";
 
 export const revalidate = 300;
@@ -27,7 +28,7 @@ type Insights = {
 
 
 
-const getInsights = cache(async function getInsights(articleId: string): Promise<Insights> {
+const getInsights = async function getInsights(articleId: string): Promise<Insights> {
   try {
     const [articleAgg, sessionsAgg, readsCompletedCount, commentsCount] = await Promise.all([
       prisma.articles.findFirst({
@@ -84,9 +85,9 @@ const getInsights = cache(async function getInsights(articleId: string): Promise
       },
     };
   }
-});
+};
 
-const getArticle = cache(async function getArticle(slug: string) {
+const getArticle = async function getArticle(slug: string) {
   const decodedSlug = decodeURIComponent(slug);
   
   let article = await prisma.articles.findFirst({
@@ -196,7 +197,7 @@ const getArticle = cache(async function getArticle(slug: string) {
   }
   
   return article;
-});
+};
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -220,10 +221,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function NewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = await getArticle(slug);
+  // كاش المقال بعلامات تسمح بإعادة التحقق عند النشر
+  const getArticleCached = unstable_cache(
+    async (s: string) => getArticle(s),
+    ["news-article", slug],
+    { tags: [
+      `article:${slug}`,
+      "articles",
+      "news",
+    ], revalidate: 300 }
+  );
+
+  const article = await getArticleCached(slug);
   if (!article) return notFound();
 
-  const insights = await getInsights(article.id);
+  // كاش الإحصاءات بعلامة مستقلة
+  const getInsightsCached = unstable_cache(
+    async (id: string) => getInsights(id),
+    ["article-insights", article.id],
+    { tags: [
+      `article-insights:${article.id}`,
+      `article:${slug}`,
+      "news",
+    ], revalidate: 300 }
+  );
+
+  const insights = await getInsightsCached(article.id);
 
   return (
     <Suspense fallback={<ArticleSkeleton />}>

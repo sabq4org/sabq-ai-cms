@@ -1,4 +1,5 @@
 import prisma, { ensureDbConnected, retryWithConnection } from "@/lib/prisma";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getCachedCategories } from "@/lib/cache-utils";
 import { FeaturedArticleManager } from "@/lib/services/featured-article-manager";
 import { NextResponse } from "next/server";
@@ -140,6 +141,10 @@ export async function GET(
           where: { id: article.id },
           data: { views: { increment: 1 } },
         });
+        try {
+          // إعادة تحقق لعلامات الإحصاءات الخفيفة المرتبطة بهذا المقال
+          revalidateTag(`article-insights:${article.id}`);
+        } catch {}
       }).catch((error) => {
         console.error("⚠️ فشل تحديث المشاهدات:", error);
       });
