@@ -3,6 +3,8 @@ import { Metadata } from "next";
 import { getSiteUrl } from "@/lib/url-builder";
 import ResponsiveArticle from "./parts/ResponsiveArticle";
 import prisma from "@/lib/prisma";
+import { Suspense, cache } from "react";
+import ArticleSkeleton from "./components/ArticleSkeleton";
 
 export const revalidate = 300;
 export const runtime = "nodejs";
@@ -25,7 +27,7 @@ type Insights = {
 
 
 
-async function getInsights(articleId: string): Promise<Insights> {
+const getInsights = cache(async function getInsights(articleId: string): Promise<Insights> {
   try {
     const [articleAgg, sessionsAgg, readsCompletedCount, commentsCount] = await Promise.all([
       prisma.articles.findFirst({
@@ -82,9 +84,9 @@ async function getInsights(articleId: string): Promise<Insights> {
       },
     };
   }
-}
+});
 
-async function getArticle(slug: string) {
+const getArticle = cache(async function getArticle(slug: string) {
   const decodedSlug = decodeURIComponent(slug);
   
   let article = await prisma.articles.findFirst({
@@ -194,7 +196,7 @@ async function getArticle(slug: string) {
   }
   
   return article;
-}
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -224,11 +226,13 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
   const insights = await getInsights(article.id);
 
   return (
-    <ResponsiveArticle 
-      article={article}
-      insights={insights}
-      slug={slug}
-    />
+    <Suspense fallback={<ArticleSkeleton />}>
+      <ResponsiveArticle 
+        article={article}
+        insights={insights}
+        slug={slug}
+      />
+    </Suspense>
   );
 }
 
