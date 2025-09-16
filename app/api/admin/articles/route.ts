@@ -217,6 +217,13 @@ export async function POST(request: NextRequest) {
         revalidatePath('/home-v2');
         revalidatePath('/news');
         revalidatePath('/articles');
+        // مسار صفحة الخبر المفرد
+        if (article.slug) {
+          revalidatePath(`/news/${article.slug}`);
+          revalidateTag(`article:${article.slug}`);
+        }
+        // علامات عامة وخاصة
+        revalidateTag(`article:${article.id}`);
         
         // مسح كاش التصنيف إذا كان موجود
         if (article.categories?.slug) {
@@ -227,6 +234,7 @@ export async function POST(request: NextRequest) {
         revalidateTag('articles');
         revalidateTag('news');
         revalidateTag('featured-news');
+        revalidateTag(`article-insights:${article.id}`);
         
         console.log('🔄 تم مسح الكاش بنجاح');
       } catch (cacheError) {
