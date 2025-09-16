@@ -136,7 +136,7 @@ export default function DashboardLayout({
             ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
           }}>
             <div className={cn("fade-in", className)} style={{ 
-              padding: '0 24px',
+              padding: '0 32px',
               maxWidth: '1400px',
               margin: '0 auto',
               width: '100%'
