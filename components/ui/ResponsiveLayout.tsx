@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDarkModeContext } from '@/contexts/DarkModeContext';
 import { 
   Menu, 
@@ -52,6 +53,7 @@ function useMediaQuery(query: string) {
 }
 
 export default function ResponsiveLayout({ children, user, onLogin, onLogout }: ResponsiveLayoutProps) {
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -101,8 +103,10 @@ export default function ResponsiveLayout({ children, user, onLogin, onLogout }: 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // تنفيذ البحث
-      console.log('البحث عن:', searchQuery);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      if (isMobile) {
+        setIsSearchOpen(false);
+      }
     }
   };
 
