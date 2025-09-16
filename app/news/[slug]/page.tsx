@@ -26,20 +26,62 @@ type Insights = {
 
 
 async function getInsights(articleId: string): Promise<Insights> {
-  // بيانات افتراضية أولية - يمكن استبدالها لاحقاً بمصدر فعلي
-  return {
-    views: 0,
-    readsCompleted: 0,
-    avgReadTimeSec: Math.max(60, 60 *  (3)),
-    interactions: { likes: 0, comments: 0, shares: 0 },
-    ai: {
-      shortSummary: "ملخص تجريبي قصير سيتم توليده لاحقاً من خدمة الذكاء الاصطناعي.",
-      sentiment: "محايد",
-      topic: "أخبار عامة",
-      readerFitScore: 60,
-      recommendations: [],
-    },
-  };
+  try {
+    const [articleAgg, sessionsAgg, readsCompletedCount, commentsCount] = await Promise.all([
+      prisma.articles.findFirst({
+        where: { id: articleId },
+        select: { views: true, likes: true, shares: true }
+      }),
+      prisma.user_reading_sessions.aggregate({
+        _avg: { duration_seconds: true },
+        where: { article_id: articleId }
+      }),
+      prisma.user_reading_sessions.count({
+        where: {
+          article_id: articleId,
+          OR: [
+            { read_percentage: { gte: 0.9 as any } },
+            { duration_seconds: { gte: 60 } }
+          ]
+        }
+      }),
+      prisma.comments.count({ where: { article_id: articleId } })
+    ]);
+
+    const views = articleAgg?.views || 0;
+    const likes = articleAgg?.likes || 0;
+    const shares = articleAgg?.shares || 0;
+    const avgReadTimeSec = Math.max(0, Math.round((sessionsAgg._avg as any)?.duration_seconds || 0));
+
+    return {
+      views,
+      readsCompleted: readsCompletedCount || 0,
+      avgReadTimeSec: avgReadTimeSec > 0 ? avgReadTimeSec : 60,
+      interactions: { likes, comments: commentsCount || 0, shares },
+      ai: {
+        shortSummary: "",
+        sentiment: "محايد",
+        topic: "أخبار",
+        readerFitScore: 60,
+        recommendations: [],
+      },
+    };
+  } catch (e) {
+    // في حال أي خطأ، نُرجع قيمًا آمنة بدلاً من التعطّل
+    return {
+      views: 0,
+      readsCompleted: 0,
+      avgReadTimeSec: 60,
+      interactions: { likes: 0, comments: 0, shares: 0 },
+      ai: {
+        shortSummary: "",
+        sentiment: "محايد",
+        topic: "أخبار",
+        readerFitScore: 60,
+        recommendations: [],
+      },
+    };
+  }
 }
 
 async function getArticle(slug: string) {
