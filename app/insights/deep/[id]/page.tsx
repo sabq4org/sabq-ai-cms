@@ -2,7 +2,6 @@
 
 import "@/app/insights/deep/[id]/enhanced-styles.css";
 import "@/app/insights/deep/[id]/mobile-styles.css";
-import Footer from "@/components/Footer";
 import { useDarkModeContext } from "@/contexts/DarkModeContext";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import {
@@ -1641,7 +1640,7 @@ export default function DeepAnalysisPage() {
         )}
       </div>
 
-      <Footer />
+      {/* تمت إزالة Footer المحلي لتجنب التكرار، الفوتر العام يأتي من التخطيط */}
     </>
   );
 }
