@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 // import { useSession } from 'next-auth/react';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -32,6 +32,7 @@ export default function OptimizedHeader() {
   const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
   const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +51,16 @@ export default function OptimizedHeader() {
     { href: '/stats', label: 'الإحصائيات', icon: BarChart },
     { href: '/community', label: 'المجتمع', icon: Users },
   ];
+
+  const handleSubmitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+    if (isMobile || isTablet) {
+      setIsSearchOpen(false);
+    }
+  };
 
   if (isMobile || isTablet) {
     return (
@@ -91,16 +102,18 @@ export default function OptimizedHeader() {
           {/* شريط البحث */}
           {isSearchOpen && (
             <div className="mobile-search-bar">
-              <input
-                type="text"
-                placeholder="ابحث في سبق..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="mobile-search-input"
-              />
-              <button className="mobile-search-submit">
-                <Search size={18} />
-              </button>
+              <form onSubmit={handleSubmitSearch} className="mobile-search-form">
+                <input
+                  type="text"
+                  placeholder="ابحث في سبق..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="mobile-search-input"
+                />
+                <button type="submit" className="mobile-search-submit">
+                  <Search size={18} />
+                </button>
+              </form>
             </div>
           )}
         </div>
@@ -153,7 +166,7 @@ export default function OptimizedHeader() {
             </nav>
 
             {/* خيارات إضافية */}
-            {session && (
+            {user && (
               <div className="mobile-menu-footer">
                 <Link 
                   href="/dashboard" 
@@ -221,7 +234,7 @@ export default function OptimizedHeader() {
           </nav>
 
           {/* شريط البحث */}
-          <div className="desktop-search">
+          <form onSubmit={handleSubmitSearch} className="desktop-search">
             <input
               type="text"
               placeholder="ابحث في سبق..."
@@ -229,14 +242,14 @@ export default function OptimizedHeader() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="desktop-search-input"
             />
-            <button className="desktop-search-btn">
+            <button type="submit" className="desktop-search-btn">
               <Search size={18} />
             </button>
-          </div>
+          </form>
 
           {/* الإجراءات */}
           <div className="desktop-actions">
-            {session ? (
+            {user ? (
               <>
                 <button className="desktop-notification-btn">
                   <Bell size={20} />
@@ -246,8 +259,8 @@ export default function OptimizedHeader() {
                 <div className="desktop-user-menu">
                   <button className="user-menu-trigger">
                     <div className="user-avatar-small">
-                      {session.user?.image ? (
-                        <img src={session.user.image} alt={session.user.name || ''} />
+                      {user.image ? (
+                        <img src={user.image} alt={user.name || ''} />
                       ) : (
                         <User size={18} />
                       )}

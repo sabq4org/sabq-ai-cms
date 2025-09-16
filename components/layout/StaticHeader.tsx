@@ -161,9 +161,10 @@ export function StaticHeader() {
         {/* شريط البحث */}
         {searchOpen && (
           <div className="pb-4">
-            <form className="relative">
+            <form className="relative" action="/search" method="get">
               <input
                 type="search"
+                name="q"
                 placeholder="ابحث في الأخبار..."
                 className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
