@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type Category = {
   id: string;
@@ -14,6 +15,7 @@ type Category = {
 export default function DesktopCategoryBar() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     let canceled = false;
@@ -48,72 +50,68 @@ export default function DesktopCategoryBar() {
     });
   }, [categories]);
 
+  const isActive = (slug: string) => {
+    if (!pathname) return false;
+    return pathname.startsWith(`/categories/${slug}`) || pathname.startsWith(`/news/category/${slug}`);
+  };
+
   return (
-    <div
-      style={{
-        position: "sticky",
-        top: (typeof window !== "undefined" && getComputedStyle(document.documentElement).getPropertyValue("--category-bar-top")) || undefined,
-        zIndex: 950,
-        background: "hsl(var(--bg), #fff)",
-        borderBottom: "1px solid hsl(var(--line))",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1400px",
-          margin: "0 auto",
-          padding: "0 12px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            overflowX: "auto",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            padding: "8px 0",
-          }}
-        >
-          {loading ? (
-            Array.from({ length: 10 }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  height: 32,
-                  minWidth: 90,
-                  borderRadius: 9999,
-                  background: "hsl(var(--line) / 0.35)",
-                  animation: "pulse 1.4s ease-in-out infinite",
-                }}
-              />
-            ))
-          ) : (
-            sorted.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/categories/${cat.slug}`}
-                className="category-chip"
-                style={{
-                  textDecoration: "none",
-                  whiteSpace: "nowrap",
-                  padding: "6px 12px",
-                  borderRadius: 9999,
-                  border: "1px solid hsl(var(--line))",
-                  background: "hsl(var(--bg-card))",
-                  color: "hsl(var(--fg))",
-                  fontSize: 13,
-                }}
-              >
-                {cat.name_ar || cat.name}
-              </Link>
-            ))
-          )}
+    <div className="catbar">
+      <div className="inner">
+        <div className="scroll-wrapper">
+          <div className="scroll">
+            {loading
+              ? Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="chip-skeleton" />
+                ))
+              : sorted.map((cat) => {
+                  const active = isActive(cat.slug);
+                  return (
+                    <Link
+                      key={cat.id}
+                      href={`/categories/${cat.slug}`}
+                      aria-current={active ? "page" : undefined}
+                      className={`chip ${active ? "active" : ""}`}
+                    >
+                      {cat.name_ar || cat.name}
+                    </Link>
+                  );
+                })}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .catbar {
+          position: sticky;
+          top: 0;
+          z-index: 950;
+          backdrop-filter: blur(8px);
+          background: hsl(var(--bg));
+          border-bottom: 1px solid hsl(var(--line));
+        }
+        .inner { max-width: 1400px; margin: 0 auto; padding: 0 12px; }
+        .scroll-wrapper { position: relative; }
+        .scroll {
+          display: flex; align-items: center; gap: 8px; padding: 8px 0;
+          overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; ms-overflow-style: none;
+        }
+        .scroll::-webkit-scrollbar { display: none; }
+        .chip {
+          display: inline-flex; align-items: center; justify-content: center;
+          white-space: nowrap; text-decoration: none;
+          padding: 8px 14px; border-radius: 9999px; border: 1px solid transparent;
+          background: transparent; color: hsl(var(--fg)); font-size: 13px;
+          transition: background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease;
+        }
+        .chip:hover { background: hsl(var(--accent) / 0.08); border-color: hsl(var(--accent) / 0.2); color: hsl(var(--accent)); transform: translateY(-1px); }
+        .chip.active { background: hsl(var(--accent) / 0.12); border-color: hsl(var(--accent)); color: hsl(var(--accent)); font-weight: 600; }
+        .chip-skeleton {
+          height: 32px; min-width: 90px; border-radius: 9999px; background: hsl(var(--line) / 0.35);
+          animation: pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes pulse { 0% { opacity: .6 } 50% { opacity: .35 } 100% { opacity: .6 } }
+      `}</style>
     </div>
   );
 }
