@@ -22,6 +22,39 @@ export default function ArticleBody({ html, article, hiddenImageUrls = [] }: Pro
     try {
       c = c.replace(/<script[\s\S]*?<\/script>/gi, "");
     } catch {}
+
+    // تحويل روابط YouTube إلى تضمين + ضمان إظهار iframes بشكل صحيح
+    try {
+      const getYouTubeId = (url: string): string | null => {
+        try {
+          const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+          return m?.[1] || null;
+        } catch {
+          return null;
+        }
+      };
+
+      // 1) تحويل <a href="youtube|youtu.be"> إلى iframe مضمّن
+      const ytAnchorRe = /<a[^>]+href=["'](https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[^"']+)["'][^>]*>.*?<\/a>/gi;
+      c = c.replace(ytAnchorRe, (_m, url: string) => {
+        const id = getYouTubeId(url);
+        if (!id) return _m;
+        const src = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`;
+        return `<div class="my-6 rounded-2xl overflow-hidden shadow"><iframe src="${src}" style="width:100%;aspect-ratio:16/9;max-width:100%;" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+      });
+
+      // 2) ضمان أن أي iframe (بما فيها YouTube) يأخذ عرض كامل ونسبة 16:9 ويُحمّل بكسلنة
+      // أ) إضافة style افتراضي إذا لم يوجد
+      c = c.replace(/<iframe(?![^>]*\bstyle=)/gi, '<iframe style="width:100%;aspect-ratio:16/9;max-width:100%;"');
+      // ب) إضافة loading و allow و allowfullscreen إن لم تكن موجودة
+      c = c.replace(/<iframe([^>]*)>/gi, (match: string, attrs: string) => {
+        let tag = match;
+        if (!/\bloading=/.test(tag)) tag = tag.replace('<iframe', '<iframe loading="lazy"');
+        if (!/\ballow=/.test(tag)) tag = tag.replace('<iframe', '<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"');
+        if (!/\ballowfullscreen\b/i.test(tag)) tag = tag.replace(/<iframe([^>]*)>/i, '<iframe$1 allowfullscreen>');
+        return tag;
+      });
+    } catch {}
     if (hiddenImageUrls && hiddenImageUrls.length > 0) {
       const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
