@@ -557,53 +557,65 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 )}
               </div>
             </div>
-                                    {/* Quick Stats - تنسيق محسّن */}
-            <div className="flex flex-wrap gap-2 md:gap-3 mt-4">
-              <div className="bg-black/40 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20 hover:bg-black/50 transition-colors">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-white/80" />
-                  <div className="flex items-center gap-1">
-                    <div className="text-lg font-bold text-white">
+            {/* Quick Stats - تباين عال وواضح */}
+            <div className="flex flex-wrap items-stretch gap-2 md:gap-3 mt-4">
+              {/* إجمالي المقالات */}
+              <div className="rounded-xl px-4 py-2 bg-white/95 dark:bg-gray-900/90 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(var(--accent) / 0.12)', color: 'hsl(var(--accent))' }}>
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-xl font-extrabold text-gray-900 dark:text-white">
                       {filteredStats.totalArticles}
                     </div>
-                    <div className="text-xs text-white/70">مقال</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">مقال</div>
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-black/40 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20 hover:bg-black/50 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-white/80" />
-                  <div className="flex items-center gap-1">
-                    <div className="text-lg font-bold text-white">
+
+              {/* مقالات اليوم */}
+              <div className="rounded-xl px-4 py-2 bg-white/95 dark:bg-gray-900/90 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(var(--accent) / 0.12)', color: 'hsl(var(--accent))' }}>
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-xl font-extrabold text-gray-900 dark:text-white">
                       {filteredStats.todayArticles}
                     </div>
-                    <div className="text-xs text-white/70">اليوم</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">اليوم</div>
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-black/40 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20 hover:bg-black/50 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-white/80" />
-                  <div className="flex items-center gap-1">
-                    <div className="text-lg font-bold text-white">
+
+              {/* إجمالي المشاهدات */}
+              <div className="rounded-xl px-4 py-2 bg-white/95 dark:bg-gray-900/90 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(var(--accent) / 0.12)', color: 'hsl(var(--accent))' }}>
+                    <Eye className="w-4 h-4" />
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-xl font-extrabold text-gray-900 dark:text-white">
                       {filteredStats.totalViews}
                     </div>
-                    <div className="text-xs text-white/70">مشاهدة</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">مشاهدة</div>
                   </div>
                 </div>
               </div>
-              
+
+              {/* عدد المميزة */}
               {filteredStats.featuredCount > 0 && (
-                <div className="bg-black/40 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20 hover:bg-black/50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-white/80" />
-                    <div className="flex items-center gap-1">
-                      <div className="text-lg font-bold text-white">
+                <div className="rounded-xl px-4 py-2 bg-white/95 dark:bg-gray-900/90 border border-gray-100 dark:border-gray-700 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(var(--accent) / 0.12)', color: 'hsl(var(--accent))' }}>
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <div className="text-xl font-extrabold text-gray-900 dark:text-white">
                         {filteredStats.featuredCount}
                       </div>
-                      <div className="text-xs text-white/70">مميز</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">مميز</div>
                     </div>
                   </div>
                 </div>
