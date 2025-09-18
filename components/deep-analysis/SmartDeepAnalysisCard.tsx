@@ -54,9 +54,10 @@ export default function SmartDeepAnalysisCard({ analysis, darkMode = false }: Sm
     `)}`;
   };
 
-  const baseBg = darkMode ? 'hsl(220, 13%, 18%)' : 'hsl(var(--bg-elevated))';
-  const hoverBg = darkMode ? 'hsl(var(--accent) / 0.08)' : 'hsl(var(--accent) / 0.06)';
-  const baseBorder = darkMode ? '1px solid hsl(220, 13%, 25%)' : '1px solid hsl(var(--line))';
+  // توحيد تصميم البطاقة: خلفية بيضاء وحدود #f0f0ef
+  const baseBg = '#ffffff';
+  const hoverBg = '#ffffff';
+  const baseBorder = '1px solid #f0f0ef';
 
   return (
     <Link href={`/insights/deep/${analysis.slug}`} style={{ textDecoration: 'none' }}>
@@ -86,7 +87,7 @@ export default function SmartDeepAnalysisCard({ analysis, darkMode = false }: Sm
           position: 'relative',
           height: '180px',
           width: '100%',
-          background: 'hsl(var(--bg))',
+          background: '#ffffff',
           overflow: 'hidden'
         }}>
           <CloudImage

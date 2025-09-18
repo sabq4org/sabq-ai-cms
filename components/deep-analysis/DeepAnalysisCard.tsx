@@ -192,7 +192,7 @@ const DeepAnalysisCard = ({
   const cardContent =
     viewMode === "grid" ? (
       // Grid View - بطاقة عمودية محسنة
-      <div className="h-full flex flex-col group border" style={{ borderColor: '#f0f0ef' }}>
+      <div className="h-full flex flex-col group border bg-white" style={{ borderColor: '#f0f0ef' }}>
         {/* صورة التحليل */}
         <div className="relative h-44 w-full overflow-hidden">
           {analysis.featuredImage ? (
@@ -230,7 +230,7 @@ const DeepAnalysisCard = ({
         </div>
 
         {/* المحتوى */}
-        <div className="p-4 flex flex-col flex-grow rounded-xl">
+        <div className="p-4 flex flex-col flex-grow rounded-xl bg-white">
           {/* Enhanced Category & AI Badges */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             {analysis.categories && analysis.categories.length > 0 && (
@@ -314,7 +314,7 @@ const DeepAnalysisCard = ({
       </div>
     ) : (
       // List View - بطاقة أفقية محسنة
-      <div className="flex group">
+      <div className="flex group bg-white border" style={{ borderColor: '#f0f0ef' }}>
         {/* صورة التحليل */}
         <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden">
           {analysis.featuredImage ? (
@@ -352,7 +352,7 @@ const DeepAnalysisCard = ({
         </div>
 
         {/* المحتوى */}
-        <div className="p-4 flex flex-col flex-grow rounded-xl">
+        <div className="p-4 flex flex-col flex-grow rounded-xl bg-white">
           {/* Enhanced Category & AI Badges */}
           <div className="flex items-center gap-1.5 mb-2 flex-wrap">
             {analysis.categories && analysis.categories.length > 0 && (
@@ -434,14 +434,15 @@ const DeepAnalysisCard = ({
       <div
         onClick={handleClick}
         className={cn(
-          "rounded-xl border border-gray-100 dark:border-gray-800",
-          "bg-white dark:bg-gray-900 overflow-hidden",
-          "border", 
+          "rounded-xl overflow-hidden",
+          "bg-white",
+          "border",
           "transition-all duration-300 cursor-pointer group relative h-full",
           isBreaking && "ring-2 ring-red-500 ring-opacity-50 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20",
           viewMode === "list" ? "flex" : "flex flex-col",
           className
         )}
+        style={{ borderColor: '#f0f0ef' }}
       >
         {cardContent}
       </div>
