@@ -472,7 +472,7 @@ function AdminNewsPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [filterStatus, selectedCategory, categories]);
+  }, [filterStatus, selectedCategory, categories, currentPage]);
 
   // جلب التصنيفات
   const fetchCategories = useCallback(async () => {
@@ -671,11 +671,13 @@ function AdminNewsPageContent() {
       // إذا لم تكن التصنيفات محملة بعد، جلب التصنيفات أولاً ثم المقالات
       const loadDataSequentially = async () => {
         await fetchCategories();
+        setCurrentPage(1);
         fetchArticles();
       };
       loadDataSequentially();
     } else {
       // التصنيفات موجودة، يمكن مباشرة تحميل المقالات
+      setCurrentPage(1);
       fetchArticles();
     }
   }, [
