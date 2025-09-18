@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import "../categories-fixes.css";
 import "../category-page-mobile.css";
@@ -142,6 +142,7 @@ interface PageProps {
 }
 export default function CategoryDetailPage({ params }: PageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { darkMode } = useDarkModeContext();
   const [category, setCategory] = useState<Category | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -266,6 +267,30 @@ export default function CategoryDetailPage({ params }: PageProps) {
   const getColor = (categoryName: string) => {
     return categoryColors[categoryName] || categoryColors["default"];
   };
+
+  // تحديد القالب المختار للتصنيف
+  const selectedTemplate: "grid" | "featured" | "mixed" = (() => {
+    // أولوية للبارامتر ?template= لمعاينة سريعة
+    const qp = (searchParams?.get('template') || '').toLowerCase();
+    const qpMap: Record<string, "grid" | "featured" | "mixed"> = {
+      grid: 'grid',
+      'featured': 'featured',
+      'featured-list': 'featured',
+      'mixed': 'mixed',
+      'mixed-cards': 'mixed',
+    };
+    if (qp && qpMap[qp]) return qpMap[qp];
+
+    // قراءة من metadata.template_type | templateType
+    let tpl: any = undefined;
+    try {
+      const meta = typeof category?.metadata === 'string' ? JSON.parse(category!.metadata as any) : category?.metadata;
+      tpl = meta?.template_type || meta?.templateType;
+    } catch {}
+    const t = (tpl || '').toString().toLowerCase();
+    if (t && qpMap[t]) return qpMap[t];
+    return 'grid';
+  })();
 
   // مكون البطاقة الموحد
   const ArticleCard = ({ article }: { article: any }) => {
@@ -414,6 +439,120 @@ export default function CategoryDetailPage({ params }: PageProps) {
           </div>
         </div>
       </Link>
+    );
+  };
+
+  // قالب: خبر بارز + قائمة
+  const renderFeaturedListTemplate = () => {
+    if (!filteredArticles || filteredArticles.length === 0) return (
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
+        <BookOpen className="w-20 h-20 text-gray-300 dark:text-gray-600 mx-auto mb-6" />
+        <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">لا توجد مقالات</h3>
+      </div>
+    );
+
+    const [first, ...rest] = filteredArticles;
+    return (
+      <div className="space-y-6">
+        {/* الخبر البارز */}
+        <Link href={getArticleLink(first)} className="block">
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
+            <div className="aspect-[16/7] md:aspect-[16/5] w-full overflow-hidden">
+              {first.featured_image ? (
+                <img src={first.featured_image} alt={first.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <Sparkles className="w-10 h-10" />
+                </div>
+              )}
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-0 right-0 left-0 p-5 md:p-7">
+              <h2 className="text-white text-xl md:text-3xl font-bold leading-snug mb-2">{first.title}</h2>
+              {first.excerpt && (
+                <p className="hidden md:block text-white/85 text-sm md:text-base max-w-3xl">{first.excerpt}</p>
+              )}
+            </div>
+          </div>
+        </Link>
+
+        {/* قائمة الأخبار */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg divide-y divide-gray-100 dark:divide-gray-700">
+          {rest.slice(0, 12).map((a) => (
+            <Link key={a.id} href={getArticleLink(a)} className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              {a.featured_image ? (
+                <img src={a.featured_image} alt={a.title} className="w-20 h-14 rounded-lg object-cover flex-shrink-0" />
+              ) : (
+                <div className="w-20 h-14 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
+                  <Image src="/images/placeholder.jpg" alt="" width={80} height={56} />
+                </div>
+              )}
+              <div className="min-w-0">
+                <h3 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white line-clamp-2">{a.title}</h3>
+                <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" />{new Date(a.published_at || a.created_at).toLocaleDateString('ar-SA')}</span>
+                  <span className="inline-flex items-center gap-1"><Eye className="w-3 h-3" />{a.views_count || 0}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // قالب: بطاقات متنوعة
+  const renderMixedTemplate = () => {
+    if (!filteredArticles || filteredArticles.length === 0) return (
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
+        <BookOpen className="w-20 h-20 text-gray-300 dark:text-gray-600 mx-auto mb-6" />
+        <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-3">لا توجد مقالات</h3>
+      </div>
+    );
+
+    const first = filteredArticles[0];
+    const secondRow = filteredArticles.slice(1, 3);
+    const rest = filteredArticles.slice(3);
+
+    return (
+      <div className="space-y-6">
+        {/* صف 1: خبر كبير */}
+        <Link href={getArticleLink(first)} className="block">
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800">
+            <div className="aspect-[16/6] md:aspect-[16/5] w-full overflow-hidden">
+              {first.featured_image ? (
+                <img src={first.featured_image} alt={first.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <Sparkles className="w-10 h-10" />
+                </div>
+              )}
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-0 right-0 left-0 p-5 md:p-7">
+              <h2 className="text-white text-xl md:text-2xl font-bold leading-snug">{first.title}</h2>
+            </div>
+          </div>
+        </Link>
+
+        {/* صف 2: خبرين متوسطين */}
+        {secondRow.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {secondRow.map((a) => (
+              <ArticleCard key={a.id} article={a} />
+            ))}
+          </div>
+        )}
+
+        {/* باقي الصفحة: بطاقات صغيرة 3 أعمدة */}
+        {rest.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rest.map((a) => (
+              <ArticleCard key={a.id} article={a} />
+            ))}
+          </div>
+        )}
+      </div>
     );
   };
   const getCategoryImage = (category: Category) => {
@@ -703,7 +842,7 @@ export default function CategoryDetailPage({ params }: PageProps) {
             )}
           </div>
         )}
-        {/* Articles Grid/List */}
+        {/* Articles - حسب القالب المختار */}
         {filteredArticles.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center">
             <BookOpen className="w-20 h-20 text-gray-300 dark:text-gray-600 mx-auto mb-6" />
@@ -716,67 +855,27 @@ export default function CategoryDetailPage({ params }: PageProps) {
                 : "لا توجد مقالات في هذا القسم حالياً"}
             </p>
           </div>
+        ) : selectedTemplate === 'featured' ? (
+          renderFeaturedListTemplate()
+        ) : selectedTemplate === 'mixed' ? (
+          renderMixedTemplate()
         ) : (
           <>
             {/* Mobile View - Always Grid */}
             <div className="block md:hidden">
               <div className="grid grid-cols-1 gap-4">
-                {filteredArticles && filteredArticles.length > 0 ? (
-                  filteredArticles.map((article) => {
-                    try {
-                      return <ArticleCard key={article?.id || Math.random()} article={article} />;
-                    } catch (error) {
-                      console.error("Error rendering mobile article:", error);
-                      return null;
-                    }
-                  })
-                ) : (
-                  <div className="text-center py-12">
-                    <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">لا توجد مقالات للعرض</p>
-                  </div>
-                )}
-                  </div>
+                {filteredArticles.map((article) => (
+                  <ArticleCard key={article?.id || Math.random()} article={article} />
+                ))}
               </div>
-            {/* Desktop View - Keep existing */}
+            </div>
+            {/* Desktop View - Grid */}
             <div className="hidden md:block">
-              {viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {filteredArticles && filteredArticles.length > 0 ? (
-                    filteredArticles.map((article) => {
-                      try {
-                        return <ArticleCard key={article?.id || Math.random()} article={article} />;
-                      } catch (error) {
-                        console.error("Error rendering grid article:", error);
-                        return null;
-                      }
-                    })
-                  ) : (
-                    <div className="col-span-full text-center py-12">
-                      <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500">لا توجد مقالات للعرض</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredArticles && filteredArticles.length > 0 ? (
-                    filteredArticles.map((article) => {
-                      try {
-                        return <ArticleCard key={article?.id || Math.random()} article={article} />;
-                      } catch (error) {
-                        console.error("Error rendering list article:", error);
-                        return null;
-                      }
-                    })
-                  ) : (
-                    <div className="text-center py-12">
-                      <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500">لا توجد مقالات للعرض</p>
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {filteredArticles.map((article) => (
+                  <ArticleCard key={article?.id || Math.random()} article={article} />
+                ))}
+              </div>
             </div>
           </>
         )}
