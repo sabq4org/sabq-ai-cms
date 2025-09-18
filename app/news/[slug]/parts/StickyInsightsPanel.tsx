@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BarChart, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2, Tag, Heart } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,6 +49,28 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
   const [likeLoading, setLikeLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
+
+  // تحميل حالة التفاعل للمستخدم (إعجاب/حفظ) لضمان الثبات بعد التحديث
+  useEffect(() => {
+    if (!isLoggedIn || !user?.id || !article?.id) return;
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/interactions/track?userId=${encodeURIComponent(user.id)}&articleId=${encodeURIComponent(String(article.id))}`,
+          { cache: 'no-store', signal: controller.signal }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const interactions = Array.isArray(data?.interactions) ? data.interactions : [];
+        const userLiked = interactions.some((i: any) => i?.interaction_type === 'like');
+        const userSaved = interactions.some((i: any) => i?.interaction_type === 'save');
+        setLiked(!!userLiked);
+        setSaved(!!userSaved);
+      } catch {}
+    })();
+    return () => controller.abort();
+  }, [isLoggedIn, user?.id, article?.id]);
 
   const trackInteraction = async (type: 'like' | 'unlike' | 'save' | 'unsave' | 'share') => {
     try {
