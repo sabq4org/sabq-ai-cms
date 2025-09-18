@@ -172,6 +172,10 @@ function AdminNewsPageContent() {
   const [filterStatus, setFilterStatus] = useState("published");
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  // التصفح: 20 خبر في الصفحة
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const PAGE_LIMIT = 20;
   // تتبع حالة عرض عاجل بشكل تفاؤلي لمنع وميض الحالة عند أي إعادة جلب
   const [optimisticBreaking, setOptimisticBreaking] = useState<Record<string, boolean>>({});
   const [updatingBreaking, setUpdatingBreaking] = useState<Record<string, boolean>>({});
@@ -269,7 +273,8 @@ function AdminNewsPageContent() {
 
       const params = new URLSearchParams({
         status: filterStatus, // استخدام الفلتر مباشرة بدلاً من تحويله لـ "all"
-        limit: "50",
+        page: String(currentPage),
+        limit: String(PAGE_LIMIT),
         sort: "published_at",
         order: "desc",
         article_type: "news", // 🔥 فلتر الأخبار فقط - استبعاد المقالات
@@ -420,6 +425,10 @@ function AdminNewsPageContent() {
         // إذا كان الفلتر الحالي "scheduled"، لا ترتب حسب published_at
         const finalArticles = filterStatus === 'scheduled' ? data.articles.filter((a: any)=> a?.status === 'scheduled') : sortedArticles;
         setArticles(finalArticles);
+        // تحديث صفحات التصفح بناءً على إجمالي النتائج
+        const totalItems = data.pagination?.total || data.total || finalArticles.length;
+        const computedTotalPages = data.totalPages || data.pagination?.totalPages || Math.max(1, Math.ceil(totalItems / PAGE_LIMIT));
+        setTotalPages(computedTotalPages);
         console.log(`🧹 بعد الفلترة:`, {
           originalCount: data.articles?.length || 0,
           filteredCount: cleanArticles.length,
@@ -673,6 +682,7 @@ function AdminNewsPageContent() {
     filterStatus,
     selectedCategory,
     categories,
+    currentPage,
     fetchCategories,
     fetchArticles,
   ]);
@@ -1874,6 +1884,37 @@ function AdminNewsPageContent() {
                       })}
                     </TableBody>
                   </Table>
+                  </div>
+
+                  {/* عناصر التصفح */}
+                  <div className="flex items-center justify-center gap-3 mt-6">
+                    <button
+                      className="btn"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage <= 1 || loading}
+                      style={{
+                        background: 'hsl(var(--bg-card))',
+                        border: '1px solid hsl(var(--line))',
+                        opacity: currentPage <= 1 || loading ? 0.6 : 1
+                      }}
+                    >
+                      السابق
+                    </button>
+                    <div className="text-sm text-muted">
+                      صفحة {currentPage} من {totalPages}
+                    </div>
+                    <button
+                      className="btn"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage >= totalPages || loading}
+                      style={{
+                        background: 'hsl(var(--bg-card))',
+                        border: '1px solid hsl(var(--line))',
+                        opacity: currentPage >= totalPages || loading ? 0.6 : 1
+                      }}
+                    >
+                      التالي
+                    </button>
                   </div>
                 </>
               )}
