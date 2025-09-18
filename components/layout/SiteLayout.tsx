@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
 import LightHeader from "@/components/layout/LightHeader";
 import UserHeader from "@/components/user/UserHeader";
+import DesktopCategoryBar from "@/components/navigation/DesktopCategoryBar";
 import { Providers } from "../../app/providers";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
@@ -93,6 +94,10 @@ export default function SiteLayout({
           <>
             <div style={{ paddingTop: '72px', position: 'relative' }}>
               <UserHeader />
+            </div>
+            {/* شريط التصنيفات أسفل الهيدر - ديسكتوب فقط */}
+            <div className="hidden md:block">
+              <DesktopCategoryBar />
             </div>
             {/* المحتوى الرئيسي للديسكتوب */}
             <main style={{
