@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 type Category = {
@@ -16,6 +16,8 @@ export default function DesktopCategoryBar() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const pathname = usePathname();
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [justify, setJustify] = useState<"center" | "flex-start">("center");
 
   useEffect(() => {
     let canceled = false;
@@ -55,6 +57,28 @@ export default function DesktopCategoryBar() {
     return pathname.startsWith(`/categories/${slug}`) || pathname.startsWith(`/news/category/${slug}`);
   };
 
+  // ضبط توسيط العناصر إذا لم يوجد Overflow، والبدء من اليمين عند وجود تمرير أفقي
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const update = () => {
+      try {
+        const hasOverflow = el.scrollWidth > el.clientWidth + 1;
+        setJustify(hasOverflow ? "flex-start" : "center");
+      } catch {}
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    const t = setTimeout(update, 0);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+      clearTimeout(t);
+    };
+  }, [loading, sorted.length]);
+
   return (
     <div
       style={{
@@ -69,6 +93,7 @@ export default function DesktopCategoryBar() {
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 12px' }}>
         <div style={{ position: 'relative' }}>
           <div
+            ref={scrollRef}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -78,6 +103,7 @@ export default function DesktopCategoryBar() {
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
+              justifyContent: justify,
             }}
           >
             {loading
