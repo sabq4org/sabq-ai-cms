@@ -7,39 +7,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import SabqLogo from "./SabqLogo";
-import { useDarkModeContext } from "@/contexts/DarkModeContext";
 
 export default function Footer() {
-  const { darkMode } = useDarkModeContext();
-  const [currentThemeColor, setCurrentThemeColor] = useState<string | null>(null);
-
-  // تتبع تغيير اللون من نظام الألوان المتغيرة
-  useEffect(() => {
-    const updateThemeColor = () => {
-      const root = document.documentElement;
-      const themeColor = root.style.getPropertyValue('--theme-primary');
-      const accentColor = root.style.getPropertyValue('--accent');
-      
-      if (themeColor) {
-        setCurrentThemeColor(themeColor);
-      } else if (accentColor) {
-        // تحويل HSL إلى hex إذا كان متوفراً
-        const hslMatch = accentColor.match(/(\d+)\s+(\d+)%\s+(\d+)%/);
-        if (hslMatch) {
-          const [_, h, s, l] = hslMatch;
-          setCurrentThemeColor(`hsl(${h}, ${s}%, ${l}%)`);
-        }
-      } else {
-        setCurrentThemeColor(null);
-      }
-    };
-
-    updateThemeColor();
-    window.addEventListener('theme-color-change', updateThemeColor);
-    return () => window.removeEventListener('theme-color-change', updateThemeColor);
-  }, []);
   const footerSections = [
     {
       title: "عن سبق",
@@ -86,14 +57,10 @@ export default function Footer() {
 
   return (
     <footer 
-      className="border-t"
+      className="border-t bg-gray-900 text-gray-100"
       style={{
-        backgroundColor: currentThemeColor 
-          ? `${currentThemeColor}08` 
-          : (darkMode ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)'),
-        borderColor: currentThemeColor 
-          ? `${currentThemeColor}20` 
-          : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(229, 231, 235)')
+        backgroundColor: 'rgb(17, 24, 39)',
+        borderColor: 'rgb(31, 41, 55)'
       }}
     >
       {/* Desktop Footer */}
@@ -106,9 +73,10 @@ export default function Footer() {
                 className="h-10 md:h-12 w-auto object-contain max-w-[160px] md:max-w-[200px] opacity-95 hover:opacity-100 transition-opacity"
                 width={200}
                 height={48}
+                isWhite
               />
             </Link>
-            <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-sm leading-6 text-gray-300">
               صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم
               الحقيقة كما هي، ونغطي كافة الأحداث المحلية والعالمية بمصداقية
               واحترافية.
@@ -120,7 +88,7 @@ export default function Footer() {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/50 dark:hover:text-blue-400 transition-colors"
+                  className="p-2 bg-gray-800/70 border border-gray-700 rounded-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                   aria-label={social.name}
                 >
                   {social.icon}
@@ -132,15 +100,15 @@ export default function Footer() {
           {/* أعمدة الروابط - 4.5 أعمدة لكل قسم (توزيع أفضل بعد إزالة قسم) */}
           {footerSections.map((section) => (
             <div key={section.title} className="md:col-span-4 space-y-2">
-              <h3 className="font-semibold text-gray-800 dark:text-white">
+              <h3 className="font-semibold text-white">
                 {section.title}
               </h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <ul className="space-y-2 text-sm text-gray-300">
                 {section.links.map((link) => (
                   <li key={link.url}>
                     <Link
                       href={link.url}
-                      className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                      className="transition-colors hover:text-white"
                     >
                       {link.label}
                     </Link>
@@ -153,11 +121,9 @@ export default function Footer() {
         
         {/* حقوق النشر */}
         <div 
-          className="mt-8 border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400"
+          className="mt-8 border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400"
           style={{
-            borderColor: currentThemeColor 
-              ? `${currentThemeColor}20` 
-              : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(229, 231, 235)')
+            borderColor: 'rgb(31, 41, 55)'
           }}
         >
           <p>&copy; {new Date().getFullYear()} صحيفة سبق. جميع الحقوق محفوظة.</p>
@@ -175,9 +141,10 @@ export default function Footer() {
                 className="h-10 w-auto object-contain max-w-[140px] opacity-95"
                 width={140}
                 height={40}
+                isWhite
               />
             </Link>
-            <p className="mt-2 text-xs leading-5 text-gray-600 dark:text-gray-400 max-w-xs mx-auto">
+            <p className="mt-2 text-xs leading-5 text-gray-300 max-w-xs mx-auto">
               صحيفة إلكترونية سعودية شاملة
             </p>
           </div>
@@ -190,22 +157,20 @@ export default function Footer() {
                   <summary 
                     className="flex items-center justify-between p-3 rounded-lg cursor-pointer"
                     style={{
-                      backgroundColor: currentThemeColor 
-                        ? `${currentThemeColor}10` 
-                        : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(243, 244, 246)')
+                      backgroundColor: 'rgb(31, 41, 55)'
                     }}
                   >
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    <span className="text-sm font-medium text-gray-200">
                       {section.title}
                     </span>
-                    <ChevronDown className="w-4 h-4 text-gray-500 group-open:rotate-180 transition-transform" />
+                    <ChevronDown className="w-4 h-4 text-gray-400 group-open:rotate-180 transition-transform" />
                   </summary>
                   <div className="mt-2 grid grid-cols-2 gap-2 px-3">
                     {section.links.map((link) => (
                       <Link
                         key={link.url}
                         href={link.url}
-                        className="text-xs text-gray-600 dark:text-gray-400 py-1 transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                        className="text-xs text-gray-300 py-1 transition-colors hover:text-white"
                       >
                         {link.label}
                       </Link>
@@ -225,7 +190,7 @@ export default function Footer() {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                  className="p-2 bg-gray-800/70 border border-gray-700 rounded-full text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                   aria-label={social.name}
                 >
                   {React.cloneElement(social.icon, { className: "w-4 h-4" })}
@@ -253,15 +218,13 @@ export default function Footer() {
           <div 
             className="text-center pt-3 border-t"
             style={{
-              borderColor: currentThemeColor 
-                ? `${currentThemeColor}20` 
-                : (darkMode ? 'rgb(31, 41, 55)' : 'rgb(229, 231, 235)')
+              borderColor: 'rgb(31, 41, 55)'
             }}
           >
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+            <p className="text-xs text-gray-400 mb-2">
               © {new Date().getFullYear()} صحيفة سبق. جميع الحقوق محفوظة
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-400">
               🤖 مدعوم بالذكاء… مصنوع بالحب في 🇸🇦
             </p>
           </div>
