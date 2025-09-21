@@ -1,8 +1,21 @@
 import { NextRequest } from "next/server";
-import { kv } from "@vercel/kv";
 import OpenAI from "openai";
 
-const CACHE_TTL = 60 * 60; // 1 ساعة
+const CACHE_TTL = 60 * 60 * 1000; // 1 ساعة بالميلي ثانية
+
+type CacheEntry = { value: string; expiresAt: number };
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __SMART_Q_CACHE__: Map<string, CacheEntry> | undefined;
+}
+
+function getMemoryCache(): Map<string, CacheEntry> {
+  if (!globalThis.__SMART_Q_CACHE__) {
+    globalThis.__SMART_Q_CACHE__ = new Map<string, CacheEntry>();
+  }
+  return globalThis.__SMART_Q_CACHE__ as Map<string, CacheEntry>;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,12 +26,11 @@ export async function POST(req: NextRequest) {
     }
 
     const cacheKey = `smart_q:${articleId}`;
-    try {
-      const cached = await kv.get<string>(cacheKey);
-      if (cached) {
-        return new Response(cached, { status: 200, headers: { "Content-Type": "application/json", "X-Cache": "HIT" } });
-      }
-    } catch {}
+    const mem = getMemoryCache();
+    const cached = mem.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return new Response(cached.value, { status: 200, headers: { "Content-Type": "application/json", "X-Cache": "HIT" } });
+    }
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const prompt = `
@@ -49,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     const payload = JSON.stringify({ questions });
-    try { await kv.set(cacheKey, payload, { ex: CACHE_TTL }); } catch {}
+    mem.set(cacheKey, { value: payload, expiresAt: Date.now() + CACHE_TTL });
     return new Response(payload, { status: 200, headers: { "Content-Type": "application/json", "X-Cache": "MISS" } });
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e?.message || "failed" }), { status: 500 });
