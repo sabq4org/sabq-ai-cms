@@ -220,6 +220,23 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
 
               <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
 
+              {/* الكلمات المفتاحية تحت المحتوى */}
+              {(Array.isArray(article.tags) && article.tags.length > 0) || (Array.isArray(article.keywords) && article.keywords.length > 0) ? (
+                <div className="mt-6">
+                  <h3 className="font-semibold text-base mb-3">الكلمات المفتاحية</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(article.tags?.length ? article.tags : article.keywords).map((tag: any, index: number) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                      >
+                        #{(typeof tag === 'string') ? tag : (tag?.name || String(tag))}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
               {/* ألبوم الصور للموبايل */}
               {albumImages.length > 0 && (
                 <div className="block md:hidden mt-8">
@@ -236,6 +253,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                     summary: article.summary,
                     categories: article.categories,
                     tags: article.tags,
+                    keywords: article.keywords,
                     likes: article.likes || 0,
                     shares: article.shares || 0,
                     saves: article.saves || 0,
@@ -265,6 +283,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   summary: article.summary,
                   categories: article.categories,
                   tags: article.tags,
+                  keywords: article.keywords,
                   likes: article.likes || 0,
                   shares: article.shares || 0,
                   saves: article.saves || 0,
