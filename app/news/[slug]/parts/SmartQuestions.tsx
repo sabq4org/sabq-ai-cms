@@ -31,31 +31,15 @@ const SmartQuestions: React.FC<Props> = ({ articleId, articleTitle, content = ""
     if (!canGenerate) return;
     setLoading(true);
     try {
-      // محاكاة توليد الأسئلة - يمكن استبدالها بـ API حقيقي لاحقاً
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setQuestions([
-        {
-          question: "ما هي النقاط الرئيسية في هذا الخبر؟",
-          type: "general",
-          icon: "📌"
-        },
-        {
-          question: "من هم الأطراف المعنية بهذا الخبر؟",
-          type: "general",
-          icon: "👥"
-        },
-        {
-          question: "ما هي التوقعات المستقبلية لهذا الموضوع؟",
-          type: "general", 
-          icon: "🔮"
-        },
-        {
-          question: "ما رأيك في هذا الخبر؟",
-          type: "poll",
-          options: ["إيجابي", "سلبي", "محايد", "غير متأكد"],
-          icon: "📊"
-        }
-      ]);
+      const res = await fetch('/api/ai/generate-questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId, title: articleTitle, content })
+      });
+      if (!res.ok) throw new Error('فشل في توليد الأسئلة');
+      const data = await res.json();
+      const list = Array.isArray(data?.questions) ? data.questions : [];
+      setQuestions(list);
     } finally {
       setLoading(false);
     }
