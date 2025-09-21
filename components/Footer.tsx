@@ -108,7 +108,7 @@ export default function Footer() {
                   <li key={link.url}>
                     <Link
                       href={link.url}
-                      className="text-gray-300 visited:text-gray-300 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm transition-colors"
+                      className="transition-colors hover:text-white"
                     >
                       {link.label}
                     </Link>
@@ -170,7 +170,7 @@ export default function Footer() {
                       <Link
                         key={link.url}
                         href={link.url}
-                        className="text-xs text-gray-300 visited:text-gray-300 py-1 transition-colors hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded-sm"
+                        className="text-xs text-gray-300 py-1 transition-colors hover:text-white"
                       >
                         {link.label}
                       </Link>
