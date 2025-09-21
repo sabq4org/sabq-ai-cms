@@ -40,6 +40,25 @@ const SmartQuestions: React.FC<Props> = ({ articleId, articleTitle, content = ""
       const data = await res.json();
       const list = Array.isArray(data?.questions) ? data.questions : [];
       setQuestions(list);
+      if (list.length === 0) {
+        // بديل محلي بسيط يعتمد على العنوان لتقليل التكرار
+        const base = (articleTitle || '').split(' ').slice(0, 6).join(' ');
+        setQuestions([
+          { question: `ما الخلفية والسياق المرتبط بـ: ${base}?`, type: 'context', icon: '🧩' },
+          { question: `لماذا يعد هذا الخبر مهمًا الآن؟`, type: 'why', icon: '🧭' },
+          { question: `ما التأثير المحتمل على القرّاء أو السوق؟`, type: 'impact', icon: '📈' },
+          { question: `ما السيناريوهات التالية المتوقعة؟`, type: 'what_next', icon: '➡️' },
+          { question: `ما الأسئلة المفتوحة التي ما زالت بلا إجابة؟`, type: 'analysis', icon: '❓' }
+        ]);
+      }
+    } catch (e) {
+      // فشل كامل: بديل محلي
+      const base = (articleTitle || '').split(' ').slice(0, 6).join(' ');
+      setQuestions([
+        { question: `ما الخلفية والسياق المرتبط بـ: ${base}?`, type: 'context', icon: '🧩' },
+        { question: `لماذا يعد هذا الخبر مهمًا الآن؟`, type: 'why', icon: '🧭' },
+        { question: `ما التأثير المحتمل على القرّاء أو السوق؟`, type: 'impact', icon: '📈' }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -148,6 +167,10 @@ const SmartQuestions: React.FC<Props> = ({ articleId, articleTitle, content = ""
             </button>
             {!canGenerate && (
               <p className="text-xs text-neutral-500 mt-2">أضف محتوى أطول قليلاً لتفعيل التوليد</p>
+            )}
+            {/* رسالة ملاحظات عند الفشل لاحقًا */}
+            {!loading && canGenerate && (
+              <p className="text-[11px] text-neutral-500 mt-1">في حال تعذّر التوليد عبر الذكاء، سيتم عرض أسئلة بديلة تلقائيًا.</p>
             )}
           </div>
         ) : open && (

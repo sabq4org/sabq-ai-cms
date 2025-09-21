@@ -168,14 +168,19 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
           
           {(article.tags?.length > 0 || article.keywords?.length > 0) && (
             <div className="flex flex-wrap gap-2">
-              {(article.tags?.length ? article.tags : article.keywords).map((tag: any, index: number) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded"
-                >
-                  {(typeof tag === 'string') ? tag : (tag?.name || String(tag))}
-                </span>
-              ))}
+              {(article.tags?.length ? article.tags : article.keywords).map((tag: any, index: number) => {
+                const label = (typeof tag === 'string') ? tag : (tag?.name || String(tag));
+                const href = `/tags/${encodeURIComponent(label)}`;
+                return (
+                  <Link
+                    key={`${label}-${index}`}
+                    href={href}
+                    className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded hover:underline"
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </footer>

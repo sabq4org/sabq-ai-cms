@@ -6,6 +6,7 @@ import FloatingReadButton from "./FloatingReadButton";
 import dynamic from "next/dynamic";
 import { Calendar, Clock, BookOpen, Eye, Loader2 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
+import Link from "next/link";
 
 interface ResponsiveArticleProps {
   article: any;
@@ -225,14 +226,19 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                 <div className="mt-6">
                   <h3 className="font-semibold text-base mb-3">الكلمات المفتاحية</h3>
                   <div className="flex flex-wrap gap-2">
-                    {(article.tags?.length ? article.tags : article.keywords).map((tag: any, index: number) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
-                      >
-                        #{(typeof tag === 'string') ? tag : (tag?.name || String(tag))}
-                      </span>
-                    ))}
+                    {(article.tags?.length ? article.tags : article.keywords).map((tag: any, index: number) => {
+                      const label = (typeof tag === 'string') ? tag : (tag?.name || String(tag));
+                      const href = `/tags/${encodeURIComponent(label)}`;
+                      return (
+                        <Link
+                          key={`${label}-${index}`}
+                          href={href}
+                          className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 hover:underline"
+                        >
+                          #{label}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}

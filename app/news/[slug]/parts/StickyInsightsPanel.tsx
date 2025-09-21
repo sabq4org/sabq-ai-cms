@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BarChart, Bookmark, Share2, Sparkles, ChevronDown, ChevronUp, Headphones, Play, Pause, Loader2, Tag, Heart } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 
 const PersonalizedForYou = dynamic(() => import("./PersonalizedForYou"), {
   ssr: false,
@@ -260,19 +261,24 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
             <h3 className="font-semibold">الكلمات المفتاحية</h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {(article.tags && article.tags.length > 0 ? article.tags : (article as any).keywords || []).map((tag: any, index: number) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
-                style={{
-                  background: 'var(--theme-primary-lighter, rgb(219 234 254))',
-                  color: 'var(--theme-primary-dark, rgb(55 48 163))',
-                  border: '1px solid var(--theme-primary-light, rgb(147 197 253))',
-                }}
-              >
-                #{(typeof tag === 'string') ? tag : (tag?.name || String(tag))}
-              </span>
-            ))}
+            {(article.tags && article.tags.length > 0 ? article.tags : (article as any).keywords || []).map((tag: any, index: number) => {
+              const label = (typeof tag === 'string') ? tag : (tag?.name || String(tag));
+              const href = `/tags/${encodeURIComponent(label)}`;
+              return (
+                <Link
+                  key={`${label}-${index}`}
+                  href={href}
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
+                  style={{
+                    background: 'var(--theme-primary-lighter, rgb(219 234 254))',
+                    color: 'var(--theme-primary-dark, rgb(55 48 163))',
+                    border: '1px solid var(--theme-primary-light, rgb(147 197 253))',
+                  }}
+                >
+                  #{label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
