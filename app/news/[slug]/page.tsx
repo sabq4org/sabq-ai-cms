@@ -111,6 +111,8 @@ const getArticle = async function getArticle(slug: string) {
       shares: true,
       saves: true,
       tags: true,
+      seo_keywords: true,
+      metadata: true,
       status: true,
       featured: true,
       reading_time: true,
@@ -164,6 +166,8 @@ const getArticle = async function getArticle(slug: string) {
         shares: true,
         saves: true,
         tags: true,
+        seo_keywords: true,
+        metadata: true,
         status: true,
         featured: true,
         reading_time: true,
@@ -196,7 +200,61 @@ const getArticle = async function getArticle(slug: string) {
     });
   }
   
-  return article;
+  try {
+    const anyArticle: any = article as any;
+    let keywords: string[] = [];
+    // 1) seo_keywords
+    if (anyArticle?.seo_keywords) {
+      const sk = anyArticle.seo_keywords;
+      if (Array.isArray(sk)) {
+        keywords = sk.filter(Boolean);
+      } else if (typeof sk === 'string') {
+        try {
+          const parsed = JSON.parse(sk);
+          keywords = Array.isArray(parsed) ? parsed.filter(Boolean) : sk.split(',').map((k: string) => k.trim()).filter(Boolean);
+        } catch {
+          keywords = sk.split(',').map((k: string) => k.trim()).filter(Boolean);
+        }
+      }
+    }
+    // 2) metadata
+    if ((!keywords || keywords.length === 0) && anyArticle?.metadata) {
+      const meta = typeof anyArticle.metadata === 'string' ? JSON.parse(anyArticle.metadata) : anyArticle.metadata;
+      const mk = meta?.seo_keywords ?? meta?.keywords;
+      if (mk) {
+        if (Array.isArray(mk)) {
+          keywords = mk.filter(Boolean);
+        } else if (typeof mk === 'string') {
+          try {
+            const parsed = JSON.parse(mk);
+            keywords = Array.isArray(parsed) ? parsed.filter(Boolean) : mk.split(',').map((k: string) => k.trim()).filter(Boolean);
+          } catch {
+            keywords = mk.split(',').map((k: string) => k.trim()).filter(Boolean);
+          }
+        } else {
+          keywords = [String(mk)].filter(Boolean);
+        }
+      }
+    }
+    // 3) tags fallback
+    if ((!keywords || keywords.length === 0) && anyArticle?.tags) {
+      const t = anyArticle.tags;
+      if (Array.isArray(t)) {
+        keywords = t.map((x: any) => (typeof x === 'string' ? x : (x?.name ?? String(x)))).filter(Boolean);
+      } else if (typeof t === 'string') {
+        try {
+          const parsed = JSON.parse(t);
+          keywords = Array.isArray(parsed) ? parsed.map((x: any) => (typeof x === 'string' ? x : (x?.name ?? String(x)))).filter(Boolean) : [t];
+        } catch {
+          keywords = t.split(',').map((k: string) => k.trim()).filter(Boolean);
+        }
+      }
+    }
+    const unique = Array.from(new Set(keywords));
+    return { ...(article as any), keywords: unique } as any;
+  } catch {
+    return article;
+  }
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

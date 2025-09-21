@@ -253,14 +253,14 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
       
       {/* الكلمات المفتاحية */}
-      {article.tags && article.tags.length > 0 && (
+      {(article.tags?.length > 0 || (article as any).keywords?.length > 0) && (
         <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
           <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
             <Tag className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h3 className="font-semibold">الكلمات المفتاحية</h3>
           </div>
           <div className="flex flex-wrap gap-2">
-            {article.tags.map((tag: any, index: number) => (
+            {(article.tags && article.tags.length > 0 ? article.tags : (article as any).keywords || []).map((tag: any, index: number) => (
               <span
                 key={index}
                 className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
@@ -270,7 +270,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
                   border: '1px solid var(--theme-primary-light, rgb(147 197 253))',
                 }}
               >
-                #{tag.name || tag}
+                #{(typeof tag === 'string') ? tag : (tag?.name || String(tag))}
               </span>
             ))}
           </div>

@@ -156,7 +156,7 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
       />
 
       {/* التصنيف والكلمات المفتاحية */}
-      {(article.category || article.tags) && (
+      {(article.category || article.tags || article.keywords) && (
         <footer className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
           {article.category && (
             <div className="mb-4">
@@ -166,14 +166,14 @@ export default function SimpleArticleClient({ article }: SimpleArticleClientProp
             </div>
           )}
           
-          {article.tags && article.tags.length > 0 && (
+          {(article.tags?.length > 0 || article.keywords?.length > 0) && (
             <div className="flex flex-wrap gap-2">
-              {article.tags.map((tag: string, index: number) => (
+              {(article.tags?.length ? article.tags : article.keywords).map((tag: any, index: number) => (
                 <span
                   key={index}
                   className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded"
                 >
-                  {tag}
+                  {(typeof tag === 'string') ? tag : (tag?.name || String(tag))}
                 </span>
               ))}
             </div>
