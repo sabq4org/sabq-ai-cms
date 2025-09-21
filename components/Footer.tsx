@@ -76,7 +76,7 @@ export default function Footer() {
                 isWhite
               />
             </Link>
-            <p className="mt-2 text-sm leading-6 text-gray-200">
+            <p className="mt-2 text-sm leading-6 text-gray-300">
               صحيفة إلكترونية سعودية شاملة، نعمل على مدار الساعة لننقل لكم
               الحقيقة كما هي، ونغطي كافة الأحداث المحلية والعالمية بمصداقية
               واحترافية.
@@ -144,7 +144,7 @@ export default function Footer() {
                 isWhite
               />
             </Link>
-            <p className="mt-2 text-xs leading-5 text-gray-200 max-w-xs mx-auto">
+            <p className="mt-2 text-xs leading-5 text-gray-300 max-w-xs mx-auto">
               صحيفة إلكترونية سعودية شاملة
             </p>
           </div>
