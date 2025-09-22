@@ -380,14 +380,10 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               <button
                 key={article.id}
                 onClick={() => setCurrentIndex(idx)}
-                className={`relative overflow-hidden rounded-lg transition-all duration-300 ease-in-out cursor-pointer ${
+                className={`relative overflow-hidden rounded-none border transition-colors duration-200 cursor-pointer w-16 h-10 ${
                   idx === currentIndex 
-                    ? "w-16 h-9 shadow-lg z-10" 
-                    : "w-10 h-9 hover:w-12 hover:h-9 opacity-50 hover:opacity-70 hover:shadow-md"
-                } ${
-                  (article as any).breaking || (article as any).is_breaking
-                    ? 'ring-2 ring-red-600 dark:ring-red-500'
-                    : (idx === currentIndex ? 'ring-2 ring-[hsl(var(--accent))]' : '')
+                    ? "border-gray-300 dark:border-gray-600 opacity-100" 
+                    : "border-[#f0f0ef] dark:border-gray-700 opacity-60 hover:opacity-80"
                 }`}
                 aria-label={`الانتقال إلى الخبر ${idx + 1}: ${article.title}`}
                 aria-current={idx === currentIndex}
@@ -396,26 +392,15 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                   <CloudImage
                     src={article.featured_image}
                     alt={article.title}
-                    width={48}
-                    height={36}
-                    className="w-full h-full object-cover"
+                    width={64}
+                    height={40}
+                    className="w-full h-full object-contain bg-gray-100 dark:bg-gray-800"
                     fallbackType="article"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                     <span className="text-xs text-gray-500">لا توجد صورة</span>
                   </div>
-                )}
-                {/* تدرج لوني ناعم */}
-                <div
-                  className={`absolute inset-0 transition-opacity duration-300 ${
-                    idx === currentIndex ? "" : "bg-black/40 hover:bg-black/25"
-                  }`}
-                  style={{ background: idx === currentIndex && accentActive ? 'hsl(var(--accent) / 0.15)' : undefined }}
-                ></div>
-                {/* مؤشر النشاط */}
-                {idx === currentIndex && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 dark:bg-blue-400"></div>
                 )}
               </button>
             ))}
