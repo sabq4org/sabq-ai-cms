@@ -30,6 +30,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Article ID is required" }, { status: 400 });
     }
 
+    // مفاتيح كاش بالذاكرة حسب المعطيات (غير شخصية)
+    const cacheKey = `ai-recs:${articleId}:${categoryName || ''}:${tags.sort().join('|')}`;
+    // كاش بالذاكرة في نطاق العملية (قد يستمر على الخادم)
+    // eslint-disable-next-line no-var
+    var globalAny: any = global as any;
+    if (!globalAny.__AI_RECS_CACHE__) {
+      globalAny.__AI_RECS_CACHE__ = new Map<string, { data: any; ts: number }>();
+    }
+    const RAM_CACHE_TTL = 5 * 60 * 1000; // 5 دقائق
+    const now = Date.now();
+    const cached = globalAny.__AI_RECS_CACHE__.get(cacheKey);
+    if (cached && (now - cached.ts) < RAM_CACHE_TTL) {
+      const res = NextResponse.json(cached.data);
+      res.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=1800');
+      return res;
+    }
+
     // جلب المقال الحالي
     const currentArticle = await prisma.articles.findUnique({
       where: { id: articleId },
@@ -124,7 +141,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // استخدام AI لتحليل وترتيب التوصيات
+    // استخدام AI لتحليل وترتيب التوصيات (مع حد زمني صارم)
     let aiAnalyzedRecommendations: RecommendedArticle[] = [];
 
     if (process.env.OPENAI_API_KEY) {
@@ -173,7 +190,7 @@ ${index + 1}. المعرف: ${article.id}
 ملاحظة: رتب النتائج حسب الملاءمة الأعلى أولاً.
 `;
 
-        const completion = await openai.chat.completions.create({
+        const aiCall = openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
             {
@@ -188,6 +205,12 @@ ${index + 1}. المعرف: ${article.id}
           max_tokens: 1000,
           temperature: 0.3,
         });
+
+        // حد زمني 2500ms للتوليد؛ بعدها نسقط للمنطق التقليدي
+        const completion = await Promise.race([
+          aiCall,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('AI_TIMEOUT')), 2500))
+        ]) as any;
 
         const aiResponse = completion.choices[0]?.message?.content;
         if (aiResponse) {
@@ -266,18 +289,27 @@ ${index + 1}. المعرف: ${article.id}
       Math.max(1, aiAnalyzedRecommendations.length)
     );
 
-    return NextResponse.json({
+    const payload = {
       recommendations: aiAnalyzedRecommendations,
       averageConfidence,
       totalArticles: similarArticles.length,
       method: process.env.OPENAI_API_KEY ? "ai-powered" : "rule-based"
-    });
+    };
+
+    // حفظ في كاش الذاكرة
+    globalAny.__AI_RECS_CACHE__.set(cacheKey, { data: payload, ts: Date.now() });
+
+    const res = NextResponse.json(payload);
+    res.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=1800');
+    return res;
 
   } catch (error) {
     console.error("Error generating recommendations:", error);
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: "Failed to generate recommendations" },
       { status: 500 }
     );
+    res.headers.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=600');
+    return res;
   }
 }

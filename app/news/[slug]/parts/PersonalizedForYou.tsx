@@ -37,7 +37,10 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
           ...(tags.length > 0 && { tags: tags.join(",") })
         });
 
-        const response = await fetch(`/api/ai-recommendations?${params}`);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 2500);
+        const response = await fetch(`/api/ai-recommendations?${params}`, { signal: controller.signal, cache: 'force-cache' });
+        clearTimeout(timer);
         if (!response.ok) {
           throw new Error("Failed to fetch recommendations");
         }
@@ -61,7 +64,9 @@ export default function PersonalizedForYou({ articleId, categoryName, tags = [] 
       }
     };
 
+    let mounted = true;
     fetchRecommendations();
+    return () => { mounted = false; };
   }, [articleId, categoryName, tags]);
 
   if (loading) {
