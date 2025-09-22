@@ -35,7 +35,8 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
     const controller = new AbortController();
     (async () => {
       try {
-        const res = await fetch(`/api/articles/${encodeURIComponent(String(article.id))}/insights`, { cache: 'no-store', signal: controller.signal });
+        const key = typeof window !== 'undefined' ? (new URL(window.location.href).pathname.split('/').pop() || String(article.id)) : String(article.id);
+        const res = await fetch(`/api/articles/${encodeURIComponent(key)}/insights`, { cache: 'no-store', signal: controller.signal });
         if (!res.ok) return;
         const data = await res.json();
         if (data && typeof data === 'object') {

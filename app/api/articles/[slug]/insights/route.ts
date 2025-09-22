@@ -4,42 +4,46 @@ import prisma from "@/lib/prisma";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
-    const id = params.id;
-    if (!id) return NextResponse.json({ error: "missing id" }, { status: 400 });
+    const { slug } = await context.params;
+    const idOrSlug = slug;
+    if (!idOrSlug) return NextResponse.json({ error: "missing slug" }, { status: 400 });
 
-    const [articleAgg, sessionsAgg, readsCompletedCount, commentsCount] = await Promise.all([
-      prisma.articles.findFirst({
-        where: { id },
-        select: { views: true, likes: true, shares: true }
-      }),
+    // يمكن أن يكون القيمة ID أو SLUG
+    const article = await prisma.articles.findFirst({
+      where: { OR: [{ id: idOrSlug }, { slug: idOrSlug }], status: "published" },
+      select: { id: true, views: true, likes: true, shares: true }
+    });
+
+    if (!article) {
+      return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    }
+
+    const [sessionsAgg, readsCompletedCount, commentsCount] = await Promise.all([
       prisma.user_reading_sessions.aggregate({
         _avg: { duration_seconds: true },
-        where: { article_id: id }
+        where: { article_id: article.id }
       }),
       prisma.user_reading_sessions.count({
         where: {
-          article_id: id,
+          article_id: article.id,
           OR: [
             { read_percentage: { gte: 0.9 as any } },
             { duration_seconds: { gte: 60 } }
           ]
         }
       }),
-      prisma.comments.count({ where: { article_id: id } })
+      prisma.comments.count({ where: { article_id: article.id } })
     ]);
 
-    const views = articleAgg?.views || 0;
-    const likes = articleAgg?.likes || 0;
-    const shares = articleAgg?.shares || 0;
     const avgReadTimeSec = Math.max(0, Math.round((sessionsAgg._avg as any)?.duration_seconds || 0)) || 60;
 
     return NextResponse.json({
-      views,
+      views: article.views || 0,
       readsCompleted: readsCompletedCount || 0,
       avgReadTimeSec,
-      interactions: { likes, comments: commentsCount || 0, shares },
+      interactions: { likes: article.likes || 0, comments: commentsCount || 0, shares: article.shares || 0 },
       ai: {
         shortSummary: "",
         sentiment: "محايد",
