@@ -91,7 +91,7 @@ export default async function LightFeaturedServerMarkup({ limit = 3 }: { limit?:
   }
 
   return (
-    <section aria-label="الأخبار المميزة" className="relative" dir="rtl">
+    <section aria-label="الأخبار المميزة" className="relative pr-2 sm:pr-4" dir="rtl">
       <div
         className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory"
         style={{ WebkitOverflowScrolling: "touch" as any, scrollbarWidth: 'none' as any }}
