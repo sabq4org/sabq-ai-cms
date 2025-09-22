@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export default async function LightPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 bg-gray-50 dark:bg-gray-950">
-      <div className="mb-8 text-right pr-2 sm:pr-4">
+      <div className="mb-8 text-right pr-4 md:pr-6 lg:pr-8">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">النسخة الخفيفة</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">واجهة مبسطة وسريعة مع جميع الميزات الأساسية</p>
       </div>
@@ -23,7 +23,7 @@ export default async function LightPage() {
         {/* نظام الألوان المتغيرة تم تعطيله لتحسين الأداء */}
       </div>
 
-      <div className="mb-8 pr-2 sm:pr-4">
+      <div className="mb-8 pr-4 md:pr-6 lg:pr-8">
         <LightFeaturedServerMarkup limit={3} />
       </div>
 
