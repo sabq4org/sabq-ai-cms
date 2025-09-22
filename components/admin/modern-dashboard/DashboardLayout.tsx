@@ -136,7 +136,10 @@ export default function DashboardLayout({
             ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
           }}>
             <div className={cn("fade-in", className)} style={{ 
-              padding: '0 32px',
+              // حواشي داخلية متجاوبة تمنع ملامسة الحواف + دعم safe-area
+              padding: '0 clamp(16px, 3vw, 32px)',
+              paddingLeft: 'max(clamp(16px, 3vw, 32px), env(safe-area-inset-left))',
+              paddingRight: 'max(clamp(16px, 3vw, 32px), env(safe-area-inset-right))',
               maxWidth: '1400px',
               margin: '0 auto',
               width: '100%'
