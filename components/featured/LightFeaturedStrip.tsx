@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { formatDateNumeric } from "@/lib/date-utils";
 import { getArticleLink } from "@/lib/utils";
@@ -46,6 +46,21 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
       el.scrollBy({ left: delta, behavior: "smooth" });
     }
   }, []);
+
+  // ضبط موضع التمرير الابتدائي في RTL لمنع وجود هامش كبير على يمين الشريط
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    try {
+      const dir = (el.closest('section[dir]')?.getAttribute('dir') || (typeof document !== 'undefined' ? document.dir : 'ltr'))?.toLowerCase();
+      if (dir === 'rtl') {
+        // الانتظار لإتمام الرسم ثم التمرير لنهاية المحتوى (يمين الشاشة في RTL)
+        requestAnimationFrame(() => {
+          el.scrollLeft = el.scrollWidth;
+        });
+      }
+    } catch {}
+  }, [articles?.length]);
 
   if (!articles || articles.length === 0) {
     return null; // لا نعرض شيئاً إذا لا توجد مقالات
@@ -103,7 +118,7 @@ export default function LightFeaturedStrip({ articles, heading }: LightFeaturedS
         tabIndex={0}
         onKeyDown={onKeyScroll}
         className="flex gap-4 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory focus:outline-none"
-        style={{ WebkitOverflowScrolling: "touch" }}
+        style={{ WebkitOverflowScrolling: "touch", paddingInlineStart: 0, paddingInlineEnd: 0 } as any}
       >
         {/* إخفاء شريط التمرير */}
         <style jsx>{`
