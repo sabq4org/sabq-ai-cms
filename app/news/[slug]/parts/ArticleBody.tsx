@@ -13,10 +13,14 @@ type Props = {
     views?: number;
   };
   hiddenImageUrls?: string[];
+  skipProcessing?: boolean;
 };
 
-export default function ArticleBody({ html, article, hiddenImageUrls = [] }: Props) {
+export default function ArticleBody({ html, article, hiddenImageUrls = [], skipProcessing = false }: Props) {
   const content = useMemo(() => {
+    if (skipProcessing) {
+      return html || "";
+    }
     let c = html || "";
     // إزالة أي سكربتات مضمنة في المحتوى لحماية الأداء
     try {

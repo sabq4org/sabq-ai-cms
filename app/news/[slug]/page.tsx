@@ -28,64 +28,95 @@ type Insights = {
 
 
 
-const getInsights = async function getInsights(articleId: string): Promise<Insights> {
-  try {
-    const [articleAgg, sessionsAgg, readsCompletedCount, commentsCount] = await Promise.all([
-      prisma.articles.findFirst({
-        where: { id: articleId },
-        select: { views: true, likes: true, shares: true }
-      }),
-      prisma.user_reading_sessions.aggregate({
-        _avg: { duration_seconds: true },
-        where: { article_id: articleId }
-      }),
-      prisma.user_reading_sessions.count({
-        where: {
-          article_id: articleId,
-          OR: [
-            { read_percentage: { gte: 0.9 as any } },
-            { duration_seconds: { gte: 60 } }
-          ]
-        }
-      }),
-      prisma.comments.count({ where: { article_id: articleId } })
-    ]);
-
-    const views = articleAgg?.views || 0;
-    const likes = articleAgg?.likes || 0;
-    const shares = articleAgg?.shares || 0;
-    const avgReadTimeSec = Math.max(0, Math.round((sessionsAgg._avg as any)?.duration_seconds || 0));
-
-    return {
-      views,
-      readsCompleted: readsCompletedCount || 0,
-      avgReadTimeSec: avgReadTimeSec > 0 ? avgReadTimeSec : 60,
-      interactions: { likes, comments: commentsCount || 0, shares },
-      ai: {
-        shortSummary: "",
-        sentiment: "محايد",
-        topic: "أخبار",
-        readerFitScore: 60,
-        recommendations: [],
-      },
-    };
-  } catch (e) {
-    // في حال أي خطأ، نُرجع قيمًا آمنة بدلاً من التعطّل
-    return {
-      views: 0,
-      readsCompleted: 0,
-      avgReadTimeSec: 60,
-      interactions: { likes: 0, comments: 0, shares: 0 },
-      ai: {
-        shortSummary: "",
-        sentiment: "محايد",
-        topic: "أخبار",
-        readerFitScore: 60,
-        recommendations: [],
-      },
-    };
-  }
+// مخرجات افتراضية سريعة لـ insights لتقليل TTFB (سيتم تحديثها من العميل)
+const getInsightsFallback = function getInsightsFallback(): Insights {
+  return {
+    views: 0,
+    readsCompleted: 0,
+    avgReadTimeSec: 60,
+    interactions: { likes: 0, comments: 0, shares: 0 },
+    ai: {
+      shortSummary: "",
+      sentiment: "محايد",
+      topic: "أخبار",
+      readerFitScore: 60,
+      recommendations: [],
+    },
+  };
 };
+
+// معالجة HTML على الخادم لتقليل عمل المتصفح
+function processArticleContentForClient(html: string | null | undefined, opts: { heroUrls?: string[] } = {}) {
+  try {
+    let c = String(html || "");
+    // إزالة السكربتات
+    c = c.replace(/<script[\s\S]*?<\/script>/gi, "");
+    // روابط YouTube إلى iframe
+    const getYouTubeId = (url: string): string | null => {
+      try {
+        const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+        return m?.[1] || null;
+      } catch { return null; }
+    };
+    const ytAnchorRe = /<a[^>]+href=["'](https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[^"']+)["'][^>]*>.*?<\/a>/gi;
+    c = c.replace(ytAnchorRe, (_m, url: string) => {
+      const id = getYouTubeId(url);
+      if (!id) return _m;
+      const src = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`;
+      return `<div class="my-6 rounded-2xl overflow-hidden shadow"><iframe src="${src}" style="width:100%;aspect-ratio:16/9;max-width:100%;" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    });
+    // iframes: إضافة style وخواص التحميل
+    c = c.replace(/<iframe(?![^>]*\bstyle=)/gi, '<iframe style="width:100%;aspect-ratio:16/9;max-width:100%;"');
+    c = c.replace(/<iframe([^>]*)>/gi, (match: string) => {
+      let tag = match;
+      if (!/\bloading=/.test(tag)) tag = tag.replace('<iframe', '<iframe loading="lazy"');
+      if (!/\ballow=/.test(tag)) tag = tag.replace('<iframe', '<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"');
+      if (!/\ballowfullscreen\b/i.test(tag)) tag = tag.replace(/<iframe([^>]*)>/i, '<iframe$1 allowfullscreen>');
+      return tag;
+    });
+    // img: lazy + Cloudinary f_auto,q_auto:eco,w_1200
+    c = c.replace(/<img(?![^>]*\bloading=)[^>]*>/gi, (tag) => tag.replace(/<img/i, '<img loading="lazy" decoding="async"'));
+    c = c.replace(/<img([^>]+)src=["']([^"']+)["']([^>]*)>/gi, (m, pre, src, post) => {
+      try {
+        if (!src.includes('res.cloudinary.com') || !src.includes('/upload/')) return m;
+        if(/\/upload\/(c_|w_|f_|q_|g_)/.test(src)) return m;
+        const parts = src.split('/upload/');
+        if (parts.length !== 2) return m;
+        const tx = 'f_auto,q_auto:eco,w_1200';
+        const newSrc = `${parts[0]}/upload/${tx}/${parts[1]}`;
+        return `<img${pre}src="${newSrc}"${post}>`;
+      } catch { return m; }
+    });
+    // إزالة أول تكرار لصورة الهيرو داخل المحتوى إن وُجدت
+    const urls = Array.isArray(opts.heroUrls) ? opts.heroUrls.filter(Boolean) : [];
+    const removeOnce = (str: string, re: RegExp): string => {
+      let replaced = false;
+      return str.replace(re, (mm) => {
+        if (replaced) return mm;
+        replaced = true;
+        return "";
+      });
+    };
+    for (const u of urls) {
+      try {
+        if (!u) continue;
+        if (u.startsWith('data:')) {
+          const re = /<img[^>]+src=["']data:[^"']+["'][^>]*>/i;
+          c = removeOnce(c, re);
+        } else {
+          const clean = u.split('?')[0].split('#')[0];
+          const tail = clean.slice(-80);
+          const key = tail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const re = new RegExp(`<img[^>]+src=["'][^"']*${key}[^"']*["'][^>]*>`, 'i');
+          c = removeOnce(c, re);
+        }
+      } catch { /* ignore */ }
+    }
+    return c;
+  } catch {
+    return String(html || "");
+  }
+}
 
 const getArticle = async function getArticle(slug: string) {
   const decodedSlug = decodeURIComponent(slug);
@@ -251,9 +282,22 @@ const getArticle = async function getArticle(slug: string) {
       }
     }
     const unique = Array.from(new Set(keywords));
-    return { ...(article as any), keywords: unique } as any;
+    // معالجة المحتوى HTML على الخادم
+    const heroUrls: string[] = [];
+    if ((article as any)?.featured_image) heroUrls.push((article as any).featured_image as any);
+    if ((article as any)?.social_image) heroUrls.push((article as any).social_image as any);
+    const processed = processArticleContentForClient((article as any)?.content, { heroUrls });
+    return { ...(article as any), keywords: unique, content_processed: processed } as any;
   } catch {
-    return article;
+    try {
+      const heroUrls: string[] = [];
+      if ((article as any)?.featured_image) heroUrls.push((article as any).featured_image as any);
+      if ((article as any)?.social_image) heroUrls.push((article as any).social_image as any);
+      const processed = processArticleContentForClient((article as any)?.content, { heroUrls });
+      return { ...(article as any), content_processed: processed } as any;
+    } catch {
+      return article;
+    }
   }
 };
 
@@ -293,18 +337,8 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
   const article = await getArticleCached(slug);
   if (!article) return notFound();
 
-  // كاش الإحصاءات بعلامة مستقلة
-  const getInsightsCached = unstable_cache(
-    async (id: string) => getInsights(id),
-    ["article-insights", article.id],
-    { tags: [
-      `article-insights:${article.id}`,
-      `article:${slug}`,
-      "news",
-    ], revalidate: 300 }
-  );
-
-  const insights = await getInsightsCached(article.id);
+  // تمرير insights افتراضية وسيقوم العميل بجلبها لاحقًا
+  const insights = getInsightsFallback();
 
   return (
     <Suspense fallback={<ArticleSkeleton />}>

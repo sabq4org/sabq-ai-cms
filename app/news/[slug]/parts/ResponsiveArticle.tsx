@@ -33,7 +33,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
     return images;
   }, [article.featured_image, article.social_image, article.title]);
   
-  const contentHtml = article.content || "";
+  const contentHtml = article.content_processed || article.content || "";
   const hiddenImageUrls = heroImages.map((img: any) => img.url);
   
   // Progressive loading states
@@ -219,7 +219,7 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                 {/* خط فاصل */}
                 <hr className="border-neutral-200 dark:border-neutral-800 my-6" />
 
-              <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} />
+              <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} skipProcessing={!!article.content_processed} />
 
               {/* الكلمات المفتاحية تحت المحتوى */}
               {(Array.isArray(article.tags) && article.tags.length > 0) || (Array.isArray(article.keywords) && article.keywords.length > 0) ? (

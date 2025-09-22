@@ -27,8 +27,24 @@ type Insights = {
 };
 
 export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; categories?: { name: string } | null; tags?: any[]; likes?: number; shares?: number; saves?: number } }) {
-  const avgMinutes = useMemo(() => Math.max(1, Math.round(insights.avgReadTimeSec / 60)), [insights.avgReadTimeSec]);
+  const [liveInsights, setLiveInsights] = useState<Insights>(insights);
+  const avgMinutes = useMemo(() => Math.max(1, Math.round(liveInsights.avgReadTimeSec / 60)), [liveInsights.avgReadTimeSec]);
   const { user, isLoggedIn } = useAuth();
+  // جلب insights حديثة من API بعد التحميل لتقليل TTFB
+  useEffect(() => {
+    const controller = new AbortController();
+    (async () => {
+      try {
+        const res = await fetch(`/api/articles/${encodeURIComponent(String(article.id))}/insights`, { cache: 'no-store', signal: controller.signal });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && typeof data === 'object') {
+          setLiveInsights((prev) => ({ ...prev, ...data }));
+        }
+      } catch {}
+    })();
+    return () => controller.abort();
+  }, [article.id]);
   
   // تسجيل للتحقق من البيانات
   // تعطيل سجلات المتصفح في الإنتاج
@@ -290,10 +306,10 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           <h3 className="font-semibold">نظرة سريعة</h3>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <Stat label="المشاهدات" value={insights.views.toLocaleString("en-US")} />
-          <Stat label="إكمال القراءة" value={insights.readsCompleted.toLocaleString("en-US")} />
+          <Stat label="المشاهدات" value={liveInsights.views.toLocaleString("en-US")} />
+          <Stat label="إكمال القراءة" value={liveInsights.readsCompleted.toLocaleString("en-US")} />
           <Stat label="متوسط الوقت" value={`${avgMinutes} د`} />
-          <Stat label="التفاعل" value={`${insights.interactions.shares + insights.interactions.comments + insights.interactions.likes}`} />
+          <Stat label="التفاعل" value={`${liveInsights.interactions.shares + liveInsights.interactions.comments + liveInsights.interactions.likes}`} />
         </div>
       </div>
 
@@ -304,12 +320,12 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           <h3 className="font-semibold">تحليلات AI</h3>
         </div>
         <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-6">
-          {insights.ai.shortSummary}
+          {liveInsights.ai.shortSummary}
         </p>
         <div className="flex flex-wrap items-center gap-2 mt-3 text-xs">
-          <span className="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">{insights.ai.sentiment}</span>
-          <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">{insights.ai.topic}</span>
-          <span className="px-2 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300">ملاءمة {insights.ai.readerFitScore}%</span>
+          <span className="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">{liveInsights.ai.sentiment}</span>
+          <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">{liveInsights.ai.topic}</span>
+          <span className="px-2 py-1 rounded-full bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300">ملاءمة {liveInsights.ai.readerFitScore}%</span>
         </div>
       </div>
       
