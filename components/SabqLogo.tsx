@@ -2,6 +2,7 @@
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 interface SabqLogoProps {
   className?: string;
@@ -19,6 +20,7 @@ export default function SabqLogo({
   const [imageError, setImageError] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { logoUrl, logoDarkUrl } = useSiteSettings();
+  const { theme } = useThemeContext();
 
   // مراقبة تغيير الوضع الليلي بشكل ديناميكي
   useEffect(() => {
@@ -38,8 +40,10 @@ export default function SabqLogo({
     return () => observer.disconnect();
   }, []);
 
-  // استخدام الشعار من الإعدادات أو الافتراضي
-  const src = imageError ? "/logo.png" : (isDarkMode && logoDarkUrl ? logoDarkUrl : logoUrl) || "/logo.png";
+  // استخدام الشعار من الإعدادات أو الافتراضي أو من الثيم
+  const themedLogo = theme?.logo_url || null;
+  const baseLogo = (isDarkMode && logoDarkUrl ? logoDarkUrl : logoUrl) || "/logo.png";
+  const src = imageError ? "/logo.png" : (themedLogo || baseLogo);
 
   // شعار نصي احتياطي
   if (imageError) {

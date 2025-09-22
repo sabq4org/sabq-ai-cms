@@ -8,7 +8,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 type Img = { url: string; alt?: string; width?: number | null; height?: number | null };
 
 // تحسين رابط Cloudinary عند توفره لتقليل LCP عبر f_auto,q_auto,w_...
-function transformCloudinary(url: string, width: number): string {
+function transformCloudinary(url: string, width: number, opts?: { fill?: boolean; quality?: 'auto' | 'eco' }): string {
   try {
     if (!url || typeof url !== 'string') return url;
     if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
@@ -16,8 +16,9 @@ function transformCloudinary(url: string, width: number): string {
     if (parts.length !== 2) return url;
     // إذا كانت التحويلات موجودة بالفعل، نعيد الرابط كما هو
     if (/\/upload\/(c_|w_|f_|q_|g_)/.test(url)) return url;
-    const quality = width <= 800 ? 'q_auto:eco' : 'q_auto';
-    const tx = `f_auto,${quality},w_${width}`;
+    const quality = opts?.quality === 'eco' || width <= 800 ? 'q_auto:eco' : 'q_auto';
+    const crop = opts?.fill === false ? 'c_limit' : 'c_fill,g_auto';
+    const tx = `f_auto,${quality},${crop},dpr_auto,w_${width}`;
     return `${parts[0]}/upload/${tx}/${parts[1]}`;
   } catch { return url; }
 }
@@ -32,6 +33,8 @@ export default function HeroGallery({ images }: { images: Img[] }) {
 function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
   // نحسب نسبة الصورة لتحديد إذا كانت عمودية
   const isPortrait = img.height && img.width && (img.height / img.width) > 1.2;
+  const isCloudinary = typeof img.url === 'string' && img.url.includes('res.cloudinary.com');
+  const blurDataURL = isCloudinary ? transformCloudinary(img.url, 20, { fill: true, quality: 'eco' }) : undefined;
   
   return (
     <div className="relative w-full py-2 px-2 md:px-4">
@@ -44,13 +47,15 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
           isPortrait && "bg-gray-50 dark:bg-gray-900"
         )}>
           <Image
-            src={transformCloudinary(img.url, 1280)}
+            src={transformCloudinary(img.url, 1100, { fill: true, quality: 'eco' })}
             alt={img.alt || "صورة الخبر"}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1200px"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1100px"
             priority
             fetchPriority="high"
             decoding="async"
+            placeholder={blurDataURL ? 'blur' : undefined as any}
+            blurDataURL={blurDataURL}
             className={cn(
               // للصور العمودية على الموبايل نستخدم contain، وعلى الشاشات الكبيرة cover
               isPortrait ? "object-contain sm:object-cover" : "object-cover",
@@ -91,6 +96,8 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
 
   // نأخذ أول 5 صور: صورة هيرو + أربع مصغرات
   const hero = imgs[0];
+  const isCloudinaryHero = typeof hero?.url === 'string' && hero.url.includes('res.cloudinary.com');
+  const blurHero = isCloudinaryHero ? transformCloudinary(hero.url, 20, { fill: true, quality: 'eco' }) : undefined;
   const thumbs = useMemo(() => imgs.slice(1, 5), [imgs]);
   const showMore = imgs.length > 5;
 
@@ -102,13 +109,15 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
           <div className="relative md:h-full group cursor-zoom-in bg-gray-50 dark:bg-gray-900" onClick={() => openAt(0)}>
             <div className="relative w-full h-full min-h-[300px] md:min-h-[400px] overflow-hidden">
               <Image 
-                src={transformCloudinary(hero?.url || imgs[0].url, 1200)} 
+                src={transformCloudinary(hero?.url || imgs[0].url, 900, { fill: true, quality: 'eco' })} 
                 alt={hero?.alt || imgs[0].alt || "صورة"} 
                 fill 
                 sizes="(max-width: 768px) 100vw, 50vw" 
                 priority 
                 fetchPriority="high"
                 decoding="async"
+                placeholder={blurHero ? 'blur' : undefined as any}
+                blurDataURL={blurHero}
                 className="object-cover object-center" 
               />
             </div>
@@ -118,7 +127,7 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
             {thumbs.map((t, i) => (
                 <div key={i} className="relative group cursor-zoom-in overflow-hidden bg-gray-50 dark:bg-gray-900" onClick={() => openAt(i + 1)}>
                   <Image 
-                    src={transformCloudinary(t.url, 600)} 
+                    src={transformCloudinary(t.url, 360, { fill: true, quality: 'eco' })} 
                     alt={t.alt || "صورة"} 
                     fill 
                     sizes="(max-width: 768px) 50vw, 300px" 
