@@ -188,8 +188,9 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
     return undefined;
   })();
 
-  // اشتقاق العنوان الفرعي من excerpt أو summary أو metadata.summary أو subtitle
-  const subtitle: string | undefined = (currentArticle as any).excerpt || (currentArticle as any).summary || (currentArticle as any)?.metadata?.summary || (currentArticle as any).subtitle;
+  // اشتقاق العنوان الفرعي الصغير (Subtitle) والموجز (Excerpt)
+  const smallSubtitle: string | undefined = (currentArticle as any).subtitle || (currentArticle as any)?.metadata?.subtitle;
+  const excerptText: string | undefined = (currentArticle as any).excerpt || (currentArticle as any).summary || (currentArticle as any)?.metadata?.summary;
   
   // تسجيل console للتشخيص في النسخة الكاملة
   if (process.env.NODE_ENV === 'development') {
@@ -350,13 +351,22 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               >
                 {currentArticle.title}
               </h2>
-              {subtitle && (
+              {/* العنوان الفرعي الصغير أسفل العنوان الرئيسي */}
+              {smallSubtitle && (
+                <div className="mb-3">
+                  <p className={`text-xs lg:text-sm font-medium ${darkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+                    {smallSubtitle}
+                  </p>
+                </div>
+              )}
+              {/* الموجز */}
+              {excerptText && (
                 <p
                   className={`text-sm lg:text-base mb-6 leading-relaxed line-clamp-2 ${
                     darkMode ? "text-gray-300" : "text-gray-600"
                   }`}
                 >
-                  {subtitle}
+                  {excerptText}
                 </p>
               )}
               {/* معلومات إضافية (أعلى) */}
