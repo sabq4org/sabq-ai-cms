@@ -265,11 +265,13 @@ class UnifiedFeaturedManager {
       id: article.id,
       title: article.title,
       slug: article.slug,
-      excerpt: article.excerpt,
+      // excerpt مع fallback من summary/metadata
+      excerpt: article.excerpt || (article as any).summary || (article as any)?.metadata?.summary || (article as any)?.metadata?.description || undefined,
       featured_image: this.processImage(article, format),
       published_at: article.published_at,
       views: article.views || 0,
-      breaking: article.breaking || false,
+      // دعم breaking من metadata
+      breaking: Boolean(article.breaking || (article as any).is_breaking || (article as any)?.metadata?.breaking),
       featured: article.featured || false,
       category: article.categories ? {
         id: article.categories.id,
@@ -282,7 +284,11 @@ class UnifiedFeaturedManager {
         id: article.author.id,
         name: article.author.name,
       } : null,
-      metadata: article.metadata,
+      // إضافة subtitle داخل metadata إذا كان موجوداً مباشرة في المقال
+      metadata: {
+        ...article.metadata,
+        subtitle: (article as any).subtitle || (article as any)?.metadata?.subtitle,
+      },
     }));
   }
 
