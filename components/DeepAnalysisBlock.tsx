@@ -442,7 +442,8 @@ export default function DeepAnalysisBlock({
                   key={item.id}
                   href={url}
                   onClick={() => markAsRead(item.id)}
-                  className={`group block h-full bg-[#f8f8f7]/95 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg`}
+                  className={`block h-full bg-white border rounded-2xl overflow-hidden`}
+                  style={{ borderColor: '#f0f0ef' }}
                 >
                   <div className="relative p-4 h-full flex flex-col">
                     {/* رأس البطاقة - مضغوط جداً */}
@@ -523,7 +524,7 @@ export default function DeepAnalysisBlock({
                         <h3
                           className={`text-base md:text-lg font-bold leading-snug line-clamp-2 mb-1 ${
                             darkMode ? "text-white" : "text-gray-900"
-                          } group-hover:text-purple-400 transition-colors`}
+                          }`}
                         >
                           {title}
                         </h3>
