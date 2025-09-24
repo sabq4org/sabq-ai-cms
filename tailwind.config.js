@@ -28,6 +28,20 @@ module.exports = {
         ],
       },
       colors: {
+        // لوحة ألوان هوية "سبق الذكية"
+        brand: {
+          primary: '#2563EB',
+          primaryFg: '#FFFFFF',
+          secondary: '#0EA5E9',
+          accent: '#9333EA',
+          danger: '#DC2626',
+          bg: '#FFFFFF',
+          surface: '#F8F8F7',
+          border: '#F0F0EF',
+          fg: '#0F172A',
+          muted: '#475569',
+          ring: '#93C5FD',
+        },
         // خلفية المشروع الموحدة
         background: {
           primary: "#f8f8f7",
@@ -111,6 +125,7 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        card: "16px",
       },
       fontFamily: {
         sans: [
