@@ -385,8 +385,8 @@ function NewspaperHomePage({
           className={`h-full rounded-2xl overflow-hidden transition-all duration-300 flex flex-col ${
             news.breaking || news.is_breaking
               ? darkMode
-                ? "bg-red-950/30 border border-red-800/70"
-                : "bg-red-50 border border-red-200"
+                ? "bg-red-900/20 border border-red-500/70"
+                : "bg-[#fff5f5] border border-red-600"
               : darkMode
               ? "bg-gray-800 border border-gray-700"
               : "bg-white border border-gray-200 shadow-sm"
