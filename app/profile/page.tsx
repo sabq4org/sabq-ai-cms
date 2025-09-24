@@ -41,7 +41,6 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { ProfileTabs } from "@/components/profile/ProfileTabs";
 // المكونات الجديدة
 interface UserProfile {
   id: string;
@@ -169,11 +168,6 @@ export default function ProfilePage() {
   const [realStats, setRealStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const handleUnifiedTabsChange = (v: string) => {
-    if (v === 'profile') setActiveTab('overview');
-    else if (v === 'bookmarks') setActiveTab('saved');
-    else if (v === 'likes') setActiveTab('likes');
-  };
   // منع تكرار الطلبات
   const fetchDataRef = useRef(false);
   const dataFetchedRef = useRef(false);
@@ -953,10 +947,98 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        {/* تبويبات الهوية الموحّدة (Profile / Bookmarks / Likes) */}
+        {/* التبويبات مع التمرير الأفقي للموبايل */}
         <div className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <ProfileTabs defaultValue="profile" onChange={handleUnifiedTabsChange} />
+          <div className="max-w-6xl mx-auto">
+            {/* حاوية التمرير الأفقي */}
+            <div className="overflow-x-auto scrollbar-hide">
+              <div className="flex px-2 sm:px-4 lg:px-8 min-w-max">
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
+                    activeTab === "overview"
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  }`}
+                >
+                  <Activity className="w-4 h-4" />
+                  نظرة عامة
+                  {activeTab === "overview" && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("insights")}
+                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
+                    activeTab === "insights"
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  }`}
+                >
+                  <Brain className="w-4 h-4" />
+                  التحليلات
+                  {activeTab === "insights" && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("achievements")}
+                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
+                    activeTab === "achievements"
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  }`}
+                >
+                  <Trophy className="w-4 h-4" />
+                  الإنجازات
+                  {activeTab === "achievements" && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("timeline")}
+                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
+                    activeTab === "timeline"
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  }`}
+                >
+                  <Calendar className="w-4 h-4" />
+                  سجل القراءة
+                  {activeTab === "timeline" && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("likes")}
+                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
+                    activeTab === "likes"
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  }`}
+                >
+                  <Heart className="w-4 h-4" />
+                  الإعجابات
+                  {activeTab === "likes" && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("saved")}
+                  className={`flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 font-medium transition-all relative whitespace-nowrap text-sm sm:text-base ${
+                    activeTab === "saved"
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  }`}
+                >
+                  <Bookmark className="w-4 h-4" />
+                  المحفوظات
+                  {activeTab === "saved" && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         {/* المحتوى الرئيسي */}
