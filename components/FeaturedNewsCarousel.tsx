@@ -165,7 +165,31 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
   }
 
   const currentArticle = articles[currentIndex];
-  const isBreaking = Boolean((currentArticle as any).breaking || (currentArticle as any).is_breaking);
+  // دعم مصادر متعددة لحقل العاجل (breaking)
+  const isBreaking = Boolean(
+    (currentArticle as any).breaking ||
+    (currentArticle as any).is_breaking ||
+    (currentArticle as any)?.metadata?.breaking
+  );
+
+  // اشتقاق بيانات التصنيف من صيغ متعددة محتملة
+  const rawCategory: any = (currentArticle as any).category ?? (currentArticle as any).categories ?? null;
+  const categoryName: string | undefined = (() => {
+    if (!rawCategory) return (currentArticle as any).category_name || (currentArticle as any).categoryName;
+    if (typeof rawCategory === 'string') return rawCategory;
+    if (Array.isArray(rawCategory)) return rawCategory[0]?.name || rawCategory[0];
+    if (typeof rawCategory === 'object') return rawCategory.name || (currentArticle as any).category_name || (currentArticle as any).categoryName;
+    return undefined;
+  })();
+  const categoryIcon: string | undefined = (() => {
+    if (!rawCategory) return undefined;
+    if (Array.isArray(rawCategory)) return rawCategory[0]?.icon;
+    if (typeof rawCategory === 'object') return rawCategory.icon;
+    return undefined;
+  })();
+
+  // اشتقاق العنوان الفرعي من excerpt أو summary أو metadata.summary أو subtitle
+  const subtitle: string | undefined = (currentArticle as any).excerpt || (currentArticle as any).summary || (currentArticle as any)?.metadata?.summary || (currentArticle as any).subtitle;
   
   // تسجيل console للتشخيص في النسخة الكاملة
   if (process.env.NODE_ENV === 'development') {
@@ -246,8 +270,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                     </span>
                   ) : (
                     <>
-                      <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
-                      <span className="font-medium">{currentArticle.category?.name || 'أخبار'}</span>
+                      <span className="text-sm">{categoryIcon || '📰'}</span>
+                      <span className="font-medium">{categoryName || 'أخبار'}</span>
                     </>
                   )}
                   {/* ليبل "جديد" للأخبار في آخر 48 ساعة */}
@@ -294,7 +318,7 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                       عاجل
                     </span>
                   ) : (
-                    currentArticle.category?.name && (
+                    categoryName && (
                       <span
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border"
                         style={{
@@ -305,8 +329,8 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
                           borderColor: accentActive ? 'hsl(var(--accent) / 0.25)' : 'rgba(148,163,184,0.35)'
                         }}
                       >
-                        <span className="text-sm">{currentArticle.category?.icon || '📰'}</span>
-                        <span>{currentArticle.category?.name}</span>
+                        <span className="text-sm">{categoryIcon || '📰'}</span>
+                        <span>{categoryName}</span>
                       </span>
                     )
                   )}
@@ -326,13 +350,13 @@ const FeaturedNewsCarousel: React.FC<FeaturedNewsCarouselProps> = ({
               >
                 {currentArticle.title}
               </h2>
-              {currentArticle.excerpt && (
+              {subtitle && (
                 <p
                   className={`text-sm lg:text-base mb-6 leading-relaxed line-clamp-2 ${
                     darkMode ? "text-gray-300" : "text-gray-600"
                   }`}
                 >
-                  {currentArticle.excerpt}
+                  {subtitle}
                 </p>
               )}
               {/* معلومات إضافية (أعلى) */}
