@@ -248,27 +248,40 @@ export default function EnhancedFeaturedLoader({
               
               {/* Content Section - 50% */}
               <div className="hidden lg:flex col-span-1 p-6 flex-col justify-between">
-                {/* Category + New label (beside) */}
-                {currentArticle.category && (
-                  <div className="mb-3 flex items-center gap-2 flex-wrap">
+                {/* Category + Breaking/New label */}
+                <div className="mb-3 flex items-center gap-2 flex-wrap">
+                  {/* تسمية عاجل - الأولوية الأولى */}
+                  {isBreaking && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-600 text-white animate-pulse shadow-sm">
+                      <span className="text-sm">⚡</span>
+                      عاجل
+                    </span>
+                  )}
+                  
+                  {/* تسمية التصنيف */}
+                  {currentArticle.category && (
                     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-                      darkMode 
-                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                        : 'bg-blue-50 text-blue-700 border border-blue-200'
+                      isBreaking
+                        ? 'bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700'
+                        : darkMode 
+                          ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
                     }`}>
                       {currentArticle.category.icon && (
                         <span className="text-sm">{currentArticle.category.icon}</span>
                       )}
                       {currentArticle.category.name}
                     </span>
-                    {(!isBreaking) && isRecentNews(currentArticle.published_at || '') && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-500 text-white">
-                        <span className="text-sm">🔥</span>
-                        جديد
-                      </span>
-                    )}
-                  </div>
-                )}
+                  )}
+                  
+                  {/* تسمية جديد للأخبار الحديثة (غير العاجلة) */}
+                  {(!isBreaking) && isRecentNews(currentArticle.published_at || '') && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-500 text-white">
+                      <span className="text-sm">🔥</span>
+                      جديد
+                    </span>
+                  )}
+                </div>
                 
                 {/* Title */}
                 <h2 className={`text-xl lg:text-2xl font-bold mb-4 leading-tight line-clamp-3 ${
@@ -364,34 +377,59 @@ export default function EnhancedFeaturedLoader({
                     fallbackType="article"
                   />
                   
-                  {/* Badge */}
-                  <div className="absolute top-2 left-2">
-                    {isBreaking ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-600 text-white">
+                  {/* Badge - تحسين عرض التسميات */}
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    {/* تسمية عاجل - الأولوية الأولى */}
+                    {isBreaking && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white shadow-md animate-pulse">
                         <span className="text-sm">⚡</span>
                         عاجل
                       </span>
-                    ) : isRecentNews(article.published_at || '') ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-500 text-white">
+                    )}
+                    
+                    {/* تسمية جديد للأخبار الحديثة */}
+                    {(!isBreaking) && isRecentNews(article.published_at || '') && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-500 text-white shadow-md">
                         <span className="text-sm">🔥</span>
                         جديد
                       </span>
-                    ) : article.category ? (
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                        darkMode
-                          ? "bg-gray-900/60 text-gray-200 border border-gray-700"
-                          : "bg-white/80 text-gray-700 border border-gray-200"
+                    )}
+                    
+                    {/* تسمية التصنيف */}
+                    {article.category && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium shadow-sm ${
+                        isBreaking
+                          ? 'bg-red-100/90 text-red-700 border border-red-200'
+                          : darkMode
+                            ? "bg-gray-900/70 text-gray-200 border border-gray-600"
+                            : "bg-white/90 text-gray-700 border border-gray-200"
                       }`}>
                         {article.category.icon && (
                           <span className="text-xs">{article.category.icon}</span>
                         )}
                         {article.category.name}
                       </span>
-                    ) : null}
+                    )}
                   </div>
                 </div>
                 
                 <div className="flex flex-col p-3 pb-4 flex-1">
+                  {/* تسمية التصنيف في أسفل البطاقة للنسخة المتنقلة */}
+                  {article.category && !isBreaking && (
+                    <div className="mb-2">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                        darkMode
+                          ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+                      }`}>
+                        {article.category.icon && (
+                          <span className="text-xs">{article.category.icon}</span>
+                        )}
+                        {article.category.name}
+                      </span>
+                    </div>
+                  )}
+
                   <h3 className={`text-sm sm:text-base font-semibold leading-snug line-clamp-2 mb-2 ${
                     isBreaking
                       ? 'text-red-700 dark:text-red-300'
@@ -399,6 +437,13 @@ export default function EnhancedFeaturedLoader({
                   }`}>
                     {article.title}
                   </h3>
+                  
+                  {/* نبذة الخبر أو الموجز الذكي في النسخة المتنقلة */}
+                  {article.excerpt && (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+                  )}
                   
                   <div className="mt-auto flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-2">
