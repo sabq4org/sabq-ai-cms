@@ -1,6 +1,7 @@
 /**
  * طريق لوحة التحكم الحديثة - الصفحة الرئيسية
  * Modern Dashboard Route - Home Page
+ * Updated: September 25, 2025
  */
 
 "use client";
