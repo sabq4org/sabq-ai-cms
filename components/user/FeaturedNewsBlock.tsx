@@ -9,6 +9,7 @@ interface Article {
   id: string;
   title: string;
   excerpt?: string;
+  summary?: string;
   author?: {
     name: string;
     avatar?: string;
@@ -17,11 +18,21 @@ interface Article {
     name: string;
     slug: string;
   };
+  category_name?: string;
+  category_id?: number;
   image?: string;
   readTime?: number;
   views?: number;
   published_at?: string;
   slug: string;
+  breaking?: boolean;
+  is_breaking?: boolean;
+  featured?: boolean;
+  is_featured?: boolean;
+  metadata?: {
+    breaking?: boolean;
+    [key: string]: any;
+  };
 }
 
 interface FeaturedNewsBlockProps {
@@ -37,6 +48,26 @@ export default function FeaturedNewsBlock({
   icon = "🔥",
   description = "اكتشف أهم الأخبار والمقالات التي حازت على اهتمام القراء"
 }: FeaturedNewsBlockProps) {
+  
+  // إضافة CSS للتأثيرات
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
   const [isLoading, setIsLoading] = useState(!articles.length);
   const [newsArticles, setNewsArticles] = useState<Article[]>(articles);
 
@@ -92,6 +123,22 @@ export default function FeaturedNewsBlock({
       return `${(views / 1000).toFixed(1)}K`;
     }
     return views.toString();
+  };
+
+  // التحقق من كون الخبر عاجلاً
+  const isBreakingNews = (article: Article) => {
+    return Boolean(
+      article.breaking || 
+      article.is_breaking || 
+      article?.metadata?.breaking
+    );
+  };
+
+  // الحصول على اسم التصنيف
+  const getCategoryName = (article: Article) => {
+    if (article.category?.name) return article.category.name;
+    if (article.category_name) return article.category_name;
+    return null;
   };
 
   // مكون شعلة اللهب للأخبار الشائعة
@@ -255,23 +302,49 @@ export default function FeaturedNewsBlock({
 
                 {/* محتوى الخبر */}
                 <div style={{ flex: 1 }}>
-                  {/* التصنيف */}
-                  {article.category && (
-                    <div style={{
-                      fontSize: '12px',
-                      color: 'hsl(var(--accent))',
-                      fontWeight: '500',
-                      marginBottom: '8px'
-                    }}>
-                      {article.category.name}
-                    </div>
-                  )}
+                  {/* ليبل التصنيف وليبل عاجل */}
+                  <div style={{ marginBottom: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    {/* ليبل التصنيف */}
+                    {getCategoryName(article) && (
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        color: 'white',
+                        background: 'hsl(var(--accent))',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        textTransform: 'uppercase'
+                      }}>
+                        {getCategoryName(article)}
+                      </span>
+                    )}
+                    
+                    {/* ليبل عاجل */}
+                    {isBreakingNews(article) && (
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        color: 'white',
+                        background: '#dc2626',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        textTransform: 'uppercase',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        animation: 'pulse 2s infinite'
+                      }}>
+                        <span style={{ fontSize: '10px' }}>⚡</span>
+                        عاجل
+                      </span>
+                    )}
+                  </div>
 
                   {/* العنوان */}
                   <h3 style={{
                     fontSize: '16px',
                     fontWeight: '600',
-                    color: 'hsl(var(--fg))',
+                    color: isBreakingNews(article) ? '#dc2626' : 'hsl(var(--fg))',
                     marginBottom: '8px',
                     lineHeight: '1.4',
                     display: '-webkit-box',
@@ -282,20 +355,30 @@ export default function FeaturedNewsBlock({
                     {article.title}
                   </h3>
 
-                  {/* المقتطف */}
-                  {article.excerpt && (
-                    <p style={{
-                      fontSize: '13px',
-                      color: 'hsl(var(--muted))',
-                      lineHeight: '1.5',
-                      marginBottom: '12px',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}>
-                      {article.excerpt}
-                    </p>
+                  {/* نبذة الخبر أو المقتطف */}
+                  {(article.excerpt || article.summary) && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{
+                        fontSize: '13px',
+                        color: 'hsl(var(--muted))',
+                        lineHeight: '1.5',
+                        marginBottom: '4px',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}>
+                        {article.summary || article.excerpt}
+                      </p>
+                      <span style={{
+                        fontSize: '10px',
+                        color: 'hsl(var(--accent))',
+                        fontWeight: '500',
+                        textTransform: 'uppercase'
+                      }}>
+                        {article.summary ? 'الموجز الذكي' : 'نبذة من الخبر'}
+                      </span>
+                    </div>
                   )}
                 </div>
 
