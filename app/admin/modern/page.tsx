@@ -5,8 +5,16 @@
 
 "use client";
 
-import ModernDashboardHomeFullWidth from "@/components/admin/modern-dashboard/ModernDashboardHomeFullWidth";
+import DashboardLayout from "@/components/admin/modern-dashboard/DashboardLayout";
+import ModernDashboardHomeContent from "@/components/admin/modern-dashboard/ModernDashboardHomeContent";
 
 export default function ModernDashboardPage() {
-  return <ModernDashboardHomeFullWidth />;
+  return (
+    <DashboardLayout
+      pageTitle="لوحة التحكم الرئيسية"
+      pageDescription="نظرة شاملة على إحصائيات المنصة"
+    >
+      <ModernDashboardHomeContent />
+    </DashboardLayout>
+  );
 }

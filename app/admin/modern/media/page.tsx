@@ -365,17 +365,17 @@ const FolderCard = ({
 };
 
 export default function MediaLibraryPage() {
-  const [allAssets, setAllAssets] = useState<MediaAsset[]>([]);
-  const [allFolders, setAllFolders] = useState<MediaFolder[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [assets, setAssets] = useState<MediaAsset[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
-  const [showUpload, setShowUpload] = useState(false);
-  const [previewAsset, setPreviewAsset] = useState<MediaAsset | null>(null);
+  const [showMultiSelect, setShowMultiSelect] = useState(false);
+  const [sortBy, setSortBy] = useState<"name" | "date" | "size" | "type">("date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // Debounced search
   useEffect(() => {
@@ -510,8 +510,8 @@ export default function MediaLibraryPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'hsl(var(--bg))', padding: '0', width: '100%' }}>
-      <div style={{ width: '100%' }}>
+    <div style={{ minHeight: '100vh', background: 'hsl(var(--bg))', padding: '20px', width: '100%' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         {/* رسالة الترحيب */}
         <div className="card card-accent" style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -183,7 +183,7 @@ export default function ModernDashboardHomeFullWidth() {
               <span className="text-xs" style={{ 
                 color: changeType === 'increase' ? '#10b981' : '#ef4444' 
               }}>
-                {Math.abs(change)}%
+                {Math.abs(change || 0)}%
               </span>
             </div>
           </div>
@@ -199,7 +199,9 @@ export default function ModernDashboardHomeFullWidth() {
       
       {/* محتوى مرئي واضح */}
       <div style={{ 
-        padding: '0',
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: '20px',
         minHeight: '100vh'
       }}>
         
