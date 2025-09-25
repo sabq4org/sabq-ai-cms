@@ -6,7 +6,7 @@
 'use client';
 
 import DashboardLayout from '@/components/admin/modern-dashboard/DashboardLayout';
-import ModernAnalyticsNew from '@/components/admin/modern-dashboard/ModernAnalyticsNew';
+import ModernAnalyticsContent from '@/components/admin/modern-dashboard/ModernAnalyticsContent';
 
 export default function ModernAnalyticsPage() {
   return (
@@ -14,7 +14,7 @@ export default function ModernAnalyticsPage() {
       pageTitle="التحليلات المتقدمة"
       pageDescription="إحصائيات مفصلة عن أداء المنصة"
     >
-      <ModernAnalyticsNew />
+      <ModernAnalyticsContent />
     </DashboardLayout>
   );
 }
