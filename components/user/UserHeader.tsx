@@ -185,7 +185,7 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
     return (
       <header style={{
         position: 'fixed',
-        top: 0,
+        top: 'var(--beta-banner-offset, 0px)',
         left: 0,
         right: 0,
         height: '72px',
@@ -223,7 +223,7 @@ export default function UserHeader({ onMenuClick, showMenuButton = false }: User
       
       <header style={{
         position: 'fixed',
-        top: 0,
+        top: 'var(--beta-banner-offset, 0px)',
         left: 0,
         right: 0,
         height: '72px',
