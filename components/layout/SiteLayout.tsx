@@ -79,7 +79,7 @@ export default function SiteLayout({
       <Providers>
         {/* الهيدر + إزاحة المحتوى حسب نوع الجهاز */}
         {isMobile ? (
-          <div style={{ paddingTop: 'calc(var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
+          <div style={{ paddingTop: 'calc(var(--beta-banner-offset, 0px) + var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
             <BetaBanner />
             <LightHeader />
             {/* المحتوى الرئيسي للموبايل مع الإزاحة الصحيحة */}
@@ -95,7 +95,7 @@ export default function SiteLayout({
         ) : (
           <>
             <BetaBanner />
-            <div style={{ paddingTop: '72px', position: 'relative' }}>
+            <div style={{ paddingTop: 'calc(72px + var(--beta-banner-offset, 0px))', position: 'relative' }}>
               <UserHeader />
             </div>
             {/* شريط التصنيفات أسفل الهيدر - ديسكتوب فقط */}
