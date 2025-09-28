@@ -438,12 +438,7 @@ export default function EnhancedFeaturedLoader({
                     {article.title}
                   </h3>
                   
-                  {/* نبذة الخبر أو الموجز الذكي في النسخة المتنقلة */}
-                  {article.excerpt && (
-                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2 leading-relaxed">
-                      {article.excerpt}
-                    </p>
-                  )}
+                  {/* تم إخفاء النبذة في النسخة الخفيفة حسب الطلب */}
                   
                   <div className="mt-auto flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-2">
