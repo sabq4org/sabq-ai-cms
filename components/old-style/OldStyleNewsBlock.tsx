@@ -184,7 +184,7 @@ export default function OldStyleNewsBlock({
             data-article-id={String(article.id)}
           >
             {/* صورة المقال */}
-            <div className="old-style-news-image-container">
+            <div className="old-style-news-image-container" style={{ position: 'relative' }}>
               <CloudImage
                 src={getImageUrl(article)}
                 alt={article.title}
@@ -196,6 +196,29 @@ export default function OldStyleNewsBlock({
                 objectPosition="center"
                 bgColor="#f3f4f6"
               />
+              {/* شريط سفلي فوق الصورة: المشاهدات + التاريخ */}
+              <div style={{
+                position: 'absolute',
+                left: '12px',
+                right: '12px',
+                bottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(0,0,0,0.55)',
+                color: '#fff',
+                borderRadius: '10px',
+                padding: '6px 10px',
+                backdropFilter: 'blur(4px)'
+              }}>
+                <ArticleViews 
+                  count={(article as any).views ?? (article as any).views_count ?? (article as any).view_count ?? 0} 
+                  showLabel={false}
+                  size="xs" 
+                />
+                <span style={{ opacity: 0.8 }}>•</span>
+                <span style={{ opacity: 0.95 }}>{formatGregorianDate(article.published_at)}</span>
+              </div>
             </div>
 
             {/* محتوى المقال */}
@@ -226,19 +249,8 @@ export default function OldStyleNewsBlock({
                 {article.title}
               </h3>
 
-              {/* شريط المعلومات السفلي: المشاهدات ومدة القراءة */}
+              {/* شريط المعلومات السفلي: إبقاء مدة القراءة فقط (المشاهدات والتاريخ تم نقلهما على الصورة) */}
               <div className="old-style-news-bottom-bar">
-                <div className="old-style-news-meta-item">
-                  <ArticleViews 
-                    count={(article as any).views ?? (article as any).views_count ?? (article as any).view_count ?? 0} 
-                    showLabel={true} 
-                    size="xs" 
-                  />
-                  {/* التاريخ الميلادي بجانب عداد المشاهدات */}
-                  <span style={{ margin: '0 6px', opacity: 0.6 }}>•</span>
-                  <span>{formatGregorianDate(article.published_at)}</span>
-                </div>
-                
                 {article.reading_time && (
                   <div className="old-style-news-meta-item">
                     <Clock className="old-style-icon" />
