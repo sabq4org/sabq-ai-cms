@@ -288,22 +288,18 @@ export default function ProfilePage() {
         console.log("📡 استجابة API الاهتمامات:", interestsData);
 
         if (interestsData.success) {
-          // تجربة التنسيق الجديد أولاً
-          if (
-            interestsData.interests &&
-            Array.isArray(interestsData.interests)
-          ) {
-            userCategoryIds = interestsData.interests.map((interest: any) =>
-              String(interest.interestId)
-            );
+          // تنسيقات مدعومة: {interests:[{interestId}]} أو {data:{categoryIds:[]}} أو {categoryIds:[]}
+          if (Array.isArray(interestsData.interests)) {
+            userCategoryIds = interestsData.interests
+              .map((it: any) => it?.interestId ?? it?.category_id ?? it)
+              .filter(Boolean)
+              .map((id: any) => String(id));
+          } else if (Array.isArray(interestsData.categoryIds)) {
+            userCategoryIds = interestsData.categoryIds.map((id: any) => String(id));
+          } else if (Array.isArray(interestsData.data?.categoryIds)) {
+            userCategoryIds = interestsData.data.categoryIds.map((id: any) => String(id));
           }
-          // تجربة التنسيق القديم كـ fallback
-          else if (interestsData.data?.categoryIds) {
-            userCategoryIds = interestsData.data.categoryIds.map((id: any) =>
-              String(id)
-            );
-          }
-          console.log("✅ تم جلب الاهتمامات من API:", userCategoryIds);
+          console.log("✅ تم جلب الاهتمامات من API (موحد):", userCategoryIds);
         }
       }
 
@@ -315,7 +311,9 @@ export default function ProfilePage() {
 
       // إذا لم نجد اهتمامات من API، نحاول من localStorage
       if (userCategoryIds.length === 0) {
-        userCategoryIds = user.categoryIds || user.interests || [];
+        // دمج آمن من localStorage
+        const stored = (user.categoryIds || user.interests || []).map((x:any)=>String(x));
+        userCategoryIds = stored;
         console.log("📱 استخدام الاهتمامات من localStorage:", userCategoryIds);
       }
 
@@ -333,7 +331,13 @@ export default function ProfilePage() {
         console.log("🎯 تم عرض الاهتمامات فوراً:", userCategories);
         // حماية إضافية: فقط أحدث الاهتمامات إذا كانت البيانات صحيحة
         if (userCategories.length > 0) {
-          setPreferences(userCategories);
+          // منع الكتابة فوق تفضيلات صحيحة إن كانت موجودة بالفعل لنفس العدد والمحتوى
+          const currentKeys = new Set(preferences.map(p=>p.category_id));
+          const nextKeys = new Set(userCategories.map(p=>p.category_id));
+          const same = currentKeys.size === nextKeys.size && [...currentKeys].every(k=>nextKeys.has(k));
+          if (!same) {
+            setPreferences(userCategories);
+          }
           interestsLoadedImmediatelyRef.current = true; // 🆕 تحديد أن الاهتمامات تم تحميلها بنجاح
           console.log(
             "✅ تم تعيين interestsLoadedImmediatelyRef إلى true مع",

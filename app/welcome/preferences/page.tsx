@@ -43,23 +43,50 @@ export default function PreferencesPage() {
       try {
         console.log("🔍 جلب الاهتمامات المحفوظة للمستخدم:", user.id);
 
-        const response = await fetch(
-          `/api/user/saved-categories?userId=${user.id}`
-        );
+        // المحاولة 1: API user/saved-categories
+        const response = await fetch(`/api/user/saved-categories?userId=${user.id}`);
         const result = await response.json();
 
-        if (
-          result.success &&
-          result.categoryIds &&
-          result.categoryIds.length > 0
-        ) {
-          console.log("✅ تم جلب الاهتمامات المحفوظة:", result.categoryIds);
-          setSelectedCategoryIds(result.categoryIds);
+        let preselected: string[] = [];
+        if (result?.success && Array.isArray(result?.categoryIds) && result.categoryIds.length > 0) {
+          preselected = result.categoryIds.map((x:any)=>String(x));
+        }
+
+        // المحاولة 2: API user/interests (تنسيقات متعددة)
+        if (preselected.length === 0) {
+          const res2 = await fetch(`/api/user/interests?userId=${user.id}`);
+          if (res2.ok) {
+            const data2 = await res2.json().catch(()=>({}));
+            if (data2?.success) {
+              if (Array.isArray(data2.interests)) {
+                preselected = data2.interests
+                  .map((it:any)=> it?.interestId ?? it?.category_id ?? it)
+                  .filter(Boolean)
+                  .map((x:any)=>String(x));
+              } else if (Array.isArray(data2.categoryIds)) {
+                preselected = data2.categoryIds.map((x:any)=>String(x));
+              } else if (Array.isArray(data2.data?.categoryIds)) {
+                preselected = data2.data.categoryIds.map((x:any)=>String(x));
+              }
+            }
+          }
+        }
+
+        // المحاولة 3: localStorage
+        if (preselected.length === 0) {
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            try {
+              const u = JSON.parse(storedUser);
+              preselected = (u.categoryIds || u.interests || []).map((x:any)=>String(x));
+            } catch {}
+          }
+        }
+
+        if (preselected.length > 0) {
+          console.log("✅ تم جلب الاهتمامات المحفوظة (موحدة):", preselected);
+          setSelectedCategoryIds(preselected);
           setHasExistingInterests(true);
-          // تم إزالة الرسالة المزعجة للتحميل التلقائي
-          console.log(
-            `✅ تم تحميل ${result.categoryIds.length} اهتمام محفوظ مسبقاً`
-          );
         } else {
           console.log("ℹ️ لا توجد اهتمامات محفوظة مسبقاً");
           setHasExistingInterests(false);
@@ -193,6 +220,9 @@ export default function PreferencesPage() {
         updatedUser.interests = selectedCategoryIds;
         updatedUser.categoryIds = selectedCategoryIds;
         localStorage.setItem("user", JSON.stringify(updatedUser));
+      } else {
+        // إذا لم يكن هناك مستخدم مخزّن (حالة الضيف التي أنشأناها للتو)
+        localStorage.setItem("user", JSON.stringify({ id: userId, name: "ضيف", interests: selectedCategoryIds, categoryIds: selectedCategoryIds }));
       }
 
       // منح نقاط الولاء للمستخدمين المسجلين
