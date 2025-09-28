@@ -200,36 +200,31 @@ export default function OldStyleNewsBlock({
 
             {/* محتوى المقال */}
             <div className="old-style-news-content">
-              {(() => {
-                const isBreaking = Boolean(article.breaking || article.is_breaking);
-                const hasNew = isNewsNew(article.published_at) && !isBreaking;
-                const hasBadges = isBreaking || hasNew;
-                return (
-                  <>
-                    {hasBadges && (
-                      <div className="old-style-news-top-bar">
-                        <div className="old-style-news-badges">
-                          {isBreaking && (
-                            <div className="old-style-news-breaking-badge">
-                              <span className="old-style-lightning-emoji" aria-hidden>⚡</span>
-                              <span>عاجل</span>
-                            </div>
-                          )}
-                          {hasNew && (
-                            <div className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
-                              <span className="text-xs">🔥</span>
-                              <span>جديد</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    <h3 className="old-style-news-card-title" style={!hasBadges ? { marginTop: '-206px' } as any : undefined}>
-                      {article.title}
-                    </h3>
-                  </>
-                );
-              })()}
+              {/* الشريط العلوي: شارات + التاريخ بجانب الشارات وعلى يمين البطاقة */}
+              <div className="old-style-news-top-bar">
+                <div className="old-style-news-badges">
+                  {/* شارة عاجل - أولوية أعلى من باقي الشارات */}
+                  {(article.breaking || article.is_breaking) && (
+                    <div className="old-style-news-breaking-badge">
+                      <span className="old-style-lightning-emoji" aria-hidden>⚡</span>
+                      <span>عاجل</span>
+                    </div>
+                  )}
+                  {/* ليبل التصنيف - تم إخفاؤه حسب طلب المستخدم */}
+                  {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
+                    <div className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
+                      <span className="text-xs">🔥</span>
+                      <span>جديد</span>
+                    </div>
+                  )}
+                  {/* تم إزالة تاريخ أعلى البطاقة لمنع التكرار */}
+                </div>
+              </div>
+
+              {/* العنوان */}
+              <h3 className="old-style-news-card-title">
+                {article.title}
+              </h3>
 
               {/* شريط المعلومات السفلي: المشاهدات + التاريخ + مدة القراءة */}
               <div className="old-style-news-bottom-bar">
