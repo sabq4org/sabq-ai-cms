@@ -68,7 +68,7 @@ export default function SmartContentBlock({
   const getContentByAuthStatus = () => {
     return {
       title: "✨ مختارات بالذكاء",
-      subtitle: "محتوى مخصص لك بذكاء",
+      subtitle: "",
       description: "تابع الأخبار التي يرشحها لك محررنا الذكي بناءً على التوجهات والاهتمامات"
     };
   };
@@ -267,7 +267,7 @@ export default function SmartContentBlock({
 
     return (
       <div style={{ padding: '16px 0', marginTop: '28px' }}>
-        <div className="px-4 sm:px-6">
+        <div className="px-2 sm:px-4">
         {/* عبارات رأس البلوك الديناميكية */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           {/* أيقونة البلوك في الأعلى في المنتصف */}
@@ -300,14 +300,16 @@ export default function SmartContentBlock({
           }}>
             {content.title}
           </h2>
-          <h3 style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: 'hsl(var(--accent))',
-            marginBottom: '6px'
-          }}>
-            {content.subtitle}
-          </h3>
+          {content.subtitle ? (
+            <h3 style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: 'hsl(var(--accent))',
+              marginBottom: '6px'
+            }}>
+              {content.subtitle}
+            </h3>
+          ) : null}
           <p style={{
             fontSize: '12px',
             color: 'hsl(var(--muted))',
@@ -403,14 +405,16 @@ export default function SmartContentBlock({
             {content.title}
           </h2>
           
-          <h3 style={{
-            fontSize: '20px',
-            fontWeight: '600',
-            color: '#7C3AED',
-            marginBottom: '8px'
-          }}>
-            {content.subtitle}
-          </h3>
+          {content.subtitle ? (
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#7C3AED',
+              marginBottom: '8px'
+            }}>
+              {content.subtitle}
+            </h3>
+          ) : null}
           
           <p style={{
             fontSize: '12px',

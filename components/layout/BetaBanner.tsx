@@ -1,8 +1,18 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function BetaBanner() {
+  useEffect(() => {
+    try {
+      document.documentElement.style.setProperty('--beta-banner-offset', '32px');
+    } catch {}
+    return () => {
+      try {
+        document.documentElement.style.setProperty('--beta-banner-offset', '0px');
+      } catch {}
+    };
+  }, []);
   return (
     <div
       style={{

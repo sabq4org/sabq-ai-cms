@@ -191,11 +191,12 @@ export default function LightHeader({ className = '' }: LightHeaderProps) {
       {/* الهيدر الرئيسي */}
       <header 
         ref={headerRef}
-        className={`fixed top-0 left-0 right-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md ${className}`}
+        className={`fixed left-0 right-0 z-50 w-full border-b border-transparent bg-transparent backdrop-blur-md ${className}`}
         style={{
           backgroundColor: 'transparent',
           borderColor: 'transparent',
-          backdropFilter: 'blur(8px)'
+          backdropFilter: 'blur(8px)',
+          top: 'var(--beta-banner-offset, 0px)'
         }}
       >
         <div className="container flex h-14 items-center justify-between px-4 sm:px-6">

@@ -370,7 +370,7 @@ export default function EnhancedFeaturedLoader({
   // Strip mode for mobile
   return (
     <div className="max-w-6xl mx-auto mb-6">
-      <div className="flex gap-4 overflow-x-auto pb-2 px-4 sm:px-6 scroll-smooth">
+      <div className="flex gap-4 overflow-x-auto pb-2 px-2 sm:px-4 scroll-smooth">
         {articles.map((article, idx) => {
           const isBreaking = Boolean(article.breaking);
           return (
