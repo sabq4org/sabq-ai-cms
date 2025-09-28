@@ -2,12 +2,13 @@
 
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
+import SmartHeader from "@/components/layout/SmartHeader";
 import LightHeader from "@/components/layout/LightHeader";
-import UserHeader from "@/components/user/UserHeader";
 import DesktopCategoryBar from "@/components/navigation/DesktopCategoryBar";
 import { Providers } from "../../app/providers";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useUserStore } from "@/stores/userStore";
 
 // CSS ضروري للتنسيق
 import "../../app/globals.css";
@@ -27,9 +28,12 @@ export default function SiteLayout({
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { user } = useUserStore();
+  
   const isUserAuthPage = pathname === "/login" || pathname === "/register";
   const isCategoryPage = pathname?.startsWith("/categories/") || pathname?.startsWith("/news/category/");
   const isExperimentalArticle = pathname?.startsWith("/news/");
+  const useLightHeader = pathname?.includes("/light") || pathname?.includes("/lite");
 
   // فحص بسيط للجهاز
   useEffect(() => {
@@ -60,8 +64,6 @@ export default function SiteLayout({
     document.body.style.backgroundColor = '#f8f8f7';
   }, []);
 
-  // ملاحظة: لم نعد نحجب العرض قبل التثبيت لتجنب الصفحة البيضاء في التطوير
-
   // صفحات الدخول للأعضاء (لا هيدر/فوتر)
   if (isUserAuthPage) {
     return (
@@ -79,7 +81,11 @@ export default function SiteLayout({
         {/* الهيدر + إزاحة المحتوى حسب نوع الجهاز */}
         {isMobile ? (
           <div style={{ paddingTop: 'calc(var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
-            <LightHeader />
+            {useLightHeader ? (
+              <LightHeader />
+            ) : (
+              <SmartHeader user={user} />
+            )}
             {/* المحتوى الرئيسي للموبايل مع الإزاحة الصحيحة */}
             <main style={{
               maxWidth: isExperimentalArticle ? '100%' : (isCategoryPage ? '1400px' : '72rem'),
@@ -93,12 +99,18 @@ export default function SiteLayout({
         ) : (
           <>
             <div style={{ paddingTop: '72px', position: 'relative' }}>
-              <UserHeader />
+              {useLightHeader ? (
+                <LightHeader />
+              ) : (
+                <SmartHeader user={user} />
+              )}
             </div>
             {/* شريط التصنيفات أسفل الهيدر - ديسكتوب فقط */}
-            <div className="hidden md:block">
-              <DesktopCategoryBar />
-            </div>
+            {!useLightHeader && (
+              <div className="hidden md:block">
+                <DesktopCategoryBar />
+              </div>
+            )}
             {/* المحتوى الرئيسي للديسكتوب */}
             <main style={{
               maxWidth: isExperimentalArticle ? '100%' : (isCategoryPage ? '1400px' : '72rem'),
