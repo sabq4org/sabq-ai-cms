@@ -19,6 +19,7 @@ interface EnhancedFeaturedArticle {
   social_image?: string;
   metadata?: any;
   published_at?: string;
+  created_at?: string;
   breaking?: boolean;
   category?: { 
     id: string; 
@@ -107,6 +108,7 @@ export default function EnhancedFeaturedLoader({
           social_image: a.social_image || getSafeImageUrl(null, 'article'),
           metadata: a.metadata,
           published_at: a.published_at,
+          created_at: a.created_at || a.createdAt || undefined,
           breaking: a.breaking || a.is_breaking || false,
           category: a.categories ? {
             id: a.categories.id,
@@ -190,6 +192,22 @@ export default function EnhancedFeaturedLoader({
     } catch {
       return false;
     }
+  };
+
+  // اختيار تاريخ صالح للعرض (ميلادي رقمي) مع fallback ذكي
+  const pickValidDate = (a: EnhancedFeaturedArticle): string | null => {
+    const candidates = [
+      a.published_at,
+      (a.metadata && (a.metadata.published_at || a.metadata.date)) as string | undefined,
+      a.created_at,
+    ].filter(Boolean) as string[];
+    for (const d of candidates) {
+      try {
+        const dt = new Date(d as any);
+        if (!isNaN(dt.getTime())) return d as string;
+      } catch {}
+    }
+    return null;
   };
 
   if (loading) {
@@ -304,7 +322,7 @@ export default function EnhancedFeaturedLoader({
                   <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>{formatDateNumeric(currentArticle.published_at || '')}</span>
+                      <span>{formatDateNumeric(pickValidDate(currentArticle) || '')}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
@@ -442,8 +460,8 @@ export default function EnhancedFeaturedLoader({
                   
                   <div className="mt-auto flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-2">
-                      <time dateTime={article.published_at}>
-                        {formatDateNumeric(article.published_at || '')}
+                      <time dateTime={pickValidDate(article) || undefined}>
+                        {formatDateNumeric(pickValidDate(article) || '')}
                       </time>
                     </div>
                     {typeof article.views === 'number' && (
