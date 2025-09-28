@@ -391,7 +391,7 @@ export default function PersonalizedContent() {
       {/* إحصائيات التخصيص */}
       {stats && (
         <div className={`p-6 rounded-lg border ${
-          darkMode ? 'bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-700' : 'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200'
+          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3 space-x-reverse">
@@ -546,10 +546,8 @@ export default function PersonalizedContent() {
                       href={getSmartArticleLink(article)}
                       className="block"
                     >
-                      <div className={`p-4 rounded-lg border transition-all duration-200 ${
-                        darkMode
-                          ? 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                      <div className={`p-4 rounded-lg border ${
+                        darkMode ? 'border-gray-600 bg-transparent' : 'border-gray-200 bg-transparent'
                       }`}>
                         <div className="flex items-start space-x-4 space-x-reverse">
                           {/* صورة المقال */}
@@ -577,7 +575,7 @@ export default function PersonalizedContent() {
 
                           {/* محتوى المقال */}
                           <div className="flex-1 min-w-0">
-                            <h4 className={`font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-3 ${
+                            <h4 className={`font-semibold text-lg mb-2 line-clamp-3 ${
                               darkMode ? 'text-white' : 'text-gray-900'
                             }`}>
                               {String(article.title || '')}
@@ -628,29 +626,7 @@ export default function PersonalizedContent() {
                       </div>
                     </Link>
 
-                    {/* أزرار التفاعل */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={(e) => handleLike(article.id, e)}
-                        className={`w-6 h-6 rounded-full shadow-md flex items-center justify-center transition-all ${
-                          interactions[article.id]?.liked
-                            ? 'bg-red-500 text-white'
-                            : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-400 hover:bg-red-500 hover:text-white'
-                        }`}
-                      >
-                        <Heart className={`w-3 h-3 ${interactions[article.id]?.liked ? 'fill-current' : ''}`} />
-                      </button>
-                      <button
-                        onClick={(e) => handleSave(article.id, e)}
-                        className={`w-6 h-6 rounded-full shadow-md flex items-center justify-center transition-all ${
-                          interactions[article.id]?.saved
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-400 hover:bg-blue-500 hover:text-white'
-                        }`}
-                      >
-                        <Bookmark className={`w-3 h-3 ${interactions[article.id]?.saved ? 'fill-current' : ''}`} />
-                      </button>
-                    </div>
+                    {/* تمت إزالة أزرار التفاعل العائمة لتوحيد النمط وتقليل المؤثرات */}
                   </div>
                 ))}
 
@@ -659,10 +635,8 @@ export default function PersonalizedContent() {
                   <div className="text-center pt-2">
                     <Link
                       href={`/categories/${category}`}
-                      className={`inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-lg font-medium transition-colors ${
-                        darkMode
-                          ? 'text-blue-400 hover:bg-blue-900/20'
-                          : 'text-blue-600 hover:bg-blue-50'
+                      className={`inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-lg font-medium ${
+                        darkMode ? 'text-blue-400' : 'text-blue-600'
                       }`}
                     >
                       <span>عرض جميع مقالات {category}</span>
