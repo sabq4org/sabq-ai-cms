@@ -63,6 +63,17 @@ const EnhancedFeaturedLoader = dynamic(
   }
 );
 
+// الموجز الذكي بين المميز والعادي
+const SmartDigestBlock = dynamic(
+  () => import("@/components/home/SmartDigest"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-28 bg-gray-50 dark:bg-gray-900 rounded-xl animate-pulse my-4" />
+    ),
+  }
+);
+
 // (تم حذف الأخبار المميزة من النسخة الكاملة)
 
 // مكون شاشة التحميل المحسن
@@ -153,6 +164,10 @@ export default function Page() {
       {/* الأخبار المميزة المحسنة - النسخة الكاملة مع التحميل التدريجي */}
       <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
         <EnhancedFeaturedLoader heading="الأخبار المميزة" limit={3} showCarousel={true} />
+      </Suspense>
+      {/* الموجز الذكي بين المميز والعادي */}
+      <Suspense fallback={<div className="h-28 bg-gray-50 dark:bg-gray-900 rounded-xl animate-pulse my-4" />}> 
+        <SmartDigestBlock />
       </Suspense>
       <Suspense
         fallback={
