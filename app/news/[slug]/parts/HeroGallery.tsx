@@ -41,8 +41,8 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
       <div className="mx-auto max-w-[1200px]">
         <div className={cn(
           "relative overflow-hidden rounded-2xl",
-          // للصور العمودية على الموبايل، نستخدم aspect-auto للحفاظ على النسبة الأصلية
-          isPortrait ? "aspect-auto sm:aspect-[4/3] md:aspect-[16/9]" : "aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:h-[520px]",
+          // تقليل الارتفاع قليلاً على الموبايل لعرض متوازن
+          isPortrait ? "aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/9]" : "aspect-[16/10] sm:aspect-[16/9] md:aspect-[21/9] lg:h-[520px]",
           // خلفية رمادية خفيفة للصور العمودية
           isPortrait && "bg-gray-50 dark:bg-gray-900"
         )}>
