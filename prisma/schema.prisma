@@ -2332,6 +2332,7 @@ enum NotificationType {
   user_engagement
   performance_warning
   content_moderation
+
   ai_insight
 }
 
@@ -2349,4 +2350,43 @@ enum NotificationStatus {
   delivered
   read
   failed
+}
+
+model AiProofreadJob {
+  id           String   @id @default(cuid())
+  articleId    String?
+  userId       String
+  inputChars   Int
+  quality      Json
+  result       Json
+  createdAt    DateTime  @default(now())
+  durationMs   Int
+  status       String    // success|failed
+  errorMessage String?
+  @@index([articleId])
+  @@index([userId, createdAt])
+}
+
+model ContentQualityScore {
+  id          String   @id @default(cuid())
+  articleId   String   @unique
+  spelling    Int
+  grammar     Int
+  style       Int
+  consistency Int
+  overall     Int
+  updatedAt   DateTime @default(now())
+}
+
+model AiAuditLog {
+  id        String   @id @default(cuid())
+  articleId String?
+  userId    String
+  action    String   // run|apply_patch|revert_patch
+  payload   Json
+  createdAt DateTime @default(now())
+  ip        String?
+  ua        String?
+  @@index([articleId])
+  @@index([userId, createdAt])
 }

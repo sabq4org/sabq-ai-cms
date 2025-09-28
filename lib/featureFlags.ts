@@ -6,11 +6,13 @@ export type FeatureFlag =
   | 'ai_summaries'
   | 'ai_sentiment_analysis'
   | 'ai_interactive_data'
-  | 'ai_voice_summary';
+  | 'ai_voice_summary'
+  | 'ai_proofreader';
 
 // يمكن ربطها بقاعدة بيانات أو إعدادات المستخدم لاحقاً
 const enabledFlags: FeatureFlag[] = [
-  'ai_news_copilot', // تم تفعيل المساعد الذكي للأخبار
+  'ai_news_copilot',
+  // 'ai_proofreader', // فعّل عند الجاهزية
 ];
 
 export function isFeatureEnabled(flag: FeatureFlag): boolean {
