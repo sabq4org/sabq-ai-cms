@@ -1,12 +1,1 @@
-VERCEL DEPLOYMENT TRIGGER
-========================
-
-Build ID: ${Date.now()}
-Date: ${new Date().toISOString()}
-Purpose: Force Vercel webhook detection
-
-Git Config Fixed:
-- User name: Ali Alhazmi
-- User email: ali@sabq.ai
-
-This file is used to trigger Vercel deployments when webhook issues occur. 
+deploy-trigger: 2025-09-28T07:32:43Z
