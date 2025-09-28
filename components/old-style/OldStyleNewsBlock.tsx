@@ -217,8 +217,7 @@ export default function OldStyleNewsBlock({
                       <span>جديد</span>
                     </div>
                   )}
-                  {/* التاريخ يظهر دائمًا بجانب الشارات، وبحجم موحّد */}
-                  <span className="old-style-news-date-inline">{formatGregorianDate(article.published_at)}</span>
+                  {/* تم إزالة تاريخ أعلى البطاقة لمنع التكرار */}
                 </div>
               </div>
 
