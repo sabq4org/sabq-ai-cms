@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import NotFoundLayout from "@/components/layout/NotFoundLayout";
 
 export default function NotFoundPage() {
   const [emergencyArticles, setEmergencyArticles] = useState<any[]>([]);
@@ -57,7 +58,7 @@ export default function NotFoundPage() {
     fetchEmergencyArticles();
   }, []);
 
-  return (
+  const content = (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -156,4 +157,7 @@ export default function NotFoundPage() {
       </div>
     </div>
   );
+
+  // استخدام NotFoundLayout لتجنب مشاكل المصادقة
+  return <NotFoundLayout>{content}</NotFoundLayout>;
 }
