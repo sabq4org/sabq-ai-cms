@@ -2,7 +2,7 @@
 
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
-import { StaticHeader } from "@/components/layout/StaticHeader";
+import UnifiedHeader from "@/components/layout/UnifiedHeader";
 import LightHeader from "@/components/layout/LightHeader";
 import DesktopCategoryBar from "@/components/navigation/DesktopCategoryBar";
 import { Providers } from "../../app/providers";
@@ -84,7 +84,7 @@ export default function SiteLayout({
             {useLightHeader ? (
               <LightHeader />
             ) : (
-              <StaticHeader />
+              <UnifiedHeader />
             )}
             {/* المحتوى الرئيسي للموبايل مع الإزاحة الصحيحة */}
             <main style={{
@@ -102,7 +102,7 @@ export default function SiteLayout({
               {useLightHeader ? (
                 <LightHeader />
               ) : (
-                <StaticHeader />
+                <UnifiedHeader />
               )}
             </div>
             {/* شريط التصنيفات أسفل الهيدر - ديسكتوب فقط */}
