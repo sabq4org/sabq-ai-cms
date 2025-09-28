@@ -40,21 +40,18 @@ const UnifiedAuthContext = createContext<AuthContextType | undefined>(undefined)
 export function useUnifiedAuth() {
   const context = useContext(UnifiedAuthContext);
   if (context === undefined) {
-    // في البيئة المحلية، إرجاع قيم افتراضية بدلاً من خطأ
-    if (process.env.NODE_ENV === "development") {
-      console.warn("useUnifiedAuth must be used within UnifiedAuthProvider");
-      return {
-        user: null,
-        loading: false,
-        isAuthenticated: false,
-        isAdmin: false,
-        login: () => {},
-        logout: async () => {},
-        refreshUser: async () => {},
-        updateUser: () => {},
-      };
-    }
-    throw new Error("useUnifiedAuth must be used within UnifiedAuthProvider");
+    // إرجاع قيم افتراضية آمنة في جميع البيئات لمنع تعطل البناء/الصفحات الخاصة
+    console.warn("useUnifiedAuth used outside UnifiedAuthProvider — returning safe defaults");
+    return {
+      user: null,
+      loading: false,
+      isAuthenticated: false,
+      isAdmin: false,
+      login: () => {},
+      logout: async () => {},
+      refreshUser: async () => {},
+      updateUser: () => {},
+    } as AuthContextType;
   }
   return context;
 }
