@@ -26,7 +26,7 @@ type Insights = {
   };
 };
 
-export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; categories?: { name: string } | null; tags?: any[]; likes?: number; shares?: number; saves?: number } }) {
+export default function StickyInsightsPanel({ insights, article }: { insights: Insights; article: { id: string; summary?: string | null; categories?: { name: string } | null; tags?: any[]; keywords?: any[]; likes?: number; shares?: number; saves?: number } }) {
   const [liveInsights, setLiveInsights] = useState<Insights>(insights);
   const avgMinutes = useMemo(() => Math.max(1, Math.round(liveInsights.avgReadTimeSec / 60)), [liveInsights.avgReadTimeSec]);
   const { user, isLoggedIn } = useAuth();
@@ -226,7 +226,6 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
           <p id="smart-summary" className={"text-sm text-neutral-700 dark:text-neutral-300 leading-6 " + (expanded ? "" : "line-clamp-3")}>{article.summary}</p>
           <button
             type="button"
-            aria-expanded={expanded}
             aria-controls="smart-summary"
             onClick={() => setExpanded((v) => !v)}
             className="mt-2 inline-flex items-center gap-1 text-[12px] text-blue-600 dark:text-blue-400 hover:underline"
@@ -271,7 +270,7 @@ export default function StickyInsightsPanel({ insights, article }: { insights: I
       </div>
       
       {/* الكلمات المفتاحية */}
-      {(article.tags?.length > 0 || (article as any).keywords?.length > 0) && (
+      {( (article.tags && article.tags.length > 0) || ((article as any).keywords && (article as any).keywords.length > 0) ) && (
         <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
           <div className="flex items-center gap-2 mb-3 text-neutral-900 dark:text-neutral-100">
             <Tag className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />

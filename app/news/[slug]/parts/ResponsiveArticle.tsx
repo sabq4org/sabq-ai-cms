@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { Calendar, Clock, BookOpen, Eye, Loader2 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ResponsiveArticleProps {
   article: any;
@@ -188,10 +189,12 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                   <div className="flex items-center gap-4 my-6">
                     <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
                       {article.article_author?.avatar_url || article.author?.avatar ? (
-                        <img 
-                          src={article.article_author?.avatar_url || article.author?.avatar || ""} 
+                        <Image 
+                          src={article.article_author?.avatar_url || article.author?.avatar || "/placeholder-avatar.png"} 
                           alt={article.article_author?.full_name || article.author?.name || "المراسل"} 
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="56px"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-neutral-500 dark:text-neutral-400 text-lg md:text-xl font-semibold">
@@ -220,28 +223,6 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
                 <hr className="border-neutral-200 dark:border-neutral-800 my-6" />
 
               <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} skipProcessing={!!article.content_processed} />
-
-              {/* الكلمات المفتاحية تحت المحتوى */}
-              {(Array.isArray(article.tags) && article.tags.length > 0) || (Array.isArray(article.keywords) && article.keywords.length > 0) ? (
-                <div className="mt-6">
-                  <h3 className="font-semibold text-base mb-3">الكلمات المفتاحية</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {(article.tags?.length ? article.tags : article.keywords).map((tag: any, index: number) => {
-                      const label = (typeof tag === 'string') ? tag : (tag?.name || String(tag));
-                      const href = `/tags/${encodeURIComponent(label)}`;
-                      return (
-                        <Link
-                          key={`${label}-${index}`}
-                          href={href}
-                          className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 hover:underline"
-                        >
-                          #{label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
 
               {/* ألبوم الصور للموبايل */}
               {albumImages.length > 0 && (
