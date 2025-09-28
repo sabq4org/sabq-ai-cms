@@ -1,180 +1,194 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
-export interface UserInterest {
-  id: number;
-  category_id: number;
+interface Interest {
+  categoryId: string;
   category: {
-    id: number;
+    id: string;
     name: string;
-    icon?: string;
-    color?: string;
+    slug: string;
+    icon: string;
+    color: string;
   };
+  isActive: boolean;
+  createdAt: string;
 }
 
-export interface FetchUserInterestsResponse {
-  interests: UserInterest[];
-  totalCount: number;
+interface InterestsResponse {
+  success: boolean;
+  userId: string;
+  interests: Interest[];
+  categoryIds: string[];
+  count: number;
+  timestamp: string;
 }
 
+interface UpdateInterestsPayload {
+  categoryIds: string[];
+}
+
+/**
+ * Hook لإدارة اهتمامات المستخدم
+ */
 export function useUserInterests() {
-  const { isLoggedIn, user, loading: authLoading } = useAuth();
-  const [interests, setInterests] = useState<UserInterest[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchUserInterests = async (): Promise<FetchUserInterestsResponse> => {
-    // Skip during SSR
-    if (typeof window === 'undefined') {
-      return { interests: [], totalCount: 0 };
-    }
-
-    console.log('🎯 fetchUserInterests called with:', { 
-      isLoggedIn, 
-      userId: user?.id,
-      user: user ? 'exists' : 'null',
-      authLoading
-    });
-
-    if (!isLoggedIn || !user?.id) {
-      const errorMsg = '❌ User not logged in or no user ID';
-      console.log(errorMsg, { isLoggedIn, userId: user?.id, authLoading });
-      throw new Error(errorMsg);
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log('📤 Fetching user interests for user:', user.id);
-      const response = await fetch('/api/profile/me/interests', {
-        method: 'GET',
-        credentials: 'include',
+  // جلب الاهتمامات
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<InterestsResponse>({
+    queryKey: ["profile", "interests"],
+    queryFn: async () => {
+      const response = await fetch("/api/profile/interests", {
+        cache: "no-store",
         headers: {
-          'Content-Type': 'application/json',
+          "Cache-Control": "no-cache",
         },
       });
 
-      console.log('📥 Response status:', response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Failed to fetch interests:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        if (response.status === 401) {
+          throw new Error("غير مصرح بالوصول");
+        }
+        throw new Error("فشل في جلب الاهتمامات");
       }
 
-      const data: FetchUserInterestsResponse = await response.json();
-      console.log('✅ Fetched interests successfully:', {
-        interestsCount: data.interests?.length || 0,
-        totalCount: data.totalCount
-      });
+      return response.json();
+    },
+    staleTime: 0, // البيانات تصبح قديمة فوراً
+    gcTime: 0, // عدم الاحتفاظ بالكاش
+    refetchOnMount: true, // إعادة الجلب عند التركيب
+    refetchOnWindowFocus: true, // إعادة الجلب عند التركيز
+  });
 
-      setInterests(data.interests || []);
-      return data;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('❌ Error in fetchUserInterests:', errorMessage);
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateUserInterests = async (categoryIds: number[]): Promise<FetchUserInterestsResponse> => {
-    if (!isLoggedIn || !user?.id) {
-      throw new Error('User not logged in');
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/profile/me/interests', {
-        method: 'PUT',
-        credentials: 'include',
+  // تحديث الاهتمامات
+  const updateMutation = useMutation<
+    any,
+    Error,
+    UpdateInterestsPayload
+  >({
+    mutationFn: async (payload) => {
+      const response = await fetch("/api/profile/interests", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ category_ids: categoryIds }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const error = await response.json();
+        throw new Error(error.error || "فشل في حفظ الاهتمامات");
       }
 
-      const data: FetchUserInterestsResponse = await response.json();
-      setInterests(data.interests || []);
-      return data;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.json();
+    },
+    onMutate: async (newData) => {
+      // إلغاء أي جلب جاري
+      await queryClient.cancelQueries({ queryKey: ["profile", "interests"] });
 
-  // Helper function to get interest names
-  const getInterestNames = (): string[] => {
-    return interests.map(interest => interest.category.name);
-  };
+      // حفظ البيانات السابقة للرجوع إليها في حالة الفشل
+      const previousData = queryClient.getQueryData(["profile", "interests"]);
 
-  // Helper function to check if user has interests
-  const hasInterests = (): boolean => {
-    return interests.length > 0;
-  };
+      // تحديث متفائل (اختياري)
+      // queryClient.setQueryData(["profile", "interests"], (old: any) => ({
+      //   ...old,
+      //   categoryIds: newData.categoryIds,
+      // }));
 
-  // Auto-fetch interests when user logs in - WAIT for auth loading to complete
-  useEffect(() => {
-    // Skip during SSR
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    // Only proceed if auth is not loading and user is authenticated
-    if (!authLoading && isLoggedIn && user?.id) {
-      console.log('🔄 Auth loading complete, fetching user interests...');
-      fetchUserInterests().catch(console.error);
-    } else if (!authLoading && !isLoggedIn) {
-      // لا نقوم بمسح الاهتمامات هنا لتجنب الوميض المؤقت عند تغيّر حالة الجلسة
-      // سيتم المسح فقط عند أحداث خروج صريحة (logout/session-expired)
-      console.log('🧭 Auth indicates guest, keeping existing interests until explicit logout');
-    } else {
-      console.log('⏳ Waiting for auth loading to complete...', { authLoading, isLoggedIn, userId: user?.id });
-    }
-  }, [authLoading, isLoggedIn, user?.id]);
-
-  // امسح الاهتمامات فقط عند أحداث خروج مؤكدة لتجنّب الاختفاء المفاجئ
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const onAuthEvent = (e: any) => {
-      const t = e?.detail?.type;
-      if (t === 'logout' || t === 'session-expired' || t === 'max-retries-exceeded') {
-        console.log('🧹 Clearing interests due to explicit auth event:', t);
-        setInterests([]);
-        setError(null);
+      return { previousData };
+    },
+    onError: (error, newData, context) => {
+      // الرجوع للبيانات السابقة في حالة الفشل
+      if (context?.previousData) {
+        queryClient.setQueryData(["profile", "interests"], context.previousData);
       }
-    };
-    window.addEventListener('auth-change', onAuthEvent as EventListener);
-    window.addEventListener('auth-expired', onAuthEvent as EventListener);
-    return () => {
-      window.removeEventListener('auth-change', onAuthEvent as EventListener);
-      window.removeEventListener('auth-expired', onAuthEvent as EventListener);
-    };
-  }, []);
+      toast.error(error.message || "فشل في حفظ الاهتمامات");
+    },
+    onSuccess: async (data) => {
+      // إبطال الكاش وإعادة الجلب
+      await queryClient.invalidateQueries({ queryKey: ["profile", "interests"] });
+      await queryClient.invalidateQueries({ queryKey: ["profile"] });
+      
+      // إعادة الجلب الفوري للتأكد من التزامن
+      await refetch();
+      
+      toast.success("تم حفظ الاهتمامات بنجاح ✨");
+    },
+    onSettled: () => {
+      // إعادة الجلب النهائية للتأكد
+      queryClient.invalidateQueries({ queryKey: ["profile", "interests"] });
+    },
+  });
+
+  // إضافة/إزالة اهتمام واحد
+  const toggleInterest = useMutation<
+    any,
+    Error,
+    { categoryId: string; action?: "add" | "remove" | "toggle" }
+  >({
+    mutationFn: async ({ categoryId, action = "toggle" }) => {
+      const response = await fetch("/api/profile/interests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ categoryId, action }),
+      });
+
+      if (!response.ok) {
+        throw new Error("فشل في تحديث الاهتمام");
+      }
+
+      return response.json();
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["profile", "interests"] });
+      await refetch();
+    },
+  });
+
+  // حذف جميع الاهتمامات
+  const clearInterests = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/profile/interests", {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("فشل في حذف الاهتمامات");
+      }
+
+      return response.json();
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["profile", "interests"] });
+      toast.success("تم حذف جميع الاهتمامات");
+    },
+  });
 
   return {
-    interests,
-    loading: loading || authLoading, // Include auth loading in the overall loading state
+    // البيانات
+    interests: data?.interests || [],
+    categoryIds: data?.categoryIds || [],
+    count: data?.count || 0,
+    
+    // الحالات
+    isLoading,
     error,
-    fetchUserInterests,
-    updateUserInterests,
-    getInterestNames,
-    hasInterests,
+    
+    // العمليات
+    updateInterests: updateMutation.mutate,
+    toggleInterest: toggleInterest.mutate,
+    clearInterests: clearInterests.mutate,
+    refetch,
+    
+    // حالات العمليات
+    isUpdating: updateMutation.isPending,
+    isToggling: toggleInterest.isPending,
+    isClearing: clearInterests.isPending,
   };
 }

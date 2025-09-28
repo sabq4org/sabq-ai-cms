@@ -4,6 +4,7 @@ import LikedArticlesTab from "@/components/profile/LikedArticlesTab";
 import ReadingInsights from "@/components/profile/ReadingInsights";
 import SavedArticles from "@/components/profile/SavedArticles";
 import SavedArticlesTab from "@/components/profile/SavedArticlesTab";
+import InterestsForm from "@/components/profile/InterestsForm";
 import {
   getMembershipLevel,
   getPointsToNextLevel,
@@ -1193,129 +1194,13 @@ export default function ProfilePage() {
               </div>
               {/* العمود الأيمن */}
               <div className="lg:col-span-2 space-y-6">
-                {/* الاهتمامات */}
+                {/* الاهتمامات - استخدام المكون الجديد */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold flex items-center gap-2 text-gray-800 dark:text-gray-200">
-                      <Heart className="w-5 h-5 text-blue-600" />
-                      اهتماماتي
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          if (!fetchingInterestsRef.current) {
-                            manualRefreshRef.current = true; // 🆕 تعيين أن هذا تحديث يدوي
-                            fetchUserInterestsImmediately();
-                          }
-                        }}
-                        disabled={fetchingInterestsRef.current}
-                        className={`font-medium flex items-center gap-1 text-sm transition-colors ${
-                          fetchingInterestsRef.current
-                            ? "text-gray-400 cursor-not-allowed"
-                            : "text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                        }`}
-                        title="تحديث الاهتمامات"
-                      >
-                        {fetchingInterestsRef.current ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
-                        ) : (
-                          <ArrowRight className="w-4 h-4 transform rotate-180" />
-                        )}
-                        {fetchingInterestsRef.current
-                          ? "جاري التحديث..."
-                          : "تحديث"}
-                      </button>
-                      <Link
-                        href="/welcome/preferences"
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-1 text-sm"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                        تعديل
-                      </Link>
-                    </div>
-                  </div>
-                  {preferences.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
-                      {preferences.slice(0, 8).map((pref) => (
-                        <div
-                          key={pref.category_id}
-                          className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border hover:shadow-md transition-all text-sm sm:text-base"
-                          style={{
-                            backgroundColor: pref.category_color + "10",
-                            borderColor: pref.category_color + "30",
-                            borderLeftWidth: "3px",
-                            borderLeftColor: pref.category_color,
-                          }}
-                        >
-                          <span className="text-lg sm:text-2xl">
-                            {pref.category_icon}
-                          </span>
-                          <span className="font-medium text-gray-700 dark:text-gray-300 truncate">
-                            {pref.category_name}
-                          </span>
-                        </div>
-                      ))}
-                      {preferences.length > 8 && (
-                        <div className="flex items-center justify-center p-2 sm:p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-sm text-gray-600 dark:text-gray-400">
-                          +{preferences.length - 8} أخرى
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                      {user.id && user.id.startsWith("guest-") ? (
-                        <>
-                          <p className="text-gray-500 dark:text-gray-400 mb-2">
-                            أنت تتصفح كضيف
-                          </p>
-                          <p className="text-sm text-gray-400 dark:text-gray-500 mb-6">
-                            سجل الدخول لحفظ اهتماماتك وتخصيص تجربتك بشكل دائم
-                          </p>
-                          <div className="space-y-3">
-                            <Link
-                              href="/welcome/preferences"
-                              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all mb-3"
-                            >
-                              <Heart className="w-5 h-5" />
-                              اختر اهتماماتك كضيف
-                            </Link>
-                            <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                              <p className="text-xs text-gray-400 mb-3">
-                                للحصول على تجربة كاملة:
-                              </p>
-                              <Link
-                                href="/login"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                              >
-                                تسجيل الدخول
-                              </Link>
-                              <span className="mx-2 text-gray-400">أو</span>
-                              <Link
-                                href="/register"
-                                className="inline-flex items-center gap-2 px-4 py-2 text-blue-600 dark:text-blue-400 hover:underline"
-                              >
-                                إنشاء حساب جديد
-                              </Link>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-gray-500 dark:text-gray-400 mb-4">
-                            لم تختر اهتمامات بعد
-                          </p>
-                          <Link
-                            href="/welcome/preferences"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                          >
-                            <Heart className="w-5 h-5" />
-                            اختر اهتماماتك الآن
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  )}
+                  <InterestsForm 
+                    minSelections={3}
+                    maxSelections={15}
+                    className=""
+                  />
                 </div>
 
                 {/* أوقات القراءة المفضلة */}
