@@ -267,6 +267,7 @@ export default function SmartContentBlock({
 
     return (
       <div style={{ padding: '16px 0', marginTop: '28px' }}>
+        <div className="px-4 sm:px-6">
         {/* عبارات رأس البلوك الديناميكية */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           {/* أيقونة البلوك في الأعلى في المنتصف */}
@@ -324,6 +325,7 @@ export default function SmartContentBlock({
           columns={3}
           className="mt-6 mb-4"
         />
+        </div>
       </div>
     );
   }

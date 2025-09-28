@@ -3,6 +3,7 @@
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
 import LightHeader from "@/components/layout/LightHeader";
+import BetaBanner from "@/components/layout/BetaBanner";
 import UserHeader from "@/components/user/UserHeader";
 import DesktopCategoryBar from "@/components/navigation/DesktopCategoryBar";
 import { Providers } from "../../app/providers";
@@ -79,6 +80,7 @@ export default function SiteLayout({
         {/* الهيدر + إزاحة المحتوى حسب نوع الجهاز */}
         {isMobile ? (
           <div style={{ paddingTop: 'calc(var(--light-header-height, 56px) + env(safe-area-inset-top, 0px))' }}>
+            <BetaBanner />
             <LightHeader />
             {/* المحتوى الرئيسي للموبايل مع الإزاحة الصحيحة */}
             <main style={{
@@ -92,6 +94,7 @@ export default function SiteLayout({
           </div>
         ) : (
           <>
+            <BetaBanner />
             <div style={{ paddingTop: '72px', position: 'relative' }}>
               <UserHeader />
             </div>
