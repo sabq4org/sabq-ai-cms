@@ -163,23 +163,27 @@ export default function PreferencesPage() {
         source: "onboarding",
       });
 
-      // حفظ الاهتمامات في قاعدة البيانات
-      const response = await fetch("/api/user/interests", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: userId,
-          categoryIds: selectedCategoryIds,
-          source: "onboarding",
-        }),
-      });
+      // حفظ الاهتمامات: إذا كان المستخدم ضيف نحفظ محلياً فقط بدون استدعاء API
+      if (String(userId).startsWith("guest-")) {
+        console.log("👤 مستخدم ضيف - حفظ الاهتمامات محلياً فقط");
+      } else {
+        const response = await fetch("/api/user/interests", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: userId,
+            categoryIds: selectedCategoryIds,
+            source: "onboarding",
+          }),
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "فشل حفظ الاهتمامات");
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || "فشل حفظ الاهتمامات");
+        }
       }
 
       // تحديث localStorage بالاهتمامات

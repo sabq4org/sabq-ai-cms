@@ -100,8 +100,18 @@ export async function POST(request: NextRequest) {
     console.log("📋 قيمة categoryIds في البيانات المحللة:", body.categoryIds);
     console.log("📋 هل categoryIds مصفوفة؟", Array.isArray(body.categoryIds));
 
-    // إذا كان الطلب من صفحة التفضيلات (يحتوي على userId و categoryIds)
-    if (body.userId && body.categoryIds) {
+  // إذا كان الطلب من صفحة التفضيلات (يحتوي على userId و categoryIds)
+  if (body.userId && body.categoryIds) {
+    // دعم مستخدم الضيف: لا نكتب في قاعدة البيانات لتجنب كسر القيود المرجعية
+    if (String(body.userId).startsWith("guest-")) {
+      const guestIds = Array.isArray(body.categoryIds) ? body.categoryIds : [];
+      return NextResponse.json({
+        success: true,
+        message: "تم حفظ الاهتمامات محلياً للمستخدم الضيف",
+        count: guestIds.length,
+        filteredCategories: guestIds
+      });
+    }
       const { userId, categoryIds, source } = body;
 
       console.log("🔄 حفظ اهتمامات من صفحة التفضيلات:", {
