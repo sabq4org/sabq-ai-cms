@@ -235,6 +235,9 @@ export default function OldStyleNewsBlock({
                     showLabel={true} 
                     size="xs" 
                   />
+                  {/* التاريخ الميلادي بجانب عداد المشاهدات */}
+                  <span style={{ margin: '0 6px', opacity: 0.6 }}>•</span>
+                  <span>{formatGregorianDate(article.published_at)}</span>
                 </div>
                 
                 {article.reading_time && (
