@@ -202,21 +202,31 @@ export async function generateDeepAnalysis(
 
     // إعدادات الوضع السريع لتجنب timeout
     const isFast = opts?.fast === true;
-    const maxTokens = isFast ? 800 : 4000;
+    const maxTokens = isFast ? 2500 : 4000;  // زيادة للحصول على محتوى أفضل
     const model = isFast ? 'gpt-4o-mini' : 'gpt-4o';
     
-    // تعليمات JSON مبسطة للوضع السريع
+    // تعليمات محسّنة للوضع السريع
     const systemPrompt = isFast ? 
-      `أنت محرر صحفي. اكتب تحليلاً مختصراً بالعربية.
-      أرجع JSON بالشكل التالي فقط:
+      `أنت محرر تحليلي محترف. اكتب تحليلاً متوسط الطول بالعربية الفصحى.
+      
+      المطلوب:
+      - 4-5 أقسام رئيسية (كل قسم 150-250 كلمة)
+      - ملخص تنفيذي واضح (100 كلمة)
+      - 3-4 توصيات عملية
+      - 3-4 رؤى رئيسية
+      
+      أرجع النتيجة كـ JSON بهذا الشكل بالضبط:
       {
-        "title": "العنوان",
-        "summary": "ملخص قصير",
+        "title": "عنوان جذاب ومعبر",
+        "summary": "ملخص تنفيذي شامل",
         "sections": [
-          {"title": "عنوان القسم", "content": "محتوى القسم"}
+          {"title": "عنوان القسم", "content": "محتوى تحليلي مفصل"}
         ],
-        "recommendations": ["توصية 1", "توصية 2"],
-        "keyInsights": ["رؤية 1", "رؤية 2"]
+        "recommendations": ["توصية عملية 1", "توصية عملية 2", "توصية عملية 3"],
+        "keyInsights": ["رؤية استراتيجية 1", "رؤية استراتيجية 2", "رؤية استراتيجية 3"],
+        "dataPoints": [
+          {"label": "مؤشر", "value": "قيمة", "unit": "وحدة", "description": "وصف"}
+        ]
       }` :
       `أنت محرر تحليلي محترف في صحيفة سبق الإخبارية. 
           مهمتك: كتابة تحليل عميق بلغة عربية صحفية احترافية.
@@ -268,10 +278,10 @@ export async function generateDeepAnalysis(
         },
         {
           role: 'user',
-          content: isFast ? prompt.substring(0, 500) : prompt // تقليص الـ prompt في الوضع السريع
+          content: isFast ? prompt.substring(0, 1500) : prompt // نص أطول للحصول على سياق أفضل
         }
       ],
-      temperature: isFast ? 0.5 : 0.8,
+      temperature: isFast ? 0.7 : 0.8,  // رفع قليل للإبداعية
       max_tokens: maxTokens,
       response_format: { type: "json_object" }
     });
