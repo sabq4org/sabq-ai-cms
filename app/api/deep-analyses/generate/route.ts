@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateDeepAnalysis, initializeOpenAI } from '@/lib/services/deepAnalysisService';
 import { GenerateAnalysisRequest } from '@/types/deep-analysis';
 import { getOpenAIKey } from '@/lib/openai-config';
+import prisma from '@/lib/prisma';
 
 
 
@@ -45,11 +46,36 @@ export async function POST(request: NextRequest) {
       tone: 'professional',
       length: 'long',
       externalUrl: body.externalLink,
-      sourceId: body.articleUrl
+      sourceId: body.sourceArticleId || body.articleUrl
     };
 
+    // إذا كان المصدر مقالة وتم تمرير معرف/سلاج، نجلب محتوى المقال لإعطائه للنموذج
+    if (generateRequest.sourceType === 'article' && generateRequest.sourceId) {
+      try {
+        const article = await prisma.articles.findFirst({
+          where: {
+            OR: [
+              { id: generateRequest.sourceId },
+              { slug: generateRequest.sourceId }
+            ]
+          },
+          select: { title: true, content: true, excerpt: true, published_at: true }
+        });
+        if (article) {
+          const plain = typeof article.content === 'string' ? article.content : JSON.stringify(article.content);
+          generateRequest.sourceId = `${article.title || ''}\n\n${plain}`.slice(0, 8000); // حدد الحد لتقليل زمن الاستجابة
+        }
+      } catch (e) {
+        console.warn('⚠️ تعذر جلب محتوى المقال للمصدر التحليلي:', (e as any)?.message);
+      }
+    }
+
     // توليد التحليل
+    // مهلة قصوى للتوليد 50 ثانية لتفادي 504 من المنصة
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 50000);
     const result = await generateDeepAnalysis(generateRequest);
+    clearTimeout(timeout);
 
     if (result.success && result.analysis) {
       // تحويل محتوى JSON إلى HTML منسق لمحرر Tiptap

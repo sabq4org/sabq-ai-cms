@@ -188,8 +188,8 @@ const CreateDeepAnalysisPage = () => {
           sourceArticleId: selectedArticle?.id,
           categories,
           title: title || 'تحليل عميق',
-          creationType: sourceType === 'article' ? 'from_article' : 'topic',
-          articleUrl: selectedArticle?.id
+          creationType: sourceType === 'article' ? 'from_article' : (sourceType === 'external' ? 'external_link' : 'topic'),
+          externalLink: sourceType === 'external' ? externalLink : undefined
         })
       });
       const data = await response.json();
