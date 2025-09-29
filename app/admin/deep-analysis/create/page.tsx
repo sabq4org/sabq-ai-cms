@@ -177,36 +177,54 @@ const CreateDeepAnalysisPage = () => {
       toast.error('يرجى كتابة وصف للمحتوى المطلوب');
       return;
     }
+
+    console.log('🤖 Sending GPT generation request:', {
+      prompt: gptPrompt,
+      title: title,
+      creationType: sourceType
+    });
+
     setGenerating(true);
     try {
-      // لا نحتاج لجلب المفتاح هنا - سيتم جلبه في الخادم
+      // إرسال النص المكتوب من المستخدم كأساس للتحليل
       const response = await fetch('/api/deep-analyses/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: gptPrompt,
+          prompt: gptPrompt, // النص المكتوب من المستخدم هو الأساس
           sourceArticleId: selectedArticle?.id,
           categories,
-          title: title || 'تحليل عميق',
+          title: title || 'تحليل عميق', // عنوان عام
           creationType: sourceType === 'article' ? 'from_article' : (sourceType === 'external' ? 'external_link' : 'topic'),
           externalLink: sourceType === 'external' ? externalLink : undefined,
           fast: true
         })
       });
+      
       const data = await response.json();
+      
       if (response.ok) {
         setTitle(data.title || 'تحليل عميق');
         setSummary(data.summary || '');
-        // المحتوى الآن يأتي منسقاً من الخادم
+        // المحتوى الآن يأتي منسقاً من الخادم ومبني على نص المستخدم
         setContent(data.content || '');
         setTags(data.tags || []);
-        // إضافة رسالة نجاح مع معلومات إضافية
+        
+        // رسالة نجاح مع معلومات إضافية
         if (data.qualityScore) {
-          toast.success(`تم توليد المحتوى بنجاح (جودة: ${data.qualityScore}%)`);
+          toast.success(`تم توليد المحتوى بناءً على طلبك بنجاح (جودة: ${data.qualityScore}%)`);
         } else {
-          toast.success('تم توليد المحتوى بنجاح');
+          toast.success('تم توليد المحتوى بناءً على طلبك بنجاح');
         }
+
+        console.log('✅ Generated content based on user prompt:', {
+          userPrompt: gptPrompt,
+          generatedTitle: data.title,
+          contentLength: data.content?.length,
+          qualityScore: data.qualityScore
+        });
       } else {
+        console.error('❌ Generation failed:', data);
         toast.error(data.error || 'فشل توليد المحتوى');
       }
     } catch (error) {
@@ -408,7 +426,7 @@ const CreateDeepAnalysisPage = () => {
           </div>
         </div>
       </div>
-      {/* رسالة ترحيب ذكية */}
+      {/* رسالة ترحيب ذكية - محدثة */}
       {title === '' && summary === '' && (
         <div className={`rounded-xl p-4 mb-6 flex items-start gap-3 ${
           darkMode 
@@ -418,7 +436,10 @@ const CreateDeepAnalysisPage = () => {
           <Info className="w-5 h-5 text-blue-600 mt-0.5" />
           <div className="flex-1">
             <p className={`text-sm font-medium ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
-              مرحباً! ابدأ بتحديد طريقة الإنشاء ونوع المصدر، ثم املأ تفاصيل التحليل العميق.
+              مرحباً! أداة التحليل العميق تم تحديثها لتركز على ما تكتبه بالضبط.
+            </p>
+            <p className={`text-xs mt-1 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+              💡 ببساطة: اختر "ذكاء اصطناعي" ثم اكتب بالتفصيل ما تريد تحليله. النظام سيركز على طلبك فقط بدلاً من استخدام قوالب جاهزة.
             </p>
           </div>
         </div>
@@ -585,7 +606,12 @@ const CreateDeepAnalysisPage = () => {
             <div>
               <Label>وصف المحتوى المطلوب من GPT</Label>
               <Textarea
-                placeholder="اكتب وصفاً تفصيلياً للتحليل المطلوب..."
+                placeholder="اكتب بالتفصيل ما تريد تحليله. مثال:
+• 'أريد تحليل تأثير التجارة الإلكترونية على الاقتصاد السعودي'
+• 'قم بتحليل استراتيجيات الأمن السيبراني في الشركات الناشئة'
+• 'أريد دراسة تأثير الذكاء الاصطناعي على قطاع التعليم'
+
+كلما كان وصفك أكثر تفصيلاً، كان التحليل أدق وأكثر تركيزاً على ما تريده بالضبط."
                 value={gptPrompt}
                 onChange={(e) => setGptPrompt(e.target.value)}
                 rows={4}
@@ -595,6 +621,9 @@ const CreateDeepAnalysisPage = () => {
                     : 'bg-white border-gray-200'
                 }`}
               />
+              <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                💡 نصيحة: كن محدداً في طلبك لتحصل على تحليل مركز وليس على محتوى عام
+              </p>
             </div>
             <Button
               onClick={generateWithGPT}

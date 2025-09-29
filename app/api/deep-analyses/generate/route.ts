@@ -18,6 +18,24 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    console.log('📝 Deep Analysis Generation Request:', {
+      prompt: body.prompt,
+      title: body.title,
+      creationType: body.creationType,
+      categories: body.categories
+    });
+    
+    // التحقق من وجود النص المكتوب من المستخدم
+    if (!body.prompt || body.prompt.trim() === '') {
+      return NextResponse.json(
+        { 
+          error: 'يرجى كتابة وصف للمحتوى المطلوب في حقل "وصف المحتوى المطلوب من GPT"',
+          details: 'لم يتم العثور على نص في الطلب'
+        },
+        { status: 400 }
+      );
+    }
+    
     // الحصول على مفتاح OpenAI من المصدر الموحد
     const apiKey = await getOpenAIKey();
     
@@ -38,16 +56,17 @@ export async function POST(request: NextRequest) {
     // فرض الوضع السريع دائماً لتجنب timeout
     const fast = true; // مؤقتاً: فرض الوضع السريع دائماً
 
-    // تحضير طلب التوليد
+    // تحضير طلب التوليد - التركيز على النص المكتوب من المستخدم
     const generateRequest: GenerateAnalysisRequest = {
       sourceType: body.creationType === 'from_article' ? 'article' : 
                   body.creationType === 'external_link' ? 'external' : 'topic',
-      topic: body.title,
+      topic: body.title || 'تحليل عميق', // عنوان عام فقط
       category: body.categories?.[0],
-      customPrompt: body.prompt,
+      // هذا هو الأهم: النص الفعلي المكتوب من المستخدم
+      customPrompt: body.prompt, // هنا يجب أن يكون النص الأساسي للتحليل
       language: 'ar',
       tone: 'professional',
-      length: fast ? 'short' : 'long',
+      length: fast ? 'short' : 'medium', // تعديل الطول لتجنب الخروج عن الموضوع
       externalUrl: body.externalLink,
       sourceId: body.sourceArticleId || body.articleUrl
     };
