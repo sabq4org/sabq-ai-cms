@@ -5,8 +5,8 @@ import { cached } from "@/lib/cache";
 import { notFound } from "next/navigation";
 import { Angle } from "@/types/muqtarab";
 
-export default async function AnglePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function AnglePage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
 
   const angle = await cached<Angle | null>(`muq:angle:${slug}:v1`, 300, async () => {
     const row = await prisma.muqtarabCorner.findFirst({
@@ -38,7 +38,7 @@ export default async function AnglePage({ params }: { params: Promise<{ slug: st
     return prisma.muqtarabArticle.findMany({
       where: { corner_id: angle.id, status: "published" },
       orderBy: { publish_at: "desc" },
-      select: { id: true, title: true, excerpt: true, slug: true, cover_image: true, read_time: true, publish_at: true, created_at: true, views: true, tags: true, creator: { select: { id: true, name: true, avatar: true } } },
+      select: { id: true, title: true, excerpt: true, slug: true, cover_image: true, read_time: true, publish_at: true, created_at: true, view_count: true, tags: true, creator: { select: { id: true, name: true, avatar: true } } },
       take: 100,
     });
   });
@@ -51,7 +51,7 @@ export default async function AnglePage({ params }: { params: Promise<{ slug: st
     coverImage: a.cover_image || null,
     readingTime: a.read_time || 5,
     publishDate: a.publish_at || a.created_at,
-    views: a.views || 0,
+    views: (a.view_count || 0),
     tags: a.tags || [],
     author: a.creator ? { id: a.creator.id, name: a.creator.name || "فريق التحرير", avatar: a.creator.avatar } : undefined,
   }));

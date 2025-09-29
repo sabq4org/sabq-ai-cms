@@ -213,7 +213,7 @@ export default function MuqtarabBlock({ className }: MuqtarabBlockProps) {
                 coverImage: latestArticle.coverImage,
                 readingTime: latestArticle.readingTime,
                 publishDate: latestArticle.publishDate,
-                views: latestArticle.views,
+                views: latestArticle.views || latestArticle.view_count || 0,
                 tags: latestArticle.tags || [],
                 aiScore: 85, // درجة افتراضية
                 angle: {
