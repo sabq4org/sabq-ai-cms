@@ -74,7 +74,9 @@ export async function POST(request: NextRequest) {
     // مهلة قصوى للتوليد 50 ثانية لتفادي 504 من المنصة
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 50000);
-    const result = await generateDeepAnalysis(generateRequest);
+    // وضع سريع إذا تم تمرير fast=1 لتفادي مهلة 30 ثانية في Vercel
+    const fast = String((body?.fast ?? '')).toLowerCase() === '1' || body?.fast === true;
+    const result = await generateDeepAnalysis(generateRequest, { fast });
     clearTimeout(timeout);
 
     if (result.success && result.analysis) {

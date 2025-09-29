@@ -155,7 +155,8 @@ const ANALYSIS_PROMPTS = {
 
 // دالة توليد التحليل
 export async function generateDeepAnalysis(
-  request: GenerateAnalysisRequest
+  request: GenerateAnalysisRequest,
+  opts?: { fast?: boolean }
 ): Promise<GenerateAnalysisResponse> {
   if (!openaiClient) {
     return {
@@ -201,7 +202,7 @@ export async function generateDeepAnalysis(
 
     // استدعاء OpenAI
     const completion = await openaiClient.chat.completions.create({
-      model: 'gpt-4o',
+      model: opts?.fast ? 'gpt-4o-mini' : 'gpt-4o',
       messages: [
         {
           role: 'system',
@@ -250,8 +251,8 @@ export async function generateDeepAnalysis(
           content: prompt
         }
       ],
-      temperature: 0.8, // رفع درجة الإبداع
-      max_tokens: 4000,
+      temperature: opts?.fast ? 0.6 : 0.8,
+      max_tokens: opts?.fast ? 1200 : 4000,
       response_format: { type: "json_object" }
     });
 
