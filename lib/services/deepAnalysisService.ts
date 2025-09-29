@@ -200,13 +200,25 @@ export async function generateDeepAnalysis(
       prompt += `\n\n${lengthInstructions[request.length]}`;
     }
 
-    // استدعاء OpenAI
-    const completion = await openaiClient.chat.completions.create({
-      model: opts?.fast ? 'gpt-4o-mini' : 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: `أنت محرر تحليلي محترف في صحيفة سبق الإخبارية. 
+    // إعدادات الوضع السريع لتجنب timeout
+    const isFast = opts?.fast === true;
+    const maxTokens = isFast ? 800 : 4000;
+    const model = isFast ? 'gpt-4o-mini' : 'gpt-4o';
+    
+    // تعليمات JSON مبسطة للوضع السريع
+    const systemPrompt = isFast ? 
+      `أنت محرر صحفي. اكتب تحليلاً مختصراً بالعربية.
+      أرجع JSON بالشكل التالي فقط:
+      {
+        "title": "العنوان",
+        "summary": "ملخص قصير",
+        "sections": [
+          {"title": "عنوان القسم", "content": "محتوى القسم"}
+        ],
+        "recommendations": ["توصية 1", "توصية 2"],
+        "keyInsights": ["رؤية 1", "رؤية 2"]
+      }` :
+      `أنت محرر تحليلي محترف في صحيفة سبق الإخبارية. 
           مهمتك: كتابة تحليل عميق بلغة عربية صحفية احترافية.
           
           التنسيق المطلوب:
@@ -244,15 +256,23 @@ export async function generateDeepAnalysis(
                 "description": "وصف مختصر"
               }
             ]
-          }`
+          }`;
+
+    // استدعاء OpenAI
+    const completion = await openaiClient.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: systemPrompt
         },
         {
           role: 'user',
-          content: prompt
+          content: isFast ? prompt.substring(0, 500) : prompt // تقليص الـ prompt في الوضع السريع
         }
       ],
-      temperature: opts?.fast ? 0.6 : 0.8,
-      max_tokens: opts?.fast ? 1200 : 4000,
+      temperature: isFast ? 0.5 : 0.8,
+      max_tokens: maxTokens,
       response_format: { type: "json_object" }
     });
 
@@ -261,16 +281,70 @@ export async function generateDeepAnalysis(
       throw new Error('No response from OpenAI');
     }
 
-    // تحليل الاستجابة مع حارس JSON
+    // تحليل الاستجابة مع معالجة قوية للأخطاء
     let parsedResponse: any = null;
     try {
       parsedResponse = JSON.parse(response);
-    } catch (e) {
-      // محاولة إصلاح JSON شائع: إغلاق سلاسل غير منتهية وإزالة محارف تحكم غريبة
-      const sanitized = response
-        .replace(/[\u0000-\u001F\u007F]/g, ' ') // إزالة محارف التحكم
-        .replace(/(\n|\r)/g, '\n');
-      parsedResponse = JSON.parse(sanitized);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.log('Raw response length:', response.length);
+      console.log('First 500 chars:', response.substring(0, 500));
+      console.log('Last 500 chars:', response.substring(response.length - 500));
+      
+      // محاولات إصلاح متعددة
+      let fixedResponse = response;
+      
+      // 1. إزالة محارف التحكم
+      fixedResponse = fixedResponse.replace(/[\u0000-\u001F\u007F]/g, ' ');
+      
+      // 2. إصلاح الأسطر الجديدة داخل السلاسل
+      fixedResponse = fixedResponse.replace(/("[^"]*)(\n)([^"]*")/g, '$1\\n$3');
+      
+      // 3. إذا انتهى النص بشكل مفاجئ، حاول إغلاق JSON
+      if (!fixedResponse.trim().endsWith('}')) {
+        // البحث عن آخر فاصلة أو قوس
+        const lastComma = fixedResponse.lastIndexOf(',');
+        const lastBracket = fixedResponse.lastIndexOf('[');
+        const lastBrace = fixedResponse.lastIndexOf('{');
+        
+        // قطع عند آخر عنصر صالح
+        const cutPoint = Math.max(lastComma, lastBracket, lastBrace);
+        if (cutPoint > 0) {
+          fixedResponse = fixedResponse.substring(0, cutPoint);
+          // إغلاق الهياكل المفتوحة
+          const openBrackets = (fixedResponse.match(/\[/g) || []).length;
+          const closeBrackets = (fixedResponse.match(/\]/g) || []).length;
+          const openBraces = (fixedResponse.match(/\{/g) || []).length;
+          const closeBraces = (fixedResponse.match(/\}/g) || []).length;
+          
+          // إضافة الأقواس المطلوبة
+          for (let i = 0; i < openBrackets - closeBrackets; i++) {
+            fixedResponse += ']';
+          }
+          for (let i = 0; i < openBraces - closeBraces; i++) {
+            fixedResponse += '}';
+          }
+        }
+      }
+      
+      try {
+        parsedResponse = JSON.parse(fixedResponse);
+      } catch (secondError) {
+        // إذا فشلت كل المحاولات، أنشئ رد افتراضي
+        console.error('Failed to fix JSON, creating default response');
+        parsedResponse = {
+          title: request.topic || 'تحليل عميق',
+          summary: 'تم توليد هذا التحليل بواسطة الذكاء الاصطناعي',
+          sections: [
+            {
+              title: 'مقدمة',
+              content: 'حدث خطأ أثناء توليد التحليل الكامل. يرجى المحاولة مرة أخرى.'
+            }
+          ],
+          recommendations: ['يُنصح بإعادة المحاولة'],
+          keyInsights: ['حدث خطأ في التوليد']
+        };
+      }
     }
     
     // التحقق من أن الاستجابة ليست فارغة
