@@ -202,7 +202,7 @@ export async function generateDeepAnalysis(
 
     // إعدادات الوضع السريع لتجنب timeout
     const isFast = opts?.fast === true;
-    const maxTokens = isFast ? 2500 : 4000;  // زيادة للحصول على محتوى أفضل
+    const maxTokens = isFast ? 1800 : 4000;  // تقليل أكثر لضمان السرعة
     const model = isFast ? 'gpt-4o-mini' : 'gpt-4o';
     
     // تعليمات محسّنة للوضع السريع
@@ -281,8 +281,9 @@ export async function generateDeepAnalysis(
           content: isFast ? prompt.substring(0, 1500) : prompt // نص أطول للحصول على سياق أفضل
         }
       ],
-      temperature: isFast ? 0.7 : 0.8,  // رفع قليل للإبداعية
+      temperature: isFast ? 0.6 : 0.8,  // تقليل للحصول على نتائج أسرع
       max_tokens: maxTokens,
+      timeout: 20000, // 20 ثانية كحد أقصى
       response_format: { type: "json_object" }
     });
 

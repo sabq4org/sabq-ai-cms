@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
     // تهيئة OpenAI
     initializeOpenAI(apiKey);
     
-    // وضع سريع إذا تم تمرير fast=1 لتفادي مهلة 30 ثانية في Vercel
-    const fast = String((body?.fast ?? '')).toLowerCase() === '1' || body?.fast === true;
+    // فرض الوضع السريع دائماً لتجنب timeout
+    const fast = true; // مؤقتاً: فرض الوضع السريع دائماً
 
     // تحضير طلب التوليد
     const generateRequest: GenerateAnalysisRequest = {
@@ -73,12 +73,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // توليد التحليل
-    // مهلة قصوى للتوليد 50 ثانية لتفادي 504 من المنصة
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 50000);
-    const result = await generateDeepAnalysis(generateRequest, { fast });
-    clearTimeout(timeout);
+    // توليد التحليل مع timeout صارم 25 ثانية
+    const generatePromise = generateDeepAnalysis(generateRequest, { fast });
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Generation timeout')), 25000)
+    );
+    
+    let result;
+    try {
+      result = await Promise.race([generatePromise, timeoutPromise]);
+    } catch (timeoutError) {
+      console.error('⏱️ Timeout reached, returning partial result');
+      // إرجاع نتيجة افتراضية في حالة التايم آوت
+      return NextResponse.json({
+        title: body.title || 'تحليل عميق',
+        summary: 'تم إنشاء هذا التحليل بواسطة الذكاء الاصطناعي. يرجى المحاولة مرة أخرى للحصول على تحليل أكثر تفصيلاً.',
+        content: '<h2>مقدمة</h2><p>حدث تأخير في توليد التحليل الكامل. يرجى المحاولة مرة أخرى أو تقليل حجم المحتوى المطلوب.</p>',
+        tags: [],
+        categories: body.categories || [],
+        qualityScore: 50,
+        readingTime: 2
+      });
+    }
 
     if (result.success && result.analysis) {
       // تحويل محتوى JSON إلى HTML منسق لمحرر Tiptap
