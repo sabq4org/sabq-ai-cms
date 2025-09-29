@@ -35,6 +35,9 @@ export async function POST(request: NextRequest) {
     // تهيئة OpenAI
     initializeOpenAI(apiKey);
     
+    // وضع سريع إذا تم تمرير fast=1 لتفادي مهلة 30 ثانية في Vercel
+    const fast = String((body?.fast ?? '')).toLowerCase() === '1' || body?.fast === true;
+
     // تحضير طلب التوليد
     const generateRequest: GenerateAnalysisRequest = {
       sourceType: body.creationType === 'from_article' ? 'article' : 
@@ -44,7 +47,7 @@ export async function POST(request: NextRequest) {
       customPrompt: body.prompt,
       language: 'ar',
       tone: 'professional',
-      length: 'long',
+      length: fast ? 'short' : 'long',
       externalUrl: body.externalLink,
       sourceId: body.sourceArticleId || body.articleUrl
     };
@@ -74,8 +77,6 @@ export async function POST(request: NextRequest) {
     // مهلة قصوى للتوليد 50 ثانية لتفادي 504 من المنصة
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 50000);
-    // وضع سريع إذا تم تمرير fast=1 لتفادي مهلة 30 ثانية في Vercel
-    const fast = String((body?.fast ?? '')).toLowerCase() === '1' || body?.fast === true;
     const result = await generateDeepAnalysis(generateRequest, { fast });
     clearTimeout(timeout);
 

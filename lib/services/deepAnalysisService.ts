@@ -261,8 +261,17 @@ export async function generateDeepAnalysis(
       throw new Error('No response from OpenAI');
     }
 
-    // تحليل الاستجابة
-    const parsedResponse = JSON.parse(response);
+    // تحليل الاستجابة مع حارس JSON
+    let parsedResponse: any = null;
+    try {
+      parsedResponse = JSON.parse(response);
+    } catch (e) {
+      // محاولة إصلاح JSON شائع: إغلاق سلاسل غير منتهية وإزالة محارف تحكم غريبة
+      const sanitized = response
+        .replace(/[\u0000-\u001F\u007F]/g, ' ') // إزالة محارف التحكم
+        .replace(/(\n|\r)/g, '\n');
+      parsedResponse = JSON.parse(sanitized);
+    }
     
     // التحقق من أن الاستجابة ليست فارغة
     if (typeof parsedResponse === 'object' && Object.keys(parsedResponse).length === 0) {
