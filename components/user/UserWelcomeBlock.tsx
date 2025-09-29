@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserInterests } from '@/hooks/useUserInterests';
 import { Sparkles, Award, Brain, Target } from 'lucide-react';
 
 const greetings = [
@@ -26,7 +25,13 @@ const motivationalQuotes = [
 
 export default function UserWelcomeBlock() {
   const { user } = useAuth();
-  const { getInterestNames, hasInterests, loading: interestsLoading } = useUserInterests();
+  const interests = user?.interests || [];
+  const hasInterests = interests.length > 0;
+  const getInterestNames = () => {
+    if (!interests || interests.length === 0) return 'لم تحدد اهتماماتك بعد';
+    return interests.join('، ');
+  };
+  const interestsLoading = false;
   const [currentQuote, setCurrentQuote] = useState(motivationalQuotes[0]);
   const [currentGreeting, setCurrentGreeting] = useState(greetings[0]);
   const [currentTime, setCurrentTime] = useState(new Date());

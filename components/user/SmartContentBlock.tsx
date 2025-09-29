@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
-import { useUserInterests } from '@/hooks/useUserInterests';
 import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
 import { getSafeImageUrl } from '@/lib/image-utils';
 
@@ -43,8 +42,9 @@ export default function SmartContentBlock({
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
-  const { interests, hasInterests } = useUserInterests();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
+  const interests = user?.interests || [];
+  const hasInterests = interests.length > 0;
   const rootGridRef = useRef<HTMLDivElement | null>(null);
   const viewedRef = useRef<Set<string>>(new Set());
   const observerRef = useRef<IntersectionObserver | null>(null);
