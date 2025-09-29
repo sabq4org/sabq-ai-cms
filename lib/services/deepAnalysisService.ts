@@ -283,7 +283,6 @@ export async function generateDeepAnalysis(
       ],
       temperature: isFast ? 0.6 : 0.8,  // تقليل للحصول على نتائج أسرع
       max_tokens: maxTokens,
-      timeout: 20000, // 20 ثانية كحد أقصى
       response_format: { type: "json_object" }
     });
 
