@@ -190,6 +190,16 @@ export default function Page() {
       <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
         <DeepAnalysisBlock maxItems={3} className="mt-12" />
       </Suspense>
+  {/* قسم مقالات الرأي - يوضع بين التحليلات العميقة ومقترب */}
+  <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
+    <div className="max-w-6xl mx-auto px-4">
+      {/* استيراد ديناميكي للمكوّن داخل الشجرة لتجنب تغير ترتيب الأعلى */}
+      {(() => {
+        const TodayOpinionsSection = dynamic(() => import("@/components/EnhancedTodayOpinionsSection"), { ssr: false });
+        return <TodayOpinionsSection />;
+      })()}
+    </div>
+  </Suspense>
       
       <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
