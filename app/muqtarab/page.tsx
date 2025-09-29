@@ -1284,7 +1284,7 @@ export default function MuqtaribPage() {
         }
       `}</style>
       <div style={{ 
-        backgroundColor: '#f8f8f7', 
+        backgroundColor: 'hsl(var(--bg))',
         minHeight: '100vh',
         position: 'relative',
         zIndex: 0

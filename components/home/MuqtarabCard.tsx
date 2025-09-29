@@ -62,7 +62,7 @@ export default function MuqtarabCard({
 
   // نفس نظام الألوان من بطاقات الأخبار
   const baseBg = 'hsl(var(--bg-elevated))';
-  const hoverBg = 'hsl(var(--accent) / 0.06)';
+  const hoverBg = 'hsl(var(--bg-elevated))';
   const baseBorder = '1px solid hsl(var(--line))';
 
   // تحديد أحجام الصور حسب النوع
@@ -104,7 +104,7 @@ export default function MuqtarabCard({
   // مكون بطاقة المقال المميز الكبير
   if (variant === "large") {
     return (
-      <Card className="group overflow-hidden transition-all duration-300 border border-gray-200 dark:border-gray-700 relative rounded-xl muqtarab-themed-card bg-white" style={{ backgroundColor: '#ffffff' }}>
+      <Card className="group overflow-hidden transition-all duration-300 relative rounded-xl muqtarab-themed-card" style={{ background: 'white', border: baseBorder }}>
         {/* تصميم الديسكتوب - نصف صورة ونصف محتوى */}
         <div className="hidden md:grid md:grid-cols-2 gap-0">
           {/* صورة المقال */}
@@ -322,9 +322,9 @@ export default function MuqtarabCard({
   // مكون بطاقة المقال العادية (medium و small) - مطابق لبطاقة الأخبار حرفياً
   return (
     <Link href={articleLink} style={{ textDecoration: 'none' }}>
-      <div 
+        <div 
         style={{
-          background: '#ffffff',
+          background: 'white',
           border: baseBorder,
           borderRadius: '16px',
           overflow: 'hidden',
@@ -336,11 +336,11 @@ export default function MuqtarabCard({
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.background = '#ffffff';
+          e.currentTarget.style.background = 'white';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.background = '#ffffff';
+          e.currentTarget.style.background = 'white';
         }}
       >
         {/* صورة المقال */}
