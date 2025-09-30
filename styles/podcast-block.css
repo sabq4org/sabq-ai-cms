@@ -1,0 +1,77 @@
+/* أنماط بلوك البودكاست الذكي */
+.podcast-block {
+  transition: all 0.3s ease;
+}
+
+.podcast-player-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.podcast-progress-bar {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+}
+
+.podcast-mini-player {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.dark .podcast-mini-player {
+  background: rgba(17, 24, 39, 0.95);
+}
+
+.podcast-card-hover {
+  transition: all 0.3s ease;
+}
+
+.podcast-card-hover:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
+}
+
+/* أنيميشن الموجة الصوتية */
+.audio-wave {
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(to top, #3b82f6, #8b5cf6);
+  margin: 0 1px;
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+.audio-wave:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.audio-wave:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.audio-wave:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+@keyframes wave {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+  }
+  20% {
+    transform: scaleY(1);
+  }
+}
+
+/* تحسينات responsive */
+@media (max-width: 768px) {
+  .podcast-block {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+  
+  .podcast-mini-player {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "sabq-podcast-scripts",
+  "description": "سكريبتات إضافية لنظام البودكاست",
+  "scripts": {
+    "podcast:start": "./podcast-start.sh",
+    "podcast:start:prod": "./podcast-start.sh --production",
+    "podcast:setup": "node scripts/podcast-setup.js",
+    "podcast:seed": "node scripts/podcast-seed-data.js",
+    "podcast:backup": "node scripts/podcast-backup.js",
+    "podcast:analytics": "node scripts/podcast-analytics.js",
+    "podcast:clean": "node scripts/podcast-cleanup.js",
+    "podcast:test": "npm run test -- --testPathPattern=podcast",
+    "podcast:lint": "eslint components/**/*podcast* app/api/podcast/**/*",
+    "podcast:types": "tsc --noEmit components/**/*podcast* app/api/podcast/**/*"
+  }
+}

@@ -1,0 +1,171 @@
+// إضافة نماذج البودكاست إلى Prisma Schema
+
+model PodcastEpisode {
+  id          String   @id @default(cuid())
+  
+  // معلومات أساسية
+  title       String   @db.VarChar(500)
+  slug        String?  @unique @db.VarChar(500)
+  description String?  @db.Text
+  audioUrl    String   @map("audio_url") @db.VarChar(1000)
+  duration    Int      @default(0) // بالثواني
+  fileSize    BigInt?  @map("file_size")
+  
+  // تصنيف وتنظيم
+  category    String?  @db.VarChar(100)
+  tags        String[] @db.Text
+  language    String   @default("ar") @db.VarChar(10)
+  
+  // حالة النشر
+  status      PodcastStatus @default(DRAFT)
+  isFeatured  Boolean       @default(false) @map("is_featured")
+  isMainPage  Boolean       @default(false) @map("is_main_page")
+  
+  // ميتاداتا الإنتاج
+  voiceName   String?   @map("voice_name") @db.VarChar(100)
+  transcript  String?   @db.Text
+  keywords    String[]  @db.Text
+  
+  // إحصائيات
+  playCount     Int @default(0) @map("play_count")
+  downloadCount Int @default(0) @map("download_count")
+  likeCount     Int @default(0) @map("like_count")
+  shareCount    Int @default(0) @map("share_count")
+  
+  // تواريخ
+  publishedAt DateTime? @map("published_at")
+  recordedAt  DateTime? @map("recorded_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  // علاقات
+  interactions      PodcastInteraction[]
+  playlistEpisodes  PodcastPlaylistEpisode[]
+  categoryRelation  PodcastCategory?     @relation(fields: [category], references: [slug])
+  
+  @@map("podcast_episodes")
+  @@index([status, publishedAt(sort: Desc)], name: "idx_podcast_status_published")
+  @@index([category], name: "idx_podcast_category")
+  @@index([isFeatured, publishedAt(sort: Desc)], name: "idx_podcast_featured")
+  @@index([isMainPage, publishedAt(sort: Desc)], name: "idx_podcast_main_page")
+  @@index([playCount(sort: Desc)], name: "idx_podcast_play_count")
+  @@index([createdAt(sort: Desc)], name: "idx_podcast_created")
+}
+
+model PodcastCategory {
+  id           String  @id @default(cuid())
+  name         String  @db.VarChar(100)
+  nameAr       String  @map("name_ar") @db.VarChar(100)
+  slug         String  @unique @db.VarChar(100)
+  description  String? @db.Text
+  color        String  @default("#3B82F6") @db.VarChar(7)
+  icon         String? @db.VarChar(50) // Lucide icon name
+  displayOrder Int     @default(0) @map("display_order")
+  isActive     Boolean @default(true) @map("is_active")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // علاقات
+  episodes PodcastEpisode[]
+  
+  @@map("podcast_categories")
+  @@index([isActive, displayOrder], name: "idx_podcast_categories_active")
+  @@index([slug], name: "idx_podcast_categories_slug")
+}
+
+model PodcastInteraction {
+  id              String                 @id @default(cuid())
+  userId          String?                @map("user_id")
+  episodeId       String                 @map("episode_id")
+  interactionType PodcastInteractionType @map("interaction_type")
+  
+  // تفاصيل التشغيل
+  playPosition   Int     @default(0) @map("play_position") // بالثواني
+  playDuration   Int     @default(0) @map("play_duration") // مدة الاستماع الفعلية
+  completionRate Decimal @default(0) @map("completion_rate") @db.Decimal(5, 2)
+  
+  // ميتاداتا الجلسة
+  sessionId  String? @map("session_id") @db.VarChar(100)
+  deviceType String? @map("device_type") @db.VarChar(50)
+  ipHash     String? @map("ip_hash") @db.VarChar(64)
+  userAgent  String? @map("user_agent") @db.Text
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // علاقات
+  episode PodcastEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  user    User?          @relation(fields: [userId], references: [id])
+  
+  @@map("podcast_interactions")
+  @@index([episodeId, createdAt(sort: Desc)], name: "idx_podcast_interactions_episode")
+  @@index([userId, createdAt(sort: Desc)], name: "idx_podcast_interactions_user")
+  @@index([interactionType, createdAt(sort: Desc)], name: "idx_podcast_interactions_type")
+}
+
+model PodcastPlaylist {
+  id          String  @id @default(cuid())
+  name        String  @db.VarChar(200)
+  description String? @db.Text
+  userId      String? @map("user_id")
+  isPublic    Boolean @default(false) @map("is_public")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // علاقات
+  episodes PodcastPlaylistEpisode[]
+  user     User?                   @relation(fields: [userId], references: [id])
+  
+  @@map("podcast_playlists")
+  @@index([userId, createdAt(sort: Desc)], name: "idx_podcast_playlists_user")
+  @@index([isPublic, createdAt(sort: Desc)], name: "idx_podcast_playlists_public")
+}
+
+model PodcastPlaylistEpisode {
+  id           String @id @default(cuid())
+  playlistId   String @map("playlist_id")
+  episodeId    String @map("episode_id")
+  displayOrder Int    @default(0) @map("display_order")
+  
+  addedAt DateTime @default(now()) @map("added_at")
+  
+  // علاقات
+  playlist PodcastPlaylist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  episode  PodcastEpisode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  
+  @@unique([playlistId, episodeId], name: "unique_playlist_episode")
+  @@map("podcast_playlist_episodes")
+  @@index([playlistId, displayOrder], name: "idx_playlist_episodes_order")
+}
+
+// أنواع البيانات المخصصة
+enum PodcastStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PodcastInteractionType {
+  PLAY
+  PAUSE
+  COMPLETE
+  LIKE
+  SHARE
+  DOWNLOAD
+  SKIP
+}
+
+// إضافة علاقة البودكاست إلى نموذج المستخدم الموجود
+// أضف هذا إلى نموذج User الموجود:
+/*
+model User {
+  // ... الحقول الموجودة
+  
+  // علاقات البودكاست
+  podcastInteractions PodcastInteraction[]
+  podcastPlaylists    PodcastPlaylist[]
+  
+  // ... باقي النموذج
+}
+*/

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { requireAdmin } from '@/lib/require-admin';
 
 const prisma = new PrismaClient();
 
@@ -10,8 +11,11 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 طلب جلب الأدوار من لوحة التحكم...');
     
-    // ملاحظة: تم تعطيل Authentication مؤقتاً لحل مشكلة Build
-    // سيتم إعادة تفعيله بعد استقرار النظام
+    // حماية إدارية صريحة
+    const adminCheck = await requireAdmin(request);
+    if (!adminCheck.authorized) {
+      return NextResponse.json({ error: adminCheck.error || 'غير مصرح' }, { status: 401 });
+    }
     
     // جلب جميع الأدوار مع ترتيب حسب الاسم المعروض
     const roles = await prisma.roles.findMany({

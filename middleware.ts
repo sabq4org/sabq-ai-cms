@@ -8,9 +8,25 @@ const PRODUCTION_DOMAINS = ['sabq.io', 'www.sabq.io'];
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const hostname = req.headers.get('host') || '';
+  const pathname = url.pathname;
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isAdminAuthRoute = isAdminRoute && (pathname === '/admin/login' || pathname.startsWith('/admin/login/'));
   
   // تخطي في بيئة التطوير مع إضافة قاتل الكاش
   if (process.env.NODE_ENV !== 'production') {
+    // حماية مسارات الإدارة في التطوير أيضاً (تحقق وجود توكن فقط)
+    if (isAdminRoute && !isAdminAuthRoute) {
+      const hasToken = Boolean(
+        req.cookies.get('__Host-sabq-access-token')?.value ||
+        req.cookies.get('sabq_at')?.value ||
+        req.cookies.get('access_token')?.value ||
+        req.cookies.get('auth-token')?.value
+      );
+      if (!hasToken) {
+        const loginUrl = new URL(`/admin/login?next=${encodeURIComponent(url.pathname + url.search)}` , req.url);
+        return NextResponse.redirect(loginUrl, 307);
+      }
+    }
     const response = NextResponse.next();
     
     // قاتل الكاش للصفحات الحساسة حتى في التطوير
@@ -38,6 +54,19 @@ export function middleware(req: NextRequest) {
       response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     }
     return response;
+  }
+  // حماية مسارات الإدارة في الإنتاج (تحقق وجود توكن فقط من جهة الحافة)
+  if (isAdminRoute && !isAdminAuthRoute) {
+    const hasToken = Boolean(
+      req.cookies.get('__Host-sabq-access-token')?.value ||
+      req.cookies.get('sabq_at')?.value ||
+      req.cookies.get('access_token')?.value ||
+      req.cookies.get('auth-token')?.value
+    );
+    if (!hasToken) {
+      const loginUrl = new URL(`/admin/login?next=${encodeURIComponent(url.pathname + url.search)}` , req.url);
+      return NextResponse.redirect(loginUrl, 307);
+    }
   }
   
   // تخطي طلبات API و static files مع إضافة قاتل الكاش للمناسب

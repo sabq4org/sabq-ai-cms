@@ -30,6 +30,17 @@ const DeepAnalysisBlock = dynamic(
   }
 );
 
+// استيراد بلوك البودكاست الذكي الجديد
+const IntelligentPodcastBlock = dynamic(
+  () => import("@/components/home/IntelligentPodcastBlock"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+    ),
+  }
+);
+
 // استيراد المؤشرات الذكية بشكل ديناميكي مع تأخير التحميل
 const SmartInsightsWidget = dynamic(
   () => import("@/components/ai/SmartInsightsWidget"),
@@ -125,6 +136,11 @@ export default function Page() {
           </div>
         </Suspense>
         
+        {/* بلوك البودكاست الذكي للموبايل */}
+        <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse my-4" />}>
+          <IntelligentPodcastBlock />
+        </Suspense>
+        
         {/* المؤشرات الذكية - تحميل كسول منفصل */}
         <Suspense fallback={<div className="h-24 opacity-0" />}>
           <div className="max-w-6xl mx-auto mt-12">
@@ -155,7 +171,7 @@ export default function Page() {
 
   // محتوى الديسكتوب محسن مع useMemo
   const DesktopContent = useMemo(() => (
-    <div style={{ padding: '20px 0' }}>
+    <div className="py-5">
       <div className="max-w-6xl mx-auto px-4 pt-4">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
@@ -168,6 +184,10 @@ export default function Page() {
       {/* الموجز الذكي بين المميز والعادي */}
       <Suspense fallback={<div className="h-28 bg-gray-50 dark:bg-gray-900 rounded-xl animate-pulse my-4" />}> 
         <SmartDigestBlock />
+      </Suspense>
+      {/* بلوك البودكاست الذكي الجديد */}
+      <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse my-4" />}>
+        <IntelligentPodcastBlock />
       </Suspense>
       <Suspense
         fallback={
