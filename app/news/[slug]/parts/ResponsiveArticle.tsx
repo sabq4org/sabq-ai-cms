@@ -1,5 +1,5 @@
 "use client";
-import HeroGallery from "./HeroGallery";
+import HeroImage from "./HeroGallery";
 import Container from "./Container";
 import ArticleBody from "./ArticleBody";
 import FloatingReadButton from "./FloatingReadButton";
@@ -113,29 +113,14 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
     )
   }), []);
 
-  // الصور البارزة فقط للموبايل
-  const featuredImage = article.featured_image ? [{ 
-    url: article.featured_image, 
-    alt: article.title || undefined 
-  }] : [];
-  
-  // باقي الصور للألبوم
-  const albumImages = article.images?.filter((img: any) => img.url !== article.featured_image) || [];
 
   return (
     <div className="bg-[#f8f8f7] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 rtl" dir="rtl">
       
-      {/* عرض الصور حسب حجم الشاشة */}
-      <div className="pt-4 lg:pt-6 mb-4 lg:mb-6">
-        {/* للشاشات الكبيرة: جميع الصور */}
-        <div className="hidden md:block">
-          <HeroGallery images={heroImages} />
-        </div>
-        {/* للموبايل: الصورة البارزة فقط */}
-        <div className="block md:hidden">
-          {featuredImage.length > 0 && <HeroGallery images={featuredImage} />}
-        </div>
-      </div>
+      {/* الصورة البارزة */}
+      {heroImages.length > 0 && (
+        <HeroImage images={heroImages} />
+      )}
       
       <main>
         <Container className="py-4 lg:py-6">
@@ -224,13 +209,6 @@ export default function ResponsiveArticle({ article, insights, slug }: Responsiv
 
               <ArticleBody html={contentHtml} article={article} hiddenImageUrls={hiddenImageUrls} skipProcessing={!!article.content_processed} />
 
-              {/* ألبوم الصور للموبايل */}
-              {albumImages.length > 0 && (
-                <div className="block md:hidden mt-8">
-                  <h3 className="font-semibold text-lg mb-4">معرض الصور</h3>
-                  <HeroGallery images={albumImages} />
-                </div>
-              )}
 
               {/* البانل للموبايل - يظهر كامل */}
               <div className="block lg:hidden mt-8">
