@@ -6,8 +6,10 @@ import prisma from "@/lib/prisma";
 import { Suspense } from "react";
 import { unstable_cache } from "next/cache";
 import ArticleSkeleton from "./components/ArticleSkeleton";
+import { getArticleWithCache, getArticleContentWithCache, getRelatedArticlesWithCache } from "@/lib/article-cache-optimized";
 
-export const revalidate = 300;
+// ✅ تحسين: تقليل revalidate من 300s إلى 60s لمحتوى أحدث
+export const revalidate = 60;
 export const runtime = "nodejs";
 
 
@@ -121,65 +123,15 @@ function processArticleContentForClient(html: string | null | undefined, opts: {
 const getArticle = async function getArticle(slug: string) {
   const decodedSlug = decodeURIComponent(slug);
   
-  let article = await prisma.articles.findFirst({
-    where: {
-      slug: decodedSlug,
-      status: "published",
-    },
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      summary: true,
-      excerpt: true,
-      slug: true,
-      featured_image: true,
-      social_image: true,
-      published_at: true,
-      updated_at: true,
-      views: true,
-      likes: true,
-      shares: true,
-      saves: true,
-      tags: true,
-      seo_keywords: true,
-      metadata: true,
-      status: true,
-      featured: true,
-      reading_time: true,
-      article_author: {
-        select: {
-          id: true,
-          full_name: true,
-          title: true,
-          bio: true,
-          avatar_url: true,
-          specializations: true,
-        }
-      },
-      author: {
-        select: {
-          id: true,
-          name: true,
-          role: true,
-          avatar: true,
-        }
-      },
-      categories: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        }
-      }
-    }
-  });
+  // ✅ تحسين: استخدام Redis Cache للحصول على أداء أفضل
+  let article = await getArticleWithCache(decodedSlug);
   
-  if (!article) {
-    article = await prisma.articles.findFirst({
+  // إذا لم يُعثر عليه بالـ slug، حاول بالـ ID (fallback)
+  if (!article && /^[a-z0-9]{8,}$/i.test(decodedSlug)) {
+    // استعلام مباشر بالـ ID (لا يوجد cache wrapper له حالياً)
+    article = await prisma.articles.findUnique({
       where: {
         id: decodedSlug,
-        status: "published",
       },
       select: {
         id: true,
@@ -228,7 +180,12 @@ const getArticle = async function getArticle(slug: string) {
           }
         }
       }
-    });
+    }) as any;
+    
+    // فحص status
+    if (article && article.status !== 'published') {
+      article = null;
+    }
   }
   
   try {
@@ -282,11 +239,17 @@ const getArticle = async function getArticle(slug: string) {
       }
     }
     const unique = Array.from(new Set(keywords));
-    // معالجة المحتوى HTML على الخادم
-    const heroUrls: string[] = [];
-    if ((article as any)?.featured_image) heroUrls.push((article as any).featured_image as any);
-    if ((article as any)?.social_image) heroUrls.push((article as any).social_image as any);
-    const processed = processArticleContentForClient((article as any)?.content, { heroUrls });
+    
+    // ✅ تحسين: جلب المحتوى بشكل منفصل (lazy loading)
+    // إذا كان المحتوى موجوداً، قم بمعالجته
+    let processed = (article as any)?.content_processed;
+    if (!processed && (article as any)?.content) {
+      const heroUrls: string[] = [];
+      if ((article as any)?.featured_image) heroUrls.push((article as any).featured_image as any);
+      if ((article as any)?.social_image) heroUrls.push((article as any).social_image as any);
+      processed = processArticleContentForClient((article as any)?.content, { heroUrls });
+    }
+    
     return { ...(article as any), keywords: unique, content_processed: processed } as any;
   } catch {
     try {
@@ -323,7 +286,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function NewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  // كاش المقال بعلامات تسمح بإعادة التحقق عند النشر
+  // ✅ تحسين: استخدام getArticle المُحسّن (يستخدم Redis Cache داخلياً)
+  // unstable_cache لا يزال يعمل كطبقة إضافية
   const getArticleCached = unstable_cache(
     async (s: string) => getArticle(s),
     ["news-article", slug],
@@ -331,7 +295,7 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
       `article:${slug}`,
       "articles",
       "news",
-    ], revalidate: 300 }
+    ], revalidate: 60 }  // ✅ تحسين: من 300s إلى 60s
   );
 
   const article = await getArticleCached(slug);

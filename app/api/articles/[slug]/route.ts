@@ -354,8 +354,18 @@ export async function GET(
       keywordsCount: formattedArticle.data.keywords?.length || 0
     });
 
-    // إرجاع البيانات مع معلومات الكاتب المحسنة
-    return NextResponse.json(formattedArticle);
+    // ✅ تحسين: إرجاع البيانات مع Cache-Control headers محسّنة
+    const response = NextResponse.json(formattedArticle);
+    
+    // إضافة headers للتخزين المؤقت (stale-while-revalidate)
+    response.headers.set(
+      'Cache-Control',
+      'public, s-maxage=60, stale-while-revalidate=300'
+    );
+    response.headers.set('CDN-Cache-Control', 'public, s-maxage=120');
+    response.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=120');
+    
+    return response;
   } catch (error: any) {
     console.error("❌ خطأ في جلب المقال:", error);
 

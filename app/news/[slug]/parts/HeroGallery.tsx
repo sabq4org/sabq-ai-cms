@@ -4,23 +4,38 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import Container from "./Container";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { getCloudinaryUrl, getCloudinarySrcSet } from "@/utils/cloudinary-optimizer";
 
 type Img = { url: string; alt?: string; width?: number | null; height?: number | null };
 
-// تحسين رابط Cloudinary عند توفره لتقليل LCP عبر f_auto,q_auto,w_...
-function transformCloudinary(url: string, width: number, opts?: { fill?: boolean; quality?: 'auto' | 'eco' }): string {
+// ✅ تحسين: استخدام مساعدات Cloudinary المُحسّنة
+function transformCloudinary(url: string, width: number, opts?: { fill?: boolean; quality?: 'auto' | 'eco' | 'good' | 'best' }): string {
   try {
     if (!url || typeof url !== 'string') return url;
-    if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
-    const parts = url.split('/upload/');
-    if (parts.length !== 2) return url;
-    // إذا كانت التحويلات موجودة بالفعل، نعيد الرابط كما هو
-    if (/\/upload\/(c_|w_|f_|q_|g_)/.test(url)) return url;
-    const quality = opts?.quality === 'eco' || width <= 800 ? 'q_auto:eco' : 'q_auto';
-    const crop = opts?.fill === false ? 'c_limit' : 'c_fill,g_auto';
-    const tx = `f_auto,${quality},${crop},dpr_auto,w_${width}`;
-    return `${parts[0]}/upload/${tx}/${parts[1]}`;
-  } catch { return url; }
+    if (!url.includes('res.cloudinary.com')) return url;
+    
+    // استخدام المساعد الجديد
+    const quality = opts?.quality === 'eco' 
+      ? 'auto:eco' 
+      : opts?.quality === 'good' 
+        ? 'auto:good' 
+        : opts?.quality === 'best' 
+          ? 'auto:best' 
+          : (width > 800 ? 'auto:good' : 'auto:eco');
+    
+    const crop = opts?.fill === false ? 'limit' : 'fill';
+    
+    return getCloudinaryUrl(url, {
+      width,
+      quality: quality as any,
+      crop: crop as any,
+      gravity: 'auto',
+      format: 'auto',
+      dpr: 'auto',
+    });
+  } catch { 
+    return url; 
+  }
 }
 
 export default function HeroGallery({ images }: { images: Img[] }) {
@@ -47,13 +62,14 @@ function OneImageHero({ img, hasMore }: { img: Img; hasMore?: boolean }) {
           isPortrait && "bg-gray-50 dark:bg-gray-900"
         )}>
           <Image
-            src={transformCloudinary(img.url, 1100, { fill: true, quality: 'eco' })}
+            src={transformCloudinary(img.url, 1200, { fill: true, quality: 'best' })}
             alt={img.alt || "صورة الخبر"}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1100px"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1200px"
             priority
             fetchPriority="high"
             decoding="async"
+            quality={85}
             placeholder={blurDataURL ? 'blur' : undefined as any}
             blurDataURL={blurDataURL}
             className={cn(
@@ -109,13 +125,14 @@ function AlbumGrid({ imgs }: { imgs: Img[] }) {
           <div className="relative md:h-full group cursor-zoom-in bg-gray-50 dark:bg-gray-900" onClick={() => openAt(0)}>
             <div className="relative w-full h-full min-h-[300px] md:min-h-[400px] overflow-hidden">
               <Image 
-                src={transformCloudinary(hero?.url || imgs[0].url, 900, { fill: true, quality: 'eco' })} 
+                src={transformCloudinary(hero?.url || imgs[0].url, 1000, { fill: true, quality: 'best' })} 
                 alt={hero?.alt || imgs[0].alt || "صورة"} 
                 fill 
                 sizes="(max-width: 768px) 100vw, 50vw" 
                 priority 
                 fetchPriority="high"
                 decoding="async"
+                quality={85}
                 placeholder={blurHero ? 'blur' : undefined as any}
                 blurDataURL={blurHero}
                 className="object-cover object-center" 
