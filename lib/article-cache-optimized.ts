@@ -52,12 +52,11 @@ export async function getArticleWithCache(slug: string) {
   // 2. جلب من قاعدة البيانات
   const t0 = performance.now();
   
-  // ✅ استعلام محسّن: findUnique بدلاً من findFirst + OR
-  let article = await prisma.articles.findUnique({
+  // ✅ استعلام محسّن: استخدام findFirst مع index محسّن
+  let article = await prisma.articles.findFirst({
     where: { 
       slug,
-      // ملاحظة: Prisma لا يدعم WHERE مع findUnique مباشرة
-      // لذا نحتاج لفحص status بعد الجلب
+      status: 'published',
     },
     select: {
       id: true,
@@ -116,8 +115,8 @@ export async function getArticleWithCache(slug: string) {
   const dbTime = performance.now() - t0;
   console.log(`📊 [DB Query Time] ${dbTime.toFixed(1)}ms`);
   
-  // فحص الحالة
-  if (!article || article.status !== 'published') {
+  // فحص وجود المقال
+  if (!article) {
     // حتى الـ null نخزنه لتجنب استعلامات متكررة للمقالات غير الموجودة
     await redis.set(cacheKey, null, 30).catch(() => {});
     return null;
