@@ -79,8 +79,7 @@ export async function getArticleWithCache(slug: string) {
       status: true,
       featured: true,
       breaking: true,
-      content: true,  // ✅ إضافة المحتوى
-      content_processed: true,  // ✅ المحتوى المُعالج إذا كان موجوداً
+      content: true,  // ✅ المحتوى
       article_author: {
         select: {
           id: true,
