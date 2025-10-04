@@ -18,6 +18,7 @@ export function middleware(req: NextRequest) {
     if (isAdminRoute && !isAdminAuthRoute) {
       const hasToken = Boolean(
         req.cookies.get('__Host-sabq-access-token')?.value ||
+        req.cookies.get('sabq-access-token')?.value ||
         req.cookies.get('sabq_at')?.value ||
         req.cookies.get('access_token')?.value ||
         req.cookies.get('auth-token')?.value
@@ -59,6 +60,7 @@ export function middleware(req: NextRequest) {
   if (isAdminRoute && !isAdminAuthRoute) {
     const hasToken = Boolean(
       req.cookies.get('__Host-sabq-access-token')?.value ||
+      req.cookies.get('sabq-access-token')?.value ||
       req.cookies.get('sabq_at')?.value ||
       req.cookies.get('access_token')?.value ||
       req.cookies.get('auth-token')?.value

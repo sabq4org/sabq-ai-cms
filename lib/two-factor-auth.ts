@@ -1,4 +1,4 @@
-import speakeasy from 'speakeasy';
+import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 import prisma from '@/lib/prisma';
 
@@ -13,15 +13,14 @@ export class TwoFactorAuthService {
    * إنشاء سر 2FA جديد للمستخدم
    */
   static async generateSecret(userId: string, userEmail: string): Promise<TwoFactorSecret> {
-    // إنشاء السر
-    const secret = speakeasy.generateSecret({
-      name: `سبق الذكية (${userEmail})`,
-      issuer: 'سبق الذكية',
-      length: 32
-    });
+    // إنشاء السر باستخدام otplib
+    const secret = authenticator.generateSecret();
+    const label = `سبق الذكية (${userEmail})`;
+    const issuer = 'سبق الذكية';
+    const otpauthUrl = authenticator.keyuri(userEmail, issuer, secret);
     
     // إنشاء رمز QR
-    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url!);
+    const qrCodeUrl = await QRCode.toDataURL(otpauthUrl);
     
     // إنشاء رموز احتياطية
     const backupCodes = this.generateBackupCodes();
@@ -30,20 +29,20 @@ export class TwoFactorAuthService {
     await prisma.two_factor_temp.upsert({
       where: { user_id: userId },
       update: {
-        secret: secret.base32,
+        secret: secret,
         backup_codes: backupCodes,
         created_at: new Date()
       },
       create: {
         user_id: userId,
-        secret: secret.base32,
+        secret: secret,
         backup_codes: backupCodes,
         created_at: new Date()
       }
     });
     
     return {
-      secret: secret.base32,
+      secret: secret,
       qrCodeUrl,
       backupCodes
     };
@@ -53,12 +52,12 @@ export class TwoFactorAuthService {
    * التحقق من رمز 2FA
    */
   static verifyToken(secret: string, token: string): boolean {
-    return speakeasy.totp.verify({
-      secret,
-      encoding: 'base32',
-      token,
-      window: 2 // السماح بفارق 2 × 30 ثانية
-    });
+    try {
+      authenticator.options = { window: 2 };
+      return authenticator.check(token, secret);
+    } catch {
+      return false;
+    }
   }
   
   /**
@@ -216,9 +215,8 @@ export class TwoFactorAuthService {
     const codes: string[] = [];
     
     for (let i = 0; i < count; i++) {
-      const code = speakeasy.generateSecret({ length: 8 }).base32
-        .replace(/[^A-Z0-9]/g, '')
-        .substring(0, 8);
+      const raw = authenticator.generateSecret();
+      const code = raw.replace(/[^A-Z0-9]/g, '').substring(0, 8).toUpperCase();
       codes.push(code);
     }
     

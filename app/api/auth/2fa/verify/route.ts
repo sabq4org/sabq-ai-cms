@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TwoFactorAuthService } from '@/lib/two-factor-auth';
 import { UserManagementService, SecurityManager } from '@/lib/auth/user-management';
+import { setAuthCookies, generateCSRFToken } from '@/lib/setAuthCookies';
+import { setCORSHeaders, setNoCache } from '@/lib/auth-cookies-unified';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/prisma';
 
@@ -119,11 +121,39 @@ export async function POST(request: NextRequest) {
         remember_me: false
       });
       
-      return NextResponse.json({
-        success: true,
-        message: 'تم التحقق بنجاح',
-        ...result
-      });
+      // تجهيز الاستجابة وإعداد الكوكيز الديناميكية كما في مسار تسجيل الدخول
+      const response = NextResponse.json(
+        {
+          success: true,
+          message: 'تم التحقق بنجاح',
+          // نبقي على الحقول كما هي للتوافق مع الواجهات الحالية
+          ...result
+        },
+        { status: 200 }
+      );
+      
+      if (result.access_token && result.refresh_token) {
+        const csrfToken = generateCSRFToken();
+        const cookieStrings = setAuthCookies(
+          request,
+          {
+            accessToken: result.access_token,
+            refreshToken: result.refresh_token,
+            csrfToken
+          },
+          {
+            rememberMe: false
+          }
+        );
+        cookieStrings.forEach(cookie => {
+          response.headers.append('Set-Cookie', cookie);
+        });
+      }
+      
+      setCORSHeaders(response, request.headers.get('origin') || undefined);
+      setNoCache(response);
+      
+      return response;
     } else {
       // التحقق العادي من 2FA (للعمليات الحساسة)
       const isValid = await TwoFactorAuthService.verifyUserToken(userId, verificationCode);

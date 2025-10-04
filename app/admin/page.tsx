@@ -11,6 +11,7 @@ export default async function AdminDashboard() {
   // تحقّق خادمي سريع قبل إعادة التوجيه
   const cookieStore = await cookies();
   const token = cookieStore.get('__Host-sabq-access-token')?.value
+    || cookieStore.get('sabq-access-token')?.value
     || cookieStore.get('sabq_at')?.value
     || cookieStore.get('auth-token')?.value
     || cookieStore.get('access_token')?.value;
