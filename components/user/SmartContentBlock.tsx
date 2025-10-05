@@ -8,6 +8,7 @@ import ArticleViews from '@/components/ui/ArticleViews';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
 import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
 import { getSafeImageUrl } from '@/lib/image-utils';
+import '@/styles/old-style-news.css';
 
 interface Article {
   id: string;

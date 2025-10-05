@@ -904,6 +904,7 @@ model users {
   user_recommendations     UserRecommendations[]
   UserSessions             UserSessions[]
   user_settings            UserSettings[]
+  authored_announcements   AdminAnnouncement[]       @relation("AnnouncementAuthor")
   created_ads              ads[]                     @relation("AdCreator")
   authored_articles        articles[]                @relation("ArticleAuthor")
   audio_episodes           audio_episodes[]
@@ -925,7 +926,6 @@ model users {
   two_factor_auth          two_factor_auth?
   ui_settings              UiSetting[]
   user_interests           user_interests[]
-  authored_announcements   AdminAnnouncement[]       @relation("AnnouncementAuthor")
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -2134,98 +2134,80 @@ model two_factor_temp {
 
 /// نماذج الإعلان الإداري
 model AdminAnnouncement {
-  id            String   @id @default(cuid())
-  
-  // المحتوى الأساسي
-  title         String   @db.VarChar(500)
-  bodyMd        String   @db.Text
-  
-  // التصنيف والأولوية
-  type          AnnouncementType     @default(ANNOUNCEMENT)
-  priority      AnnouncementPriority @default(NORMAL)
-  status        AnnouncementStatus   @default(DRAFT)
-  isPinned      Boolean              @default(false)
-
-  // الجدولة الزمنية
+  id            String                   @id @default(cuid())
+  title         String                   @db.VarChar(500)
+  bodyMd        String
+  type          AnnouncementType         @default(ANNOUNCEMENT)
+  priority      AnnouncementPriority     @default(NORMAL)
+  status        AnnouncementStatus       @default(DRAFT)
+  isPinned      Boolean                  @default(false)
   startAt       DateTime?
   endAt         DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // المؤلف
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
   authorId      String
-  author        users    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+  audienceRoles String[]                 @default([])
+  audienceUsers String[]                 @default([])
+  audienceTeams String[]                 @default([])
+  author        users                    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+  attachments   AnnouncementAttachment[]
 
-  // الجمهور المستهدف
-  audienceRoles  String[] @default([])  // ['editor', 'reporter', 'admin']
-  audienceUsers  String[] @default([])  // ['user-id-1', 'user-id-2']
-  audienceTeams  String[] @default([])  // ['team-id-1', 'team-id-2']
-
-  // المرفقات
-  attachments    AnnouncementAttachment[]
-
-  // الفهارس لتحسين الأداء
-  @@index([status, startAt, endAt], name: "idx_announcement_status_dates")
-  @@index([priority, isPinned], name: "idx_announcement_priority_pinned")
-  @@index([type], name: "idx_announcement_type")
-  @@index([authorId], name: "idx_announcement_author")
+  @@index([status, startAt, endAt], map: "idx_announcement_status_dates")
+  @@index([priority, isPinned], map: "idx_announcement_priority_pinned")
+  @@index([type], map: "idx_announcement_type")
+  @@index([authorId], map: "idx_announcement_author")
   @@map("admin_announcements")
 }
 
 /// مرفقات الإعلانات (صور، ملفات، روابط)
 model AnnouncementAttachment {
-  id             String  @id @default(cuid())
+  id             String            @id @default(cuid())
   announcementId String
-  url            String  @db.VarChar(1000)
-  kind           AttachmentKind @default(IMAGE)
+  url            String            @db.VarChar(1000)
+  kind           AttachmentKind    @default(IMAGE)
   alt            String?
-  meta           Json?   // { size, mimetype, dimensions }
-
+  meta           Json?
   announcement   AdminAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
-  
-  @@index([announcementId], name: "idx_attachment_announcement")
+
+  @@index([announcementId], map: "idx_attachment_announcement")
   @@map("announcement_attachments")
 }
 
-// ===== Enums for Announcements =====
-
 /// أنواع الإعلانات
 enum AnnouncementType {
-  ANNOUNCEMENT    // إعلان عام
-  CRITICAL        // تنبيه حرج
-  GUIDELINE       // إرشادات وتوجيهات
-  ASSET_APPROVED  // موافقة على محتوى
-  MAINTENANCE     // صيانة مجدولة
-  FEATURE         // ميزة جديدة
-  POLICY          // سياسة جديدة
+  ANNOUNCEMENT
+  CRITICAL
+  GUIDELINE
+  ASSET_APPROVED
+  MAINTENANCE
+  FEATURE
+  POLICY
 }
 
 /// مستويات الأولوية
 enum AnnouncementPriority {
-  LOW       // منخفضة
-  NORMAL    // عادية
-  HIGH      // عالية
-  CRITICAL  // حرجة
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
 }
 
 /// حالات الإعلان
 enum AnnouncementStatus {
-  DRAFT      // مسودة
-  SCHEDULED  // مجدول
-  ACTIVE     // نشط
-  EXPIRED    // منتهي
-  ARCHIVED   // مؤرشف
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  EXPIRED
+  ARCHIVED
 }
 
 /// أنواع المرفقات
 enum AttachmentKind {
-  IMAGE  // صورة
-  VIDEO  // فيديو
-  FILE   // ملف
-  LINK   // رابط خارجي
+  IMAGE
+  VIDEO
+  FILE
+  LINK
 }
-
-// ===== Missing Enums =====
 
 enum EmailJob_status {
   QUEUED

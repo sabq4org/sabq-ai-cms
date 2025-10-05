@@ -1,4 +1,4 @@
-const { PrismaClient } = require('../lib/generated/prisma');
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function checkDatabaseHealth() {
@@ -13,7 +13,7 @@ async function checkDatabaseHealth() {
     const stats = {
       articles: await prisma.articles.count(),
       categories: await prisma.categories.count(),
-      authors: await prisma.authors.count(),
+      article_authors: await prisma.article_authors.count(),
       users: await prisma.users.count(),
       tags: await prisma.tags.count(),
       comments: await prisma.comments.count()
@@ -32,7 +32,7 @@ async function checkDatabaseHealth() {
     
     // مقالات بدون مؤلف
     const articlesWithoutAuthor = await prisma.articles.count({
-      where: { authorId: null }
+      where: { author_id: null }
     });
     console.log(`${articlesWithoutAuthor > 0 ? '⚠️' : '✅'} مقالات بدون مؤلف: ${articlesWithoutAuthor}`);
     
