@@ -437,8 +437,10 @@ const ArticlesAdminPage = () => {
         width: '100%',
         color: 'hsl(var(--fg))'
       }}>
+      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+        <div className="space-y-6 md:space-y-8">
       {/* رسالة الترحيب */}
-      <div className="card card-accent" style={{ marginBottom: '32px' }}>
+      <div className="card card-accent shadow-md rounded-xl p-6" style={{ marginBottom: '0' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
           <div style={{
             width: '48px',
@@ -488,7 +490,7 @@ const ArticlesAdminPage = () => {
       </div>
 
       {/* بطاقات الإحصائيات */}
-      <div className="grid grid-cols-2 lg:grid-cols-7 gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         {[
           {
             label: "إجمالي المقالات",
@@ -534,7 +536,7 @@ const ArticlesAdminPage = () => {
             special: true,
           },
         ].map((stat, index) => (
-          <div key={index} className="card" style={{ cursor: 'pointer' }}>
+          <div key={index} className="card shadow-md rounded-xl p-6" style={{ cursor: 'pointer' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{
                 width: '48px',
@@ -561,7 +563,7 @@ const ArticlesAdminPage = () => {
       </div>
 
       {/* أدوات البحث والفلترة */}
-      <div className="card" style={{ marginBottom: '24px' }}>
+      <div className="card shadow-md rounded-xl p-6" style={{ marginBottom: '0' }}>
         <div className="card-header">
           <h3 className="card-title">البحث والفلترة</h3>
         </div>
@@ -665,7 +667,7 @@ const ArticlesAdminPage = () => {
           <RefreshCw style={{ width: '32px', height: '32px', color: 'hsl(var(--accent))' }} className="animate-spin" />
         </div>
       ) : filteredArticles.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+        <div className="card shadow-md rounded-xl" style={{ textAlign: 'center', padding: '48px 24px' }}>
           <FileText style={{ width: '64px', height: '64px', color: 'hsl(var(--muted))', margin: '0 auto 16px' }} />
           <h3 className="heading-3" style={{ marginBottom: '8px' }}>
             لا توجد مقالات
@@ -683,7 +685,7 @@ const ArticlesAdminPage = () => {
       ) : (
         <div style={{ display: 'grid', gap: '16px' }}>
           {filteredArticles.map((article) => (
-            <div key={article.id} className="card interactive">
+            <div key={article.id} className="card interactive shadow-md rounded-xl p-6">
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
@@ -898,6 +900,8 @@ const ArticlesAdminPage = () => {
         </div>
       )}
 
+      </div>
+      </div>
       {/* Modal تأكيد الحذف */}
       {deleteModalOpen && articleToDelete && (
         <div style={{
