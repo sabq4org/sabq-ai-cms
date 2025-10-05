@@ -91,12 +91,12 @@ export default function OldStyleNewsBlock({
     return () => observer.disconnect();
   }, [articles]);
   
-  // تحديد إذا كان الخبر جديد (آخر 7 أيام للاختبار)
+  // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
   const isNewsNew = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
-    return diffTime <= 7 * 24 * 60 * 60 * 1000; // 7 أيام للاختبار
+    return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
   };
 
   // تنسيق التاريخ الميلادي (dd/MM/yyyy)

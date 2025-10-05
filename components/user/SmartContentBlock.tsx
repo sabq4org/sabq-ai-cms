@@ -6,9 +6,9 @@ import Image from 'next/image';
 import { Sparkles, Calendar, Clock } from 'lucide-react';
 import ArticleViews from '@/components/ui/ArticleViews';
 import OldStyleNewsBlock from '@/components/old-style/OldStyleNewsBlock';
+import { useUserInterests } from '@/hooks/useUserInterests';
 import { useAuth } from '@/contexts/EnhancedAuthContextWithSSR';
 import { getSafeImageUrl } from '@/lib/image-utils';
-import '@/styles/old-style-news.css';
 
 interface Article {
   id: string;
@@ -43,9 +43,8 @@ export default function SmartContentBlock({
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
-  const { isLoggedIn, user } = useAuth();
-  const interests = user?.interests || [];
-  const hasInterests = interests.length > 0;
+  const { interests, hasInterests } = useUserInterests();
+  const { isLoggedIn } = useAuth();
   const rootGridRef = useRef<HTMLDivElement | null>(null);
   const viewedRef = useRef<Set<string>>(new Set());
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -111,7 +110,7 @@ export default function SmartContentBlock({
       console.log('⚡ جلب المحتوى الذكي الفائق...');
 
       // كاش محلي محسّن - 30 ثانية فقط لإظهار الأخبار الجديدة بسرعة
-      const cacheKey = 'smart-content-fast-cache-v4'; // تحديث رقم الإصدار لإجبار إعادة التحميل
+      const cacheKey = 'smart-content-fast-cache-v3';
       const cached = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
       if (cached) {
         try {
@@ -170,7 +169,7 @@ export default function SmartContentBlock({
       console.error('❌ Error fetching smart content fast:', error);
       // إبقاء الكاش المحلي إن وجد، وإلا ففارغ
       try {
-        const cached = localStorage.getItem('smart-content-fast-cache-v4');
+        const cached = localStorage.getItem('smart-content-fast-cache-v3');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (parsed?.articles) setArticles(parsed.articles);
