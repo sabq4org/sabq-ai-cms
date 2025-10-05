@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { Search, Plus, Filter, Edit, Eye, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -38,6 +39,7 @@ const statusColors = {
  * Full announcements list component
  */
 export function AdminAnnouncementsList() {
+  const router = useRouter();
   const [filters, setFilters] = useState({
     q: '',
     type: '',
@@ -81,7 +83,7 @@ export function AdminAnnouncementsList() {
               </Badge>
             )}
           </CardTitle>
-          <Button>
+          <Button onClick={() => router.push('/admin/announcements/new')}>
             <Plus className="h-4 w-4 ml-2" />
             إعلان جديد
           </Button>
@@ -95,7 +97,7 @@ export function AdminAnnouncementsList() {
               placeholder="بحث في الإعلانات..."
               value={filters.q}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pr-10"
+              className="pr-10 bg-[hsl(var(--bg-card))] border border-[hsl(var(--line))]"
             />
           </div>
 
