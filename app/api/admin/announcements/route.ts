@@ -111,13 +111,28 @@ export async function GET(request: NextRequest) {
       ]
     });
 
+    const modelAvailable = Boolean((prisma as any)?.adminAnnouncement?.findMany);
+
+    if (!modelAvailable) {
+      console.warn('⚠️ Prisma Client لا يحتوي على نموذج adminAnnouncement بعد. إرجاع نتيجة فارغة مؤقتاً.');
+      return NextResponse.json({
+        data: [],
+        pagination: {
+          page: filters.page,
+          limit: filters.limit,
+          total: 0,
+          totalPages: 0
+        }
+      });
+    }
+
     // الحصول على العدد الإجمالي
-    const total = await prisma.adminAnnouncement.count({
+    const total = await (prisma as any).adminAnnouncement.count({
       where: whereConditions.AND.length > 0 ? whereConditions : undefined
     });
 
     // الحصول على البيانات مع الترقيم
-    const announcements = await prisma.adminAnnouncement.findMany({
+    const announcements = await (prisma as any).adminAnnouncement.findMany({
       where: whereConditions.AND.length > 0 ? whereConditions : undefined,
       orderBy: [
         { isPinned: 'desc' },

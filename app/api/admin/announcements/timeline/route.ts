@@ -24,12 +24,17 @@ export async function GET(request: NextRequest) {
 
     // التحقق من وجود الجدول قبل الاستعلام
     try {
+      const modelAvailable = Boolean((prisma as any)?.adminAnnouncement?.findMany);
+      if (!modelAvailable) {
+        console.warn('⚠️ Prisma Client لا يحتوي على نموذج adminAnnouncement بعد. Timeline سيرجع مصفوفة فارغة مؤقتاً.');
+        return NextResponse.json([]);
+      }
       const now = new Date();
       const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const oneDayAhead = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
       // استعلام مُحسّن للخط الزمني
-      const timeline = await prisma.adminAnnouncement.findMany({
+      const timeline = await (prisma as any).adminAnnouncement.findMany({
         where: {
           AND: [
             {
