@@ -91,12 +91,12 @@ export default function OldStyleNewsBlock({
     return () => observer.disconnect();
   }, [articles]);
   
-  // تحديد إذا كان الخبر جديد (آخر ساعتين فقط)
+  // تحديد إذا كان الخبر جديد (آخر 7 أيام للاختبار)
   const isNewsNew = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
-    return diffTime <= 2 * 60 * 60 * 1000; // ساعتان
+    return diffTime <= 7 * 24 * 60 * 60 * 1000; // 7 أيام للاختبار
   };
 
   // تنسيق التاريخ الميلادي (dd/MM/yyyy)
@@ -210,9 +210,9 @@ export default function OldStyleNewsBlock({
                       <span>عاجل</span>
                     </div>
                   )}
-                  {/* ليبل جديد - أخضر مع شعلة */}
+                  {/* ليبل التصنيف - تم إخفاؤه حسب طلب المستخدم */}
                   {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
-                    <div className="old-style-news-new-badge">
+                    <div className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
                       <span className="text-xs">🔥</span>
                       <span>جديد</span>
                     </div>
