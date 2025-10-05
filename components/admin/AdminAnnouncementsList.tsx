@@ -100,14 +100,14 @@ export function AdminAnnouncementsList() {
           </div>
 
           <Select
-            value={filters.type}
-            onValueChange={(value) => setFilters({ ...filters, type: value })}
+            value={filters.type || '__all'}
+            onValueChange={(value) => setFilters({ ...filters, type: value === '__all' ? '' : value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="النوع" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">الكل</SelectItem>
+              <SelectItem value="__all">الكل</SelectItem>
               <SelectItem value="ANNOUNCEMENT">إعلان</SelectItem>
               <SelectItem value="CRITICAL">حرج</SelectItem>
               <SelectItem value="GUIDELINE">إرشادات</SelectItem>
@@ -119,14 +119,14 @@ export function AdminAnnouncementsList() {
           </Select>
 
           <Select
-            value={filters.priority}
-            onValueChange={(value) => setFilters({ ...filters, priority: value })}
+            value={filters.priority || '__all'}
+            onValueChange={(value) => setFilters({ ...filters, priority: value === '__all' ? '' : value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="الأولوية" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">الكل</SelectItem>
+              <SelectItem value="__all">الكل</SelectItem>
               <SelectItem value="LOW">منخفضة</SelectItem>
               <SelectItem value="NORMAL">عادية</SelectItem>
               <SelectItem value="HIGH">عالية</SelectItem>
@@ -135,14 +135,14 @@ export function AdminAnnouncementsList() {
           </Select>
 
           <Select
-            value={filters.status}
-            onValueChange={(value) => setFilters({ ...filters, status: value })}
+            value={filters.status || '__all'}
+            onValueChange={(value) => setFilters({ ...filters, status: value === '__all' ? '' : value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="الحالة" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">الكل</SelectItem>
+              <SelectItem value="__all">الكل</SelectItem>
               <SelectItem value="DRAFT">مسودة</SelectItem>
               <SelectItem value="SCHEDULED">مجدول</SelectItem>
               <SelectItem value="ACTIVE">نشط</SelectItem>

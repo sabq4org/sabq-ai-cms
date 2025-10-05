@@ -1051,7 +1051,7 @@ export default function EnhancedMediaLibraryPage() {
                     <SelectValue placeholder="اختر مجلد" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">المجلد الرئيسي</SelectItem>
+                    <SelectItem value="__root">المجلد الرئيسي</SelectItem>
                     {folders
                       .filter(f => !selectedFolders.has(f.id))
                       .map((folder) => (
