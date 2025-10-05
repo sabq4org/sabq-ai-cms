@@ -64,7 +64,10 @@
     "ui:test-persist": "node scripts/test-breaking-news-persistence.js",
     "ui:test-colors": "node scripts/test-news-counter-colors.js",
     "notifications:test": "node scripts/test-notification-persistence.js",
-    "fix:react-errors": "node test-notification-fix.js && node test-notification-advanced.js"
+    "fix:react-errors": "node test-notification-fix.js && node test-notification-advanced.js",
+    "announcements:seed": "node scripts/seed-announcements.js",
+    "announcements:test": "curl http://localhost:3000/api/admin/announcements",
+    "announcements:cron": "curl -H \"Authorization: Bearer ${CRON_SECRET}\" http://localhost:3000/api/internal/cron/announcements"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.856.0",

@@ -1,0 +1,95 @@
+// ===== نماذج نظام الإعلانات والتنبيهات الإدارية =====
+// Admin Announcements & Alerts System Models
+
+/// نموذج الإعلان الإداري
+model AdminAnnouncement {
+  id            String   @id @default(cuid())
+  
+  // المحتوى الأساسي
+  title         String   @db.VarChar(500)
+  bodyMd        String   @db.Text
+  
+  // التصنيف والأولوية
+  type          AnnouncementType     @default(ANNOUNCEMENT)
+  priority      AnnouncementPriority @default(NORMAL)
+  status        AnnouncementStatus   @default(DRAFT)
+  isPinned      Boolean              @default(false)
+
+  // الجدولة الزمنية
+  startAt       DateTime?
+  endAt         DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // المؤلف
+  authorId      String
+  author        users    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+
+  // الجمهور المستهدف
+  audienceRoles  String[] @default([])  // ['editor', 'reporter', 'admin']
+  audienceUsers  String[] @default([])  // ['user-id-1', 'user-id-2']
+  audienceTeams  String[] @default([])  // ['team-id-1', 'team-id-2']
+
+  // المرفقات
+  attachments    AnnouncementAttachment[]
+
+  // الفهارس لتحسين الأداء
+  @@index([status, startAt, endAt], name: "idx_status_dates")
+  @@index([priority, isPinned], name: "idx_priority_pinned")
+  @@index([type], name: "idx_type")
+  @@index([authorId], name: "idx_author")
+  @@map("admin_announcements")
+}
+
+/// مرفقات الإعلانات (صور، ملفات، روابط)
+model AnnouncementAttachment {
+  id             String  @id @default(cuid())
+  announcementId String
+  url            String  @db.VarChar(1000)
+  kind           AttachmentKind @default(IMAGE)
+  alt            String?
+  meta           Json?   // { size, mimetype, dimensions }
+
+  announcement   AdminAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  
+  @@index([announcementId], name: "idx_announcement")
+  @@map("announcement_attachments")
+}
+
+// ===== Enums =====
+
+/// أنواع الإعلانات
+enum AnnouncementType {
+  ANNOUNCEMENT    // إعلان عام
+  CRITICAL        // تنبيه حرج
+  GUIDELINE       // إرشادات وتوجيهات
+  ASSET_APPROVED  // موافقة على محتوى
+  MAINTENANCE     // صيانة مجدولة
+  FEATURE         // ميزة جديدة
+  POLICY          // سياسة جديدة
+}
+
+/// مستويات الأولوية
+enum AnnouncementPriority {
+  LOW       // منخفضة
+  NORMAL    // عادية
+  HIGH      // عالية
+  CRITICAL  // حرجة
+}
+
+/// حالات الإعلان
+enum AnnouncementStatus {
+  DRAFT      // مسودة
+  SCHEDULED  // مجدول
+  ACTIVE     // نشط
+  EXPIRED    // منتهي
+  ARCHIVED   // مؤرشف
+}
+
+/// أنواع المرفقات
+enum AttachmentKind {
+  IMAGE  // صورة
+  VIDEO  // فيديو
+  FILE   // ملف
+  LINK   // رابط خارجي
+}
