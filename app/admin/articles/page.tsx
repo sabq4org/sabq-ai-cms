@@ -437,7 +437,7 @@ const ArticlesAdminPage = () => {
         width: '100%',
         color: 'hsl(var(--fg))'
       }}>
-      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <div className="news-page-container">
         <div className="space-y-6 md:space-y-8">
       {/* رسالة الترحيب */}
       <div className="card card-accent shadow-md rounded-xl p-6" style={{ marginBottom: '0' }}>
