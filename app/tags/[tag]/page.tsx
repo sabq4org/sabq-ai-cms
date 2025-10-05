@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Hash, Home, Loader2, Grid3X3, List, Calendar, Clock, TrendingUp, Eye, ArrowLeft, AlertTriangle } from 'lucide-react';
 import ArticleCard from '@/components/ArticleCard';
-import Footer from '@/components/Footer';
 
 interface Article {
   id: string;
@@ -277,7 +276,7 @@ export default function TagPage() {
         </div>
       </div>
 
-      <Footer />
+      {/* تمت إزالة Footer المحلي لتجنب التكرار؛ الفوتر يأتي من التخطيط العام */}
     </>
   );
 } 
