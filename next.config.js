@@ -217,8 +217,7 @@ const nextConfig = {
   
   // تعطيل source maps في التطوير لتقليل طلبات 404
   devIndicators: {
-    buildActivityPosition: 'bottom-right',
-    appIsrStatus: false,
+    position: 'bottom-right',
   },
 
   // زيادة timeout للصفحات الثقيلة
