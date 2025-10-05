@@ -210,9 +210,9 @@ export default function OldStyleNewsBlock({
                       <span>عاجل</span>
                     </div>
                   )}
-                  {/* ليبل التصنيف - تم إخفاؤه حسب طلب المستخدم */}
+                  {/* ليبل جديد - أخضر مع شعلة */}
                   {isNewsNew(article.published_at) && !(article.breaking || article.is_breaking) && (
-                    <div className="recent-news-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white">
+                    <div className="old-style-news-new-badge">
                       <span className="text-xs">🔥</span>
                       <span>جديد</span>
                     </div>
