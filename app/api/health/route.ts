@@ -1,7 +1,7 @@
 export const runtime = 'edge';
 
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   const startTime = Date.now();
@@ -10,21 +10,19 @@ export async function GET() {
     // Ultra-fast environment check
     const environment = {
       NODE_ENV: process.env.NODE_ENV,
-      DATABASE_URL_SET: !!process.env.DATABASE_URL || !!process.env.NEON_DATABASE_URL,
+      DATABASE_URL_SET: !!process.env.DATABASE_URL,
       EDGE_RUNTIME: true,
       REGION: process.env.CF_RAY?.split('-')[1] || 'unknown'
     };
     
-    // Lightning-fast database test
-    const dbTest = await query<{test: number, version?: string}>(`
-      SELECT 1 as test, version() as version
-    `);
+    // Lightning-fast database test using Prisma
+    const dbTest = await prisma.$queryRaw`SELECT 1 as test, version() as version`;
     
     // Fast count queries with optimized performance
     const [articlesResult, usersResult, categoriesResult] = await Promise.allSettled([
-      query<{count: number}>(`SELECT COUNT(*) as count FROM articles`),
-      query<{count: number}>(`SELECT COUNT(*) as count FROM users`),
-      query<{count: number}>(`SELECT COUNT(*) as count FROM categories`)
+      prisma.articles.count(),
+      prisma.users.count(),
+      prisma.categories.count()
     ]);
     
     const responseTime = Date.now() - startTime;
@@ -34,13 +32,13 @@ export async function GET() {
       edge: true,
       database: {
         connected: true,
-        info: dbTest[0],
+        info: Array.isArray(dbTest) ? dbTest[0] : { test: 1 },
         responseTime: `${responseTime}ms`
       },
       data: {
-        articles: articlesResult.status === 'fulfilled' ? articlesResult.value[0]?.count || 0 : 0,
-        users: usersResult.status === 'fulfilled' ? usersResult.value[0]?.count || 0 : 0,
-        categories: categoriesResult.status === 'fulfilled' ? categoriesResult.value[0]?.count || 0 : 0
+        articles: articlesResult.status === 'fulfilled' ? articlesResult.value : 0,
+        users: usersResult.status === 'fulfilled' ? usersResult.value : 0,
+        categories: categoriesResult.status === 'fulfilled' ? categoriesResult.value : 0
       },
       environment,
       performance: {
@@ -115,7 +113,7 @@ function getErrorSuggestion(errorType: string): string {
     case 'CONNECTION_FAILED':
       return 'Check that DATABASE_URL is set correctly with port 6543 for pooling';
     case 'CONNECTION_REFUSED':
-      return 'Ensure your database is running and accessible from Digital Ocean';
+      return 'Ensure your database is running and accessible';
     default:
       return 'Check your database configuration and environment variables';
   }
