@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/getAuthenticatedUser';
 
 // مخطط التحقق من صحة البيانات
 const CreateAnnouncementSchema = z.object({
@@ -31,7 +31,15 @@ const CreateAnnouncementSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     // التحقق من المصادقة
-    const user = await getCurrentUser();
+    const authResult = await getAuthenticatedUser(request);
+    if (authResult.reason !== 'ok' || !authResult.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      );
+    }
+    
+    const user = authResult.user;
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' }, 
@@ -155,10 +163,19 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    const authResult = await getAuthenticatedUser(request);
     
     // التحقق من الصلاحيات
-    if (!user || !['admin', 'system_admin', 'editor'].includes(user.role)) {
+    if (authResult.reason !== 'ok' || !authResult.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const user = authResult.user;
+    
+    if (!['admin', 'system_admin', 'editor'].includes(user.role || 'user')) {
       return NextResponse.json(
         { error: 'Forbidden - insufficient permissions' },
         { status: 403 }

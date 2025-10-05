@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/getAuthenticatedUser';
 
 /**
  * GET /api/admin/announcements/timeline
- * الحصول على الخط الزمني للإعلانات المهمة
+ * نقطة نهاية للحصول على الخط الزمني للإعلانات
+ * - الإعلانات المثبتة
+ * - الإعلانات النشطة في آخر 7 أيام
+ * - الإعلانات المجدولة خلال 24 ساعة
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    // التحقق من المصادقة
+    const authResult = await getAuthenticatedUser(request);
+    if (authResult.reason !== 'ok' || !authResult.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const user = authResult.user;
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -3,8 +3,8 @@
  * Authentication and Authorization Helper Functions
  */
 
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { NextRequest } from 'next/server';
+import { getAuthenticatedUser } from '@/lib/getAuthenticatedUser';
 
 export interface CurrentUser {
   id: string;
@@ -16,21 +16,38 @@ export interface CurrentUser {
 
 /**
  * الحصول على المستخدم الحالي من الجلسة
+ * يتطلب NextRequest للتحقق من التوكن
  */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+export async function getCurrentUser(request?: NextRequest): Promise<CurrentUser | null> {
   try {
-    const session = await getServerSession(authOptions);
+    // إذا لم يتم تمرير request، نحاول الحصول عليه من السياق
+    if (!request) {
+      // في بيئة Next.js 15 App Router، يمكن استخدام headers()
+      const { headers } = await import('next/headers');
+      const headersList = await headers();
+      
+      // إنشاء request وهمي من الهيدرات
+      const url = headersList.get('x-forwarded-proto') 
+        ? `${headersList.get('x-forwarded-proto')}://${headersList.get('host')}`
+        : 'http://localhost:3000';
+      
+      request = new NextRequest(url, {
+        headers: headersList as any
+      });
+    }
+
+    const result = await getAuthenticatedUser(request);
     
-    if (!session || !session.user) {
+    if (result.reason !== 'ok' || !result.user) {
       return null;
     }
 
     return {
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-      role: session.user.role || 'user',
-      avatar: session.user.image,
+      id: result.user.id,
+      name: result.user.name,
+      email: result.user.email,
+      role: result.user.role || 'user',
+      avatar: result.user.avatar,
     };
   } catch (error) {
     console.error('Error getting current user:', error);

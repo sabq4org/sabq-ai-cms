@@ -176,6 +176,7 @@
     "sharp": "^0.34.3",
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",
+    "swr": "^2.3.0",
     "otplib": "^12.0.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^3.4.17",

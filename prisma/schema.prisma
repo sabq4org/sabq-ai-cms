@@ -2131,262 +2131,95 @@ model two_factor_temp {
   created_at   DateTime @default(now())
 }
 
-enum MediaType {
-  IMAGE
-  VIDEO
-  AUDIO
-  DOCUMENT
+/// نماذج الإعلان الإداري
+model AdminAnnouncement {
+  id            String   @id @default(cuid())
+  
+  // المحتوى الأساسي
+  title         String   @db.VarChar(500)
+  bodyMd        String   @db.Text
+  
+  // التصنيف والأولوية
+  type          AnnouncementType     @default(ANNOUNCEMENT)
+  priority      AnnouncementPriority @default(NORMAL)
+  status        AnnouncementStatus   @default(DRAFT)
+  isPinned      Boolean              @default(false)
+
+  // الجدولة الزمنية
+  startAt       DateTime?
+  endAt         DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // المؤلف
+  authorId      String
+  author        users    @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+
+  // الجمهور المستهدف
+  audienceRoles  String[] @default([])  // ['editor', 'reporter', 'admin']
+  audienceUsers  String[] @default([])  // ['user-id-1', 'user-id-2']
+  audienceTeams  String[] @default([])  // ['team-id-1', 'team-id-2']
+
+  // المرفقات
+  attachments    AnnouncementAttachment[]
+
+  // الفهارس لتحسين الأداء
+  @@index([status, startAt, endAt], name: "idx_announcement_status_dates")
+  @@index([priority, isPinned], name: "idx_announcement_priority_pinned")
+  @@index([type], name: "idx_announcement_type")
+  @@index([authorId], name: "idx_announcement_author")
+  @@map("admin_announcements")
 }
 
-enum EmailJob_status {
-  queued
-  sending
-  completed
-  cancelled
-  failed
+/// مرفقات الإعلانات (صور، ملفات، روابط)
+model AnnouncementAttachment {
+  id             String  @id @default(cuid())
+  announcementId String
+  url            String  @db.VarChar(1000)
+  kind           AttachmentKind @default(IMAGE)
+  alt            String?
+  meta           Json?   // { size, mimetype, dimensions }
+
+  announcement   AdminAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  
+  @@index([announcementId], name: "idx_attachment_announcement")
+  @@map("announcement_attachments")
 }
 
-enum EmailLog_status {
-  pending
-  sent
-  delivered
-  bounced
-  opened
-  clicked
-  unsubscribed
-  failed
+// ===== Enums for Announcements =====
+
+/// أنواع الإعلانات
+enum AnnouncementType {
+  ANNOUNCEMENT    // إعلان عام
+  CRITICAL        // تنبيه حرج
+  GUIDELINE       // إرشادات وتوجيهات
+  ASSET_APPROVED  // موافقة على محتوى
+  MAINTENANCE     // صيانة مجدولة
+  FEATURE         // ميزة جديدة
+  POLICY          // سياسة جديدة
 }
 
-enum EmailProviderConfig_type {
-  smtp
-  sendgrid
-  mailgun
-  ses
+/// مستويات الأولوية
+enum AnnouncementPriority {
+  LOW       // منخفضة
+  NORMAL    // عادية
+  HIGH      // عالية
+  CRITICAL  // حرجة
 }
 
-enum OpinionArticle_status {
-  draft
-  published
-  archived
+/// حالات الإعلان
+enum AnnouncementStatus {
+  DRAFT      // مسودة
+  SCHEDULED  // مجدول
+  ACTIVE     // نشط
+  EXPIRED    // منتهي
+  ARCHIVED   // مؤرشف
 }
 
-enum Subscriber_status {
-  active
-  inactive
-  unsubscribed
-}
-
-enum daily_doses_period {
-  morning
-  afternoon
-  evening
-  night
-}
-
-enum daily_doses_status {
-  draft
-  published
-  scheduled
-  archived
-}
-
-enum dose_contents_contentType {
-  article
-  weather
-  quote
-  tip
-  audio
-  analysis
-}
-
-enum forum_follows_target_type {
-  topic
-  user
-  category
-}
-
-enum forum_replies_status {
-  active
-  pending
-  hidden
-  deleted
-}
-
-enum forum_reports_status {
-  pending
-  resolved
-  dismissed
-}
-
-enum forum_reports_target_type {
-  topic
-  reply
-}
-
-enum forum_topics_status {
-  active
-  pending
-  hidden
-  deleted
-}
-
-enum forum_votes_target_type {
-  topic
-  reply
-}
-
-enum forum_votes_vote_type {
-  like
-  dislike
-}
-
-enum interactions_type {
-  like
-  save
-  share
-  comment
-  view
-  reading_session
-}
-
-enum MLModelType {
-  classification
-  regression
-  clustering
-  recommendation
-  nlp
-  computer_vision
-  time_series
-  neural_network
-  transformer
-}
-
-enum MLModelStatus {
-  training
-  trained
-  deployed
-  failed
-  deprecated
-}
-
-enum TrainingStatus {
-  queued
-  running
-  completed
-  failed
-  cancelled
-}
-
-enum SentimentLabel {
-  very_negative
-  negative
-  neutral
-  positive
-  very_positive
-}
-
-/// نوع المحتوى الأساسي للفصل بين الأخبار ومقالات الرأي
-enum ContentType {
-  NEWS
-  OPINION
-}
-
-enum RecommendationType {
-  content_based
-  collaborative_filtering
-  hybrid
-  deep_learning
-  knowledge_based
-}
-
-enum ImportStatus {
-  pending
-  processing
-  completed
-  failed
-  duplicate
-  rejected
-}
-
-enum DoseReaction {
-  like
-  dislike
-  neutral
-  shared
-  saved
-}
-
-enum ads_placement {
-  below_featured
-  below_custom_block
-  article_detail_header
-  sidebar_top
-  sidebar_bottom
-  footer_banner
-}
-
-enum NotificationType {
-  breaking_news
-  article_recommendation
-  system_alert
-  user_engagement
-  performance_warning
-  content_moderation
-
-  ai_insight
-}
-
-enum NotificationPriority {
-  low
-  medium
-  high
-  urgent
-}
-
-enum NotificationStatus {
-  pending
-  scheduled
-  sent
-  delivered
-  read
-  failed
-}
-
-model AiProofreadJob {
-  id           String   @id @default(cuid())
-  articleId    String?
-  userId       String
-  inputChars   Int
-  quality      Json
-  result       Json
-  createdAt    DateTime  @default(now())
-  durationMs   Int
-  status       String    // success|failed
-  errorMessage String?
-  @@index([articleId])
-  @@index([userId, createdAt])
-}
-
-model ContentQualityScore {
-  id          String   @id @default(cuid())
-  articleId   String   @unique
-  spelling    Int
-  grammar     Int
-  style       Int
-  consistency Int
-  overall     Int
-  updatedAt   DateTime @default(now())
-}
-
-model AiAuditLog {
-  id        String   @id @default(cuid())
-  articleId String?
-  userId    String
-  action    String   // run|apply_patch|revert_patch
-  payload   Json
-  createdAt DateTime @default(now())
-  ip        String?
-  ua        String?
-  @@index([articleId])
-  @@index([userId, createdAt])
+/// أنواع المرفقات
+enum AttachmentKind {
+  IMAGE  // صورة
+  VIDEO  // فيديو
+  FILE   // ملف
+  LINK   // رابط خارجي
 }
