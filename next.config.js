@@ -1,4 +1,11 @@
 /** @type {import('next').NextConfig} */
+
+// Detect deployment platform
+const isCloudflare = process.env.CF_PAGES === '1' || process.env.CLOUDFLARE_ENV;
+const isVercel = process.env.VERCEL === '1';
+
+console.log('🚀 Platform Detection:', { isCloudflare, isVercel, env: process.env.NODE_ENV });
+
 // ULTRA FAST CLOUDFLARE EDGE CONFIGURATION
 const nextConfig = {
   // Force dynamic rendering for edge optimization
@@ -6,32 +13,14 @@ const nextConfig = {
     return "edge-" + Date.now();
   },
 
-  // Cloudflare Pages compatibility
-  output: 'export',
-  trailingSlash: true,
-  images: {
-    unoptimized: true, // Cloudflare Images will handle optimization
-  },
-
-  experimental: {
-    // Edge runtime optimizations
-    runtime: 'experimental-edge',
-    webpackBuildWorker: true,
-    staleTimes: {
-      dynamic: 30,
-      static: 180,
+  // Platform-specific configuration
+  ...(isCloudflare && {
+    output: 'export',
+    trailingSlash: true,
+    experimental: {
+      runtime: 'experimental-edge',
     },
-  },
-
-  // Turbopack configuration (stable in Next.js 15)
-  turbopack: {
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
-      },
-    },
-  },
+  }),
 
   images: {
     formats: ["image/webp", "image/avif"],
@@ -41,7 +30,7 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    unoptimized: true, // Let Cloudflare handle optimization
+    unoptimized: isCloudflare, // Let Cloudflare handle optimization, Vercel handle its own
     remotePatterns: [
       {
         protocol: "https",
@@ -132,9 +121,14 @@ const nextConfig = {
     ],
   },
 
-  // تحسين الكمبايل - إزالة removeConsole لتجنب التعارض
+  // تحسين الكمبايل
   compiler: {
-    // لا نحتاج إزالة console.log في بيئة التطوير
+    // Production optimizations only
+    ...(process.env.NODE_ENV === 'production' && {
+      removeConsole: {
+        exclude: ['error', 'warn'],
+      },
+    }),
   },
 
   // Ultra-fast headers for Edge optimization
@@ -183,7 +177,7 @@ const nextConfig = {
     ];
   },
 
-  // تحسين Webpack للأداء - مبسط للتطوير
+  // تحسين Webpack للأداء
   webpack: (config, { dev, isServer }) => {
     // إضافة استثناءات للمكتبات المشاكسة
     config.resolve.fallback = {
@@ -212,15 +206,10 @@ const nextConfig = {
       };
     }
 
-    // إزالة devtool customization لتجنب التحذيرات
-    // if (dev) {
-    //   config.devtool = "eval-cheap-module-source-map";
-    // }
-
     return config;
   },
 
-  // نقل serverComponentsExternalPackages خارج experimental
+  // Externals for server optimization
   serverExternalPackages: ["sharp"],
 
   // تحسينات الأداء لحل مشاكل Build Timeouts
@@ -235,13 +224,13 @@ const nextConfig = {
   // زيادة timeout للصفحات الثقيلة
   staticPageGenerationTimeout: 90,
 
-  // تعطيل type checking أثناء البناء (مؤقتاً)
+  // Build optimizations
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
 
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
   },
   
   // معالجة مراجع الصوت النسبية مثل /some/path/test.mp3 → /test.mp3

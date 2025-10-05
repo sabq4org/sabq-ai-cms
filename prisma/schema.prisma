@@ -925,6 +925,7 @@ model users {
   two_factor_auth          two_factor_auth?
   ui_settings              UiSetting[]
   user_interests           user_interests[]
+  authored_announcements   AdminAnnouncement[]       @relation("AnnouncementAuthor")
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -2222,4 +2223,214 @@ enum AttachmentKind {
   VIDEO  // فيديو
   FILE   // ملف
   LINK   // رابط خارجي
+}
+
+// ===== Missing Enums =====
+
+enum EmailJob_status {
+  queued
+  running
+  completed
+  failed
+  cancelled
+}
+
+enum EmailLog_status {
+  pending
+  sent
+  delivered
+  opened
+  clicked
+  bounced
+  failed
+}
+
+enum EmailProviderConfig_type {
+  smtp
+  sendgrid
+  mailgun
+  ses
+}
+
+enum Subscriber_status {
+  active
+  inactive
+  unsubscribed
+  bounced
+}
+
+enum ContentType {
+  NEWS
+  OPINION
+  ARTICLE
+  BLOG
+}
+
+enum daily_doses_period {
+  morning
+  afternoon
+  evening
+  night
+}
+
+enum daily_doses_status {
+  draft
+  published
+  archived
+}
+
+enum dose_contents_contentType {
+  text
+  image
+  video
+  link
+  article
+}
+
+enum forum_follows_target_type {
+  topic
+  user
+  category
+}
+
+enum forum_replies_status {
+  active
+  deleted
+  hidden
+  pending
+}
+
+enum forum_reports_target_type {
+  topic
+  reply
+  user
+}
+
+enum forum_reports_status {
+  pending
+  reviewed
+  resolved
+  dismissed
+}
+
+enum forum_topics_status {
+  active
+  locked
+  deleted
+  hidden
+}
+
+enum forum_votes_target_type {
+  topic
+  reply
+}
+
+enum forum_votes_vote_type {
+  up
+  down
+}
+
+enum interactions_type {
+  like
+  dislike
+  share
+  bookmark
+  view
+}
+
+enum OpinionArticle_status {
+  draft
+  published
+  archived
+  rejected
+}
+
+enum MLModelType {
+  classification
+  regression
+  clustering
+  recommendation
+}
+
+enum MLModelStatus {
+  training
+  ready
+  failed
+  deprecated
+}
+
+enum TrainingStatus {
+  queued
+  running
+  completed
+  failed
+  cancelled
+}
+
+enum SentimentLabel {
+  positive
+  negative
+  neutral
+}
+
+enum NotificationType {
+  info
+  warning
+  error
+  success
+  system
+}
+
+enum NotificationPriority {
+  low
+  medium
+  high
+  critical
+}
+
+enum NotificationStatus {
+  pending
+  sent
+  read
+  dismissed
+}
+
+enum RecommendationType {
+  content
+  user
+  category
+  trending
+}
+
+enum ImportStatus {
+  pending
+  processing
+  completed
+  failed
+  cancelled
+}
+
+enum MediaType {
+  image
+  video
+  audio
+  document
+  other
+}
+
+enum DoseReaction {
+  love
+  like
+  neutral
+  dislike
+  report
+}
+
+enum ads_placement {
+  header
+  sidebar
+  footer
+  inline
+  popup
+  banner
 }
