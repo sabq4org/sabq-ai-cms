@@ -33,6 +33,34 @@ export async function GET(request: Request) {
       timestamp: now.toISOString()
     };
 
+    // تحقق من وجود جدول admin_announcements أولاً
+    try {
+      const tableExists = await prisma.$queryRaw`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'admin_announcements'
+        );
+      ` as Array<{ exists: boolean }>;
+      
+      if (!tableExists[0]?.exists) {
+        console.log('⚠️  admin_announcements table does not exist yet - skipping cron job');
+        return NextResponse.json({
+          success: true,
+          message: 'Announcement cron job skipped - table not ready',
+          results,
+        });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.log('⚠️  Could not check table existence - skipping cron job:', errorMessage);
+      return NextResponse.json({
+        success: true,
+        message: 'Announcement cron job skipped - table check failed',
+        results,
+      });
+    }
+
     // نحدد ما إذا كان نموذج AdminAnnouncement متاحاً في Prisma Client
     const hasAdminAnnouncementModel = Boolean((prisma as any)?.adminAnnouncement?.updateMany);
 

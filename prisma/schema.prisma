@@ -16,7 +16,7 @@ model EmailJob {
   scheduled_at  DateTime?
   started_at    DateTime?
   completed_at  DateTime?
-  status        EmailJob_status @default(queued)
+  status        EmailJob_status @default(QUEUED)
   target_filter Json?
   metadata      Json?
   stats         Json?
@@ -32,7 +32,7 @@ model EmailLog {
   subscriber_id   String
   provider_msg_id String?
   message_id      String?
-  status          EmailLog_status @default(pending)
+  status          EmailLog_status @default(PENDING)
   error           String?
   opened_at       DateTime?
   clicked_at      DateTime?
@@ -46,7 +46,7 @@ model EmailLog {
 
 model EmailProviderConfig {
   id              String                   @id
-  type            EmailProviderConfig_type @default(smtp)
+  type            EmailProviderConfig_type @default(SMTP)
   sender_name     String
   sender_email    String
   api_key         String?
@@ -89,7 +89,7 @@ model Subscriber {
   id          String            @id
   email       String            @unique
   name        String?           @db.VarChar(255)
-  status      Subscriber_status @default(active)
+  status      Subscriber_status @default(ACTIVE)
   preferences Json?
   metadata    Json?
   created_at  DateTime          @default(now())
@@ -1791,7 +1791,7 @@ model smart_dose_feedback {
   id              String       @id @default(cuid())
   user_id         String
   dose_id         String
-  reaction        DoseReaction @default(neutral)
+  reaction        DoseReaction @default(NEUTRAL)
   shared          Boolean      @default(false)
   saved           Boolean      @default(false)
   time_spent      Int?
@@ -2228,35 +2228,35 @@ enum AttachmentKind {
 // ===== Missing Enums =====
 
 enum EmailJob_status {
-  queued
-  running
-  completed
-  failed
-  cancelled
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
 }
 
 enum EmailLog_status {
-  pending
-  sent
-  delivered
-  opened
-  clicked
-  bounced
-  failed
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  FAILED
 }
 
 enum EmailProviderConfig_type {
-  smtp
-  sendgrid
-  mailgun
-  ses
+  SMTP
+  SENDGRID
+  MAILGUN
+  SES
 }
 
 enum Subscriber_status {
-  active
-  inactive
-  unsubscribed
-  bounced
+  ACTIVE
+  INACTIVE
+  UNSUBSCRIBED
+  BOUNCED
 }
 
 enum ContentType {
@@ -2411,26 +2411,26 @@ enum ImportStatus {
 }
 
 enum MediaType {
-  image
-  video
-  audio
-  document
-  other
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  OTHER
 }
 
 enum DoseReaction {
-  love
-  like
-  neutral
-  dislike
-  report
+  LOVE
+  LIKE
+  NEUTRAL
+  DISLIKE
+  REPORT
 }
 
 enum ads_placement {
-  header
-  sidebar
-  footer
-  inline
-  popup
-  banner
+  HEADER
+  SIDEBAR
+  FOOTER
+  INLINE
+  POPUP
+  BANNER
 }
