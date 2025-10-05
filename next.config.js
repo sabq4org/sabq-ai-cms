@@ -1,17 +1,21 @@
 /** @type {import('next').NextConfig} */
-// FORCE REBUILD: 2025-08-15T21:02 - Emergency deployment
+// ULTRA FAST CLOUDFLARE EDGE CONFIGURATION
 const nextConfig = {
-  // إضافة معرف فريد للملفات الثابتة
+  // Force dynamic rendering for edge optimization
   generateBuildId: async () => {
-    return "build-" + Date.now();
+    return "edge-" + Date.now();
   },
 
-  // تعطيل التخزين المؤقت للتطوير - تم نقله لأسفل
-
-  // Note: api config moved to individual route handlers
+  // Cloudflare Pages compatibility
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true, // Cloudflare Images will handle optimization
+  },
 
   experimental: {
-    // تبسيط الإعدادات التجريبية
+    // Edge runtime optimizations
+    runtime: 'experimental-edge',
     webpackBuildWorker: true,
     staleTimes: {
       dynamic: 30,
@@ -30,19 +34,25 @@ const nextConfig = {
   },
 
   images: {
-    formats: ["image/webp", "image/avif"], // إضافة avif للأداء الأفضل
-    minimumCacheTTL: 300, // cache لمدة 5 دقائق
-    deviceSizes: [640, 750, 1080, 1920], // تقليل الأحجام
-    imageSizes: [16, 32, 64, 128, 256], // تبسيط الأحجام
+    formats: ["image/webp", "image/avif"],
+    minimumCacheTTL: 31536000, // 1 year cache
+    deviceSizes: [640, 750, 1080, 1920],
+    imageSizes: [16, 32, 64, 128, 256],
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // تقليل التايم أوت
-    loader: "default",
-    loaderFile: undefined,
-    // تفعيل تحسين الصور لتحسين الأداء
-    unoptimized: false,
+    unoptimized: true, // Let Cloudflare handle optimization
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "REPLACE_WITH_R2_PUBLIC_DOMAIN",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "REPLACE_WITH_CF_IMAGES_DOMAIN",
+        pathname: "/**",
+      },
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
@@ -127,7 +137,7 @@ const nextConfig = {
     // لا نحتاج إزالة console.log في بيئة التطوير
   },
 
-  // Headers للتحكم في التخزين المؤقت
+  // Ultra-fast headers for Edge optimization
   async headers() {
     return [
       {
@@ -135,7 +145,11 @@ const nextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, max-age=0, proxy-revalidate",
+            value: "public, s-maxage=30, stale-while-revalidate=300",
+          },
+          {
+            key: "CDN-Cache-Control",
+            value: "public, s-maxage=60",
           },
         ],
       },
@@ -162,11 +176,7 @@ const nextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://va.vercel-scripts.com https://vercel.live wss:; frame-src 'self' https://vercel.live;",
+            value: "public, s-maxage=300, stale-while-revalidate=60",
           },
         ],
       },

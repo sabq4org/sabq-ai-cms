@@ -1,50 +1,60 @@
+export const runtime = 'edge';
+
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { query } from '@/lib/db';
 
 export async function GET() {
   const startTime = Date.now();
   
   try {
-    // معلومات البيئة
+    // Ultra-fast environment check
     const environment = {
       NODE_ENV: process.env.NODE_ENV,
-      DATABASE_URL_SET: !!process.env.DATABASE_URL,
-      DIRECT_URL_SET: !!process.env.DIRECT_URL,
-      VERCEL: !!process.env.VERCEL,
-      DIGITAL_OCEAN: !!process.env.DIGITAL_OCEAN_APP_ID
+      DATABASE_URL_SET: !!process.env.DATABASE_URL || !!process.env.NEON_DATABASE_URL,
+      EDGE_RUNTIME: true,
+      REGION: process.env.CF_RAY?.split('-')[1] || 'unknown'
     };
     
-    // اختبار الاتصال الأساسي
-    const dbTest = await prisma.$queryRaw<Array<{test: number, db: string, version: string}>>`SELECT 1 as test, current_database() as db, version() as version`;
+    // Lightning-fast database test
+    const dbTest = await query<{test: number, version?: string}>(`
+      SELECT 1 as test, version() as version
+    `);
     
-    // اختبار استعلامات حقيقية
-    const [articlesCount, usersCount, categoriesCount] = await Promise.all([
-      prisma.articles.count().catch(() => 0),
-      prisma.users.count().catch(() => 0),
-      prisma.categories.count().catch(() => 0)
+    // Fast count queries with optimized performance
+    const [articlesResult, usersResult, categoriesResult] = await Promise.allSettled([
+      query<{count: number}>(`SELECT COUNT(*) as count FROM articles`),
+      query<{count: number}>(`SELECT COUNT(*) as count FROM users`),
+      query<{count: number}>(`SELECT COUNT(*) as count FROM categories`)
     ]);
     
-    // حساب وقت الاستجابة
     const responseTime = Date.now() - startTime;
     
     return NextResponse.json({
       status: 'healthy',
+      edge: true,
       database: {
         connected: true,
         info: dbTest[0],
         responseTime: `${responseTime}ms`
       },
       data: {
-        articles: articlesCount,
-        users: usersCount,
-        categories: categoriesCount
+        articles: articlesResult.status === 'fulfilled' ? articlesResult.value[0]?.count || 0 : 0,
+        users: usersResult.status === 'fulfilled' ? usersResult.value[0]?.count || 0 : 0,
+        categories: categoriesResult.status === 'fulfilled' ? categoriesResult.value[0]?.count || 0 : 0
       },
       environment,
+      performance: {
+        responseTime: `${responseTime}ms`,
+        cached: false,
+        edge: true
+      },
       timestamp: new Date().toISOString()
     }, {
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'X-Response-Time': `${responseTime}ms`
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+        'X-Response-Time': `${responseTime}ms`,
+        'X-Edge-Location': environment.REGION,
+        'X-Runtime': 'edge'
       }
     });
   } catch (error) {

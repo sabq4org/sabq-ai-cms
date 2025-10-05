@@ -5,13 +5,14 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import { ToastContainer } from "@/components/ui/toast";
+import { UltraPerformanceProvider, UltraFastLoader, PerformanceAnalytics } from "@/components/UltraPerformance";
 import { getServerUser } from "@/lib/getServerUser";
 import { getSiteUrl } from "@/lib/url-builder";
 import "./globals.css";
 import "@/styles/unified-font-system.css";
 import "@/styles/force-arabic-font.css";
-import "@/app/old-style-demo/old-style.css";
-// color-softening.css removed for performance
+// Removed heavy CSS files for ultra performance
+// import "@/app/old-style-demo/old-style.css";
 import "@/styles/notification-fixes.css";
 import "@/styles/notification-modern-ui.css";
 import "@/styles/notification-light-header.css";
@@ -119,19 +120,17 @@ export default async function RootLayout({
         )}
       </head>
       <body className={`${ibmPlexArabic.className} font-arabic antialiased`} suppressHydrationWarning>
-        <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#f8f8f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-3 text-gray-600">جاري التحميل...</p>
-          </div>
-        </div>}>
-          <ConditionalLayout initialUser={initialUser}>
-            {children}
-          </ConditionalLayout>
-        </Suspense>
-        <ToastContainer />
-        <SpeedInsights />
-        <Analytics />
+        <UltraPerformanceProvider>
+          <Suspense fallback={<UltraFastLoader />}>
+            <ConditionalLayout initialUser={initialUser}>
+              {children}
+            </ConditionalLayout>
+          </Suspense>
+          <ToastContainer />
+          <PerformanceAnalytics />
+          <SpeedInsights />
+          <Analytics />
+        </UltraPerformanceProvider>
       </body>
     </html>
   );

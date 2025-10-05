@@ -1,0 +1,67 @@
+name = "sabq-ai-cms"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = ".vercel/output/static"
+
+# R2 Storage for Assets (Images, Files)
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "sabq-assets"
+
+# KV Storage for Caching (Ultra Fast)
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_KV_ID"
+
+# Environment Variables
+[vars]
+NODE_ENV = "production"
+ENABLE_EDGE_CACHE = "true"
+CACHE_TTL_SECONDS = "300"
+CACHE_STALE_WHILE_REVALIDATE = "60"
+
+# Build Configuration
+[build]
+command = "npm run build"
+cwd = "."
+
+# Advanced Performance Settings
+[placement]
+mode = "smart"
+
+# Custom Headers for Maximum Performance
+[[headers]]
+for = "/*"
+[headers.values]
+"Cache-Control" = "public, s-maxage=300, stale-while-revalidate=60"
+"X-Content-Type-Options" = "nosniff"
+"X-Frame-Options" = "DENY"
+"X-XSS-Protection" = "1; mode=block"
+"Referrer-Policy" = "strict-origin-when-cross-origin"
+
+[[headers]]
+for = "/api/*"
+[headers.values]
+"Cache-Control" = "public, s-maxage=30, stale-while-revalidate=300"
+
+[[headers]]
+for = "/_next/static/*"
+[headers.values]
+"Cache-Control" = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/images/*"
+[headers.values]
+"Cache-Control" = "public, max-age=31536000, immutable"
+
+# Edge-side redirects for performance
+[[redirects]]
+from = "/old-path/*"
+to = "/new-path/:splat"
+status = 301
+
+# Route-specific optimizations
+[env.production]
+# Secrets will be added via wrangler secret put command
+# NEON_DATABASE_URL - will be set as secret
+# NEXTAUTH_SECRET - will be set as secret
+# OPENAI_API_KEY - will be set as secret
