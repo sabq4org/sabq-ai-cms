@@ -230,8 +230,8 @@ export default function SmartContentBlock({
     return views.toString();
   };
 
-  // في النسخة الخفيفة (الموبايل): نعرض بطاقات الطراز القديم فقط
-  if (isMobile) {
+  // عرض بطاقات الطراز القديم على جميع المقاسات (مؤقتاً للاختبار)
+  {
     if (isLoading) {
       return (
         <div style={{ padding: '16px 0' }}>
