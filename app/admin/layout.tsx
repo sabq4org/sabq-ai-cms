@@ -12,11 +12,6 @@ interface AdminLayoutProps {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  // تجاوز مؤقت للمشكلة في الإنتاج
-  if (process.env.SKIP_ADMIN_AUTH === 'true') {
-    return <>{children}</>;
-  }
-
   // تحقق خادمي صارم: وجود توكن + صلاحيات إدارية + 2FA عند تفعيله
   const cookieStore = await cookies();
   const token = cookieStore.get('__Host-sabq-access-token')?.value

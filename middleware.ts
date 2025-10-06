@@ -12,11 +12,6 @@ export function middleware(req: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin');
   const isAdminAuthRoute = isAdminRoute && (pathname === '/admin/login' || pathname.startsWith('/admin/login/'));
   
-  // تجاوز مؤقت للمشكلة في الإنتاج
-  if (process.env.SKIP_ADMIN_AUTH === 'true' && isAdminRoute) {
-    return NextResponse.next();
-  }
-  
   // تخطي في بيئة التطوير مع إضافة قاتل الكاش
   if (process.env.NODE_ENV !== 'production') {
     // حماية مسارات الإدارة في التطوير أيضاً (تحقق وجود توكن فقط)
