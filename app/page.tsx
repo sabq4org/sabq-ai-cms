@@ -132,7 +132,7 @@ export default function Page() {
           {/* الأخبار المميزة والمحتوى الذكي معاً */}
           <EnhancedFeaturedLoader heading="الأخبار المميزة" limit={3} showCarousel={false} />
           <div className="max-w-6xl mx-auto">
-            <SmartContentBlock forceLite />
+            <SmartContentBlock />
           </div>
         </Suspense>
         
@@ -203,7 +203,7 @@ export default function Page() {
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <div className="max-w-6xl mx-auto px-4">
-          <SmartContentBlock forceLite />
+          <SmartContentBlock />
         </div>
       </Suspense>
       

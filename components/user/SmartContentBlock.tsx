@@ -32,14 +32,12 @@ interface SmartContentBlockProps {
   title?: string;
   subtitle?: string;
   description?: string;
-  forceLite?: boolean; // إجبار عرض النسخة الخفيفة بغضّ النظر عن الكشف داخل المكوّن
 }
 
 export default function SmartContentBlock({ 
   title = "نسخة مطورة بالذكاء الاصطناعي",
   subtitle = "🎯 محتوى ذكي مخصص لاهتماماتك",
-  description = "نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة",
-  forceLite = false,
+  description = "نقدم لك أفضل المقالات المختارة خصيصاً بناءً على اهتماماتك المحددة"
 }: SmartContentBlockProps) {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -232,8 +230,8 @@ export default function SmartContentBlock({
     return views.toString();
   };
 
-  // في النسخة الخفيفة: نعرض بطاقات الطراز القديم (إجبارياً عند forceLite)
-  if (forceLite || isMobile) {
+  // في النسخة الخفيفة (الموبايل): نعرض بطاقات الطراز القديم فقط
+  if (isMobile) {
     if (isLoading) {
       return (
         <div style={{ padding: '16px 0' }}>
