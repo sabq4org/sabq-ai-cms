@@ -212,13 +212,13 @@ export default function ArchivePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="p-4 bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+        <Card className="p-6 bg-gradient-to-br from-[#2288D2] to-[#1E6FB8] text-white shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm opacity-90">إجمالي المقالات</p>
-              <p className="text-2xl font-bold">{stats?.totalArticles || 0}</p>
+              <p className="text-sm opacity-90 mb-1">إجمالي المقالات</p>
+              <p className="text-3xl font-bold">{stats?.totalArticles.toLocaleString() || 0}</p>
             </div>
-            <Grid3x3 className="w-8 h-8 opacity-50" />
+            <Grid3x3 className="w-10 h-10 opacity-30" />
           </div>
         </Card>
       </motion.div>
@@ -228,13 +228,13 @@ export default function ArchivePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="p-4 bg-gradient-to-br from-blue-500 to-cyan-500 text-white">
+        <Card className="p-6 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm opacity-90">مقالات اليوم</p>
-              <p className="text-2xl font-bold">{stats?.todayArticles || 0}</p>
+              <p className="text-sm opacity-90 mb-1">مقالات اليوم</p>
+              <p className="text-3xl font-bold">{stats?.todayArticles || 0}</p>
             </div>
-            <Clock className="w-8 h-8 opacity-50" />
+            <Clock className="w-10 h-10 opacity-30" />
           </div>
         </Card>
       </motion.div>
@@ -244,13 +244,13 @@ export default function ArchivePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="p-4 bg-gradient-to-br from-green-500 to-emerald-500 text-white">
+        <Card className="p-6 bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm opacity-90">نمو أسبوعي</p>
-              <p className="text-2xl font-bold">+{stats?.weeklyGrowth || 0}%</p>
+              <p className="text-sm opacity-90 mb-1">نمو أسبوعي</p>
+              <p className="text-3xl font-bold">+{stats?.weeklyGrowth || 0}%</p>
             </div>
-            <TrendingUp className="w-8 h-8 opacity-50" />
+            <TrendingUp className="w-10 h-10 opacity-30" />
           </div>
         </Card>
       </motion.div>
@@ -260,13 +260,13 @@ export default function ArchivePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="p-4 bg-gradient-to-br from-orange-500 to-red-500 text-white">
+        <Card className="p-6 bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm opacity-90">القسم الأنشط</p>
-              <p className="text-lg font-bold">{stats?.topCategory || 'محليات'}</p>
+              <p className="text-sm opacity-90 mb-1">القسم الأنشط</p>
+              <p className="text-xl font-bold">{stats?.topCategory || 'محليات'}</p>
             </div>
-            <Zap className="w-8 h-8 opacity-50" />
+            <Zap className="w-10 h-10 opacity-30" />
           </div>
         </Card>
       </motion.div>
@@ -276,13 +276,13 @@ export default function ArchivePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <Card className="p-4 bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
+        <Card className="p-6 bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm opacity-90">كتّاب نشطون</p>
-              <p className="text-2xl font-bold">{stats?.activeAuthors || 0}</p>
+              <p className="text-sm opacity-90 mb-1">كتّاب نشطون</p>
+              <p className="text-3xl font-bold">{stats?.activeAuthors || 0}</p>
             </div>
-            <BarChart3 className="w-8 h-8 opacity-50" />
+            <BarChart3 className="w-10 h-10 opacity-30" />
           </div>
         </Card>
       </motion.div>
@@ -366,10 +366,12 @@ export default function ArchivePage() {
 
   // مكون اقتراحات AI
   const AISuggestions = () => (
-    <Card className="p-4 mb-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-5 h-5 text-purple-600" />
-        <h3 className="font-semibold">اقتراحات AI الذكية</h3>
+    <Card className="p-6 mb-6 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-[#2288D2]/30 shadow-md">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="p-2 bg-[#2288D2] rounded-lg">
+          <Sparkles className="w-5 h-5 text-white" />
+        </div>
+        <h3 className="font-bold text-lg">اقتراحات AI الذكية</h3>
       </div>
       <div className="flex flex-wrap gap-2">
         {aiSuggestions.map((suggestion, index) => (
@@ -381,7 +383,7 @@ export default function ArchivePage() {
           >
             <Badge
               variant="outline"
-              className="cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors"
+              className="cursor-pointer hover:bg-[#2288D2] hover:text-white hover:border-[#2288D2] transition-all px-4 py-2 text-sm"
               onClick={() => setSearchQuery(suggestion)}
             >
               {suggestion}
@@ -395,15 +397,28 @@ export default function ArchivePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* الهيدر */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
-        <div className="container mx-auto px-4">
+      <div className="bg-gradient-to-r from-[#2288D2] to-[#1E6FB8] text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">أرشيف الأخبار الذكي</h1>
-            <p className="text-xl opacity-90">استكشف آلاف المقالات بقوة الذكاء الاصطناعي</p>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">أرشيف سبق الإلكترونية</h1>
+            <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto">
+              استكشف آلاف المقالات والأخبار بقوة الذكاء الاصطناعي
+            </p>
+            <div className="mt-6 flex items-center justify-center gap-4 text-sm opacity-80">
+              <span>📰 {stats?.totalArticles.toLocaleString() || 0} مقال</span>
+              <span>•</span>
+              <span>✨ بحث ذكي</span>
+              <span>•</span>
+              <span>📅 تقويم تفاعلي</span>
+            </div>
           </motion.div>
         </div>
       </div>

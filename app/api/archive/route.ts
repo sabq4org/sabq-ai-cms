@@ -199,53 +199,25 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Archive API Error:', error);
     
-    // إرجاع بيانات وهمية في حالة الخطأ للتطوير
-    const mockArticles = Array.from({ length: 12 }, (_, i) => ({
-      id: `article-${i}`,
-      title: `مقال تجريبي رقم ${i + 1}`,
-      slug: `article-${i}`,
-      excerpt: 'هذا نص تجريبي للمقال. يحتوي على معلومات مفيدة ومثيرة للاهتمام.',
-      image: null,
-      published_at: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-      views: Math.floor(Math.random() * 10000),
-      category: {
-        id: 1,
-        name: 'أخبار',
-        slug: 'news',
-        color: '#3B82F6'
-      },
-      author: {
-        id: '1',
-        name: 'كاتب تجريبي',
-        avatar: null
-      },
-      ai_score: Math.floor(Math.random() * 100),
-      trending: Math.random() > 0.7
-    }));
-
+    // في حالة الخطأ، نرجع استجابة فارغة مع رسالة خطأ
     return NextResponse.json({
       success: false,
-      articles: mockArticles,
+      error: 'فشل في جلب بيانات الأرشيف',
+      articles: [],
       stats: {
-        totalArticles: 1234,
-        todayArticles: 45,
-        weeklyGrowth: 12,
-        topCategory: 'محليات',
-        activeAuthors: 23
+        totalArticles: 0,
+        todayArticles: 0,
+        weeklyGrowth: 0,
+        topCategory: 'غير متاح',
+        activeAuthors: 0
       },
-      categories: [
-        { id: 'news', name: 'أخبار', count: 456 },
-        { id: 'tech', name: 'تقنية', count: 234 },
-        { id: 'sports', name: 'رياضة', count: 189 },
-        { id: 'business', name: 'أعمال', count: 167 },
-        { id: 'culture', name: 'ثقافة', count: 145 }
-      ],
+      categories: [],
       pagination: {
         page: 1,
         limit: 50,
-        total: 1234,
-        totalPages: 25
+        total: 0,
+        totalPages: 0
       }
-    });
+    }, { status: 500 });
   }
 }
