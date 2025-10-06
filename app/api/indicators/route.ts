@@ -11,9 +11,16 @@ const CACHE_TTL = 120; // ثانيتان دقيقتان
 export async function GET(_req: NextRequest) {
   try {
     // جرّب من الكاش أولاً
-    const cached = await redis.get(CACHE_KEY);
-    if (cached) {
-      return NextResponse.json({ success: true, cached: true, ...cached });
+    if (redis) {
+      try {
+        const cached = await redis.get(CACHE_KEY);
+        if (cached) {
+          return NextResponse.json({ success: true, cached: true, ...cached });
+        }
+      } catch (redisError) {
+        console.warn('Redis error in indicators:', redisError);
+        // Continue without cache
+      }
     }
 
     await ensureDbConnected();

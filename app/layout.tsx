@@ -12,6 +12,8 @@ import "./globals.css";
 import "@/styles/unified-font-system.css";
 import "@/styles/force-arabic-font.css";
 import "@/styles/old-style-news.css";
+import "@/styles/dark-mode-enforcer.css";
+import "@/styles/podcast-block.css";
 // Removed heavy CSS files for ultra performance
 // import "@/app/old-style-demo/old-style.css";
 import "@/styles/notification-fixes.css";

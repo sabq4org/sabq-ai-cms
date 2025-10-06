@@ -2,11 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* استيراد نظام إنفاذ الوضع الليلي */
-@import '../styles/dark-mode-enforcer.css';
-
-/* استيراد أنماط بلوك البودكاست */
-@import '../styles/podcast-block.css';
+/* ملاحظة: تم نقل الاستيرادات إلى app/layout.tsx لتجنب أخطاء runtime CSS */
+/* @import '../styles/dark-mode-enforcer.css'; */
+/* @import '../styles/podcast-block.css'; */
 
 /* 🎯 تطبيق الخط العربي المعتمد على جميع العناصر */
 * {
