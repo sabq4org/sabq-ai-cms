@@ -1,0 +1,52 @@
+{
+  "provider": "openai",
+  "defaultModel": "gpt-4o",
+  "features": {
+    "smartEditor": true,
+    "deepAnalysis": true,
+    "recommendations": true,
+    "moderation": true,
+    "smartLinks": true,
+    "tts": true,
+    "notifications": true
+  },
+  "models": {
+    "openai": {
+      "gpt-4o": {
+        "maxTokens": 4096,
+        "temperature": 0.7,
+        "topP": 1.0
+      },
+      "gpt-4-turbo": {
+        "maxTokens": 4096,
+        "temperature": 0.7,
+        "topP": 1.0
+      },
+      "gpt-3.5-turbo": {
+        "maxTokens": 2048,
+        "temperature": 0.7,
+        "topP": 1.0
+      }
+    }
+  },
+  "endpoints": {
+    "smartEditor": "/api/ai/smart-editor",
+    "deepAnalysis": "/api/ai/deep-analysis",
+    "moderation": "/api/ai/moderation",
+    "smartLinks": "/api/smart-links/analyze",
+    "recommendations": "/api/ai/recommendations",
+    "tts": "/api/ai/tts",
+    "notifications": "/api/ai/notifications"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 3600,
+    "keyPrefix": "ai:"
+  },
+  "rateLimit": {
+    "enabled": true,
+    "maxRequests": 100,
+    "windowMs": 60000
+  }
+}
+
