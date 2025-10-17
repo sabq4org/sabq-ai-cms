@@ -1137,9 +1137,13 @@ model SmartNotifications {
   created_at            DateTime             @default(now())
   user                  users?               @relation(fields: [user_id], references: [id])
 
+  // Indexes for fast queries
   @@index([user_id, status])
+  @@index([user_id, created_at(sort: Desc)]) // For pagination
   @@index([scheduled_at, status])
   @@index([type, priority])
+  @@index([status]) // For cleanup queries
+  @@index([created_at(sort: Desc)]) // For recent notifications
 }
 
 model PerformanceMetrics {

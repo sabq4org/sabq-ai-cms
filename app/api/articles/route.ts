@@ -851,18 +851,41 @@ export async function POST(request: NextRequest) {
         console.log('🚨 خبر عاجل - إرسال إشعارات عاجلة للجميع');
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-        // نستخدم مسار send-smart لإعادة استخدام منطق القنوات والتخصيص
+        
+        // استخدام الخدمة الجديدة لإرسال إشعارات محسّنة
         setImmediate(() => {
-          fetch(`${siteUrl}/api/notifications/send-smart`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              articleId: article.id,
-              articleTitle: article.title,
-              articleCategory: article.categories?.name || 'news',
-              isBreaking: true
-            })
-          }).catch((err) => console.warn('⚠️ فشل إرسال إشعار عاجل عبر send-smart:', err?.message));
+          try {
+            const categoryName = 'أخبار';
+            const categorySlug = 'news';
+            
+            fetch(`${siteUrl}/api/notifications/send-notifications`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                articleId: article.id,
+                articleTitle: article.title,
+                categoryName: categoryName,
+                categorySlug: categorySlug,
+                isBreaking: true,
+                articleUrl: `${siteUrl}/articles/${article.slug}`
+              })
+            }).catch((err) => {
+              console.warn('⚠️ فشل إرسال إشعار عاجل:', err?.message);
+              // محاولة Fallback باستخدام الطريقة القديمة
+              fetch(`${siteUrl}/api/notifications/send-smart`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  articleId: article.id,
+                  articleTitle: article.title,
+                  articleCategory: categoryName,
+                  isBreaking: true
+                })
+              }).catch(e => console.warn('⚠️ فشل الـ fallback أيضاً:', e?.message));
+            });
+          } catch (innerErr) {
+            console.error('❌ خطأ في محاولة إرسال الإشعارات:', innerErr);
+          }
         });
       } catch (e) {
         console.warn('⚠️ فشل منطق إشعار العاجل:', (e as any)?.message);

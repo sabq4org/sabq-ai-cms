@@ -3,14 +3,12 @@
  * 
  * GET /api/smart-notifications/unread-count
  * 
- * Response: { count: number }
+ * Response: { unreadCount: number }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/app/lib/auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { SmartNotificationService } from '@/lib/services/smartNotificationService';
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,17 +22,15 @@ export async function GET(request: NextRequest) {
     }
 
     // عد الإشعارات غير المقروءة
-    const count = await prisma.notification.count({
-      where: {
-        userId: user.id,
-        isRead: false
-      }
+    const count = await SmartNotificationService.getUnreadCount(user.id);
+
+    return NextResponse.json({ 
+      success: true,
+      unreadCount: count 
     });
 
-    return NextResponse.json({ count });
-
   } catch (error) {
-    console.error('Error counting unread notifications:', error);
+    console.error('❌ خطأ في عد الإشعارات:', error);
     
     return NextResponse.json(
       { error: 'خطأ في الخادم' },
