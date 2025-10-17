@@ -53,20 +53,36 @@ export class NotificationManager {
       if (!token && typeof document !== 'undefined') {
         try {
           const cookies = document.cookie.split('; ');
-          const names = ['sabq_at','auth-token','access_token','token','jwt'];
+          const names = ['sabq_at','auth-token','access_token','token','jwt','next-auth.session-token','__Secure-next-auth.session-token'];
           for (const n of names) {
             const row = cookies.find(r => r.startsWith(`${n}=`));
             if (row) { token = row.split('=')[1]; break; }
           }
           if (!token) {
-            const ls = localStorage.getItem('auth-token');
-            if (ls) token = ls;
+            const lsKeys = ['auth-token', 'token', 'access_token', 'sabq_token'];
+            for (const key of lsKeys) {
+              const ls = localStorage.getItem(key);
+              if (ls) { token = ls; break; }
+            }
+          }
+          if (!token) {
+            const ss = sessionStorage.getItem('auth-token');
+            if (ss) token = ss;
           }
         } catch {}
       }
       decoded = token ? this.verifyToken(token) : null;
       if (!decoded) {
-        return { success: false, error: 'Token غير صحيح' };
+        console.warn('⚠️ لم يتم العثور على Token صحيح - الاتصال كزائر');
+        const guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const guestData: NotificationUserData = {
+          userId: guestId,
+          userName: 'زائر',
+          connectedAt: new Date()
+        };
+        this.connectedUsers.set(guestId, guestData);
+        this.subscribers.set(guestId, callback);
+        return { success: true, userId: guestId };
       }
 
       const userId = decoded.userId || decoded.id || decoded.sub || decoded.uid || decoded.user_id;
