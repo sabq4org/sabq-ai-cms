@@ -2416,3 +2416,167 @@ enum ads_placement {
   POPUP
   BANNER
 }
+
+
+
+// ========================================
+// Smart Links System
+// ========================================
+
+model SmartEntity {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  type         SmartEntityType
+  aliases      String[] // مرادفات
+  description  String?  @db.Text
+  canonicalUrl String?  // internal page or article id
+  sourceCount  Int      @default(0)
+  importance   Float    @default(1.0)
+  metadata     Json?    // بيانات إضافية (صورة، روابط خارجية، إلخ)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  isActive     Boolean  @default(true)
+  isSensitive  Boolean  @default(false) // للكيانات الحساسة
+  
+  mentions     SmartEntityMention[]
+  
+  @@index([type])
+  @@index([slug])
+  @@index([isActive])
+  @@index([sourceCount])
+}
+
+model SmartEntityMention {
+  id          String   @id @default(cuid())
+  articleId   String
+  entityId    String
+  text        String   // النص الفعلي في المقال
+  normalized  String   // النص المعياري
+  position    Int      // موقع البداية في المحتوى
+  endPosition Int      // موقع النهاية
+  context     String?  @db.Text // السياق المحيط (50 حرف قبل وبعد)
+  confidence  Float    // 0.0-1.0
+  linkType    SmartLinkType @default(INTERNAL)
+  linkUrl     String?  // الرابط المُدرج
+  status      SmartLinkStatus @default(SUGGESTED)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?  // user_id
+  approvedBy  String?  // user_id
+  approvedAt  DateTime?
+  
+  entity      SmartEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  article     articles    @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  @@index([articleId])
+  @@index([entityId])
+  @@index([status])
+  @@index([confidence])
+}
+
+model SmartLinkAnalysis {
+  id          String   @id @default(cuid())
+  articleId   String   @unique
+  content     String   @db.Text
+  rawResponse Json?    // الاستجابة الخام من OpenAI
+  entityCount Int      @default(0)
+  suggestedCount Int   @default(0)
+  acceptedCount Int    @default(0)
+  rejectedCount Int    @default(0)
+  cost        Float?   // تكلفة API
+  processingTime Int?  // بالميلي ثانية
+  status      AnalysisStatus @default(PENDING)
+  error       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  article     articles @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SmartLinkSettings {
+  id                    String   @id @default(cuid())
+  enableAutoLinks       Boolean  @default(true)
+  confidenceThreshold   Float    @default(0.7)
+  autoInsertThreshold   Float    @default(0.9)
+  maxLinksPerParagraph  Int      @default(1)
+  maxLinksPerArticle    Int      @default(20)
+  stopTerms             String[] // مصطلحات ممنوعة
+  enableAutoPageCreation Boolean @default(false)
+  autoPageThreshold     Int      @default(3) // عدد المرات لإنشاء صفحة تلقائياً
+  enableSensitiveCheck  Boolean  @default(true)
+  updatedAt             DateTime @updatedAt
+  updatedBy             String?  // user_id
+}
+
+model SmartLinkActivityLog {
+  id          String   @id @default(cuid())
+  articleId   String?
+  entityId    String?
+  mentionId   String?
+  action      SmartLinkAction
+  userId      String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([articleId])
+}
+
+// ========================================
+// Enums for Smart Links
+// ========================================
+
+enum SmartEntityType {
+  PERSON
+  ORGANIZATION
+  PLACE
+  EVENT
+  TERM
+  TOPIC
+  OTHER
+}
+
+enum SmartLinkType {
+  INTERNAL
+  ENTITY_PAGE
+  TAG
+  CATEGORY
+  EXTERNAL
+}
+
+enum SmartLinkStatus {
+  SUGGESTED
+  ACCEPTED
+  REJECTED
+  AUTO_INSERTED
+  REMOVED
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum SmartLinkAction {
+  ANALYZE
+  SUGGEST
+  ACCEPT
+  REJECT
+  INSERT
+  REMOVE
+  CREATE_ENTITY
+  UPDATE_ENTITY
+  DELETE_ENTITY
+  CREATE_PAGE
+}
+
