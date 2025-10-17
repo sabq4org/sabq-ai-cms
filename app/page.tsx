@@ -4,6 +4,8 @@ import { useDeviceType } from "@/hooks/useDeviceType";
 import UserWelcomeBlock from "@/components/user/UserWelcomeBlock";
 import WelcomeMetaStrip from "@/components/user/WelcomeMetaStrip";
 import SmartContentBlock from "@/components/user/SmartContentBlock";
+import EnhancedHeroSection from "@/components/home/EnhancedHeroSection";
+import { SectionDivider, SectionWrapper } from "@/components/ui/SectionDivider";
 import { useEffect, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
 import LiteStatsBar from "@/components/mobile/LiteStatsBar";
@@ -116,6 +118,11 @@ export default function Page() {
         <LiteStatsBar />
       </div>
       <div className="pb-6">
+        {/* قسم Hero المحسّن */}
+        <Suspense fallback={<div className="h-80 bg-gray-100 dark:bg-gray-800 animate-pulse" />}>
+          <EnhancedHeroSection className="px-4" />
+        </Suspense>
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
           <Suspense fallback={<div className="h-6" />}>
             <WelcomeMetaStrip />
@@ -130,6 +137,7 @@ export default function Page() {
           </>
         }>
           {/* الأخبار المميزة والمحتوى الذكي معاً */}
+          <SectionDivider title="الأخبار المميزة" color="blue" variant="default" />
           <EnhancedFeaturedLoader heading="الأخبار المميزة" limit={3} showCarousel={false} />
           <div className="max-w-6xl mx-auto">
             <SmartContentBlock />
@@ -138,29 +146,35 @@ export default function Page() {
         
         {/* بلوك البودكاست الذكي للموبايل */}
         <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse my-4" />}>
+          <SectionDivider title="البودكاست" color="green" variant="default" />
           <IntelligentPodcastBlock />
         </Suspense>
         
         {/* المؤشرات الذكية - تحميل كسول منفصل */}
         <Suspense fallback={<div className="h-24 opacity-0" />}>
           <div className="max-w-6xl mx-auto mt-12">
+            <SectionDivider title="الرؤى الذكية" color="purple" variant="default" />
             <SmartInsightsWidget variant="compact" />
           </div>
         </Suspense>
         
         <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
-          <DeepAnalysisBlock maxItems={3} className="mt-10" />
+          <div className="max-w-6xl mx-auto px-4">
+            <SectionDivider title="تحليلات عميقة" color="blue" variant="default" />
+            <DeepAnalysisBlock maxItems={3} className="mt-6" />
+          </div>
         </Suspense>
         
         <div className="full-bleed py-8 mt-6 muqtarab-section-bg">
           <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
             <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
+              <SectionDivider title="الاختيارات الأفضل" color="purple" variant="default" />
               <MuqtarabBlock
                 limit={8}
                 showPagination={false}
                 showFilters={false}
                 viewMode="grid"
-                className="mt-12 mx-auto"
+                className="mt-8 mx-auto"
               />
             </div>
           </Suspense>
@@ -172,21 +186,30 @@ export default function Page() {
   // محتوى الديسكتوب محسن مع useMemo
   const DesktopContent = useMemo(() => (
     <div className="py-5">
+      {/* قسم Hero المحسّن */}
+      <Suspense fallback={<div className="h-96 bg-gray-100 dark:bg-gray-800 animate-pulse" />}>
+        <EnhancedHeroSection />
+      </Suspense>
+
       <div className="max-w-6xl mx-auto px-4 pt-4">
         <Suspense fallback={<div className="h-6" />}>
           <WelcomeMetaStrip />
         </Suspense>
       </div>
+      
       {/* الأخبار المميزة المحسنة - النسخة الكاملة مع التحميل التدريجي */}
       <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse mb-4" />}> 
+        <SectionDivider title="الأخبار المميزة" color="blue" variant="gradient" />
         <EnhancedFeaturedLoader heading="الأخبار المميزة" limit={3} showCarousel={true} />
       </Suspense>
       {/* الموجز الذكي بين المميز والعادي */}
       <Suspense fallback={<div className="h-28 bg-gray-50 dark:bg-gray-900 rounded-xl animate-pulse my-4" />}> 
         <SmartDigestBlock />
       </Suspense>
+      
       {/* بلوك البودكاست الذكي الجديد */}
       <Suspense fallback={<div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse my-4" />}>
+        <SectionDivider title="البودكاست الذكي" color="green" variant="default" />
         <IntelligentPodcastBlock />
       </Suspense>
       <Suspense
@@ -197,22 +220,28 @@ export default function Page() {
         }
       >
         <div className="max-w-6xl mx-auto px-4 mt-16">
+          <SectionDivider title="الرؤى الذكية" color="purple" variant="gradient" />
           <SmartInsightsWidget />
         </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <div className="max-w-6xl mx-auto px-4">
+          <SectionDivider title="المحتوى المختار" color="orange" variant="default" />
           <SmartContentBlock />
         </div>
       </Suspense>
       
       <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 rounded mt-6" />}>
-        <DeepAnalysisBlock maxItems={3} className="mt-12" />
+        <div className="max-w-6xl mx-auto px-4">
+          <SectionDivider title="التحليل العميق" color="blue" variant="light" />
+          <DeepAnalysisBlock maxItems={3} className="mt-6" />
+        </div>
       </Suspense>
       {/* قسم مقالات الرأي المبسّط */}
       <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 rounded mt-6" />}>
         <div className="max-w-6xl mx-auto px-4">
+          <SectionDivider title="مقالات الرأي" color="green" variant="default" />
           {(() => {
             const HomeOpinionLatest = dynamic(() => import("@/components/home/HomeOpinionLatest"), { ssr: false });
             return <HomeOpinionLatest />;
@@ -223,12 +252,13 @@ export default function Page() {
       <div className="full-bleed py-6 mt-6 muqtarab-section-bg">
         <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 rounded" />}>
           <div className="w-full max-w-6xl mx-auto px-4">
+            <SectionDivider title="المختارات والمقالات" color="purple" variant="gradient" />
             <MuqtarabBlock
               limit={8}
               showPagination={false}
               showFilters={false}
               viewMode="grid"
-              className="mt-12 mx-auto"
+              className="mt-8 mx-auto"
             />
           </div>
         </Suspense>
