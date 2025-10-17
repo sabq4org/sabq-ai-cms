@@ -7,50 +7,53 @@ import {
   Activity,
   Brain,
   ChevronDown,
-  Edit,
   Folder,
   Home,
   LogIn,
-  Menu,
   Moon,
   Newspaper,
-  Settings,
   Sun,
   Target,
   User,
+  Search,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import ClientOnly from "./ClientOnly";
 import UserDropdown from "./UserDropdown";
-// import MobileUserDropdown from "./mobile/UserDropdown"; // مؤقتاً معطل
-// import UserMenuDrawer from "./mobile/UserMenuDrawer"; // مؤقتاً معطل
 import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
-import AuthStateDebugger from '@/components/debug/AuthStateDebugger';
 
-
-export default function Header() {
+/**
+ * مكون الهيدر المحسّن (Enhanced Header)
+ * 
+ * التحسينات الرئيسية:
+ * - تصميم أنظف وأبسط
+ * - استخدام نظام الألوان الجديد (brand colors)
+ * - تحسين التباين والوضوح
+ * - إضافة تأثيرات حركية دقيقة (micro-interactions)
+ * - تحسين تجربة المستخدم على الأجهزة المختلفة
+ */
+export default function HeaderEnhanced() {
   const router = useRouter();
   const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
   const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
 
-  // Auth state (موحد)
+  // Auth state
   const { user, logout, refreshUser } = useAuth();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [newEventsCount, setNewEventsCount] = useState(0);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const headerElRef = useRef<HTMLElement>(null);
-  const mobileUserBtnRef = useRef<HTMLButtonElement>(null);
-  const [isMobileUserOpen, setIsMobileUserOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  
+  const headerElRef = useRef<HTMLElement>(null);
   const userAnchorRef = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null);
 
-  // بعد العودة من تسجيل الدخول، حاول تحديث المستخدم فوراً (مرة واحدة فقط)
+  // تحديث المستخدم بعد تسجيل الدخول (مرة واحدة فقط)
   useEffect(() => {
     refreshUser?.().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,17 +74,17 @@ export default function Header() {
     };
 
     checkEvents();
-    const interval = setInterval(checkEvents, 30000); // فحص كل 30 ثانية
+    const interval = setInterval(checkEvents, 30000);
     return () => clearInterval(interval);
   }, []);
 
   // عناصر المينيو الرئيسية
   const navigationItems = [
-    { url: "/", label: "الرئيسية", icon: Home, highlight: false },
-    { url: "/news", label: "الأخبار", icon: Newspaper, highlight: false },
-    { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
-    { url: "/muqtarab", label: "مُقترب", icon: Target, highlight: false },
-    { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },
+    { url: "/", label: "الرئيسية", icon: Home },
+    { url: "/news", label: "الأخبار", icon: Newspaper },
+    { url: "/categories", label: "الأقسام", icon: Folder, hasDropdown: true },
+    { url: "/muqtarab", label: "مُقترب", icon: Target },
+    { url: "/insights/deep", label: "عمق", icon: Brain },
   ];
 
   const handleLogout = async () => {
@@ -94,19 +97,7 @@ export default function Header() {
     router.replace("/");
   };
 
-  const handleDropdownToggle = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleDropdownClose = () => {
-    setIsDropdownOpen(false);
-  };
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  // ضبط متغير ارتفاع الهيدر لإضافة مسافة أعلى المحتوى
+  // ضبط متغير ارتفاع الهيدر
   useEffect(() => {
     const updateHeaderHeights = () => {
       const h = headerElRef.current?.offsetHeight || 64;
@@ -121,38 +112,41 @@ export default function Header() {
     return () => window.removeEventListener("resize", updateHeaderHeights);
   }, []);
 
-  // عدم عرض أي شيء حتى يتم تحميل الثيم
   if (!mounted) {
     return null;
   }
 
   return (
     <>
-      <header
+      <motion.header
         ref={headerElRef}
-        className={`fixed-header transition-all duration-300 relative z-50 ${
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           darkMode
-            ? "bg-gray-900/95 backdrop-blur-lg border-gray-700/50"
-            : "bg-blue-50/95 backdrop-blur-lg border-blue-200"
+            ? "bg-brand-primaryDark/95 backdrop-blur-lg border-gray-800"
+            : "bg-white/95 backdrop-blur-lg border-brand-borderLight"
         } border-b shadow-sm`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
-          <div className="flex items-center h-full relative">
-            {/* الشعار - يبدأ من اليسار */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            
+            {/* الشعار */}
             <Link
               href="/"
-              className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper"
+              className="flex-shrink-0 hover:scale-105 transition-transform duration-200"
             >
               {settingsLoading ? (
-                <div className="h-8 sm:h-10 w-28 sm:w-36 animate-pulse"></div>
+                <div className="h-10 w-36 animate-pulse bg-gray-200 dark:bg-gray-700 rounded"></div>
               ) : (
                 logoUrl && (
-                  <div className="relative w-28 sm:w-36 h-8 sm:h-10 bg-transparent overflow-visible logo-container sabq-logo logo-fix">
+                  <div className="relative w-36 h-10">
                     <Image
                       src={logoUrl}
-                      alt="سبق"
+                      alt={siteName || "سبق"}
                       fill
-                      className="object-contain drop-shadow-sm hover:drop-shadow-md transition-all duration-200 logo-fix"
+                      className="object-contain"
                       priority
                       unoptimized={logoUrl.startsWith("http")}
                     />
@@ -161,97 +155,150 @@ export default function Header() {
               )}
             </Link>
 
-            {/* المينيو الرئيسية */}
-            <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse absolute left-1/2 transform -translate-x-1/2">
+            {/* المينيو الرئيسية - Desktop */}
+            <nav className="hidden md:flex items-center space-x-1 rtl:space-x-reverse">
               {navigationItems.map((item) => (
-                <Link
+                <motion.div
                   key={item.url}
-                  href={item.url}
-                  className={`relative flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    item.highlight
-                      ? darkMode
-                        ? "text-red-400 hover:text-red-300 hover:bg-gray-800/50"
-                        : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
-                      : darkMode
-                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
-                      : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
-                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.label && <span>{item.label}</span>}
-                </Link>
+                  <Link
+                    href={item.url}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      darkMode
+                        ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                        : "text-brand-fg hover:text-brand-primary hover:bg-brand-secondary"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                    {item.hasDropdown && <ChevronDown className="w-3 h-3" />}
+                  </Link>
+                </motion.div>
               ))}
             </nav>
 
             {/* أدوات الهيدر */}
-            <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools absolute right-0 z-[60]">
-
-
-              {/* زر لحظة بلحظة - يظهر على الشاشات المتوسطة فأعلى فقط */}
-              <Link
-                href="/moment-by-moment"
-                className="relative p-1.5 md:p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
-                aria-label="لحظة بلحظة"
-                title="لحظة بلحظة"
+            <div className="flex items-center gap-2">
+              
+              {/* زر البحث */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setSearchOpen(!searchOpen)}
+                className={`p-2 rounded-lg transition-colors ${
+                  darkMode
+                    ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                    : "text-brand-fgMuted hover:text-brand-primary hover:bg-brand-secondary"
+                }`}
+                aria-label="البحث"
+                title="البحث"
               >
-                <Activity className="h-5 w-5 md:h-6 md:w-6" />
-                {newEventsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-0.5 flex items-center justify-center">
-                    {newEventsCount > 9 ? '9+' : newEventsCount}
-                  </span>
-                )}
-              </Link>
+                <Search className="w-5 h-5" />
+              </motion.button>
+
+              {/* زر لحظة بلحظة */}
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Link
+                  href="/moment-by-moment"
+                  className={`relative p-2 rounded-lg transition-colors ${
+                    darkMode
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                      : "text-brand-fgMuted hover:text-brand-primary hover:bg-brand-secondary"
+                  }`}
+                  aria-label="لحظة بلحظة"
+                  title="لحظة بلحظة"
+                >
+                  <Activity className="w-5 h-5" />
+                  {newEventsCount > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 bg-brand-danger text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center"
+                    >
+                      {newEventsCount > 9 ? '9+' : newEventsCount}
+                    </motion.span>
+                  )}
+                </Link>
+              </motion.div>
 
               {/* زر الوضع الليلي */}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 180 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={toggleDarkMode}
-                className="relative p-1.5 md:p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
+                className={`p-2 rounded-lg transition-colors ${
+                  darkMode
+                    ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                    : "text-brand-fgMuted hover:text-brand-primary hover:bg-brand-secondary"
+                }`}
                 aria-label={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
                 title={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
               >
-                {darkMode ? (
-                  <Sun className="h-5 w-5 md:h-6 md:w-6" />
-                ) : (
-                  <Moon className="h-5 w-5 md:h-6 md:w-6" />
-                )}
-              </button>
+                <AnimatePresence mode="wait">
+                  {darkMode ? (
+                    <motion.div
+                      key="sun"
+                      initial={{ opacity: 0, rotate: -180 }}
+                      animate={{ opacity: 1, rotate: 0 }}
+                      exit={{ opacity: 0, rotate: 180 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Sun className="w-5 h-5" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="moon"
+                      initial={{ opacity: 0, rotate: -180 }}
+                      animate={{ opacity: 1, rotate: 0 }}
+                      exit={{ opacity: 0, rotate: 180 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Moon className="w-5 h-5" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
 
-              {/* الإشعارات الذكية المحسنة */}
-              {user && (
-                <NotificationDropdown />
-              )}
+              {/* الإشعارات */}
+              {user && <NotificationDropdown />}
 
               {/* المستخدم أو تسجيل الدخول */}
               {user ? (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   ref={userAnchorRef as any}
                   onClick={() => setUserOpen((v) => !v)}
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     darkMode
-                      ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
-                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                      : "text-brand-primary hover:text-brand-primaryDark hover:bg-brand-secondary"
                   }`}
                 >
                   <User className="w-4 h-4" />
-                  {user.name || "حسابي"}
-                </button>
+                  <span className="hidden sm:inline">{user.name || "حسابي"}</span>
+                </motion.button>
               ) : (
-                <Link
-                  href="/login"
-                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
-                    darkMode
-                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
-                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
-                  }`}
-                  title="تسجيل الدخول"
-                >
-                  <LogIn className="w-5 h-5" />
-                </Link>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    href="/login"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      darkMode
+                        ? "bg-brand-accent/20 text-brand-accentLight hover:bg-brand-accent/30"
+                        : "bg-brand-accent text-brand-accentFg hover:bg-brand-accentDark"
+                    }`}
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span className="hidden sm:inline">تسجيل الدخول</span>
+                  </Link>
+                </motion.div>
               )}
             </div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* قائمة المستخدم */}
       {user && (
@@ -263,11 +310,7 @@ export default function Header() {
           onClose={() => setUserOpen(false)}
         />
       )}
-      
-      {/* مكون التشخيص - يظهر فقط في التطوير */}
-      {process.env.NODE_ENV === 'development' && (
-        <AuthStateDebugger enabled={true} />
-      )}
     </>
   );
 }
+

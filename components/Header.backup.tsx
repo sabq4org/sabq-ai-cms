@@ -1,0 +1,273 @@
+"use client";
+
+import { useDarkModeContext } from "@/contexts/DarkModeContext";
+import { useAuth } from "@/hooks/useAuth";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import {
+  Activity,
+  Brain,
+  ChevronDown,
+  Edit,
+  Folder,
+  Home,
+  LogIn,
+  Menu,
+  Moon,
+  Newspaper,
+  Settings,
+  Sun,
+  Target,
+  User,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import ClientOnly from "./ClientOnly";
+import UserDropdown from "./UserDropdown";
+// import MobileUserDropdown from "./mobile/UserDropdown"; // مؤقتاً معطل
+// import UserMenuDrawer from "./mobile/UserMenuDrawer"; // مؤقتاً معطل
+import { NotificationDropdown } from '@/components/Notifications/NotificationDropdownOptimized';
+import AuthStateDebugger from '@/components/debug/AuthStateDebugger';
+
+
+export default function Header() {
+  const router = useRouter();
+  const { darkMode, mounted, toggleDarkMode } = useDarkModeContext();
+  const { logoUrl, siteName, loading: settingsLoading } = useSiteSettings();
+
+  // Auth state (موحد)
+  const { user, logout, refreshUser } = useAuth();
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [newEventsCount, setNewEventsCount] = useState(0);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const headerElRef = useRef<HTMLElement>(null);
+  const mobileUserBtnRef = useRef<HTMLButtonElement>(null);
+  const [isMobileUserOpen, setIsMobileUserOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const userAnchorRef = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null);
+
+  // بعد العودة من تسجيل الدخول، حاول تحديث المستخدم فوراً (مرة واحدة فقط)
+  useEffect(() => {
+    refreshUser?.().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // تنفيذ مرة واحدة فقط عند mount
+
+  // فحص الأحداث الجديدة
+  useEffect(() => {
+    const checkEvents = async () => {
+      try {
+        const response = await fetch("/api/moment-by-moment/count");
+        if (response.ok) {
+          const data = await response.json();
+          setNewEventsCount(data.count || 0);
+        }
+      } catch (error) {
+        console.error("خطأ في جلب عدد الأحداث:", error);
+      }
+    };
+
+    checkEvents();
+    const interval = setInterval(checkEvents, 30000); // فحص كل 30 ثانية
+    return () => clearInterval(interval);
+  }, []);
+
+  // عناصر المينيو الرئيسية
+  const navigationItems = [
+    { url: "/", label: "الرئيسية", icon: Home, highlight: false },
+    { url: "/news", label: "الأخبار", icon: Newspaper, highlight: false },
+    { url: "/categories", label: "الأقسام", icon: Folder, highlight: false },
+    { url: "/muqtarab", label: "مُقترب", icon: Target, highlight: false },
+    { url: "/insights/deep", label: "عمق", icon: Brain, highlight: false },
+  ];
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {}
+    try { await logout(); } catch {}
+    try { setIsDropdownOpen(false); } catch {}
+    try { toast.success("تم تسجيل الخروج بنجاح"); } catch {}
+    router.replace("/");
+  };
+
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleDropdownClose = () => {
+    setIsDropdownOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // ضبط متغير ارتفاع الهيدر لإضافة مسافة أعلى المحتوى
+  useEffect(() => {
+    const updateHeaderHeights = () => {
+      const h = headerElRef.current?.offsetHeight || 64;
+      if (typeof document !== "undefined") {
+        document.documentElement.style.setProperty("--header-height", `${h}px`);
+        document.documentElement.style.setProperty("--mobile-header-height", `${Math.min(h, 56)}px`);
+      }
+    };
+
+    updateHeaderHeights();
+    window.addEventListener("resize", updateHeaderHeights);
+    return () => window.removeEventListener("resize", updateHeaderHeights);
+  }, []);
+
+  // عدم عرض أي شيء حتى يتم تحميل الثيم
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <>
+      <header
+        ref={headerElRef}
+        className={`fixed-header transition-all duration-300 relative z-50 ${
+          darkMode
+            ? "bg-gray-900/95 backdrop-blur-lg border-gray-700/50"
+            : "bg-blue-50/95 backdrop-blur-lg border-blue-200"
+        } border-b shadow-sm`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full relative">
+          <div className="flex items-center h-full relative">
+            {/* الشعار - يبدأ من اليسار */}
+            <Link
+              href="/"
+              className="flex-shrink-0 relative z-50 hover:scale-105 transition-transform duration-200 header-logo-wrapper"
+            >
+              {settingsLoading ? (
+                <div className="h-8 sm:h-10 w-28 sm:w-36 animate-pulse"></div>
+              ) : (
+                logoUrl && (
+                  <div className="relative w-28 sm:w-36 h-8 sm:h-10 bg-transparent overflow-visible logo-container sabq-logo logo-fix">
+                    <Image
+                      src={logoUrl}
+                      alt="سبق"
+                      fill
+                      className="object-contain drop-shadow-sm hover:drop-shadow-md transition-all duration-200 logo-fix"
+                      priority
+                      unoptimized={logoUrl.startsWith("http")}
+                    />
+                  </div>
+                )
+              )}
+            </Link>
+
+            {/* المينيو الرئيسية */}
+            <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse absolute left-1/2 transform -translate-x-1/2">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.url}
+                  href={item.url}
+                  className={`relative flex items-center space-x-1.5 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    item.highlight
+                      ? darkMode
+                        ? "text-red-400 hover:text-red-300 hover:bg-gray-800/50"
+                        : "text-red-600 hover:text-red-700 hover:bg-blue-600/20"
+                      : darkMode
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-blue-600/20"
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label && <span>{item.label}</span>}
+                </Link>
+              ))}
+            </nav>
+
+            {/* أدوات الهيدر */}
+            <div className="flex items-center space-x-1 md:space-x-3 rtl:space-x-reverse header-tools absolute right-0 z-[60]">
+
+
+              {/* زر لحظة بلحظة - يظهر على الشاشات المتوسطة فأعلى فقط */}
+              <Link
+                href="/moment-by-moment"
+                className="relative p-1.5 md:p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
+                aria-label="لحظة بلحظة"
+                title="لحظة بلحظة"
+              >
+                <Activity className="h-5 w-5 md:h-6 md:w-6" />
+                {newEventsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-0.5 flex items-center justify-center">
+                    {newEventsCount > 9 ? '9+' : newEventsCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* زر الوضع الليلي */}
+              <button
+                onClick={toggleDarkMode}
+                className="relative p-1.5 md:p-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-200"
+                aria-label={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
+                title={darkMode ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
+              >
+                {darkMode ? (
+                  <Sun className="h-5 w-5 md:h-6 md:w-6" />
+                ) : (
+                  <Moon className="h-5 w-5 md:h-6 md:w-6" />
+                )}
+              </button>
+
+              {/* الإشعارات الذكية المحسنة */}
+              {user && (
+                <NotificationDropdown />
+              )}
+
+              {/* المستخدم أو تسجيل الدخول */}
+              {user ? (
+                <button
+                  ref={userAnchorRef as any}
+                  onClick={() => setUserOpen((v) => !v)}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    darkMode
+                      ? "text-blue-300 hover:text-white hover:bg-blue-800/40"
+                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
+                  }`}
+                >
+                  <User className="w-4 h-4" />
+                  {user.name || "حسابي"}
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+                    darkMode
+                      ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                      : "text-blue-700 hover:text-blue-800 hover:bg-blue-100"
+                  }`}
+                  title="تسجيل الدخول"
+                >
+                  <LogIn className="w-5 h-5" />
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* قائمة المستخدم */}
+      {user && (
+        <UserDropdown
+          user={user as any}
+          onLogout={handleLogout}
+          anchorElement={userAnchorRef.current as any}
+          open={userOpen}
+          onClose={() => setUserOpen(false)}
+        />
+      )}
+      
+      {/* مكون التشخيص - يظهر فقط في التطوير */}
+      {process.env.NODE_ENV === 'development' && (
+        <AuthStateDebugger enabled={true} />
+      )}
+    </>
+  );
+}
