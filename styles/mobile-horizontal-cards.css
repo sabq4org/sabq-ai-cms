@@ -1,0 +1,262 @@
+/**
+ * تصميم بطاقات أفقية محسّنة للموبايل
+ * صورة بجانب المحتوى - مناسب لشاشات الهواتف
+ */
+
+/* تطبيق التصميم الأفقي على الموبايل فقط */
+@media (max-width: 768px) {
+  /* تحويل الشبكة إلى عمود واحد */
+  .old-style-news-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* البطاقة الأفقية */
+  .old-style-news-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    overflow: hidden !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .old-style-news-card:active {
+    transform: scale(0.98) !important;
+    background: #f9fafb !important;
+  }
+
+  /* حاوي الصورة - حجم ثابت على اليمين */
+  .old-style-news-image-container {
+    flex-shrink: 0 !important;
+    width: 110px !important;
+    height: 110px !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    background: #f3f4f6 !important;
+    margin: 0 !important;
+    position: relative !important;
+  }
+
+  .old-style-news-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 10px !important;
+  }
+
+  /* محتوى البطاقة - على اليسار */
+  .old-style-news-content {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+  }
+
+  /* الشريط العلوي: الشارات */
+  .old-style-news-top-bar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    position: static !important;
+    z-index: 1 !important;
+    flex-wrap: wrap !important;
+  }
+
+  .old-style-news-badges {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* شارة "جديد" */
+  .recent-news-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+  }
+
+  /* شارة "عاجل" */
+  .old-style-news-breaking-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    color: white !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3) !important;
+    animation: pulseBreaking 2s ease-in-out infinite !important;
+  }
+
+  @keyframes pulseBreaking {
+    0%, 100% {
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+    }
+    50% {
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+    }
+  }
+
+  .old-style-lightning-emoji {
+    font-size: 12px !important;
+  }
+
+  /* العنوان */
+  .old-style-news-card-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    color: #111827 !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* شريط المعلومات السفلي */
+  .old-style-news-bottom-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin-top: auto !important;
+    font-size: 11px !important;
+    color: #6b7280 !important;
+  }
+
+  .old-style-news-meta-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 11px !important;
+    color: #6b7280 !important;
+  }
+
+  .old-style-icon {
+    width: 12px !important;
+    height: 12px !important;
+    opacity: 0.7 !important;
+  }
+
+  /* إخفاء مدة القراءة على الموبايل لتوفير المساحة */
+  .old-style-news-bottom-bar .old-style-news-meta-item:last-child {
+    display: none !important;
+  }
+
+  /* الوضع المظلم */
+  .dark .old-style-news-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+  }
+
+  .dark .old-style-news-card:active {
+    background: #334155 !important;
+  }
+
+  .dark .old-style-news-card-title {
+    color: #f9fafb !important;
+  }
+
+  .dark .old-style-news-image-container {
+    background: #334155 !important;
+  }
+
+  .dark .old-style-news-meta-item {
+    color: #94a3b8 !important;
+  }
+
+  /* تحسينات إضافية */
+  .old-style-news-card * {
+    pointer-events: none !important;
+  }
+
+  .old-style-news-card {
+    pointer-events: auto !important;
+  }
+
+  /* إزالة أي تأثيرات hover على الموبايل */
+  .old-style-news-card:hover {
+    transform: none !important;
+  }
+
+  /* تحسين الأداء */
+  .old-style-news-card {
+    will-change: transform !important;
+    contain: layout style paint !important;
+  }
+
+  .old-style-news-image {
+    will-change: transform !important;
+  }
+}
+
+/* تحسينات للشاشات الصغيرة جداً (< 375px) */
+@media (max-width: 375px) {
+  .old-style-news-image-container {
+    width: 90px !important;
+    height: 90px !important;
+  }
+
+  .old-style-news-card {
+    gap: 10px !important;
+    padding: 10px !important;
+  }
+
+  .old-style-news-card-title {
+    font-size: 14px !important;
+  }
+
+  .old-style-news-meta-item {
+    font-size: 10px !important;
+  }
+}
+
+/* تحسينات للشاشات الكبيرة (Tablets في وضع Portrait) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .old-style-news-image-container {
+    width: 130px !important;
+    height: 130px !important;
+  }
+
+  .old-style-news-card {
+    padding: 14px !important;
+  }
+
+  .old-style-news-card-title {
+    font-size: 16px !important;
+    -webkit-line-clamp: 3 !important;
+  }
+
+  /* إظهار مدة القراءة على الشاشات المتوسطة */
+  .old-style-news-bottom-bar .old-style-news-meta-item:last-child {
+    display: flex !important;
+  }
+}
+
