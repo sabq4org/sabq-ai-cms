@@ -928,6 +928,8 @@ model users {
   two_factor_auth          two_factor_auth?
   ui_settings              UiSetting[]
   user_interests           user_interests[]
+  notifications            Notification[]
+  notification_preferences UserNotificationPreference?
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
@@ -2580,5 +2582,94 @@ enum SmartLinkAction {
   UPDATE_ENTITY
   DELETE_ENTITY
   CREATE_PAGE
+}
+
+
+
+// ========================================
+// نظام الإشعارات الذكية (Smart Notifications)
+// ========================================
+
+/// الإشعارات الذكية للمستخدمين
+model Notification {
+  id          String             @id @default(cuid())
+  userId      String
+  type        NotificationType
+  title       String             @db.VarChar(200)
+  body        String             @db.VarChar(400)
+  link        String             @db.VarChar(300)
+  icon        String             @db.VarChar(40)  // bell/flash/star/message-circle/flame/reply
+  color       String             @db.VarChar(24)  // red/amber/violet/sky/slate/emerald/orange
+  priority    NotificationPriority
+  metadata    Json?              @default("{}")
+  isRead      Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  
+  user        users              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([type])
+  @@index([priority])
+}
+
+/// تفضيلات الإشعارات للمستخدم
+model UserNotificationPreference {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  
+  // تمكين حسب النوع
+  articlePublished  Boolean  @default(true)
+  articleBreaking   Boolean  @default(true)
+  articleFeatured   Boolean  @default(true)
+  commentsSpike     Boolean  @default(true)
+  readsTop          Boolean  @default(true)
+  userReply         Boolean  @default(true)
+  
+  // حد أقصى/ساعة لتجنب الإزعاج
+  throttlePerHour   Int      @default(8)
+  
+  // إعدادات إضافية
+  enableToast       Boolean  @default(true)
+  enableSound       Boolean  @default(false)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  user              users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+/// سجل إرسال الإشعارات (للتحكم في التكرار)
+model NotificationDedup {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   @db.VarChar(64)
+  resourceId  String   // articleId, commentId, etc.
+  sentAt      DateTime @default(now())
+  expiresAt   DateTime // بعد 60 دقيقة
+  
+  @@unique([userId, type, resourceId])
+  @@index([userId, expiresAt])
+  @@index([expiresAt]) // للتنظيف التلقائي
+}
+
+/// أنواع الإشعارات
+enum NotificationType {
+  ARTICLE_PUBLISHED   // خبر جديد
+  ARTICLE_BREAKING    // خبر عاجل
+  ARTICLE_FEATURED    // خبر مميز
+  COMMENTS_SPIKE      // يزداد نقاشه
+  READS_TOP           // الأكثر تداولاً
+  USER_REPLY          // رد على تعليق
+  SYSTEM_ANNOUNCEMENT // إعلان نظام
+}
+
+/// أولويات الإشعارات
+enum NotificationPriority {
+  HIGH    // عاجل/مهم
+  MEDIUM  // عادي
+  LOW     // منخفض
 }
 
