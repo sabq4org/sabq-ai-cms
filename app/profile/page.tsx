@@ -551,10 +551,8 @@ export default function ProfilePage() {
           setPreferences(userCategories);
         } else {
           console.log("❌ لم يتم العثور على اهتمامات للمستخدم");
-          // لا نمسح الاهتمامات إذا كانت موجودة بالفعل - ربما تم تحميلها من fetchUserInterestsImmediately
-          if (preferences.length === 0) {
-            setPreferences([]);
-          }
+          // لا نمسح الاهتمامات أبداً لتجنب الاختفاء المفاجئ
+          // setPreferences([]);
         }
       } // إغلاق شرط if (preferences.length > 0)
 

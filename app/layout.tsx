@@ -27,6 +27,7 @@ import "@/styles/remove-featured-image-effects.css";
 import "@/styles/soft-read-more-button.css";
 import "@/styles/article-light-theme-fixes.css";
 import "@/styles/enhanced-reading-mode.css";
+import "@/styles/enhanced-profile-page.css";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],
