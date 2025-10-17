@@ -2365,6 +2365,18 @@ enum NotificationType {
   error
   success
   system
+  article_recommendation
+  new_article
+  new_comment
+  daily_digest
+  author_follow
+  article_published
+  article_breaking
+  article_featured
+  comments_spike
+  reads_top
+  user_reply
+  system_announcement
 }
 
 enum NotificationPriority {
@@ -2644,27 +2656,9 @@ model UserNotificationPreference {
 /// سجل إرسال الإشعارات (للتحكم في التكرار)
 model NotificationDedup {
   id          String   @id @default(cuid())
-  userId      String
-  type        String   @db.VarChar(64)
-  resourceId  String   // articleId, commentId, etc.
-  sentAt      DateTime @default(now())
-  expiresAt   DateTime // بعد 60 دقيقة
-  
-  @@unique([userId, type, resourceId])
-  @@index([userId, expiresAt])
-  @@index([expiresAt]) // للتنظيف التلقائي
 }
 
 /// أنواع الإشعارات
-enum NotificationType {
-  ARTICLE_PUBLISHED   // خبر جديد
-  ARTICLE_BREAKING    // خبر عاجل
-  ARTICLE_FEATURED    // خبر مميز
-  COMMENTS_SPIKE      // يزداد نقاشه
-  READS_TOP           // الأكثر تداولاً
-  USER_REPLY          // رد على تعليق
-  SYSTEM_ANNOUNCEMENT // إعلان نظام
-}
 
 /// أولويات الإشعارات
 enum NotificationPriority {
