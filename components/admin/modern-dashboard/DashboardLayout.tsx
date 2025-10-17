@@ -55,6 +55,8 @@ export default function DashboardLayout({
       {/* تحميل تحسينات الموبايل */}
       <link rel="stylesheet" href="/admin-modern-mobile.css" />
       <link rel="stylesheet" href="/admin-modern-mobile-enhanced.css" />
+      {/* تحميل إصلاحات الهوامش */}
+      <link rel="stylesheet" href="/admin-dashboard-spacing-fix.css" />
       
       {/* الهيدر كامل العرض - ثابت في الأعلى */}
       <ManusHeader onMenuClick={toggleSidebar} showMenuButton={isMobile} />

@@ -1,0 +1,261 @@
+/**
+ * إصلاح الهوامش والمسافات في لوحة التحكم
+ * Admin Dashboard Spacing Fix
+ * تاريخ: 2025-10-17
+ */
+
+/* ========================================
+   1. إصلاح المحتوى الرئيسي
+   ======================================== */
+
+.admin-modern-main {
+  /* تقليل المسافة من الأعلى */
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
+
+.admin-modern-main > div {
+  /* هوامش متوازنة */
+  padding: 0 24px !important;
+  padding-left: max(24px, env(safe-area-inset-left)) !important;
+  padding-right: max(24px, env(safe-area-inset-right)) !important;
+}
+
+/* ========================================
+   2. إصلاح البطاقات الإحصائية
+   ======================================== */
+
+/* حاوية البطاقات */
+.admin-modern-main [class*="grid"] {
+  gap: 20px !important;
+  margin-bottom: 24px !important;
+}
+
+/* البطاقات نفسها */
+.admin-modern-main [class*="card"],
+.admin-modern-main [class*="Card"] {
+  padding: 20px !important;
+  border-radius: 12px !important;
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--line)) !important;
+}
+
+/* ========================================
+   3. إصلاح التباعد بين الأقسام
+   ======================================== */
+
+.admin-modern-main section,
+.admin-modern-main > div > * {
+  margin-bottom: 24px;
+}
+
+.admin-modern-main section:last-child,
+.admin-modern-main > div > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ========================================
+   4. إصلاح العناوين
+   ======================================== */
+
+.admin-modern-main h1,
+.admin-modern-main h2,
+.admin-modern-main h3 {
+  margin-bottom: 16px;
+  margin-top: 0;
+}
+
+/* ========================================
+   5. إصلاح الجداول والقوائم
+   ======================================== */
+
+.admin-modern-main table {
+  margin: 16px 0;
+}
+
+.admin-modern-main ul,
+.admin-modern-main ol {
+  padding-right: 20px;
+  margin: 12px 0;
+}
+
+/* ========================================
+   6. إصلاح الأزرار والنماذج
+   ======================================== */
+
+.admin-modern-main button,
+.admin-modern-main input,
+.admin-modern-main select,
+.admin-modern-main textarea {
+  margin: 4px 0;
+}
+
+.admin-modern-main form {
+  margin: 16px 0;
+}
+
+/* ========================================
+   7. استجابة للموبايل
+   ======================================== */
+
+@media (max-width: 768px) {
+  .admin-modern-main {
+    padding-top: 16px !important;
+    padding-bottom: 80px !important; /* مساحة للتنقل السفلي */
+  }
+
+  .admin-modern-main > div {
+    padding: 0 16px !important;
+    padding-left: max(16px, env(safe-area-inset-left)) !important;
+    padding-right: max(16px, env(safe-area-inset-right)) !important;
+  }
+
+  .admin-modern-main [class*="grid"] {
+    gap: 12px !important;
+  }
+
+  .admin-modern-main [class*="card"],
+  .admin-modern-main [class*="Card"] {
+    padding: 16px !important;
+  }
+}
+
+/* ========================================
+   8. إصلاح الشريط الجانبي
+   ======================================== */
+
+/* تقليل عرض الشريط الجانبي قليلاً */
+aside {
+  width: 260px !important;
+}
+
+aside[style*="width: 280px"] {
+  width: 260px !important;
+}
+
+/* تحديث margin للمحتوى */
+.admin-modern-main {
+  margin-right: 260px;
+}
+
+@media (min-width: 769px) {
+  [style*="marginRight"][style*="280px"] {
+    margin-right: 260px !important;
+  }
+}
+
+/* ========================================
+   9. إصلاح الهيدر
+   ======================================== */
+
+/* التأكد من عدم تداخل الهيدر مع المحتوى */
+.admin-modern-main {
+  padding-top: 80px; /* مساحة للهيدر الثابت */
+}
+
+/* ========================================
+   10. تحسينات إضافية
+   ======================================== */
+
+/* إزالة المسافات الزائدة */
+.admin-modern-main * {
+  box-sizing: border-box;
+}
+
+/* تحسين القراءة */
+.admin-modern-main p {
+  line-height: 1.6;
+  margin: 12px 0;
+}
+
+/* تحسين الروابط */
+.admin-modern-main a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.admin-modern-main a:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   11. إصلاح Grid Layouts
+   ======================================== */
+
+/* Grid 4 أعمدة */
+.admin-modern-main [class*="grid-cols-4"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Grid 3 أعمدة */
+.admin-modern-main [class*="grid-cols-3"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Grid 2 أعمدة */
+.admin-modern-main [class*="grid-cols-2"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .admin-modern-main [class*="grid-cols"] {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* ========================================
+   12. إصلاح الألوان والحدود
+   ======================================== */
+
+.admin-modern-main {
+  color: hsl(var(--text));
+  background: hsl(var(--bg));
+}
+
+.admin-modern-main [class*="border"] {
+  border-color: hsl(var(--line)) !important;
+}
+
+/* ========================================
+   13. إصلاح الظلال
+   ======================================== */
+
+.admin-modern-main [class*="shadow"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.admin-modern-main [class*="shadow-lg"] {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   14. إصلاح الانتقالات
+   ======================================== */
+
+.admin-modern-main * {
+  transition: background-color 0.2s ease, 
+              color 0.2s ease, 
+              border-color 0.2s ease;
+}
+
+/* ========================================
+   15. إصلاح الوضع المظلم
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .admin-modern-main [class*="shadow"] {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .admin-modern-main [class*="shadow-lg"] {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  }
+}
+
