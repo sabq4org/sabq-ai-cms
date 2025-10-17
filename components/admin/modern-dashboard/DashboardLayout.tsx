@@ -55,8 +55,6 @@ export default function DashboardLayout({
       {/* تحميل تحسينات الموبايل */}
       <link rel="stylesheet" href="/admin-modern-mobile.css" />
       <link rel="stylesheet" href="/admin-modern-mobile-enhanced.css" />
-      {/* تحميل إصلاحات الهوامش */}
-      <link rel="stylesheet" href="/admin-dashboard-spacing-fix.css" />
       
       {/* الهيدر كامل العرض - ثابت في الأعلى */}
       <ManusHeader onMenuClick={toggleSidebar} showMenuButton={isMobile} />
@@ -131,17 +129,14 @@ export default function DashboardLayout({
         }}>
           {/* المحتوى الرئيسي */}
           <main className="admin-modern-main admin-dashboard-layout" style={{
-            paddingTop: '80px',
-            paddingBottom: '16px',
+            paddingTop: '72px',
+            paddingBottom: '24px',
             width: '100%',
             // تمرير عرض السايدبار كمتغير CSS ليقرأه CSS العام
             ['--sidebar-width' as any]: !isMobile ? (sidebarOpen ? '280px' : '80px') : '0'
           }}>
             <div className={cn("fade-in", className)} style={{ 
-              // حواشي داخلية متجاوبة تمنع ملامسة الحواف + دعم safe-area
-              padding: '0 clamp(16px, 3vw, 32px)',
-              paddingLeft: 'max(clamp(16px, 3vw, 32px), env(safe-area-inset-left))',
-              paddingRight: 'max(clamp(16px, 3vw, 32px), env(safe-area-inset-right))',
+              padding: '0 24px',
               maxWidth: '1400px',
               margin: '0 auto',
               width: '100%'
