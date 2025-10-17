@@ -25,14 +25,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSmartLinksService } from '@/lib/services/smartLinksService';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireAuth } from '@/app/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     // التحقق من المصادقة
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const user = await requireAuth();
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'غير مصرح' },
         { status: 401 }
@@ -56,7 +55,7 @@ export async function POST(request: NextRequest) {
     const result = await service.insertLinks(
       articleId,
       mentions,
-      session.user?.id
+      user.id
     );
 
     return NextResponse.json(result);

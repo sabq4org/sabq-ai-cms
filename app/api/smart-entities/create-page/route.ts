@@ -15,14 +15,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSmartLinksService } from '@/lib/services/smartLinksService';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireAuth } from '@/app/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     // التحقق من المصادقة والصلاحيات
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const user = await requireAuth();
+    if (!user) {
       return NextResponse.json(
         { success: false, error: 'غير مصرح' },
         { status: 401 }
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // التحقق من الصلاحيات (محرر أو أعلى)
-    if (session.user?.role !== 'editor' && session.user?.role !== 'admin') {
+    if (user.role !== 'editor' && user.role !== 'admin') {
       return NextResponse.json(
         { success: false, error: 'صلاحيات غير كافية' },
         { status: 403 }
@@ -51,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     // إنشاء الصفحة
     const service = getSmartLinksService();
-    const result = await service.createEntityPage(entityId, session.user?.id);
+    const result = await service.createEntityPage(entityId, user.id);
 
     return NextResponse.json(result);
 

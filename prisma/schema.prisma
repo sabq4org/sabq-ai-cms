@@ -183,6 +183,8 @@ model articles {
   author                 users               @relation("ArticleAuthor", fields: [author_id], references: [id])
   categories             categories?         @relation(fields: [category_id], references: [id])
   interactions           interactions[]
+  smart_entity_mentions  SmartEntityMention[]
+  smart_link_analyses    SmartLinkAnalysis[]
 
   @@index([article_author_id])
   @@index([article_type])
