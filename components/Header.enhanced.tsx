@@ -53,10 +53,11 @@ export default function HeaderEnhanced() {
   const headerElRef = useRef<HTMLElement>(null);
   const userAnchorRef = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null);
 
-  // تحديث المستخدم بعد تسجيل الدخول
+  // تحديث المستخدم بعد تسجيل الدخول (مرة واحدة فقط)
   useEffect(() => {
     refreshUser?.().catch(() => {});
-  }, [refreshUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // تنفيذ مرة واحدة فقط عند mount
 
   // فحص الأحداث الجديدة
   useEffect(() => {

@@ -50,10 +50,11 @@ export default function Header() {
   const [userOpen, setUserOpen] = useState(false);
   const userAnchorRef = useRef<HTMLAnchorElement | HTMLButtonElement | null>(null);
 
-  // بعد العودة من تسجيل الدخول، حاول تحديث المستخدم فوراً
+  // بعد العودة من تسجيل الدخول، حاول تحديث المستخدم فوراً (مرة واحدة فقط)
   useEffect(() => {
     refreshUser?.().catch(() => {});
-  }, [refreshUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // تنفيذ مرة واحدة فقط عند mount
 
   // فحص الأحداث الجديدة
   useEffect(() => {

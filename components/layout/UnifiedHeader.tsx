@@ -52,12 +52,13 @@ export default function UnifiedHeader() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
-  // تحديث بيانات المستخدم عند تحميل الصفحة
+  // تحديث بيانات المستخدم عند تحميل الصفحة (مرة واحدة فقط)
   useEffect(() => {
     if (!loading) {
       refreshUser?.().catch(() => {});
     }
-  }, [refreshUser, loading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // تنفيذ مرة واحدة فقط عند mount
 
   // إغلاق القوائم المنسدلة عند النقر خارجها
   useEffect(() => {
