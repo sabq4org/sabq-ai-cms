@@ -6,6 +6,7 @@ import {
   ContentSection,
   DataPoint
 } from '@/types/deep-analysis';
+import { SABQ_DEEP_ANALYSIS_PROMPT } from '@/lib/ai/sabq-prompts-library';
 
 // إعداد OpenAI client
 let openaiClient: OpenAI | null = null;
@@ -17,51 +18,13 @@ export function initializeOpenAI(apiKey: string) {
   });
 }
 
-// برومبت أساسي يركز على النص المكتوب من المستخدم
-const createUserFocusedPrompt = (userPrompt: string, context?: string) => {
-  return `أنت كاتب ومحلل محترف متخصص في إنتاج المحتوى التحليلي عالي الجودة باللغة العربية.
-
-مهمتك: إنتاج تحليل عميق مبني بشكل كامل على النص والطلب الذي كتبه المستخدم.
-
-نص المستخدم (هذا هو الأساس الوحيد للتحليل):
-"${userPrompt}"
-
-${context ? `سياق إضافي: ${context}` : ''}
-
-⚠️ قواعد مهمة جداً:
-1. اكتب التحليل فقط حول الموضوع الذي ذكره المستخدم في نصه
-2. لا تضيف مواضيع أخرى مثل "رؤية 2030" أو "الابتكار" إلا إذا ذكرها المستخدم بنفسه
-3. ركز على المحتوى المطلوب وليس على قوالب جاهزة
-4. إذا طلب المستخدم تحليلاً لموضوع معين، اكتب عنه فقط
-
-متطلبات التحليل:
-- تحليل عميق ومتخصص في الموضوع المحدد
-- لغة عربية احترافية وصحفية
-- منسق بعناوين وفقرات واضحة
-- مدعوم بالمعلومات والتحليل المنطقي
-- طول مناسب يتراوح بين 1200-2000 كلمة
-
-شكل الإخراج المطلوب (JSON):
-{
-  "title": "عنوان دقيق يعكس موضوع المستخدم",
-  "summary": "ملخص تنفيذي للتحليل (100-150 كلمة)",
-  "sections": [
-    {
-      "title": "عنوان القسم الأول",
-      "content": "محتوى القسم بتفصيل كامل"
-    }
-  ],
-  "recommendations": ["توصية عملية تخص الموضوع"],
-  "keyInsights": ["نقطة رئيسية مهمة من التحليل"],
-  "dataPoints": [
-    {
-      "label": "اسم الإحصائية",
-      "value": "القيمة",
-      "unit": "الوحدة",
-      "description": "توضيح"
-    }
-  ]
-}`;
+// استخدام البرومبت الموحد من المكتبة
+const createUserFocusedPrompt = (userPrompt: string, context?: string, customPrompt?: string) => {
+  return SABQ_DEEP_ANALYSIS_PROMPT.userPromptTemplate(
+    userPrompt,
+    context,
+    customPrompt
+  );
 };
 
 // البرومبتات الأساسية للتحليل (محدثة لتركز على النص الفعلي)
@@ -204,21 +167,21 @@ export async function generateDeepAnalysis(
 
 تذكر: الأولوية الكاملة لما كتبه المستخدم، وليس للقوالب الجاهزة.`;
 
-    // استدعاء OpenAI
+    // استدعاء OpenAI بالإعدادات الموحدة
     const completion = await openaiClient.chat.completions.create({
-      model,
+      model: SABQ_DEEP_ANALYSIS_PROMPT.settings.model,
+      temperature: SABQ_DEEP_ANALYSIS_PROMPT.settings.temperature,
+      max_tokens: SABQ_DEEP_ANALYSIS_PROMPT.settings.max_tokens,
       messages: [
         {
           role: 'system',
-          content: systemPrompt
+          content: SABQ_DEEP_ANALYSIS_PROMPT.systemPrompt
         },
         {
           role: 'user',
           content: isFast ? prompt.substring(0, 1500) : prompt // نص أطول للحصول على سياق أفضل
         }
       ],
-      temperature: isFast ? 0.6 : 0.8,  // تقليل للحصول على نتائج أسرع
-      max_tokens: maxTokens,
       response_format: { type: "json_object" }
     });
 
