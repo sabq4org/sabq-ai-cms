@@ -59,11 +59,12 @@
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
+    justify-content: space-between !important;
     gap: 6px !important;
     padding: 0 !important;
     margin: 0 !important;
     min-width: 0 !important;
+    height: 100% !important;
   }
 
   /* الشريط العلوي: الشارات */
@@ -71,10 +72,12 @@
     display: flex !important;
     align-items: center !important;
     gap: 6px !important;
-    margin: 0 !important;
+    margin: 0 0 6px 0 !important;
     position: static !important;
     z-index: 1 !important;
     flex-wrap: wrap !important;
+    /* إلغاء التنسيق السلبي من التصميم العمودي */
+    margin-top: 0 !important;
   }
 
   .old-style-news-badges {
@@ -133,22 +136,27 @@
     line-height: 1.4 !important;
     color: #111827 !important;
     margin: 0 !important;
+    margin-bottom: 4px !important;
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    flex-shrink: 1 !important;
   }
 
   /* شريط المعلومات السفلي */
   .old-style-news-bottom-bar {
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
+    justify-content: flex-start !important;
     gap: 8px !important;
     margin-top: auto !important;
     font-size: 11px !important;
     color: #6b7280 !important;
+    /* التأكد من ظهور الشريط */
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 
   .old-style-news-meta-item {
@@ -165,9 +173,18 @@
     opacity: 0.7 !important;
   }
 
-  /* إخفاء مدة القراءة على الموبايل لتوفير المساحة */
-  .old-style-news-bottom-bar .old-style-news-meta-item:last-child {
-    display: none !important;
+  /* إظهار جميع العناصر في الشريط السفلي */
+  .old-style-news-bottom-bar .old-style-news-meta-item {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* إخفاع مدة القراءة على الشاشات الصغيرة جداً فقط */
+  @media (max-width: 400px) {
+    .old-style-news-bottom-bar .old-style-news-meta-item:last-child {
+      display: none !important;
+    }
   }
 
   /* الوضع المظلم */
