@@ -10,7 +10,8 @@ export function middleware(req: NextRequest) {
   const hostname = req.headers.get('host') || '';
   const pathname = url.pathname;
   const isAdminRoute = pathname.startsWith('/admin');
-  const isAdminAuthRoute = isAdminRoute && (pathname === '/admin/login' || pathname.startsWith('/admin/login/'));
+  // تجاهل query parameters عند التحقق من مسارات المصادقة
+  const isAdminAuthRoute = pathname === '/admin/login' || pathname.startsWith('/admin/login/') || pathname === '/login' || pathname.startsWith('/login/');
   
   // تخطي في بيئة التطوير مع إضافة قاتل الكاش
   if (process.env.NODE_ENV !== 'production') {
