@@ -27,14 +27,14 @@ export async function GET(request: NextRequest) {
     const unreadOnly = searchParams.get('unreadOnly') === 'true';
 
     // جلب الإشعارات
-    const notifications = await prisma.notification.findMany({
+    const notifications = await prisma.smartNotifications.findMany({
       where: {
-        userId: user.id,
-        ...(unreadOnly ? { isRead: false } : {})
+        user_id: user.id,
+        ...(unreadOnly ? { status: 'pending' } : {})
       },
       orderBy: [
-        { isRead: 'asc' }, // غير المقروءة أولاً
-        { createdAt: 'desc' }
+        { status: 'asc' }, // غير المقروءة أولاً
+        { created_at: 'desc' }
       ],
       take: limit
     });
@@ -53,4 +53,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

@@ -888,7 +888,6 @@ model users {
   interests                Json                      @default("[]")
   last_login_at            DateTime?
   loyalty_points           Int                       @default(0)
-  notification_preferences Json                      @default("{\"sms\": false, \"push\": false, \"email\": true}")
   phone                    String?
   preferred_language       String                    @default("ar")
   profile_completed        Boolean                   @default(false)
@@ -2661,9 +2660,3 @@ model NotificationDedup {
 /// أنواع الإشعارات
 
 /// أولويات الإشعارات
-enum NotificationPriority {
-  HIGH    // عاجل/مهم
-  MEDIUM  // عادي
-  LOW     // منخفض
-}
-
