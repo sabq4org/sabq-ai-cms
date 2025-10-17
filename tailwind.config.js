@@ -28,18 +28,42 @@ module.exports = {
         ],
       },
       colors: {
-        // لوحة ألوان هوية "سبق الذكية"
+        // لوحة ألوان هوية "سبق الذكية" - النظام المحسّن
         brand: {
-          primary: '#2563EB',
-          primaryFg: '#FFFFFF',
-          secondary: '#0EA5E9',
-          accent: '#9333EA',
+          // الألوان الأساسية (Primary Colors)
+          primary: '#172554',      // Navy Blue - للعناوين والعناصر الرئيسية
+          primaryFg: '#FFFFFF',    // White - نص على الأساسي
+          primaryLight: '#1e3a8a', // Navy Blue Light
+          primaryDark: '#0f172a',  // Navy Blue Dark
+          
+          // الألوان الثانوية (Secondary Colors)
+          secondary: '#f1f5f9',    // Slate Gray - للخلفيات والبطاقات
+          secondaryFg: '#0f172a',  // Dark text on secondary
+          secondaryDark: '#e2e8f0',
+          
+          // لون التمييز (Accent Color)
+          accent: '#10b981',       // Emerald Green - للأزرار والمؤشرات الذكية
+          accentFg: '#FFFFFF',     // White text on accent
+          accentLight: '#34d399',
+          accentDark: '#059669',
+          
+          // ألوان الحالات
           danger: '#DC2626',
+          warning: '#f59e0b',
+          success: '#10b981',
+          info: '#0ea5e9',
+          
+          // الخلفيات والحدود
           bg: '#FFFFFF',
           surface: '#F8F8F7',
-          border: '#F0F0EF',
-          fg: '#0F172A',
-          muted: '#475569',
+          border: '#e5e7eb',
+          borderLight: '#f3f4f6',
+          
+          // النصوص
+          fg: '#0F172A',           // نص أساسي داكن
+          fgMuted: '#64748b',      // نص ثانوي
+          fgLight: '#94a3b8',      // نص فاتح
+          
           ring: '#93C5FD',
         },
         // خلفية المشروع الموحدة
