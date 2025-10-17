@@ -119,7 +119,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
       setError(null);
 
       // استخدم API التجريبي الذي يعمل دائماً بشكل مثالي
-      const response = await fetch(`/api/test-notifications?page=${pageNum}&limit=15&status=all`, {
+      const response = await fetch(`/api/notifications?page=${pageNum}&limit=15&status=all`, {
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json'
@@ -206,7 +206,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
-      const response = await fetch('/api/test-notifications/mark-read-single', {
+      const response = await fetch('/api/notifications/mark-read', {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
@@ -284,7 +284,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
     }
 
     try {
-      const response = await fetch('/api/test-notifications/delete-single', {
+      const response = await fetch('/api/notifications/delete', {
         method: 'DELETE',
         headers: {
           ...getAuthHeaders(),
@@ -354,7 +354,7 @@ export function useSmartNotifications(): UseSmartNotificationsReturn {
    */
   const markAllAsRead = useCallback(async () => {
     try {
-      const response = await fetch('/api/test-notifications/mark-all-read-header', {
+      const response = await fetch('/api/notifications/mark-all-read', {
         method: 'POST',
         headers: {
           ...getAuthHeaders(),
