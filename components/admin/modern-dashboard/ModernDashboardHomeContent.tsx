@@ -1,6 +1,6 @@
 /**
- * محتوى الصفحة الرئيسية للوحة التحكم
- * Dashboard Home Content - Full Width Design
+ * محتوى الصفحة الرئيسية - مُعاد بناؤه من الصفر
+ * يملأ كامل المساحة المتاحة بدون فراغات
  */
 
 "use client";
@@ -13,8 +13,7 @@ import {
   MessageSquare,
   Users,
   Activity,
-  ArrowUp,
-  ArrowDown
+  ArrowUp
 } from "lucide-react";
 
 export default function ModernDashboardHomeContent() {
@@ -23,7 +22,6 @@ export default function ModernDashboardHomeContent() {
       title: "إجمال الزوار",
       value: "45.2k",
       change: "+12.5%",
-      trend: "up",
       icon: Users,
       bgColor: "bg-blue-50 dark:bg-blue-900/20",
       iconColor: "text-blue-600 dark:text-blue-400",
@@ -32,7 +30,6 @@ export default function ModernDashboardHomeContent() {
       title: "مشاهدات الصفحة",
       value: "128.4k",
       change: "+8.2%",
-      trend: "up",
       icon: Eye,
       bgColor: "bg-green-50 dark:bg-green-900/20",
       iconColor: "text-green-600 dark:text-green-400",
@@ -41,7 +38,6 @@ export default function ModernDashboardHomeContent() {
       title: "المقالات",
       value: "1,247",
       change: "+5.3%",
-      trend: "up",
       icon: FileText,
       bgColor: "bg-purple-50 dark:bg-purple-900/20",
       iconColor: "text-purple-600 dark:text-purple-400",
@@ -50,7 +46,6 @@ export default function ModernDashboardHomeContent() {
       title: "التعليقات",
       value: "896",
       change: "+15.3%",
-      trend: "up",
       icon: MessageSquare,
       bgColor: "bg-orange-50 dark:bg-orange-900/20",
       iconColor: "text-orange-600 dark:text-orange-400",
@@ -66,8 +61,8 @@ export default function ModernDashboardHomeContent() {
   ];
 
   return (
-    <div className="space-y-6 px-6">
-      {/* رسالة الترحيب - كامل العرض */}
+    <div className="p-6 space-y-6">
+      {/* رسالة الترحيب */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl p-8 text-white shadow-lg">
         <div className="flex items-center gap-4">
           <div className="bg-white/20 p-4 rounded-lg">
@@ -82,11 +77,10 @@ export default function ModernDashboardHomeContent() {
         </div>
       </div>
 
-      {/* بطاقات الإحصائيات - كامل العرض */}
+      {/* بطاقات الإحصائيات */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
-          const TrendIcon = stat.trend === "up" ? ArrowUp : ArrowDown;
           return (
             <div
               key={index}
@@ -96,8 +90,8 @@ export default function ModernDashboardHomeContent() {
                 <div className={`${stat.bgColor} p-3 rounded-lg`}>
                   <Icon className={`w-6 h-6 ${stat.iconColor}`} />
                 </div>
-                <span className={`text-sm font-semibold flex items-center gap-1 ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                  <TrendIcon className="w-4 h-4" />
+                <span className="text-sm font-semibold text-green-600 flex items-center gap-1">
+                  <ArrowUp className="w-4 h-4" />
                   {stat.change}
                 </span>
               </div>
@@ -112,7 +106,7 @@ export default function ModernDashboardHomeContent() {
         })}
       </div>
 
-      {/* المقالات الحديثة - كامل العرض */}
+      {/* المقالات الحديثة */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">
