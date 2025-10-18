@@ -9,21 +9,6 @@ function isIconUrlColumnMissing(err: any): boolean {
   return msg.includes('icon_url') && msg.includes('does not exist');
 }
 
-const safeCategorySelect = {
-  id: true,
-  name: true,
-  slug: true,
-  description: true,
-  display_order: true,
-  is_active: true,
-  color: true,
-  icon: true,
-  // omit icon_url to avoid DBs missing the column
-  metadata: true,
-  created_at: true,
-  updated_at: true,
-} as const;
-
 // PUT & PATCH: تحديث التصنيف
 export async function PUT(
   request: NextRequest,
@@ -55,6 +40,21 @@ export async function PUT(
 
     // توحيد الصورة الهدف
     const targetIcon: string | null = body.icon_url || body.icon || null;
+
+    // تحقق من طول الحقل لتوافق قاعدة الإنتاج (افتراضي 500 إن لم يتم تطبيق الـ migration)
+    const MAX_ICON_LEN = Number(process.env.CATEGORY_ICON_DB_LIMIT || 500);
+    if (targetIcon && targetIcon.length > MAX_ICON_LEN) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'خطأ في حفظ بيانات التصنيف',
+          details: `رابط الصورة طويل (${targetIcon.length}) ويتجاوز الحد الأقصى (${MAX_ICON_LEN}). رجاءً استخدم رابطاً أقصر أو صورة بحجم اسم أقصر.`,
+          field: 'icon_url',
+        },
+        { status: 400 }
+      );
+    }
+
     if (targetIcon) {
       console.log('🖼️  تحديث صورة التصنيف - الطول:', targetIcon.length);
       // دائماً نحدث حقل icon للتوافق الخلفي
@@ -85,20 +85,43 @@ export async function PUT(
 
     let updatedCategory = await dbConnectionManager.executeWithConnection(async () => {
       try {
-        // First attempt: with icon_url, but return only safe columns
         return await prisma.categories.update({
           where: { id },
           data: updateWithIconUrl,
-          select: safeCategorySelect,
+          // تجنب إرجاع أعمدة غير موجودة في قاعدة الإنتاج
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            description: true,
+            display_order: true,
+            is_active: true,
+            color: true,
+            icon: true,
+            metadata: true,
+            created_at: true,
+            updated_at: true,
+          },
         });
       } catch (err: any) {
         if (isIconUrlColumnMissing(err) && targetIcon) {
           console.warn('⚠️ icon_url غير موجود في قاعدة البيانات، سيتم التحديث بدون هذا الحقل');
-          // Retry: without icon_url and still select safe columns
           return await prisma.categories.update({
             where: { id },
             data: updateBase,
-            select: safeCategorySelect,
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+              display_order: true,
+              is_active: true,
+              color: true,
+              icon: true,
+              metadata: true,
+              created_at: true,
+              updated_at: true,
+            },
           });
         }
         throw err;
@@ -110,9 +133,15 @@ export async function PUT(
     // مسح كاش التصنيفات لضمان جلب البيانات المحدثة
     categoryCache.clear();
 
+    // أضف icon_url كـ fallback من icon في الاستجابة
+    const responseData = {
+      ...updatedCategory,
+      icon_url: (updatedCategory as any).icon_url ?? updatedCategory.icon ?? null,
+    };
+
     return NextResponse.json({
       success: true,
-      data: { ...updatedCategory, icon_url: targetIcon ?? updatedCategory.icon ?? null },
+      data: responseData,
       message: 'تم تحديث التصنيف بنجاح'
     });
 
@@ -148,9 +177,23 @@ export async function GET(
     console.log('🔍 جلب التصنيف:', id);
     
     const category = await dbConnectionManager.executeWithConnection(async () => {
+      // اختيار حقول صريحة بدون icon_url للتوافق الخلفي
       return await prisma.categories.findUnique({
         where: { id },
-        select: safeCategorySelect,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          display_order: true,
+          is_active: true,
+          color: true,
+          icon: true,
+          // لا نحدد icon_url لتفادي أخطاء الأعمدة غير الموجودة
+          metadata: true,
+          created_at: true,
+          updated_at: true,
+        }
       });
     });
 
