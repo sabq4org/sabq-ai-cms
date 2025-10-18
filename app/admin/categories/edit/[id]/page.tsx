@@ -120,7 +120,7 @@ export default function EditCategoryPageEnhanced() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/upload', {
+      const res = await fetch('/api/upload/cloudinary', {
         method: 'POST',
         body: formData,
         credentials: 'include',
