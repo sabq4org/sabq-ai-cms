@@ -291,7 +291,7 @@ model categories {
   display_order    Int              @default(0)
   is_active        Boolean          @default(true)
   color            String?          @db.VarChar(50)
-  icon             String?          @db.VarChar(50)
+  icon             String?          @db.VarChar(500)
   metadata         Json?
   name_en          String?
   parent_id        String?
