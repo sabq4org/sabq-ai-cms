@@ -12,7 +12,14 @@ export async function PUT(
     const { id } = await context.params;
     const body = await request.json();
     
-    console.log('📝 تحديث التصنيف:', id, body);
+    console.log('📝 تحديث التصنيف:', id);
+    console.log('📊 البيانات المستلمة:', {
+      name: body.name?.substring(0, 50),
+      has_icon_url: !!body.icon_url,
+      icon_url_length: body.icon_url?.length,
+      has_metadata: !!body.metadata,
+      metadata_size: JSON.stringify(body.metadata)?.length,
+    });
     
     // دعم كلا الصيغتين: name/slug أو name/icon_url
     const updateData: any = {
@@ -24,11 +31,37 @@ export async function PUT(
     if (body.slug) updateData.slug = body.slug;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.color) updateData.color = body.color;
-    if (body.icon) updateData.icon = body.icon;
-    if (body.icon_url) updateData.icon = body.icon_url; // دعم icon_url أيضاً
+    
+    // التعامل مع icon_url بشكل صحيح
+    if (body.icon_url) {
+      console.log('🖼️  تحديث صورة التصنيف - الطول:', body.icon_url.length);
+      updateData.icon_url = body.icon_url;
+      updateData.icon = body.icon_url; // نسخ إلى icon للتوافق
+    } else if (body.icon) {
+      console.log('🖼️  تحديث صورة التصنيف (icon field)');
+      updateData.icon = body.icon;
+      updateData.icon_url = body.icon;
+    }
+    
     if (body.display_order !== undefined) updateData.display_order = body.display_order;
     if (body.is_active !== undefined) updateData.is_active = body.is_active;
-    if (body.metadata) updateData.metadata = body.metadata;
+    
+    // معالجة metadata بحذر لتجنب تجاوز الحد الأقصى
+    if (body.metadata) {
+      const metadata = typeof body.metadata === 'string' 
+        ? JSON.parse(body.metadata) 
+        : body.metadata;
+      
+      // عدم تكرار icon_url داخل metadata إذا كان موجوداً بالفعل
+      if (metadata.icon_url && body.icon_url && metadata.icon_url === body.icon_url) {
+        // لا نحتاج لتخزين نفس URL مرتين
+        delete metadata.icon_url;
+      }
+      
+      updateData.metadata = Object.keys(metadata).length > 0 ? metadata : null;
+    }
+
+    console.log('✅ حجم البيانات المرسلة:', JSON.stringify(updateData).length, 'bytes');
 
     // تحديث التصنيف
     const updatedCategory = await dbConnectionManager.executeWithConnection(async () => {
@@ -51,6 +84,16 @@ export async function PUT(
 
   } catch (error: any) {
     console.error('❌ خطأ في تحديث التصنيف:', error);
+    
+    // معالجة خاصة لأخطاء طول البيانات
+    if (error.message?.includes('too long') || error.message?.includes('character')) {
+      return NextResponse.json({
+        success: false,
+        error: 'خطأ في حفظ بيانات التصنيف',
+        details: 'البيانات المرسلة تتجاوز الحد الأقصى. تأكد من أن صورة التصنيف ليست طويلة جداً.',
+        field: 'icon_url'
+      }, { status: 400 });
+    }
     
     return NextResponse.json({
       success: false,

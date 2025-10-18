@@ -156,10 +156,10 @@ export default function EditCategoryPageEnhanced() {
         description,
         is_active: isActive,
         color,
-        icon_url: iconUrl,
+        icon_url: iconUrl, // إرسال الـ URL مرة واحدة فقط
         metadata: {
           template_type: templateType,
-          icon_url: iconUrl,
+          // عدم تكرار icon_url في metadata
         },
       };
 
@@ -171,7 +171,9 @@ export default function EditCategoryPageEnhanced() {
       });
 
       if (!res.ok) {
-        throw new Error("فشل الحفظ");
+        const errorData = await res.json();
+        console.error('❌ خطأ API:', errorData);
+        throw new Error(errorData.details || errorData.error || "فشل الحفظ");
       }
 
       setSuccess("تم حفظ التعديلات بنجاح");
