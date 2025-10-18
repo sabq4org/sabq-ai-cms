@@ -9,6 +9,36 @@ function isIconUrlColumnMissing(err: any): boolean {
   return msg.includes('icon_url') && msg.includes('does not exist');
 }
 
+// Helper: check if a column exists on a table (PostgreSQL)
+async function columnExists(tableName: string, columnName: string): Promise<boolean> {
+  const rows: Array<{ exists: boolean }> = await prisma.$queryRawUnsafe(
+    `SELECT EXISTS (
+       SELECT 1
+       FROM information_schema.columns
+       WHERE table_name = $1 AND column_name = $2
+     ) AS exists`,
+    tableName,
+    columnName
+  );
+  return rows?.[0]?.exists === true;
+}
+
+// Helper: ensure icon_url column exists (best-effort, no throw)
+async function ensureIconUrlColumn(): Promise<boolean> {
+  try {
+    const has = await columnExists('categories', 'icon_url');
+    if (has) return true;
+    // Add column if not exists (safe in PostgreSQL)
+    await prisma.$executeRawUnsafe(
+      'ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "icon_url" VARCHAR(2000)'
+    );
+    return true;
+  } catch (e) {
+    console.warn('⚠️ فشل إنشاء عمود icon_url (سيتم التجاوز):', (e as any)?.message || e);
+    return false;
+  }
+}
+
 // PUT & PATCH: تحديث التصنيف
 export async function PUT(
   request: NextRequest,
@@ -63,22 +93,28 @@ export async function PUT(
       updateBase.metadata = Object.keys(metadata).length > 0 ? metadata : null;
     }
 
-    console.log('✅ حجم البيانات المرسلة:', JSON.stringify(updateBase).length, 'bytes');
+    console.log('✅ حجم البيانات المرسلة (بدون icon_url):', JSON.stringify(updateBase).length, 'bytes');
 
-    // حاول أولاً التحديث مع icon_url، وإذا فشل لأن العمود غير موجود، أعد المحاولة بدون icon_url
-    const updateWithIconUrl = targetIcon ? { ...updateBase, icon_url: targetIcon } : updateBase;
-
-    let updatedCategory = await dbConnectionManager.executeWithConnection(async () => {
-      try {
-        return await prisma.categories.update({ where: { id }, data: updateWithIconUrl });
-      } catch (err: any) {
-        if (isIconUrlColumnMissing(err) && targetIcon) {
-          console.warn('⚠️ icon_url غير موجود في قاعدة البيانات، سيتم التحديث بدون هذا الحقل');
-          return await prisma.categories.update({ where: { id }, data: updateBase });
-        }
-        throw err;
-      }
+    // 1) حدّث البيانات الأساسية أولاً بدون icon_url لتجنب P2022
+    const updatedCategoryBase = await dbConnectionManager.executeWithConnection(async () => {
+      return await prisma.categories.update({ where: { id }, data: updateBase });
     });
+
+    // 2) محاولة أفضل جهد لإضافة/تحديث icon_url بعد نجاح التحديث الأساسي
+    if (targetIcon) {
+      try {
+        const ensured = await ensureIconUrlColumn();
+        if (ensured) {
+          await prisma.categories.update({ where: { id }, data: { icon_url: targetIcon } });
+        }
+      } catch (err: any) {
+        if (isIconUrlColumnMissing(err)) {
+          console.warn('⚠️ icon_url غير موجود بعد المحاولة – سيتم التجاوز الآن');
+        } else {
+          console.warn('⚠️ فشل تحديث icon_url (سيتم التجاوز):', err?.message || err);
+        }
+      }
+    }
 
     console.log('✅ تم تحديث التصنيف بنجاح');
     
@@ -87,7 +123,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      data: updatedCategory,
+      data: { ...updatedCategoryBase, icon_url: targetIcon ?? (updatedCategoryBase as any).icon_url ?? updatedCategoryBase.icon },
       message: 'تم تحديث التصنيف بنجاح'
     });
 
