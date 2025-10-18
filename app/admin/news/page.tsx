@@ -1127,97 +1127,49 @@ function AdminNewsPageContent() {
   };
 
   return (
-    <div className="news-page-container" style={{ width: '100%', maxWidth: '100%', margin: 0, padding: 0 }}>
+    <div className="news-page-container">
       {/* تحميل CSS Manus UI */}
       <link rel="stylesheet" href="/manus-ui.css" />
       
       <TooltipProvider>
-        <div className="space-y-8" style={{ 
-          background: 'hsl(var(--bg))', 
-          minHeight: '100vh',
-          padding: '0',
-          width: '100%'
-        }}>
+        <div className="p-6 space-y-6">
           {/* رسالة الترحيب */}
-          <div className="card card-accent" style={{
-            background: 'hsl(var(--bg-card))',
-            border: '1px solid hsl(var(--accent) / 0.2)',
-            borderLeftWidth: '4px',
-            padding: '24px'
-          }}>
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  نظام إدارة الأخبار المتطور
-                </h2>
-                <p className="text-muted mb-4">
-                  إدارة شاملة للمحتوى الإخباري مع أدوات ذكية لتحرير ونشر الأخبار
-                </p>
-                <div className="flex gap-3">
-                  <DesignComponents.StatusIndicator
-                    status="success"
-                    text={`${formatNumber(stats?.published || 0)} خبر منشور`}
-                  />
-                  <DesignComponents.StatusIndicator
-                    status="info"
-                    text={`${formatNumber(filteredArticles.length)} إجمالي`}
-                  />
+          <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 rounded-2xl p-8 text-white shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl">
+                  <FileText className="w-10 h-10" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold mb-1">نظام إدارة الأخبار المتطور 📰</h2>
+                  <p className="text-blue-100 text-lg">
+                    إدارة شاملة للمحتوى الإخباري مع أدوات ذكية لتحرير ونشر الأخبار
+                  </p>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <Link href="/admin/news/smart-editor">
-                  <button
-                    className="btn"
-                    style={{
-                      background: 'hsl(var(--bg-card))',
-                      border: '1px solid hsl(var(--line))',
-                      color: 'hsl(var(--fg))'
-                    }}
-                  >
-                    <Sparkles className="w-4 h-4 ml-2" />
-                    المحرر الذكي
-                  </button>
-                </Link>
-                <Link href="/admin/news/unified">
-                  <button
-                    className="btn btn-primary"
-                    style={{
-                      background: 'hsl(var(--accent))',
-                      color: 'white'
-                    }}
-                  >
-                    <Plus className="w-4 h-4 ml-2" />
-                    خبر جديد
-                  </button>
-                </Link>
+              <div className="text-right">
+                <div className="text-sm text-blue-100 mb-1">إجمالي الأخبار</div>
+                <div className="text-lg font-semibold">{formatNumber(filteredArticles.length)} خبر</div>
               </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <Link href="/admin/news/smart-editor">
+                <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" />
+                  المحرر الذكي
+                </button>
+              </Link>
+              <Link href="/admin/news/unified">
+                <button className="bg-white text-blue-600 hover:bg-blue-50 px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2">
+                  <Plus className="w-5 h-5" />
+                  خبر جديد
+                </button>
+              </Link>
             </div>
           </div>
 
-          {/* إحصائيات الأخبار */}
-          <div>
-            <DesignComponents.SectionHeader
-              title="إحصائيات الأخبار"
-              description="نظرة عامة على حالة المحتوى الإخباري"
-              action={
-                <div className="flex gap-2">
-                  <button className="btn btn-sm" style={{ border: '1px solid hsl(var(--line))' }}>
-                    <Filter className="w-4 h-4 ml-2" />
-                    تصفية
-                  </button>
-                  <button className="btn btn-sm btn-primary">
-                    <Download className="w-4 h-4 ml-2" />
-                    تصدير
-                  </button>
-                </div>
-              }
-            />
-
-            {/* بطاقات إحصائيات الأخبار */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          {/* بطاقات إحصائيات الأخبار */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
               {/* بطاقة الأخبار المنشورة */}
               <div className="card" onClick={() => setFilterStatus("published")} style={{ cursor: 'pointer' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1445,9 +1397,9 @@ function AdminNewsPageContent() {
             </select>
           </div>
 
-          {/* جدول المقالات */}
-          <div className="card" style={{ minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '16px', borderBottom: '1px solid hsl(var(--line))' }}>
+          {/* جدول الأخبار */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {searchTerm.trim() ? (
