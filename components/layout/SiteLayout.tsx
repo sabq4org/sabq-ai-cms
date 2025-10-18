@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import FooterGate from "@/components/layout/FooterGate";
 import LightHeader from "@/components/layout/LightHeader";
 import BetaBanner from "@/components/layout/BetaBanner";
-import UserHeader from "@/components/user/UserHeader";
+import Header from "@/components/Header";
 import DesktopCategoryBar from "@/components/navigation/DesktopCategoryBar";
 import { Providers } from "../../app/providers";
 import { useEffect, useState, useCallback, useMemo } from "react";
@@ -96,7 +96,7 @@ export default function SiteLayout({
           <>
             <BetaBanner />
             <div style={{ paddingTop: 'calc(72px + var(--beta-banner-offset, 0px))', position: 'relative' }}>
-              <UserHeader />
+              <Header />
             </div>
             {/* شريط التصنيفات أسفل الهيدر - ديسكتوب فقط */}
             <div className="hidden md:block">
