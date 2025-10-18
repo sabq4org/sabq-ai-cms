@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 import ManusHeader from "./ManusHeader";
 import { Menu, X } from "lucide-react";
 
@@ -39,8 +41,17 @@ export default function DashboardLayoutEnhanced({
   pageDescription = "نظام إدارة المحتوى",
   className,
 }: DashboardLayoutProps) {
+  const router = useRouter();
+  const { user, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  // التحقق من المصادقة
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/admin/login?next=/admin/modern");
+    }
+  }, [user, loading, router]);
 
   // تحديد حجم الشاشة
   useEffect(() => {
@@ -56,6 +67,23 @@ export default function DashboardLayoutEnhanced({
   }, []);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  // عرض loading أثناء التحقق من المصادقة
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">جاري التحميل...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // عدم عرض المحتوى إذا لم يكن مسجل دخول
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
