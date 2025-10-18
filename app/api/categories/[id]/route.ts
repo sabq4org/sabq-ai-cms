@@ -3,6 +3,12 @@ import prisma from '@/lib/prisma';
 import dbConnectionManager from '@/lib/db-connection-manager';
 import { categoryCache } from '@/lib/category-cache';
 
+// Helper: detect missing icon_url column errors
+function isIconUrlColumnMissing(err: any): boolean {
+  const msg = (err?.message || '').toLowerCase();
+  return msg.includes('icon_url') && msg.includes('does not exist');
+}
+
 // PUT & PATCH: تحديث التصنيف
 export async function PUT(
   request: NextRequest,
@@ -22,29 +28,26 @@ export async function PUT(
     });
     
     // دعم كلا الصيغتين: name/slug أو name/icon_url
-    const updateData: any = {
-      updated_at: new Date()
+    const updateBase: any = {
+      updated_at: new Date(),
     };
 
     // إضافة الحقول الموجودة فقط
-    if (body.name) updateData.name = body.name;
-    if (body.slug) updateData.slug = body.slug;
-    if (body.description !== undefined) updateData.description = body.description;
-    if (body.color) updateData.color = body.color;
-    
-    // التعامل مع icon_url بشكل صحيح
-    if (body.icon_url) {
-      console.log('🖼️  تحديث صورة التصنيف - الطول:', body.icon_url.length);
-      updateData.icon_url = body.icon_url;
-      updateData.icon = body.icon_url; // نسخ إلى icon للتوافق
-    } else if (body.icon) {
-      console.log('🖼️  تحديث صورة التصنيف (icon field)');
-      updateData.icon = body.icon;
-      updateData.icon_url = body.icon;
+    if (body.name) updateBase.name = body.name;
+    if (body.slug) updateBase.slug = body.slug;
+    if (body.description !== undefined) updateBase.description = body.description;
+    if (body.color) updateBase.color = body.color;
+
+    // توحيد الصورة الهدف
+    const targetIcon: string | null = body.icon_url || body.icon || null;
+    if (targetIcon) {
+      console.log('🖼️  تحديث صورة التصنيف - الطول:', targetIcon.length);
+      // دائماً نحدث حقل icon للتوافق الخلفي
+      updateBase.icon = targetIcon;
     }
     
-    if (body.display_order !== undefined) updateData.display_order = body.display_order;
-    if (body.is_active !== undefined) updateData.is_active = body.is_active;
+    if (body.display_order !== undefined) updateBase.display_order = body.display_order;
+    if (body.is_active !== undefined) updateBase.is_active = body.is_active;
     
     // معالجة metadata بحذر لتجنب تجاوز الحد الأقصى
     if (body.metadata) {
@@ -53,22 +56,28 @@ export async function PUT(
         : body.metadata;
       
       // عدم تكرار icon_url داخل metadata إذا كان موجوداً بالفعل
-      if (metadata.icon_url && body.icon_url && metadata.icon_url === body.icon_url) {
-        // لا نحتاج لتخزين نفس URL مرتين
+      if (metadata.icon_url && targetIcon && metadata.icon_url === targetIcon) {
         delete metadata.icon_url;
       }
       
-      updateData.metadata = Object.keys(metadata).length > 0 ? metadata : null;
+      updateBase.metadata = Object.keys(metadata).length > 0 ? metadata : null;
     }
 
-    console.log('✅ حجم البيانات المرسلة:', JSON.stringify(updateData).length, 'bytes');
+    console.log('✅ حجم البيانات المرسلة:', JSON.stringify(updateBase).length, 'bytes');
 
-    // تحديث التصنيف
-    const updatedCategory = await dbConnectionManager.executeWithConnection(async () => {
-      return await prisma.categories.update({
-        where: { id },
-        data: updateData
-      });
+    // حاول أولاً التحديث مع icon_url، وإذا فشل لأن العمود غير موجود، أعد المحاولة بدون icon_url
+    const updateWithIconUrl = targetIcon ? { ...updateBase, icon_url: targetIcon } : updateBase;
+
+    let updatedCategory = await dbConnectionManager.executeWithConnection(async () => {
+      try {
+        return await prisma.categories.update({ where: { id }, data: updateWithIconUrl });
+      } catch (err: any) {
+        if (isIconUrlColumnMissing(err) && targetIcon) {
+          console.warn('⚠️ icon_url غير موجود في قاعدة البيانات، سيتم التحديث بدون هذا الحقل');
+          return await prisma.categories.update({ where: { id }, data: updateBase });
+        }
+        throw err;
+      }
     });
 
     console.log('✅ تم تحديث التصنيف بنجاح');
@@ -103,7 +112,7 @@ export async function PUT(
   }
 }
 
-// GET: جلب تصنيف واحد
+// GET: جلب تصنيف واحد (توافق خلفي إذا لم يتوفر عمود icon_url)
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -114,18 +123,22 @@ export async function GET(
     console.log('🔍 جلب التصنيف:', id);
     
     const category = await dbConnectionManager.executeWithConnection(async () => {
+      // اختيار حقول صريحة بدون icon_url للتوافق الخلفي
       return await prisma.categories.findUnique({
         where: { id },
-        include: {
-          _count: {
-            select: {
-              articles: {
-                where: {
-                  status: 'published'
-                }
-              }
-            }
-          }
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          display_order: true,
+          is_active: true,
+          color: true,
+          icon: true,
+          // لا نحدد icon_url لتفادي أخطاء الأعمدة غير الموجودة
+          metadata: true,
+          created_at: true,
+          updated_at: true,
         }
       });
     });
@@ -137,11 +150,22 @@ export async function GET(
       }, { status: 404 });
     }
 
+    // احسب عدد المقالات المنشورة لهذا التصنيف
+    const articlesCount = await dbConnectionManager.executeWithConnection(async () => {
+      return await prisma.articles.count({
+        where: { category_id: id, status: 'published' }
+      });
+    });
+
+    // أعد icon_url كـ fallback من icon لموافقة الواجهة
+    const icon_url = (category as any).icon_url ?? category.icon ?? null;
+
     return NextResponse.json({
       success: true,
       data: {
         ...category,
-        articles_count: category._count.articles
+        icon_url,
+        articles_count: articlesCount
       }
     });
 
@@ -214,4 +238,4 @@ export async function DELETE(
       details: error.message || 'خطأ غير معروف'
     }, { status: 500 });
   }
-} 
+}
