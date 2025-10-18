@@ -222,7 +222,6 @@ export default function TagsManagement() {
                   إضافة وسم
                 </button>
               </Link>
-              </div>
             </div>
           </div>
 
