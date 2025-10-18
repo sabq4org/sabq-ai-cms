@@ -430,62 +430,40 @@ const ArticlesAdminPage = () => {
   return (
     <>
       <link rel="stylesheet" href="/manus-ui.css" />
-      <div style={{ 
-        minHeight: '100vh', 
-        background: 'hsl(var(--bg))', 
-        padding: '0',
-        width: '100%',
-        color: 'hsl(var(--fg))'
-      }}>
-      <div className="news-page-container">
-        <div className="space-y-6 md:space-y-8">
+      <div className="p-6 space-y-6">
       {/* رسالة الترحيب */}
-      <div className="card card-accent shadow-md rounded-xl p-6" style={{ marginBottom: '0' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'hsl(var(--accent) / 0.1)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'hsl(var(--accent))'
-          }}>
-            <FileText style={{ width: '24px', height: '24px' }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <h2 className="heading-2" style={{ marginBottom: '8px' }}>
-              نظام إدارة المقالات المتطور
-            </h2>
-            <p className="text-muted" style={{ marginBottom: '16px' }}>
-              إدارة شاملة لمقالات قادة الرأي مع أدوات ذكية مدعومة بالذكاء الاصطناعي
-            </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div className="chip">
-                ✅ {stats.published} مقال منشور
-              </div>
-              <div className="chip chip-muted">
-                📊 {stats.total} إجمالي
-              </div>
+      <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-indigo-600 rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl">
+              <FileText className="w-10 h-10" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold mb-1">نظام إدارة المقالات المتطور ✍️</h2>
+              <p className="text-purple-100 text-lg">
+                إدارة شاملة لمقالات قادة الرأي مع أدوات ذكية مدعومة بالذكاء الاصطناعي
+              </p>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={loadArticles}
-              className="btn"
-            >
-              <RefreshCw style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
-              تحديث
-            </button>
-
-            <Link href="/admin/articles/new">
-              <button className="btn btn-primary">
-                <Plus style={{ width: '16px', height: '16px', marginLeft: '8px' }} />
-                مقال جديد
-              </button>
-            </Link>
+          <div className="text-right">
+            <div className="text-sm text-purple-100 mb-1">إجمالي المقالات</div>
+            <div className="text-lg font-semibold">{stats.total} مقال</div>
           </div>
+        </div>
+        <div className="mt-6 flex gap-3">
+          <button
+            onClick={loadArticles}
+            className="bg-white/20 hover:bg-white/30 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2"
+          >
+            <RefreshCw className="w-5 h-5" />
+            تحديث
+          </button>
+          <Link href="/admin/articles/new">
+            <button className="bg-white text-purple-600 hover:bg-purple-50 px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2">
+              <Plus className="w-5 h-5" />
+              مقال جديد
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -900,8 +878,6 @@ const ArticlesAdminPage = () => {
         </div>
       )}
 
-      </div>
-      </div>
       {/* Modal تأكيد الحذف */}
       {deleteModalOpen && articleToDelete && (
         <div style={{

@@ -183,81 +183,45 @@ export default function TagsManagement() {
         }
       `}</style>
       
-      <div style={{ background: 'hsl(var(--bg))', minHeight: '100vh', width: '100%' }}>
-        <div style={{ padding: '0', width: '100%' }}>
+      <div className="p-6 space-y-6">
           {/* رسالة الترحيب */}
-          <div className="card card-accent" style={{ marginBottom: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'start', gap: '20px' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                background: 'linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-hover)))',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}>
-                <Hash style={{ width: '32px', height: '32px', color: 'white' }} />
+          <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 rounded-2xl p-8 text-white shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl">
+                  <Hash className="w-10 h-10" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold mb-1">نظام الكلمات المفتاحية المتقدم #</h2>
+                  <p className="text-orange-100 text-lg">
+                    إدارة ذكية وشاملة للكلمات المفتاحية مع التحليلات والاقتراحات
+                  </p>
+                </div>
               </div>
-            
-              <div style={{ flex: 1 }}>
-                <h1 className="heading-1" style={{ marginBottom: '8px' }}>نظام الكلمات المفتاحية المتقدم</h1>
-                <p className="text-lg text-muted" style={{ marginBottom: '16px' }}>
-                  إدارة ذكية وشاملة للكلمات المفتاحية مع التحليلات والاقتراحات
-                </p>
-            {stats && (
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    <span className="chip" style={{ 
-                      background: 'hsl(var(--success) / 0.1)', 
-                      color: 'hsl(var(--success))',
-                      border: '1px solid hsl(var(--success) / 0.2)'
-                    }}>
-                      <Tag style={{ width: '14px', height: '14px' }} />
-                  {stats.overview.total_tags} كلمة مفتاحية
-                </span>
-                    <span className="chip" style={{ 
-                      background: 'hsl(var(--info) / 0.1)', 
-                      color: 'hsl(var(--info))',
-                      border: '1px solid hsl(var(--info) / 0.2)'
-                    }}>
-                      <Activity style={{ width: '14px', height: '14px' }} />
-                  {stats.overview.active_tags} نشطة
-                </span>
-                    <span className="chip" style={{ 
-                      background: 'hsl(var(--warning) / 0.1)', 
-                      color: 'hsl(var(--warning))',
-                      border: '1px solid hsl(var(--warning) / 0.2)'
-                    }}>
-                      <Globe style={{ width: '14px', height: '14px' }} />
-                      {formatNumber(stats.overview.total_connections)} ارتباط
-                </span>
+              <div className="text-right">
+                {stats && (
+                  <>
+                    <div className="text-sm text-orange-100 mb-1">إجمالي الوسوم</div>
+                    <div className="text-lg font-semibold">{stats.overview.total_tags} وسم</div>
+                  </>
+                )}
               </div>
-            )}
-          </div>
-          
-              <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              onClick={refreshData}
-              disabled={refreshing}
-                  className="btn btn-outline"
-                  style={{ minWidth: '120px' }}
-            >
-                  <RefreshCw style={{ width: '16px', height: '16px', animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
-              تحديث
-            </button>
-                <Link 
-                  href="/admin/tags/new"
-                  className="btn"
-                  style={{ 
-                    backgroundColor: 'hsl(var(--accent))',
-                    color: 'white',
-                    textDecoration: 'none'
-                  }}
-                >
-                  <Plus style={{ width: '16px', height: '16px' }} />
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button 
+                onClick={refreshData}
+                disabled={refreshing}
+                className="bg-white/20 hover:bg-white/30 text-white px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2"
+              >
+                <RefreshCw className="w-5 h-5" style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+                تحديث
+              </button>
+              <Link href="/admin/tags/new">
+                <button className="bg-white text-orange-600 hover:bg-orange-50 px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2">
+                  <Plus className="w-5 h-5" />
                   إضافة وسم
-                </Link>
+                </button>
+              </Link>
               </div>
             </div>
           </div>
@@ -837,7 +801,6 @@ export default function TagsManagement() {
         </div>
       </div>
     </div>
-      </div>
     </>
   );
 }

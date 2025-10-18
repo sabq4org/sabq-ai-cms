@@ -241,8 +241,7 @@ export default function CategoriesPage() {
         }
       `}</style>
       
-      <div style={{ background: "hsl(var(--bg))", minHeight: "100vh", width: "100%" }}>
-      <div style={{ padding: "0", width: "100%" }}>
+      <div className="p-6 space-y-6">
         {loading && (
           <div className="card" style={{ padding: "48px", textAlign: "center" }}>
             <div className="loading-spinner" style={{ margin: "0 auto 16px" }} />
@@ -252,56 +251,24 @@ export default function CategoriesPage() {
         {!loading && (
           <>
             {/* رسالة الترحيب */}
-            <div className="card card-accent" style={{ marginBottom: "32px" }}>
-              <div style={{ display: "flex", alignItems: "start", gap: "20px" }}>
-                <div style={{
-                  width: "64px",
-                  height: "64px",
-                  background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-hover)))",
-                  borderRadius: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0
-                }}>
-                  <Tag style={{ width: "32px", height: "32px", color: "white" }} />
-            </div>
-                
-                <div style={{ flex: 1 }}>
-                  <h1 className="heading-1" style={{ marginBottom: "8px" }}>إدارة التصنيفات</h1>
-                  <p className="text-lg text-muted" style={{ marginBottom: "16px" }}>
-                تنظيم وإدارة فئات المحتوى بطريقة احترافية ومنظمة
-              </p>
-                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                    <span className="chip" style={{ 
-                      background: "hsl(var(--success) / 0.1)", 
-                      color: "hsl(var(--success))",
-                      border: "1px solid hsl(var(--success) / 0.2)"
-                    }}>
-                      <Folder style={{ width: "14px", height: "14px" }} />
-                      {stats.active} فئة نشطة
-                    </span>
-                    <span className="chip" style={{ 
-                      background: "hsl(var(--info) / 0.1)", 
-                      color: "hsl(var(--info))",
-                      border: "1px solid hsl(var(--info) / 0.2)"
-                    }}>
-                      <FileText style={{ width: "14px", height: "14px" }} />
-                      {formatNumber(stats.totalArticles)} مقال
-                    </span>
+            <div className="bg-gradient-to-r from-green-600 via-green-500 to-emerald-600 rounded-2xl p-8 text-white shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl">
+                    <Tag className="w-10 h-10" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold mb-1">إدارة التصنيفات 🏷️</h2>
+                    <p className="text-green-100 text-lg">
+                      تنظيم وإدارة فئات المحتوى بطريقة احترافية ومنظمة
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-green-100 mb-1">إجمالي التصنيفات</div>
+                  <div className="text-lg font-semibold">{stats.total} تصنيف</div>
+                </div>
               </div>
-            </div>
-                
-                <div style={{ textAlign: "left" }}>
-                  <div className="text-sm text-muted" style={{ marginBottom: "4px" }}>آخر تحديث</div>
-                  <div className="heading-3" style={{ color: "hsl(var(--accent))" }}>
-                {new Date().toLocaleTimeString("ar-SA", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
-            </div>
-          </div>
             </div>
 
             {/* الإحصائيات */}
@@ -723,7 +690,6 @@ export default function CategoriesPage() {
             </div>
           </div>
         )}
-      </div>
       </div>
     </>
   );
