@@ -364,3 +364,4 @@ test-comprehensive-upload.js
 AWS_S3_*_REPORT.md
 aws-s3-env-variables-secure.txt
 smart_notifications_system/
+node_modules
