@@ -17,6 +17,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 interface Article {
   id: string;
   title: string;
@@ -39,6 +40,7 @@ interface Article {
   is_personalized?: boolean;
 }
 export default function ForYouPage() {
+  const { user, loading: authLoading } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<any[]>([]);
@@ -48,24 +50,19 @@ export default function ForYouPage() {
   );
   const [showFilter, setShowFilter] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const [interestCategoryIds, setInterestCategoryIds] = useState<Set<string>>(new Set());
+  // إعادة التوجيه إذا لم يكن مسجلاً
+  useEffect(() => {
+    if (!authLoading && !user) {
+      window.location.href = "/login?redirect=/for-you";
+    }
+  }, [user, authLoading]);
+
   useEffect(() => {
     // التحقق من الوضع المظلم
     const savedDarkMode = localStorage.getItem("darkMode");
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
-    }
-    // التحقق من تسجيل الدخول
-    const storedUserId = localStorage.getItem("user_id");
-    const userData = localStorage.getItem("user");
-    if (storedUserId && storedUserId !== "anonymous" && userData) {
-      setIsLoggedIn(true);
-      setUserId(storedUserId);
-    } else {
-      // إعادة التوجيه لتسجيل الدخول إذا لم يكن مسجل
-      window.location.href = "/login?redirect=/for-you";
     }
     // جلب التصنيفات
     fetchCategories();
@@ -79,10 +76,10 @@ export default function ForYouPage() {
       .catch(() => {});
   }, []);
   useEffect(() => {
-    if (isLoggedIn && userId) {
+    if (user) {
       fetchPersonalizedContent();
     }
-  }, [isLoggedIn, userId, selectedCategory, sortBy]);
+  }, [user, selectedCategory, sortBy]);
   const fetchCategories = async () => {
     try {
       const response = await fetch("/api/categories");
