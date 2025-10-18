@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import dbConnectionManager from '@/lib/db-connection-manager';
 import { categoryCache } from '@/lib/category-cache';
 
-// PUT: تحديث التصنيف
+// PUT & PATCH: تحديث التصنيف
 export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -12,31 +12,29 @@ export async function PUT(
     const { id } = await context.params;
     const body = await request.json();
     
-    console.log('📝 تحديث التصنيف:', id);
+    console.log('📝 تحديث التصنيف:', id, body);
     
-    // التحقق من البيانات المطلوبة
-    if (!body.name || !body.slug) {
-      return NextResponse.json({
-        success: false,
-        error: 'الاسم والرابط مطلوبان'
-      }, { status: 400 });
-    }
+    // دعم كلا الصيغتين: name/slug أو name/icon_url
+    const updateData: any = {
+      updated_at: new Date()
+    };
+
+    // إضافة الحقول الموجودة فقط
+    if (body.name) updateData.name = body.name;
+    if (body.slug) updateData.slug = body.slug;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.color) updateData.color = body.color;
+    if (body.icon) updateData.icon = body.icon;
+    if (body.icon_url) updateData.icon = body.icon_url; // دعم icon_url أيضاً
+    if (body.display_order !== undefined) updateData.display_order = body.display_order;
+    if (body.is_active !== undefined) updateData.is_active = body.is_active;
+    if (body.metadata) updateData.metadata = body.metadata;
 
     // تحديث التصنيف
     const updatedCategory = await dbConnectionManager.executeWithConnection(async () => {
       return await prisma.categories.update({
         where: { id },
-        data: {
-          name: body.name,
-          slug: body.slug,
-          description: body.description,
-          color: body.color,
-          icon: body.icon,
-          display_order: body.display_order,
-          is_active: body.is_active,
-          metadata: body.metadata || {},
-          updated_at: new Date()
-        }
+        data: updateData
       });
     });
 
@@ -113,6 +111,14 @@ export async function GET(
       details: error.message || 'خطأ غير معروف'
     }, { status: 500 });
   }
+}
+
+// PATCH: تحديث التصنيف (نفس PUT)
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  return PUT(request, context);
 }
 
 // DELETE: حذف التصنيف
