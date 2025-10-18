@@ -368,4 +368,69 @@ export class SmartNotificationService {
   }
 }
 
+/**
+ * 🔔 نظام بث الإشعارات (Notification Bus)
+ * للاتصالات المباشرة والفورية عبر SSE
+ */
+class NotificationBus {
+  private subscribers: Map<string, Set<(payload: any) => void>> = new Map();
+
+  /**
+   * الاشتراك في الإشعارات
+   */
+  subscribe(userId: string, callback: (payload: any) => void) {
+    if (!this.subscribers.has(userId)) {
+      this.subscribers.set(userId, new Set());
+    }
+    this.subscribers.get(userId)?.add(callback);
+
+    // إرجاع دالة إلغاء الاشتراك
+    return () => {
+      this.subscribers.get(userId)?.delete(callback);
+      if (this.subscribers.get(userId)?.size === 0) {
+        this.subscribers.delete(userId);
+      }
+    };
+  }
+
+  /**
+   * نشر إشعار لمستخدم محدد
+   */
+  publish(userId: string, payload: any) {
+    const callbacks = this.subscribers.get(userId);
+    if (callbacks) {
+      callbacks.forEach(callback => {
+        try {
+          callback(payload);
+        } catch (error) {
+          console.error('Error in notification callback:', error);
+        }
+      });
+    }
+  }
+
+  /**
+   * نشر إشعار لعدة مستخدمين
+   */
+  publishToMany(userIds: string[], payload: any) {
+    userIds.forEach(userId => this.publish(userId, payload));
+  }
+
+  /**
+   * الحصول على عدد المشتركين
+   */
+  getSubscriberCount(userId: string): number {
+    return this.subscribers.get(userId)?.size || 0;
+  }
+
+  /**
+   * مسح جميع المشتركين
+   */
+  clear() {
+    this.subscribers.clear();
+  }
+}
+
+export const notificationBus = new NotificationBus();
+
 export default SmartNotificationService;
