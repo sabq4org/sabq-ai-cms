@@ -127,9 +127,10 @@ export default function AdminLoyaltyPage() {
 
   return (
     <>
-      <div className="space-y-6" dir="rtl">
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div className="p-6 space-y-6" dir="rtl">
         {/* ترحيب وإحصائيات سريعة */}
-        <div className="bg-gradient-to-br from-purple-500 to-pink-600 text-white p-6 rounded-2xl">
+        <div className="bg-gradient-to-br from-purple-500 to-pink-600 text-white p-8 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">

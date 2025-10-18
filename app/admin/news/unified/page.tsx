@@ -987,13 +987,7 @@ export default function ManusNewsCreatePage() {
     <>
       <link rel="stylesheet" href="/manus-ui.css" />
       
-      <div style={{ 
-        background: 'hsl(var(--bg))', 
-        minHeight: '100vh', 
-        padding: '0',
-        width: '100%',
-        color: 'hsl(var(--fg))'
-      }}>
+      <div className="p-6 space-y-6">
         {/* هيدر الصفحة */}
         <div className="card card-accent" style={{ marginBottom: '32px' }}>
           <div style={{ 

@@ -398,8 +398,9 @@ export default function CreateAnglePage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'hsl(var(--bg))', padding: '0', width: '100%' }}>
-      <div style={{ width: '100%' }}>
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div className="p-6 space-y-6">
         {/* رسالة الترحيب */}
         <div className="card card-accent" style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -662,6 +663,6 @@ export default function CreateAnglePage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

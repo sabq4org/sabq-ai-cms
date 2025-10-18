@@ -409,13 +409,7 @@ export default function MuqtaribDashboard() {
   return (
     <>
       <link rel="stylesheet" href="/manus-ui.css" />
-      <div style={{ 
-        minHeight: '100vh', 
-        background: 'hsl(var(--bg))', 
-        padding: '0',
-        width: '100%',
-        color: 'hsl(var(--fg))'
-      }}>
+      <div className="p-6 space-y-6">
         {/* رسالة الترحيب */}
         <div className="card card-accent" style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>

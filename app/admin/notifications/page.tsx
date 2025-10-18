@@ -106,7 +106,30 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <link rel="stylesheet" href="/manus-ui.css" />
+      <div className="p-6 space-y-6">
+        {/* رسالة الترحيب */}
+        <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-xl">
+                <Bell className="w-10 h-10" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold mb-1">إدارة الإشعارات 🔔</h2>
+                <p className="text-blue-100 text-lg">
+                  إدارة وإرسال الإشعارات للمستخدمين
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-blue-100 mb-1">إجمالي الإشعارات</div>
+              <div className="text-lg font-semibold">{notifications.length} إشعار</div>
+            </div>
+          </div>
+        </div>
+
         {/* شريط الأدوات العلوي */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
           <div className="flex gap-2">
@@ -225,5 +248,6 @@ export default function NotificationsPage() {
           </CardContent>
         </Card>
       </div>
+    </>
   );
 }
