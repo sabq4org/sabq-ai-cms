@@ -1341,7 +1341,6 @@ function AdminNewsPageContent() {
                   </div>
                 </div>
               </div>
-            </div>
           </div>
 
           {/* شريط البحث والفلاتر */}
