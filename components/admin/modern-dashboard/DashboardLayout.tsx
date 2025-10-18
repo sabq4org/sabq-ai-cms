@@ -138,8 +138,8 @@ export default function DashboardLayout({
               !isMobile && !sidebarOpen && "mr-16"
             )}
           >
-            {/* Container بهوامش معقولة */}
-            <div className="w-full px-4 sm:px-6 py-6">
+            {/* Container بدون هوامش جانبية */}
+            <div className="w-full py-6">
               {/* عنوان الصفحة */}
               {(pageTitle || pageDescription) && (
                 <div className="mb-6">
