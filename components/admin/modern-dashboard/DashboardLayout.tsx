@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/EnhancedAuthContextWithSSR";
 import ManusHeader from "./ManusHeader";
 
 const ModernSidebar = dynamic(() => import("./ModernSidebar"), {
-  loading: () => <div className="w-[200px] h-screen bg-white dark:bg-gray-800 animate-pulse"></div>,
+  loading: () => <div className="w-64 h-screen bg-white dark:bg-gray-800 animate-pulse"></div>,
   ssr: true,
 });
 
@@ -89,7 +89,7 @@ export default function DashboardLayout({
         <aside
           className={cn(
             "fixed right-0 top-14 bottom-0 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto transition-all duration-300 z-40",
-            sidebarOpen ? "w-[200px]" : "w-16"
+            sidebarOpen ? "w-64" : "w-16"
           )}
         >
           <ModernSidebar isCollapsed={!sidebarOpen} onToggle={toggleSidebar} isMobile={false} />
@@ -100,7 +100,7 @@ export default function DashboardLayout({
       {isMobile && sidebarOpen && (
         <>
           <div className="fixed inset-0 bg-black/50 z-40" onClick={toggleSidebar} />
-          <aside className="fixed right-0 top-14 bottom-0 w-[200px] bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto z-50">
+          <aside className="fixed right-0 top-14 bottom-0 w-64 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto z-50">
             <ModernSidebar isCollapsed={false} onToggle={toggleSidebar} isMobile={true} />
           </aside>
         </>
@@ -110,7 +110,7 @@ export default function DashboardLayout({
       <main
         className={cn(
           "fixed top-14 bottom-0 left-0 overflow-y-auto bg-gray-50 dark:bg-gray-900",
-          !isMobile && sidebarOpen && "right-[200px]",
+          !isMobile && sidebarOpen && "right-64",
           !isMobile && !sidebarOpen && "right-16",
           isMobile && "right-0"
         )}
