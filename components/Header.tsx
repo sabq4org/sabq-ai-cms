@@ -123,7 +123,8 @@ export default function HeaderEnhanced() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        style={{ top: 'var(--beta-banner-offset, 0px)' }}
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${
           darkMode
             ? "bg-brand-primaryDark/95 backdrop-blur-lg border-gray-800"
             : "bg-white/95 backdrop-blur-lg border-brand-borderLight"
