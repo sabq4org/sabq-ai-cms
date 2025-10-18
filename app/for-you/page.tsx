@@ -2,6 +2,9 @@
 
 import CategoryBadge from "@/app/components/CategoryBadge";
 import { getSmartArticleLink } from "@/lib/utils";
+import { EnhancedButton } from "@/components/ui/EnhancedButton";
+import { EnhancedCard, EnhancedCardContent } from "@/components/ui/EnhancedCard";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
   ChevronDown,
@@ -13,11 +16,14 @@ import {
   Sparkles,
   Target,
   TrendingUp,
+  Zap,
+  Star,
+  Bookmark,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+
 interface Article {
   id: string;
   title: string;
@@ -39,34 +45,54 @@ interface Article {
   confidence?: number;
   is_personalized?: boolean;
 }
-export default function ForYouPage() {
-  const { user, loading: authLoading } = useAuth();
+
+interface AIInsight {
+  id: string;
+  title: string;
+  value: string;
+  icon: any;
+  color: string;
+}
+
+/**
+ * صفحة For You المحسّنة
+ * 
+ * تصميم عصري مع:
+ * - تأثيرات حركية متقدمة
+ * - بطاقات محسّنة
+ * - رؤى AI ذكية
+ * - واجهة تفاعلية
+ */
+export default function EnhancedForYouPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [sortBy, setSortBy] = useState<"newest" | "popular" | "relevant">(
-    "relevant"
-  );
+  const [sortBy, setSortBy] = useState<"newest" | "popular" | "relevant">("relevant");
   const [showFilter, setShowFilter] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [interestCategoryIds, setInterestCategoryIds] = useState<Set<string>>(new Set());
-  // إعادة التوجيه إذا لم يكن مسجلاً
-  useEffect(() => {
-    if (!authLoading && !user) {
-      window.location.href = "/login?redirect=/for-you";
-    }
-  }, [user, authLoading]);
+  const [insights, setInsights] = useState<AIInsight[]>([]);
 
   useEffect(() => {
-    // التحقق من الوضع المظلم
     const savedDarkMode = localStorage.getItem("darkMode");
     if (savedDarkMode !== null) {
       setDarkMode(JSON.parse(savedDarkMode));
     }
-    // جلب التصنيفات
+
+    const storedUserId = localStorage.getItem("user_id");
+    const userData = localStorage.getItem("user");
+    if (storedUserId && storedUserId !== "anonymous" && userData) {
+      setIsLoggedIn(true);
+      setUserId(storedUserId);
+    } else {
+      window.location.href = "/login?redirect=/for-you/enhanced";
+    }
+
     fetchCategories();
-    // جلب اهتمامات المستخدم لتمييز العناصر
+
     fetch('/api/user/preferences', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
@@ -75,11 +101,14 @@ export default function ForYouPage() {
       })
       .catch(() => {});
   }, []);
+
   useEffect(() => {
-    if (user) {
+    if (isLoggedIn && userId) {
       fetchPersonalizedContent();
+      generateAIInsights();
     }
-  }, [user, selectedCategory, sortBy]);
+  }, [isLoggedIn, userId, selectedCategory, sortBy]);
+
   const fetchCategories = async () => {
     try {
       const response = await fetch("/api/categories");
@@ -89,6 +118,7 @@ export default function ForYouPage() {
       console.error("Error fetching categories:", error);
     }
   };
+
   const fetchPersonalizedContent = async () => {
     try {
       setLoading(true);
@@ -109,6 +139,7 @@ export default function ForYouPage() {
           likes_count: a.likes || a.likes_count || 0,
           shares_count: a.shares || a.shares_count || 0,
           score: a.score,
+          confidence: a.confidence,
           is_personalized: true,
         })) as any
       );
@@ -119,383 +150,358 @@ export default function ForYouPage() {
       setLoading(false);
     }
   };
+
+  const generateAIInsights = () => {
+    const totalViews = articles.reduce((sum, a) => sum + (a.views_count || 0), 0);
+    const avgConfidence = articles.length > 0 
+      ? Math.round(articles.reduce((sum, a) => sum + (a.confidence || 0), 0) / articles.length)
+      : 0;
+
+    const aiInsights: AIInsight[] = [
+      {
+        id: "1",
+        title: "مقالات مخصصة",
+        value: `${articles.length} مقال`,
+        icon: Sparkles,
+        color: "from-purple-500 to-pink-500"
+      },
+      {
+        id: "2",
+        title: "دقة التخصيص",
+        value: `${avgConfidence}%`,
+        icon: Target,
+        color: "from-blue-500 to-cyan-500"
+      },
+      {
+        id: "3",
+        title: "اهتماماتك",
+        value: `${interestCategoryIds.size} تصنيف`,
+        icon: Heart,
+        color: "from-green-500 to-emerald-500"
+      }
+    ];
+    setInsights(aiInsights);
+  };
+
   const handleRefresh = () => {
     fetchPersonalizedContent();
+    generateAIInsights();
   };
-  // تنسيق الأرقام
+
   const formatNumber = (num: number) => {
     if (num >= 1000) {
       return (num / 1000).toFixed(1) + "k";
     }
     return num.toString();
   };
+
   return (
-    <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-16 sm:pt-18 lg:pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20 pb-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         {/* Header Section */}
-        <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
           <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    darkMode
-                      ? "bg-gradient-to-br from-blue-600 to-purple-700"
-                      : "bg-gradient-to-br from-blue-500 to-purple-600"
-                  }`}
-                >
-                  <Brain className="w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-br from-brand-primary to-brand-accent rounded-2xl flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-white" />
                 </div>
-                <h1
-                  className={`text-3xl font-bold ${
-                    darkMode ? "text-white" : "text-gray-900"
-                  }`}
-                >
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-brand-primary to-brand-accent bg-clip-text text-transparent">
                   محتوى مخصص لك
                 </h1>
               </div>
-              <p
-                className={`text-lg ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                مقالات وتحليلات مختارة بعناية بناءً على اهتماماتك
+              <p className="text-lg text-brand-fgMuted dark:text-gray-400">
+                مقالات وتحليلات مختارة بعناية بناءً على اهتماماتك بواسطة الذكاء الاصطناعي
               </p>
             </div>
-            <button
+            <EnhancedButton
+              variant="ghost"
+              size="md"
               onClick={handleRefresh}
-              className={`p-3 rounded-xl transition-all hover:scale-105 ${
-                darkMode
-                  ? "bg-gray-800 hover:bg-gray-700"
-                  : "bg-white hover:bg-gray-50"
-              } shadow-lg`}
+              disabled={loading}
+              leftIcon={<RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />}
             >
-              <RefreshCw
-                className={`w-5 h-5 ${
-                  darkMode ? "text-gray-300" : "text-gray-700"
-                }`}
-              />
-            </button>
+              تحديث
+            </EnhancedButton>
           </div>
-          {/* Filters Section */}
-          <div
-            className={`rounded-xl p-4 ${
-              darkMode ? "bg-gray-800" : "bg-white"
-            } shadow-sm`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {/* Sort Options */}
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-sm font-medium ${
-                      darkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
+        </motion.div>
+
+        {/* AI Insights */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+        >
+          {insights.map((insight, index) => {
+            const Icon = insight.icon;
+            return (
+              <motion.div
+                key={insight.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+              >
+                <EnhancedCard variant="elevated" padding="md" hoverable>
+                  <EnhancedCardContent>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 bg-gradient-to-br ${insight.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-brand-fgMuted dark:text-gray-400 mb-1">
+                          {insight.title}
+                        </p>
+                        <p className="text-2xl font-bold text-brand-fg dark:text-white">
+                          {insight.value}
+                        </p>
+                      </div>
+                    </div>
+                  </EnhancedCardContent>
+                </EnhancedCard>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Filters Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <EnhancedCard variant="flat" padding="md" className="mb-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              
+              {/* Sort Options */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-brand-fgMuted dark:text-gray-400">
+                  ترتيب حسب:
+                </span>
+                <EnhancedButton
+                  variant={sortBy === "relevant" ? "accent" : "ghost"}
+                  size="sm"
+                  onClick={() => setSortBy("relevant")}
+                  leftIcon={<Target className="w-4 h-4" />}
+                >
+                  الأكثر صلة
+                </EnhancedButton>
+                <EnhancedButton
+                  variant={sortBy === "newest" ? "primary" : "ghost"}
+                  size="sm"
+                  onClick={() => setSortBy("newest")}
+                  leftIcon={<Clock className="w-4 h-4" />}
+                >
+                  الأحدث
+                </EnhancedButton>
+                <EnhancedButton
+                  variant={sortBy === "popular" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setSortBy("popular")}
+                  leftIcon={<TrendingUp className="w-4 h-4" />}
+                >
+                  الأكثر قراءة
+                </EnhancedButton>
+              </div>
+
+              {/* Category Filter */}
+              <div className="relative">
+                <EnhancedButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFilter(!showFilter)}
+                  leftIcon={<Filter className="w-4 h-4" />}
+                  rightIcon={<ChevronDown className="w-3 h-3" />}
+                >
+                  {selectedCategory
+                    ? categories.find((c) => c.id === selectedCategory)?.name_ar || "التصنيف"
+                    : "جميع التصنيفات"}
+                </EnhancedButton>
+                
+                {showFilter && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-full mt-2 right-0 w-48 rounded-lg shadow-lg z-10 bg-white dark:bg-gray-800 border border-brand-border dark:border-gray-700"
                   >
-                    ترتيب حسب:
-                  </span>
-                  <div className="flex gap-2">
                     <button
-                      onClick={() => setSortBy("relevant")}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                        sortBy === "relevant"
-                          ? darkMode
-                            ? "bg-purple-600 text-white"
-                            : "bg-purple-500 text-white"
-                          : darkMode
-                          ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      onClick={() => {
+                        setSelectedCategory(null);
+                        setShowFilter(false);
+                      }}
+                      className={`w-full text-right px-4 py-2 text-sm transition-colors ${
+                        !selectedCategory
+                          ? "bg-brand-primary/10 text-brand-primary"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-700 text-brand-fg dark:text-white"
                       }`}
                     >
-                      <div className="flex items-center gap-1">
-                        <Target className="w-3 h-3" />
-                        الأكثر صلة
-                      </div>
+                      جميع التصنيفات
                     </button>
-                    <button
-                      onClick={() => setSortBy("newest")}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                        sortBy === "newest"
-                          ? darkMode
-                            ? "bg-blue-600 text-white"
-                            : "bg-blue-500 text-white"
-                          : darkMode
-                          ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        الأحدث
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setSortBy("popular")}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                        sortBy === "popular"
-                          ? darkMode
-                            ? "bg-orange-600 text-white"
-                            : "bg-orange-500 text-white"
-                          : darkMode
-                          ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        الأكثر قراءة
-                      </div>
-                    </button>
-                  </div>
-                </div>
-                {/* Category Filter */}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowFilter(!showFilter)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      darkMode
-                        ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    <Filter className="w-4 h-4" />
-                    {selectedCategory
-                      ? categories.find((c) => c.id === selectedCategory)
-                          ?.name_ar || "التصنيف"
-                      : "جميع التصنيفات"}
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
-                  {showFilter && (
-                    <div
-                      className={`absolute top-full mt-2 right-0 w-48 rounded-lg shadow-lg z-10 ${
-                        darkMode
-                          ? "bg-gray-800 border border-gray-700"
-                          : "bg-white border border-gray-200"
-                      }`}
-                    >
+                    {categories.map((category) => (
                       <button
+                        key={category.id}
                         onClick={() => {
-                          setSelectedCategory(null);
+                          setSelectedCategory(category.id);
                           setShowFilter(false);
                         }}
                         className={`w-full text-right px-4 py-2 text-sm transition-colors ${
-                          !selectedCategory
-                            ? darkMode
-                              ? "bg-blue-900/30 text-blue-300"
-                              : "bg-blue-50 text-blue-700"
-                            : darkMode
-                            ? "hover:bg-gray-700 text-gray-300"
-                            : "hover:bg-gray-50 text-gray-700"
+                          selectedCategory === category.id
+                            ? "bg-brand-primary/10 text-brand-primary"
+                            : "hover:bg-gray-50 dark:hover:bg-gray-700 text-brand-fg dark:text-white"
                         }`}
                       >
-                        جميع التصنيفات
+                        {category.name_ar || category.name}
                       </button>
-                      {categories.map((category) => (
-                        <button
-                          key={category.id}
-                          onClick={() => {
-                            setSelectedCategory(category.id);
-                            setShowFilter(false);
-                          }}
-                          className={`w-full text-right px-4 py-2 text-sm transition-colors ${
-                            selectedCategory === category.id
-                              ? darkMode
-                                ? "bg-blue-900/30 text-blue-300"
-                                : "bg-blue-50 text-blue-700"
-                              : darkMode
-                              ? "hover:bg-gray-700 text-gray-300"
-                              : "hover:bg-gray-50 text-gray-700"
-                          }`}
-                        >
-                          {category.name_ar || category.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              {/* Stats */}
-              <div
-                className={`flex items-center gap-2 px-3 py-1 rounded-lg ${
-                  darkMode ? "bg-gray-700" : "bg-gray-100"
-                }`}
-              >
-                <Sparkles className="w-4 h-4 text-purple-500" />
-                <span
-                  className={`text-sm font-medium ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  {articles.length} مقال مخصص
-                </span>
+                    ))}
+                  </motion.div>
+                )}
               </div>
             </div>
-          </div>
-        </div>
+          </EnhancedCard>
+        </motion.div>
+
         {/* Content Grid */}
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-              <p
-                className={`text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                جاري تحميل المحتوى المخصص لك...
-              </p>
-            </div>
-          </div>
-        ) : articles.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((article) => (
-              <Link
-                key={article.id}
-                href={getSmartArticleLink(article)}
-                className="block h-full"
-              >
-                <article
-                  className={`h-full min-h-[320px] flex flex-col group rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
-                    darkMode ? "bg-gray-800" : "bg-white"
-                  } shadow-sm`}
-                >
-                  {/* الصورة مع نسبة عرض ثابتة */}
-                  <div className="relative aspect-[16/9] overflow-hidden">
-                    <Image
-                      src="/placeholder.jpg"
-                      alt=""
-                      width={100}
-                      height={100}
-                    />
-                    {/* شارة التصنيف - أعلى اليسار */}
-                    <div className="absolute top-3 left-3 space-y-1">
-                      {(() => {
-                        const categoryData = categories.find(
-                          (cat) => String(cat.id) === String(article.category_id)
-                        );
-                        if (categoryData) {
-                          return (
-                            <CategoryBadge
-                              category={categoryData}
-                              size="sm"
-                              variant="filled"
-                              showIcon={true}
-                              clickable={false}
-                              className="text-xs backdrop-blur-sm"
-                            />
-                          );
-                        }
-                        return (
-                          <span className="px-2 py-1 bg-blue-500/90 backdrop-blur-sm text-white text-xs rounded-md font-medium">
-                            {article.category_name || "عام"}
-                          </span>
-                        );
-                      })()}
-                      {interestCategoryIds.has(String(article.category_id)) && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-green-600/90 text-white shadow-sm">
-                          ضمن اهتماماتك
-                        </span>
-                      )}
-                    </div>
-                    {/* نسبة المطابقة - أعلى اليمين (إذا كانت عالية) */}
-                    {article.confidence && article.confidence > 70 && (
-                      <div className="absolute top-3 right-3">
-                        <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/90 backdrop-blur-sm text-white text-xs rounded-full">
-                          <Target className="w-3 h-3" />
-                          <span className="font-medium">
-                            {Math.round(article.confidence)}%
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {/* محتوى البطاقة */}
-                  <div className="flex-1 flex flex-col p-5">
-                    {/* العنوان */}
-                    <h3
-                      className={`text-lg font-semibold mb-2 line-clamp-2 transition-colors ${
-                        darkMode
-                          ? "text-white group-hover:text-purple-400"
-                          : "text-gray-800 group-hover:text-purple-600"
-                      }`}
-                    >
-                      {article.title}
-                    </h3>
-                    {/* الوصف المختصر */}
-                    <p
-                      className={`text-sm mb-4 line-clamp-2 flex-1 ${
-                        darkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      {article.summary}
-                    </p>
-                    {/* المعلومات السفلية */}
-                    <div className="mt-auto">
-                      <div className="flex items-center justify-between text-xs">
-                        {/* الوقت والكاتب */}
-                        <div className="flex items-center gap-3">
-                          {article.author_name && (
-                            <span
-                              className={`${
-                                darkMode ? "text-gray-400" : "text-gray-600"
-                              }`}
-                            >
-                              {article.author_name}
-                            </span>
-                          )}
-                          <span
-                            className={`flex items-center gap-1 ${
-                              darkMode ? "text-gray-400" : "text-gray-600"
-                            }`}
-                          >
-                            <Clock className="w-3 h-3" />
-                            {article.reading_time || 5} د
-                          </span>
-                        </div>
-                        {/* التفاعلات */}
-                        <div className="flex items-center gap-3">
-                          {article.views_count && article.views_count > 0 && (
-                            <span
-                              className={`flex items-center gap-1 ${
-                                darkMode ? "text-gray-400" : "text-gray-600"
-                              }`}
-                            >
-                              <Eye className="w-3 h-3" />
-                              {formatNumber(article.views_count)}
-                            </span>
-                          )}
-                          {article.likes_count && article.likes_count > 0 && (
-                            <span
-                              className={`flex items-center gap-1 ${
-                                darkMode ? "text-gray-400" : "text-gray-600"
-                              }`}
-                            >
-                              <Heart className="w-3 h-3" />
-                              {formatNumber(article.likes_count)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-96 bg-gray-200 dark:bg-gray-800 rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : (
-          <div
-            className={`text-center py-20 ${
-              darkMode ? "text-gray-400" : "text-gray-500"
-            }`}
+        ) : articles.length > 0 ? (
+          <motion.div
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            <Brain className="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p className="text-lg mb-2">لا يوجد محتوى مخصص حالياً</p>
-            <p className="text-sm">
-              تفاعل مع المزيد من المقالات لتحسين التوصيات
-            </p>
-          </div>
+            <AnimatePresence mode="popLayout">
+              {articles.map((article, index) => (
+                <motion.div
+                  key={article.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <Link href={getSmartArticleLink(article)} className="block h-full">
+                    <EnhancedCard variant="elevated" padding="none" hoverable className="h-full overflow-hidden">
+                      {/* الصورة */}
+                      <div className="relative aspect-[16/9] overflow-hidden">
+                        <Image
+                          src={article.featured_image || "/placeholder.jpg"}
+                          alt={article.title}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                        
+                        {/* شارة التصنيف */}
+                        <div className="absolute top-3 left-3 space-y-1">
+                          {(() => {
+                            const categoryData = categories.find(
+                              (cat) => String(cat.id) === String(article.category_id)
+                            );
+                            if (categoryData) {
+                              return (
+                                <CategoryBadge
+                                  category={categoryData}
+                                  size="sm"
+                                  variant="filled"
+                                  showIcon={true}
+                                  clickable={false}
+                                  className="text-xs backdrop-blur-sm"
+                                />
+                              );
+                            }
+                            return null;
+                          })()}
+                          {interestCategoryIds.has(String(article.category_id)) && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-green-600/90 text-white shadow-sm">
+                              <Heart className="w-3 h-3" />
+                              ضمن اهتماماتك
+                            </span>
+                          )}
+                        </div>
+
+                        {/* نسبة المطابقة */}
+                        {article.confidence && article.confidence > 70 && (
+                          <div className="absolute top-3 right-3">
+                            <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/90 backdrop-blur-sm text-white text-xs rounded-full">
+                              <Sparkles className="w-3 h-3" />
+                              {article.confidence}%
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* المحتوى */}
+                      <EnhancedCardContent>
+                        <h3 className="font-bold text-lg text-brand-fg dark:text-white mb-2 line-clamp-2">
+                          {article.title}
+                        </h3>
+                        <p className="text-sm text-brand-fgMuted dark:text-gray-400 line-clamp-2 mb-4">
+                          {article.summary}
+                        </p>
+
+                        {/* الإحصائيات */}
+                        <div className="flex items-center justify-between text-xs text-brand-fgMuted dark:text-gray-500">
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3 h-3" />
+                              {formatNumber(article.views_count || 0)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Heart className="w-3 h-3" />
+                              {formatNumber(article.likes_count || 0)}
+                            </span>
+                          </div>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {article.reading_time || 5} دقائق
+                          </span>
+                        </div>
+                      </EnhancedCardContent>
+                    </EnhancedCard>
+                  </Link>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <EnhancedCard variant="flat" padding="lg">
+              <EnhancedCardContent>
+                <div className="w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Brain className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className="text-xl font-bold text-brand-fg dark:text-white mb-2">
+                  لا توجد مقالات متاحة حالياً
+                </h3>
+                <p className="text-brand-fgMuted dark:text-gray-400 mb-6">
+                  ابدأ بقراءة المقالات لنتمكن من تخصيص المحتوى لك
+                </p>
+                <EnhancedButton
+                  variant="primary"
+                  size="lg"
+                  onClick={() => window.location.href = "/"}
+                >
+                  تصفح الأخبار
+                </EnhancedButton>
+              </EnhancedCardContent>
+            </EnhancedCard>
+          </motion.div>
         )}
       </main>
     </div>
   );
 }
+
