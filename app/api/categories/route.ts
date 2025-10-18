@@ -8,12 +8,11 @@ export async function GET(request: NextRequest) {
   try {
     await ensureDbConnected();
 
-    // 1) Fetch active categories
+    // 1) Fetch active categories (avoid selecting columns that might not exist in prod)
     const categories = await retryWithConnection(() =>
       prisma.categories.findMany({
         where: { is_active: true },
         orderBy: { display_order: "asc" },
-        // Avoid heavy includes; select only needed fields
         select: {
           id: true,
           name: true,
@@ -23,7 +22,7 @@ export async function GET(request: NextRequest) {
           is_active: true,
           color: true,
           icon: true,
-          icon_url: true,
+          // icon_url intentionally omitted for backward compatibility with DBs missing the column
           metadata: true,
           created_at: true,
           updated_at: true,
@@ -48,18 +47,21 @@ export async function GET(request: NextRequest) {
       );
 
       for (const g of grouped) {
-        // g.category_id can be null if some articles don't have a category
         if (g.category_id) {
           publishedCounts[g.category_id] = g._count._all;
         }
       }
     }
 
-    // 3) Merge counts into categories
-    const categoriesWithCount = categories.map((category) => ({
-      ...category,
-      articles_count: publishedCounts[category.id] ?? 0,
-    }));
+    // 3) Merge counts and compute a safe icon_url for clients (fallback to icon)
+    const categoriesWithCount = categories.map((category) => {
+      const iconUrl = (category as any).icon_url ?? category.icon ?? null;
+      return {
+        ...category,
+        icon_url: iconUrl,
+        articles_count: publishedCounts[category.id] ?? 0,
+      };
+    });
 
     const res = NextResponse.json({
       success: true,
@@ -69,7 +71,6 @@ export async function GET(request: NextRequest) {
     res.headers.set("CDN-Cache-Control", "public, s-maxage=900");
     return res;
   } catch (error: any) {
-    // Basic logging for server diagnostics (visible in server logs)
     console.error("/api/categories GET failed:", error?.message || error);
     const res = NextResponse.json(
       {
